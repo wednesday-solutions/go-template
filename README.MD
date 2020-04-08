@@ -74,7 +74,9 @@ Using go-boiler requires having Go 1.7 or above. Once you download go-boiler (ei
 
 5. In cmd/migration/main.go set up psn variable and then run it (go run main.go). It will create all tables, and necessery data, with a new account username/password admin/admin.
 
-6. Run the app using:
+6. To run all the migrations using the script setup-local.sh as follows `./setup-local.sh 4`, the 4 represent the version that you need to migrate to. 
+
+7. Run the app using:
 
 ```bash
 go run cmd/api/main.go
