@@ -10,13 +10,13 @@ import (
 type User struct{}
 
 // View returns single user by ID
-func (u User) View(db orm.DB, id int) (gorsk.User, error) {
-	user := gorsk.User{Base: gorsk.Base{ID: id}}
+func (u User) View(db orm.DB, id int) (goboiler.User, error) {
+	user := goboiler.User{Base: goboiler.Base{ID: id}}
 	err := db.Select(&user)
 	return user, err
 }
 
 // Update updates user's info
-func (u User) Update(db orm.DB, user gorsk.User) error {
+func (u User) Update(db orm.DB, user goboiler.User) error {
 	return db.Update(&user)
 }

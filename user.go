@@ -1,4 +1,4 @@
-package gorsk
+package goboiler
 
 import (
 	"time"

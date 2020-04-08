@@ -9,7 +9,7 @@ import (
 type swaggUserResponse struct {
 	// in:body
 	Body struct {
-		*gorsk.User
+		*goboiler.User
 	}
 }
 
@@ -18,7 +18,7 @@ type swaggUserResponse struct {
 type swaggUserListResponse struct {
 	// in:body
 	Body struct {
-		Users []gorsk.User `json:"users"`
+		Users []goboiler.User `json:"users"`
 		Page  int          `json:"page"`
 	}
 }

@@ -6,10 +6,10 @@ import (
 
 // JWT mock
 type JWT struct {
-	GenerateTokenFn func(gorsk.User) (string, error)
+	GenerateTokenFn func(goboiler.User) (string, error)
 }
 
 // GenerateToken mock
-func (j JWT) GenerateToken(u gorsk.User) (string, error) {
+func (j JWT) GenerateToken(u goboiler.User) (string, error) {
 	return j.GenerateTokenFn(u)
 }

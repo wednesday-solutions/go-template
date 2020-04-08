@@ -3,6 +3,8 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"log"
+	"os"
 	"time"
 
 	"github.com/go-pg/pg/v9"
@@ -47,4 +49,14 @@ func New(psn string, timeout int, enableLog bool) (*pg.DB, error) {
 	}
 
 	return db, nil
+}
+
+
+func Connect() *pg.DB {
+	var psn = os.Getenv("DATABASE_URL")
+	u, err := pg.ParseURL(psn)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return pg.Connect(u)
 }

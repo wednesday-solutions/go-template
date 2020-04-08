@@ -11,11 +11,11 @@ import (
 
 // Service represents user application interface
 type Service interface {
-	Create(echo.Context, gorsk.User) (gorsk.User, error)
-	List(echo.Context, gorsk.Pagination) ([]gorsk.User, error)
-	View(echo.Context, int) (gorsk.User, error)
+	Create(echo.Context, goboiler.User) (goboiler.User, error)
+	List(echo.Context, goboiler.Pagination) ([]goboiler.User, error)
+	View(echo.Context, int) (goboiler.User, error)
 	Delete(echo.Context, int) error
-	Update(echo.Context, Update) (gorsk.User, error)
+	Update(echo.Context, Update) (goboiler.User, error)
 }
 
 // New creates new user application service
@@ -43,17 +43,17 @@ type Securer interface {
 
 // UDB represents user repository interface
 type UDB interface {
-	Create(orm.DB, gorsk.User) (gorsk.User, error)
-	View(orm.DB, int) (gorsk.User, error)
-	List(orm.DB, *gorsk.ListQuery, gorsk.Pagination) ([]gorsk.User, error)
-	Update(orm.DB, gorsk.User) error
-	Delete(orm.DB, gorsk.User) error
+	Create(orm.DB, goboiler.User) (goboiler.User, error)
+	View(orm.DB, int) (goboiler.User, error)
+	List(orm.DB, *goboiler.ListQuery, goboiler.Pagination) ([]goboiler.User, error)
+	Update(orm.DB, goboiler.User) error
+	Delete(orm.DB, goboiler.User) error
 }
 
 // RBAC represents role-based-access-control interface
 type RBAC interface {
-	User(echo.Context) gorsk.AuthUser
+	User(echo.Context) goboiler.AuthUser
 	EnforceUser(echo.Context, int) error
-	AccountCreate(echo.Context, gorsk.AccessRole, int, int) error
-	IsLowerRole(echo.Context, gorsk.AccessRole) error
+	AccountCreate(echo.Context, goboiler.AccessRole, int, int) error
+	IsLowerRole(echo.Context, goboiler.AccessRole) error
 }

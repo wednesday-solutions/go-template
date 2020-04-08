@@ -1,4 +1,4 @@
-package gorsk
+package goboiler
 
 // Pagination constants
 const (

@@ -30,7 +30,7 @@ func Middleware(tokenParser TokenParser) echo.MiddlewareFunc {
 			locationID := int(claims["l"].(float64))
 			username := claims["u"].(string)
 			email := claims["e"].(string)
-			role := gorsk.AccessRole(claims["r"].(float64))
+			role := goboiler.AccessRole(claims["r"].(float64))
 
 			c.Set("id", id)
 			c.Set("company_id", companyID)

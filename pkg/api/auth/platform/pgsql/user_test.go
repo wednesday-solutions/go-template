@@ -16,7 +16,7 @@ func TestView(t *testing.T) {
 		name     string
 		wantErr  bool
 		id       int
-		wantData gorsk.User
+		wantData goboiler.User
 	}{
 		{
 			name:    "User does not exist",
@@ -26,7 +26,7 @@ func TestView(t *testing.T) {
 		{
 			name: "Success",
 			id:   2,
-			wantData: gorsk.User{
+			wantData: goboiler.User{
 				Email:      "tomjones@mail.com",
 				FirstName:  "Tom",
 				LastName:   "Jones",
@@ -35,10 +35,10 @@ func TestView(t *testing.T) {
 				CompanyID:  1,
 				LocationID: 1,
 				Password:   "newPass",
-				Base: gorsk.Base{
+				Base: goboiler.Base{
 					ID: 2,
 				},
-				Role: &gorsk.Role{
+				Role: &goboiler.Role{
 					ID:          1,
 					AccessLevel: 1,
 					Name:        "SUPER_ADMIN",
@@ -50,9 +50,9 @@ func TestView(t *testing.T) {
 	dbCon := mock.NewPGContainer(t)
 	defer dbCon.Shutdown()
 
-	db := mock.NewDB(t, dbCon, &gorsk.Role{}, &gorsk.User{})
+	db := mock.NewDB(t, dbCon, &goboiler.Role{}, &goboiler.User{})
 
-	if err := mock.InsertMultiple(db, &gorsk.Role{
+	if err := mock.InsertMultiple(db, &goboiler.Role{
 		ID:          1,
 		AccessLevel: 1,
 		Name:        "SUPER_ADMIN"}, &cases[1].wantData); err != nil {
@@ -83,7 +83,7 @@ func TestFindByUsername(t *testing.T) {
 		name     string
 		wantErr  bool
 		username string
-		wantData gorsk.User
+		wantData goboiler.User
 	}{
 		{
 			name:     "User does not exist",
@@ -93,7 +93,7 @@ func TestFindByUsername(t *testing.T) {
 		{
 			name:     "Success",
 			username: "tomjones",
-			wantData: gorsk.User{
+			wantData: goboiler.User{
 				Email:      "tomjones@mail.com",
 				FirstName:  "Tom",
 				LastName:   "Jones",
@@ -102,10 +102,10 @@ func TestFindByUsername(t *testing.T) {
 				CompanyID:  1,
 				LocationID: 1,
 				Password:   "newPass",
-				Base: gorsk.Base{
+				Base: goboiler.Base{
 					ID: 2,
 				},
-				Role: &gorsk.Role{
+				Role: &goboiler.Role{
 					ID:          1,
 					AccessLevel: 1,
 					Name:        "SUPER_ADMIN",
@@ -117,9 +117,9 @@ func TestFindByUsername(t *testing.T) {
 	dbCon := mock.NewPGContainer(t)
 	defer dbCon.Shutdown()
 
-	db := mock.NewDB(t, dbCon, &gorsk.Role{}, &gorsk.User{})
+	db := mock.NewDB(t, dbCon, &goboiler.Role{}, &goboiler.User{})
 
-	if err := mock.InsertMultiple(db, &gorsk.Role{
+	if err := mock.InsertMultiple(db, &goboiler.Role{
 		ID:          1,
 		AccessLevel: 1,
 		Name:        "SUPER_ADMIN"}, &cases[1].wantData); err != nil {
@@ -148,7 +148,7 @@ func TestFindByToken(t *testing.T) {
 		name     string
 		wantErr  bool
 		token    string
-		wantData gorsk.User
+		wantData goboiler.User
 	}{
 		{
 			name:    "User does not exist",
@@ -158,7 +158,7 @@ func TestFindByToken(t *testing.T) {
 		{
 			name:  "Success",
 			token: "loginrefresh",
-			wantData: gorsk.User{
+			wantData: goboiler.User{
 				Email:      "johndoe@mail.com",
 				FirstName:  "John",
 				LastName:   "Doe",
@@ -167,10 +167,10 @@ func TestFindByToken(t *testing.T) {
 				CompanyID:  1,
 				LocationID: 1,
 				Password:   "hunter2",
-				Base: gorsk.Base{
+				Base: goboiler.Base{
 					ID: 1,
 				},
-				Role: &gorsk.Role{
+				Role: &goboiler.Role{
 					ID:          1,
 					AccessLevel: 1,
 					Name:        "SUPER_ADMIN",
@@ -183,9 +183,9 @@ func TestFindByToken(t *testing.T) {
 	dbCon := mock.NewPGContainer(t)
 	defer dbCon.Shutdown()
 
-	db := mock.NewDB(t, dbCon, &gorsk.Role{}, &gorsk.User{})
+	db := mock.NewDB(t, dbCon, &goboiler.Role{}, &goboiler.User{})
 
-	if err := mock.InsertMultiple(db, &gorsk.Role{
+	if err := mock.InsertMultiple(db, &goboiler.Role{
 		ID:          1,
 		AccessLevel: 1,
 		Name:        "SUPER_ADMIN"}, &cases[1].wantData); err != nil {
@@ -212,13 +212,13 @@ func TestUpdate(t *testing.T) {
 	cases := []struct {
 		name     string
 		wantErr  bool
-		usr      gorsk.User
-		wantData gorsk.User
+		usr      goboiler.User
+		wantData goboiler.User
 	}{
 		{
 			name: "Success",
-			usr: gorsk.User{
-				Base: gorsk.Base{
+			usr: goboiler.User{
+				Base: goboiler.Base{
 					ID: 2,
 				},
 				FirstName: "Z",
@@ -228,7 +228,7 @@ func TestUpdate(t *testing.T) {
 				Mobile:    "345678",
 				Username:  "newUsername",
 			},
-			wantData: gorsk.User{
+			wantData: goboiler.User{
 				Email:      "tomjones@mail.com",
 				FirstName:  "Z",
 				LastName:   "Freak",
@@ -240,7 +240,7 @@ func TestUpdate(t *testing.T) {
 				Address:    "Address",
 				Phone:      "123456",
 				Mobile:     "345678",
-				Base: gorsk.Base{
+				Base: goboiler.Base{
 					ID: 2,
 				},
 			},
@@ -250,9 +250,9 @@ func TestUpdate(t *testing.T) {
 	dbCon := mock.NewPGContainer(t)
 	defer dbCon.Shutdown()
 
-	db := mock.NewDB(t, dbCon, &gorsk.Role{}, &gorsk.User{})
+	db := mock.NewDB(t, dbCon, &goboiler.Role{}, &goboiler.User{})
 
-	if err := mock.InsertMultiple(db, &gorsk.Role{
+	if err := mock.InsertMultiple(db, &goboiler.Role{
 		ID:          1,
 		AccessLevel: 1,
 		Name:        "SUPER_ADMIN"}, &cases[0].usr); err != nil {
@@ -266,8 +266,8 @@ func TestUpdate(t *testing.T) {
 			err := udb.Update(db, tt.wantData)
 			assert.Equal(t, tt.wantErr, err != nil)
 			if tt.wantData.ID != 0 {
-				user := gorsk.User{
-					Base: gorsk.Base{
+				user := goboiler.User{
+					Base: goboiler.Base{
 						ID: tt.usr.ID,
 					},
 				}

@@ -1,4 +1,4 @@
-package gorsk
+package goboiler
 
 // AccessRole represents access role type
 type AccessRole int

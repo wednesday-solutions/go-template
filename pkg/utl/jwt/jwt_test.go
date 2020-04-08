@@ -15,7 +15,7 @@ func TestGenerateToken(t *testing.T) {
 		algo         string
 		secret       string
 		minSecretLen int
-		req          gorsk.User
+		req          goboiler.User
 		wantErr      bool
 		want         string
 	}{
@@ -42,14 +42,14 @@ func TestGenerateToken(t *testing.T) {
 			algo:         "HS256",
 			secret:       "g0r$kt3$t1ng",
 			minSecretLen: 1,
-			req: gorsk.User{
-				Base: gorsk.Base{
+			req: goboiler.User{
+				Base: goboiler.Base{
 					ID: 1,
 				},
 				Username: "johndoe",
 				Email:    "johndoe@mail.com",
-				Role: &gorsk.Role{
-					AccessLevel: gorsk.SuperAdminRole,
+				Role: &goboiler.Role{
+					AccessLevel: goboiler.SuperAdminRole,
 				},
 				CompanyID:  1,
 				LocationID: 1,

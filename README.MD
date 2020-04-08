@@ -3,7 +3,7 @@
 This is a Golang starter kit. It is designed to help you kickstart your project, skipping the 'setting-up part' and jumping straight to writing business logic.
 
 
-This is inspired by [Gorsk](https://github.com/ribice/gorsk).
+This is inspired by [Gorsk](https://github.com/ribice/goboiler).
 
 Gorsk follows SOLID principles, with package design being inspired by several package designs, including Ben Johnson's [Standard Package Layout](https://medium.com/@benbjohnson/standard-package-layout-7cdbc8391fc1), [Go Standard Package Layout](https://github.com/golang-standards/project-layout) with my own ideas applied to both. The idea for building this project and its readme structure was inspired by [this](https://github.com/qiangxue/golang-restful-starter-kit).
 

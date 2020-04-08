@@ -22,7 +22,7 @@ func TestAuthenticate(t *testing.T) {
 	cases := []struct {
 		name     string
 		args     args
-		wantData gorsk.AuthToken
+		wantData goboiler.AuthToken
 		wantErr  bool
 		udb      *mockdb.User
 		jwt      *mock.JWT
@@ -33,8 +33,8 @@ func TestAuthenticate(t *testing.T) {
 			args:    args{user: "juzernejm"},
 			wantErr: true,
 			udb: &mockdb.User{
-				FindByUsernameFn: func(db orm.DB, user string) (gorsk.User, error) {
-					return gorsk.User{}, gorsk.ErrGeneric
+				FindByUsernameFn: func(db orm.DB, user string) (goboiler.User, error) {
+					return goboiler.User{}, goboiler.ErrGeneric
 				},
 			},
 		},
@@ -43,8 +43,8 @@ func TestAuthenticate(t *testing.T) {
 			args:    args{user: "juzernejm", pass: "notHashedPassword"},
 			wantErr: true,
 			udb: &mockdb.User{
-				FindByUsernameFn: func(db orm.DB, user string) (gorsk.User, error) {
-					return gorsk.User{Username: user}, nil
+				FindByUsernameFn: func(db orm.DB, user string) (goboiler.User, error) {
+					return goboiler.User{Username: user}, nil
 				},
 			},
 			sec: &mock.Secure{
@@ -58,8 +58,8 @@ func TestAuthenticate(t *testing.T) {
 			args:    args{user: "juzernejm", pass: "pass"},
 			wantErr: true,
 			udb: &mockdb.User{
-				FindByUsernameFn: func(db orm.DB, user string) (gorsk.User, error) {
-					return gorsk.User{
+				FindByUsernameFn: func(db orm.DB, user string) (goboiler.User, error) {
+					return goboiler.User{
 						Username: user,
 						Password: "pass",
 						Active:   false,
@@ -77,8 +77,8 @@ func TestAuthenticate(t *testing.T) {
 			args:    args{user: "juzernejm", pass: "pass"},
 			wantErr: true,
 			udb: &mockdb.User{
-				FindByUsernameFn: func(db orm.DB, user string) (gorsk.User, error) {
-					return gorsk.User{
+				FindByUsernameFn: func(db orm.DB, user string) (goboiler.User, error) {
+					return goboiler.User{
 						Username: user,
 						Password: "pass",
 						Active:   true,
@@ -91,8 +91,8 @@ func TestAuthenticate(t *testing.T) {
 				},
 			},
 			jwt: &mock.JWT{
-				GenerateTokenFn: func(u gorsk.User) (string, error) {
-					return "", gorsk.ErrGeneric
+				GenerateTokenFn: func(u goboiler.User) (string, error) {
+					return "", goboiler.ErrGeneric
 				},
 			},
 		},
@@ -101,15 +101,15 @@ func TestAuthenticate(t *testing.T) {
 			args:    args{user: "juzernejm", pass: "pass"},
 			wantErr: true,
 			udb: &mockdb.User{
-				FindByUsernameFn: func(db orm.DB, user string) (gorsk.User, error) {
-					return gorsk.User{
+				FindByUsernameFn: func(db orm.DB, user string) (goboiler.User, error) {
+					return goboiler.User{
 						Username: user,
 						Password: "pass",
 						Active:   true,
 					}, nil
 				},
-				UpdateFn: func(db orm.DB, u gorsk.User) error {
-					return gorsk.ErrGeneric
+				UpdateFn: func(db orm.DB, u goboiler.User) error {
+					return goboiler.ErrGeneric
 				},
 			},
 			sec: &mock.Secure{
@@ -121,7 +121,7 @@ func TestAuthenticate(t *testing.T) {
 				},
 			},
 			jwt: &mock.JWT{
-				GenerateTokenFn: func(u gorsk.User) (string, error) {
+				GenerateTokenFn: func(u goboiler.User) (string, error) {
 					return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9", nil
 				},
 			},
@@ -130,19 +130,19 @@ func TestAuthenticate(t *testing.T) {
 			name: "Success",
 			args: args{user: "juzernejm", pass: "pass"},
 			udb: &mockdb.User{
-				FindByUsernameFn: func(db orm.DB, user string) (gorsk.User, error) {
-					return gorsk.User{
+				FindByUsernameFn: func(db orm.DB, user string) (goboiler.User, error) {
+					return goboiler.User{
 						Username: user,
 						Password: "password",
 						Active:   true,
 					}, nil
 				},
-				UpdateFn: func(db orm.DB, u gorsk.User) error {
+				UpdateFn: func(db orm.DB, u goboiler.User) error {
 					return nil
 				},
 			},
 			jwt: &mock.JWT{
-				GenerateTokenFn: func(u gorsk.User) (string, error) {
+				GenerateTokenFn: func(u goboiler.User) (string, error) {
 					return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9", nil
 				},
 			},
@@ -154,7 +154,7 @@ func TestAuthenticate(t *testing.T) {
 					return "refreshtoken"
 				},
 			},
-			wantData: gorsk.AuthToken{
+			wantData: goboiler.AuthToken{
 				Token:        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
 				RefreshToken: "refreshtoken",
 			},
@@ -190,8 +190,8 @@ func TestRefresh(t *testing.T) {
 			args:    args{token: "refreshtoken"},
 			wantErr: true,
 			udb: &mockdb.User{
-				FindByTokenFn: func(db orm.DB, token string) (gorsk.User, error) {
-					return gorsk.User{}, gorsk.ErrGeneric
+				FindByTokenFn: func(db orm.DB, token string) (goboiler.User, error) {
+					return goboiler.User{}, goboiler.ErrGeneric
 				},
 			},
 		},
@@ -200,8 +200,8 @@ func TestRefresh(t *testing.T) {
 			args:    args{token: "refreshtoken"},
 			wantErr: true,
 			udb: &mockdb.User{
-				FindByTokenFn: func(db orm.DB, token string) (gorsk.User, error) {
-					return gorsk.User{
+				FindByTokenFn: func(db orm.DB, token string) (goboiler.User, error) {
+					return goboiler.User{
 						Username: "username",
 						Password: "password",
 						Active:   true,
@@ -210,8 +210,8 @@ func TestRefresh(t *testing.T) {
 				},
 			},
 			jwt: &mock.JWT{
-				GenerateTokenFn: func(u gorsk.User) (string, error) {
-					return "", gorsk.ErrGeneric
+				GenerateTokenFn: func(u goboiler.User) (string, error) {
+					return "", goboiler.ErrGeneric
 				},
 			},
 		},
@@ -219,8 +219,8 @@ func TestRefresh(t *testing.T) {
 			name: "Success",
 			args: args{token: "refreshtoken"},
 			udb: &mockdb.User{
-				FindByTokenFn: func(db orm.DB, token string) (gorsk.User, error) {
-					return gorsk.User{
+				FindByTokenFn: func(db orm.DB, token string) (goboiler.User, error) {
+					return goboiler.User{
 						Username: "username",
 						Password: "password",
 						Active:   true,
@@ -229,7 +229,7 @@ func TestRefresh(t *testing.T) {
 				},
 			},
 			jwt: &mock.JWT{
-				GenerateTokenFn: func(u gorsk.User) (string, error) {
+				GenerateTokenFn: func(u goboiler.User) (string, error) {
 					return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9", nil
 				},
 			},
@@ -249,7 +249,7 @@ func TestRefresh(t *testing.T) {
 func TestMe(t *testing.T) {
 	cases := []struct {
 		name     string
-		wantData gorsk.User
+		wantData goboiler.User
 		udb      *mockdb.User
 		rbac     *mock.RBAC
 		wantErr  bool
@@ -257,36 +257,36 @@ func TestMe(t *testing.T) {
 		{
 			name: "Success",
 			rbac: &mock.RBAC{
-				UserFn: func(echo.Context) gorsk.AuthUser {
-					return gorsk.AuthUser{ID: 9}
+				UserFn: func(echo.Context) goboiler.AuthUser {
+					return goboiler.AuthUser{ID: 9}
 				},
 			},
 			udb: &mockdb.User{
-				ViewFn: func(db orm.DB, id int) (gorsk.User, error) {
-					return gorsk.User{
-						Base: gorsk.Base{
+				ViewFn: func(db orm.DB, id int) (goboiler.User, error) {
+					return goboiler.User{
+						Base: goboiler.Base{
 							ID:        id,
 							CreatedAt: mock.TestTime(1999),
 							UpdatedAt: mock.TestTime(2000),
 						},
 						FirstName: "John",
 						LastName:  "Doe",
-						Role: &gorsk.Role{
-							AccessLevel: gorsk.UserRole,
+						Role: &goboiler.Role{
+							AccessLevel: goboiler.UserRole,
 						},
 					}, nil
 				},
 			},
-			wantData: gorsk.User{
-				Base: gorsk.Base{
+			wantData: goboiler.User{
+				Base: goboiler.Base{
 					ID:        9,
 					CreatedAt: mock.TestTime(1999),
 					UpdatedAt: mock.TestTime(2000),
 				},
 				FirstName: "John",
 				LastName:  "Doe",
-				Role: &gorsk.Role{
-					AccessLevel: gorsk.UserRole,
+				Role: &goboiler.Role{
+					AccessLevel: goboiler.UserRole,
 				},
 			},
 		},

@@ -16,7 +16,7 @@ type swaggLoginReq struct {
 type swaggLoginResp struct {
 	// in:body
 	Body struct {
-		*gorsk.AuthToken
+		*goboiler.AuthToken
 	}
 }
 
@@ -25,6 +25,6 @@ type swaggLoginResp struct {
 type swaggRefreshResp struct {
 	// in:body
 	Body struct {
-		*gorsk.RefreshToken
+		*goboiler.RefreshToken
 	}
 }

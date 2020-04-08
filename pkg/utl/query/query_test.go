@@ -14,45 +14,45 @@ import (
 
 func TestList(t *testing.T) {
 	type args struct {
-		user gorsk.AuthUser
+		user goboiler.AuthUser
 	}
 	cases := []struct {
 		name     string
 		args     args
-		wantData *gorsk.ListQuery
+		wantData *goboiler.ListQuery
 		wantErr  error
 	}{
 		{
 			name: "Super admin user",
-			args: args{user: gorsk.AuthUser{
-				Role: gorsk.SuperAdminRole,
+			args: args{user: goboiler.AuthUser{
+				Role: goboiler.SuperAdminRole,
 			}},
 		},
 		{
 			name: "Company admin user",
-			args: args{user: gorsk.AuthUser{
-				Role:      gorsk.CompanyAdminRole,
+			args: args{user: goboiler.AuthUser{
+				Role:      goboiler.CompanyAdminRole,
 				CompanyID: 1,
 			}},
-			wantData: &gorsk.ListQuery{
+			wantData: &goboiler.ListQuery{
 				Query: "company_id = ?",
 				ID:    1},
 		},
 		{
 			name: "Location admin user",
-			args: args{user: gorsk.AuthUser{
-				Role:       gorsk.LocationAdminRole,
+			args: args{user: goboiler.AuthUser{
+				Role:       goboiler.LocationAdminRole,
 				CompanyID:  1,
 				LocationID: 2,
 			}},
-			wantData: &gorsk.ListQuery{
+			wantData: &goboiler.ListQuery{
 				Query: "location_id = ?",
 				ID:    2},
 		},
 		{
 			name: "Normal user",
-			args: args{user: gorsk.AuthUser{
-				Role: gorsk.UserRole,
+			args: args{user: goboiler.AuthUser{
+				Role: goboiler.UserRole,
 			}},
 			wantErr: echo.ErrForbidden,
 		},

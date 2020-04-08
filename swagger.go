@@ -1,4 +1,4 @@
-package gorsk
+package goboiler
 
 // Success response
 // swagger:response ok

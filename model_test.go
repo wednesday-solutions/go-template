@@ -1,4 +1,4 @@
-package gorsk_test
+package goboiler_test
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 )
 
 func TestBeforeInsert(t *testing.T) {
-	base := &gorsk.Base{
+	base := &goboiler.Base{
 		ID: 1,
 	}
 	base.BeforeInsert(context.TODO())
@@ -22,7 +22,7 @@ func TestBeforeInsert(t *testing.T) {
 }
 
 func TestBeforeUpdate(t *testing.T) {
-	base := &gorsk.Base{
+	base := &goboiler.Base{
 		ID:        1,
 		CreatedAt: mock.TestTime(2000),
 	}
@@ -34,7 +34,7 @@ func TestBeforeUpdate(t *testing.T) {
 }
 
 func TestPaginationTransform(t *testing.T) {
-	p := &gorsk.PaginationReq{
+	p := &goboiler.PaginationReq{
 		Limit: 5000, Page: 5,
 	}
 

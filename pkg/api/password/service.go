@@ -39,8 +39,8 @@ type Password struct {
 
 // UserDB represents user repository interface
 type UserDB interface {
-	View(orm.DB, int) (gorsk.User, error)
-	Update(orm.DB, gorsk.User) error
+	View(orm.DB, int) (goboiler.User, error)
+	Update(orm.DB, goboiler.User) error
 }
 
 // Securer represents security interface

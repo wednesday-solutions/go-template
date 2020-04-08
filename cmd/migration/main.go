@@ -3,10 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/wednesday-solution/go-boiler/pkg/utl/postgres"
 	"os"
 
 	"github.com/go-pg/migrations/v7"
-	"github.com/go-pg/pg/v9"
 )
 
 const usageText = `This program runs command on the db. Supported commands are:
@@ -22,14 +22,10 @@ Usage:
 `
 
 func main() {
+
 	flag.Usage = usage
 	flag.Parse()
-
-	db := pg.Connect(&pg.Options{
-		User:     "paytabs_core_dev_role",
-		Password: "paytabscore123",
-		Database: "paytabs_core_dev",
-	})
+	db := postgres.Connect()
 
 	oldVersion, newVersion, err := migrations.Run(db, flag.Args()...)
 	if err != nil {
@@ -55,4 +51,54 @@ func errorf(s string, args ...interface{}) {
 func exitf(s string, args ...interface{}) {
 	errorf(s, args...)
 	os.Exit(1)
+}
+func DropTable(db migrations.DB, tableName string) error {
+	fmt.Println(fmt.Sprintf("dropping table %s ...", tableName))
+	_, err := db.Exec(fmt.Sprintf("DROP TABLE %s", tableName))
+	return err
+}
+
+func CreateTableAndAddTrigger(db migrations.DB, createTableQuery string, tableName string) error {
+	fmt.Print(fmt.Sprintf("\nCreating %s", tableName))
+	_, err := db.Exec(createTableQuery)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(fmt.Sprintf(`CREATE TRIGGER update_user_modtime BEFORE UPDATE ON %s FOR EACH ROW EXECUTE PROCEDURE  update_updated_at_column();`, tableName))
+
+	if err != nil {
+		return err
+	}
+	return err
+}
+
+// HandleMigrations - doesn't work now since migrations.MustRegister requires
+// the name of the file that executes it to be in the form of 1_blah_blah.go
+func HandleMigrations(tableName string, createTableQuery string) {
+	migrations.MustRegister(func(db migrations.DB) error {
+		err := CreateTriggerForUpdatedAt(db)
+		if err != nil {
+			return err
+		}
+		err = CreateTableAndAddTrigger(db, createTableQuery, tableName)
+		if err != nil {
+			return err
+		}
+		return err
+	}, func(db migrations.DB) error {
+		return DropTable(db, tableName)
+	})
+}
+
+func CreateTriggerForUpdatedAt(db migrations.DB) error {
+	_, err := db.Exec(`CREATE OR REPLACE FUNCTION update_updated_at_column()
+			RETURNS TRIGGER AS $$
+			BEGIN
+			NEW.updated_at = now();
+			RETURN NEW;
+			END;
+			$$ language 'plpgsql';`)
+	return err
 }

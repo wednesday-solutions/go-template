@@ -48,7 +48,7 @@ func TestNew(t *testing.T) {
 		t.Fatalf("Error establishing connection %v", err)
 	}
 
-	var user gorsk.User
+	var user goboiler.User
 	db.Select(&user)
 
 	assert.NotNil(t, db)

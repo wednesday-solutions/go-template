@@ -10,7 +10,7 @@ import (
 )
 
 // New creates new auth logging service
-func New(svc auth.Service, logger gorsk.Logger) *LogService {
+func New(svc auth.Service, logger goboiler.Logger) *LogService {
 	return &LogService{
 		Service: svc,
 		logger:  logger,
@@ -20,13 +20,13 @@ func New(svc auth.Service, logger gorsk.Logger) *LogService {
 // LogService represents auth logging service
 type LogService struct {
 	auth.Service
-	logger gorsk.Logger
+	logger goboiler.Logger
 }
 
 const name = "auth"
 
 // Authenticate logging
-func (ls *LogService) Authenticate(c echo.Context, user, password string) (resp gorsk.AuthToken, err error) {
+func (ls *LogService) Authenticate(c echo.Context, user, password string) (resp goboiler.AuthToken, err error) {
 	defer func(begin time.Time) {
 		ls.logger.Log(
 			c,
@@ -57,7 +57,7 @@ func (ls *LogService) Refresh(c echo.Context, req string) (token string, err err
 }
 
 // Me logging
-func (ls *LogService) Me(c echo.Context) (resp gorsk.User, err error) {
+func (ls *LogService) Me(c echo.Context) (resp goboiler.User, err error) {
 	defer func(begin time.Time) {
 		ls.logger.Log(
 			c,

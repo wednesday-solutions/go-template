@@ -32,7 +32,7 @@ type tokenParser struct {
 
 func (t tokenParser) ParseToken(s string) (*jwt.Token, error) {
 	if s == "" {
-		return nil, gorsk.ErrGeneric
+		return nil, goboiler.ErrGeneric
 	}
 	return &jwt.Token{
 		Raw:    "abcd",

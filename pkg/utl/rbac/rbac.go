@@ -17,14 +17,14 @@ func checkBool(b bool) error {
 }
 
 // User returns user data stored in jwt token
-func (s Service) User(c echo.Context) gorsk.AuthUser {
+func (s Service) User(c echo.Context) goboiler.AuthUser {
 	id := c.Get("id").(int)
 	companyID := c.Get("company_id").(int)
 	locationID := c.Get("location_id").(int)
 	user := c.Get("username").(string)
 	email := c.Get("email").(string)
-	role := c.Get("role").(gorsk.AccessRole)
-	return gorsk.AuthUser{
+	role := c.Get("role").(goboiler.AccessRole)
+	return goboiler.AuthUser{
 		ID:         id,
 		Username:   user,
 		CompanyID:  companyID,
@@ -35,8 +35,8 @@ func (s Service) User(c echo.Context) gorsk.AuthUser {
 }
 
 // EnforceRole authorizes request by AccessRole
-func (s Service) EnforceRole(c echo.Context, r gorsk.AccessRole) error {
-	return checkBool(!(c.Get("role").(gorsk.AccessRole) > r))
+func (s Service) EnforceRole(c echo.Context, r goboiler.AccessRole) error {
+	return checkBool(!(c.Get("role").(goboiler.AccessRole) > r))
 }
 
 // EnforceUser checks whether the request to change user data is done by the same user
@@ -56,9 +56,10 @@ func (s Service) EnforceCompany(c echo.Context, ID int) error {
 	if s.isAdmin(c) {
 		return nil
 	}
-	if err := s.EnforceRole(c, gorsk.CompanyAdminRole); err != nil {
+	if err := s.EnforceRole(c, goboiler.CompanyAdminRole); err != nil {
 		return err
 	}
+
 	return checkBool(c.Get("company_id").(int) == ID)
 }
 
@@ -68,24 +69,24 @@ func (s Service) EnforceLocation(c echo.Context, ID int) error {
 	if s.isCompanyAdmin(c) {
 		return nil
 	}
-	if err := s.EnforceRole(c, gorsk.LocationAdminRole); err != nil {
+	if err := s.EnforceRole(c, goboiler.LocationAdminRole); err != nil {
 		return err
 	}
 	return checkBool(c.Get("location_id").(int) == ID)
 }
 
 func (s Service) isAdmin(c echo.Context) bool {
-	return !(c.Get("role").(gorsk.AccessRole) > gorsk.AdminRole)
+	return !(c.Get("role").(goboiler.AccessRole) > goboiler.AdminRole)
 }
 
 func (s Service) isCompanyAdmin(c echo.Context) bool {
 	// Must query company ID in database for the given user
-	return !(c.Get("role").(gorsk.AccessRole) > gorsk.CompanyAdminRole)
+	return !(c.Get("role").(goboiler.AccessRole) > goboiler.CompanyAdminRole)
 }
 
 // AccountCreate performs auth check when creating a new account
 // Location admin cannot create accounts, needs to be fixed on EnforceLocation function
-func (s Service) AccountCreate(c echo.Context, roleID gorsk.AccessRole, companyID, locationID int) error {
+func (s Service) AccountCreate(c echo.Context, roleID goboiler.AccessRole, companyID, locationID int) error {
 	if err := s.EnforceLocation(c, locationID); err != nil {
 		return err
 	}
@@ -94,6 +95,6 @@ func (s Service) AccountCreate(c echo.Context, roleID gorsk.AccessRole, companyI
 
 // IsLowerRole checks whether the requesting user has higher role than the user it wants to change
 // Used for account creation/deletion
-func (s Service) IsLowerRole(c echo.Context, r gorsk.AccessRole) error {
-	return checkBool(c.Get("role").(gorsk.AccessRole) < r)
+func (s Service) IsLowerRole(c echo.Context, r goboiler.AccessRole) error {
+	return checkBool(c.Get("role").(goboiler.AccessRole) < r)
 }

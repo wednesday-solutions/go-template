@@ -10,7 +10,7 @@ import (
 )
 
 // New creates new password logging service
-func New(svc password.Service, logger gorsk.Logger) *LogService {
+func New(svc password.Service, logger goboiler.Logger) *LogService {
 	return &LogService{
 		Service: svc,
 		logger:  logger,
@@ -20,7 +20,7 @@ func New(svc password.Service, logger gorsk.Logger) *LogService {
 // LogService represents password logging service
 type LogService struct {
 	password.Service
-	logger gorsk.Logger
+	logger goboiler.Logger
 }
 
 const name = "password"

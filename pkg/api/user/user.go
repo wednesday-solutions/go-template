@@ -9,16 +9,16 @@ import (
 )
 
 // Create creates a new user account
-func (u User) Create(c echo.Context, req gorsk.User) (gorsk.User, error) {
+func (u User) Create(c echo.Context, req goboiler.User) (goboiler.User, error) {
 	if err := u.rbac.AccountCreate(c, req.RoleID, req.CompanyID, req.LocationID); err != nil {
-		return gorsk.User{}, err
+		return goboiler.User{}, err
 	}
 	req.Password = u.sec.Hash(req.Password)
 	return u.udb.Create(u.db, req)
 }
 
 // List returns list of users
-func (u User) List(c echo.Context, p gorsk.Pagination) ([]gorsk.User, error) {
+func (u User) List(c echo.Context, p goboiler.Pagination) ([]goboiler.User, error) {
 	au := u.rbac.User(c)
 	q, err := query.List(au)
 	if err != nil {
@@ -28,9 +28,9 @@ func (u User) List(c echo.Context, p gorsk.Pagination) ([]gorsk.User, error) {
 }
 
 // View returns single user
-func (u User) View(c echo.Context, id int) (gorsk.User, error) {
+func (u User) View(c echo.Context, id int) (goboiler.User, error) {
 	if err := u.rbac.EnforceUser(c, id); err != nil {
-		return gorsk.User{}, err
+		return goboiler.User{}, err
 	}
 	return u.udb.View(u.db, id)
 }
@@ -58,19 +58,19 @@ type Update struct {
 }
 
 // Update updates user's contact information
-func (u User) Update(c echo.Context, r Update) (gorsk.User, error) {
+func (u User) Update(c echo.Context, r Update) (goboiler.User, error) {
 	if err := u.rbac.EnforceUser(c, r.ID); err != nil {
-		return gorsk.User{}, err
+		return goboiler.User{}, err
 	}
 
-	if err := u.udb.Update(u.db, gorsk.User{
-		Base:      gorsk.Base{ID: r.ID},
+	if err := u.udb.Update(u.db, goboiler.User{
+		Base:      goboiler.Base{ID: r.ID},
 		FirstName: r.FirstName,
 		LastName:  r.LastName,
 		Mobile:    r.Mobile,
 		Address:   r.Address,
 	}); err != nil {
-		return gorsk.User{}, err
+		return goboiler.User{}, err
 	}
 
 	return u.udb.View(u.db, r.ID)

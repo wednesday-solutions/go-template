@@ -67,10 +67,10 @@ func TestChangePassword(t *testing.T) {
 			},
 			id: "1",
 			udb: &mockdb.User{
-				ViewFn: func(db orm.DB, id int) (gorsk.User, error) {
-					return gorsk.User{Password: "oldPassword"}, nil
+				ViewFn: func(db orm.DB, id int) (goboiler.User, error) {
+					return goboiler.User{Password: "oldPassword"}, nil
 				},
-				UpdateFn: func(db orm.DB, usr gorsk.User) error {
+				UpdateFn: func(db orm.DB, usr goboiler.User) error {
 					return nil
 				},
 			},

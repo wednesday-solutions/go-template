@@ -1,4 +1,4 @@
-package gorsk
+package goboiler
 
 // Company represents company model
 type Company struct {

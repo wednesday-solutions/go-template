@@ -1,6 +1,8 @@
 package password
 
 import (
+	"fmt"
+	"github.com/wednesday-solution/go-boiler/pkg/utl/secure"
 	"net/http"
 
 	"github.com/labstack/echo"
@@ -22,6 +24,11 @@ func (p Password) Change(c echo.Context, userID int, oldPass, newPass string) er
 	if err != nil {
 		return err
 	}
+
+	fmt.Print(u.Password, "\n\n\n\n")
+	fmt.Print(oldPass, "\n\n\n\n")
+	sec := secure.New(5, nil)
+	fmt.Print(sec.Hash(oldPass), "\n\n\n\n")
 
 	if !p.sec.HashMatchesPassword(u.Password, oldPass) {
 		return ErrIncorrectPassword

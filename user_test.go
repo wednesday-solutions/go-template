@@ -1,4 +1,4 @@
-package gorsk_test
+package goboiler_test
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 )
 
 func TestChangePassword(t *testing.T) {
-	user := &gorsk.User{
+	user := &goboiler.User{
 		FirstName: "TestGuy",
 	}
 
@@ -25,7 +25,7 @@ func TestChangePassword(t *testing.T) {
 }
 
 func TestUpdateLastLogin(t *testing.T) {
-	user := &gorsk.User{
+	user := &goboiler.User{
 		FirstName: "TestGuy",
 	}
 
