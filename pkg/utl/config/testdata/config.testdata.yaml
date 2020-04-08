@@ -1,0 +1,20 @@
+database:
+  log_queries: true
+  timeout_seconds: 20
+
+server:
+  port: :8080
+  debug: true
+  read_timeout_seconds: 15
+  write_timeout_seconds: 20
+
+jwt:
+  min_secret_length: 128
+  duration_minutes: 10
+  refresh_duration_minutes: 10
+  max_refresh_minutes: 144
+  signing_algorithm: HS384
+
+application:
+  min_password_strength: 3
+  swagger_ui_path: assets/swagger
