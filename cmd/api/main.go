@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-
 	"github.com/wednesday-solution/go-boiler/pkg/api"
 
 	"github.com/wednesday-solution/go-boiler/pkg/utl/config"
