@@ -11,6 +11,7 @@ require (
 	github.com/go-playground/universal-translator v0.17.0 // indirect
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/golang/protobuf v1.3.5 // indirect
+	github.com/graphql-go/graphql v0.7.9 // indirect
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/gommon v0.3.0 // indirect
