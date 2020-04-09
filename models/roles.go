@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/friendsofgo/errors"
+	"github.com/volatiletech/null"
 	"github.com/volatiletech/sqlboiler/boil"
 	"github.com/volatiletech/sqlboiler/queries"
 	"github.com/volatiletech/sqlboiler/queries/qm"
@@ -23,9 +24,12 @@ import (
 
 // Role is an object representing the database table.
 type Role struct {
-	ID          int    `boil:"id" json:"id" toml:"id" yaml:"id"`
-	AccessLevel int64  `boil:"access_level" json:"access_level" toml:"access_level" yaml:"access_level"`
-	Name        string `boil:"name" json:"name" toml:"name" yaml:"name"`
+	ID          int       `boil:"id" json:"id" toml:"id" yaml:"id"`
+	AccessLevel int64     `boil:"access_level" json:"access_level" toml:"access_level" yaml:"access_level"`
+	Name        string    `boil:"name" json:"name" toml:"name" yaml:"name"`
+	CreatedAt   null.Time `boil:"created_at" json:"created_at,omitempty" toml:"created_at" yaml:"created_at,omitempty"`
+	UpdatedAt   null.Time `boil:"updated_at" json:"updated_at,omitempty" toml:"updated_at" yaml:"updated_at,omitempty"`
+	DeletedAt   null.Time `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
 
 	R *roleR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L roleL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -35,10 +39,16 @@ var RoleColumns = struct {
 	ID          string
 	AccessLevel string
 	Name        string
+	CreatedAt   string
+	UpdatedAt   string
+	DeletedAt   string
 }{
 	ID:          "id",
 	AccessLevel: "access_level",
 	Name:        "name",
+	CreatedAt:   "created_at",
+	UpdatedAt:   "updated_at",
+	DeletedAt:   "deleted_at",
 }
 
 // Generated where
@@ -63,10 +73,16 @@ var RoleWhere = struct {
 	ID          whereHelperint
 	AccessLevel whereHelperint64
 	Name        whereHelperstring
+	CreatedAt   whereHelpernull_Time
+	UpdatedAt   whereHelpernull_Time
+	DeletedAt   whereHelpernull_Time
 }{
 	ID:          whereHelperint{field: "\"roles\".\"id\""},
 	AccessLevel: whereHelperint64{field: "\"roles\".\"access_level\""},
 	Name:        whereHelperstring{field: "\"roles\".\"name\""},
+	CreatedAt:   whereHelpernull_Time{field: "\"roles\".\"created_at\""},
+	UpdatedAt:   whereHelpernull_Time{field: "\"roles\".\"updated_at\""},
+	DeletedAt:   whereHelpernull_Time{field: "\"roles\".\"deleted_at\""},
 }
 
 // RoleRels is where relationship names are stored.
@@ -90,8 +106,8 @@ func (*roleR) NewStruct() *roleR {
 type roleL struct{}
 
 var (
-	roleAllColumns            = []string{"id", "access_level", "name"}
-	roleColumnsWithoutDefault = []string{"access_level", "name"}
+	roleAllColumns            = []string{"id", "access_level", "name", "created_at", "updated_at", "deleted_at"}
+	roleColumnsWithoutDefault = []string{"access_level", "name", "created_at", "updated_at", "deleted_at"}
 	roleColumnsWithDefault    = []string{"id"}
 	rolePrimaryKeyColumns     = []string{"id"}
 )
@@ -650,6 +666,16 @@ func (o *Role) Insert(ctx context.Context, exec boil.ContextExecutor, columns bo
 	}
 
 	var err error
+	if !boil.TimestampsAreSkipped(ctx) {
+		currTime := time.Now().In(boil.GetLocation())
+
+		if queries.MustTime(o.CreatedAt).IsZero() {
+			queries.SetScanner(&o.CreatedAt, currTime)
+		}
+		if queries.MustTime(o.UpdatedAt).IsZero() {
+			queries.SetScanner(&o.UpdatedAt, currTime)
+		}
+	}
 
 	if err := o.doBeforeInsertHooks(ctx, exec); err != nil {
 		return err
@@ -725,6 +751,12 @@ func (o *Role) Insert(ctx context.Context, exec boil.ContextExecutor, columns bo
 // See boil.Columns.UpdateColumnSet documentation to understand column list inference for updates.
 // Update does not automatically update the record in case of default values. Use .Reload() to refresh the records.
 func (o *Role) Update(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) (int64, error) {
+	if !boil.TimestampsAreSkipped(ctx) {
+		currTime := time.Now().In(boil.GetLocation())
+
+		queries.SetScanner(&o.UpdatedAt, currTime)
+	}
+
 	var err error
 	if err = o.doBeforeUpdateHooks(ctx, exec); err != nil {
 		return 0, err
@@ -854,6 +886,14 @@ func (o RoleSlice) UpdateAll(ctx context.Context, exec boil.ContextExecutor, col
 func (o *Role) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnConflict bool, conflictColumns []string, updateColumns, insertColumns boil.Columns) error {
 	if o == nil {
 		return errors.New("models: no roles provided for upsert")
+	}
+	if !boil.TimestampsAreSkipped(ctx) {
+		currTime := time.Now().In(boil.GetLocation())
+
+		if queries.MustTime(o.CreatedAt).IsZero() {
+			queries.SetScanner(&o.CreatedAt, currTime)
+		}
+		queries.SetScanner(&o.UpdatedAt, currTime)
 	}
 
 	if err := o.doBeforeUpsertHooks(ctx, exec); err != nil {

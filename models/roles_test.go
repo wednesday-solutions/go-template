@@ -896,7 +896,7 @@ func testRolesSelect(t *testing.T) {
 }
 
 var (
-	roleDBTypes = map[string]string{`ID`: `integer`, `AccessLevel`: `bigint`, `Name`: `text`}
+	roleDBTypes = map[string]string{`ID`: `integer`, `AccessLevel`: `bigint`, `Name`: `text`, `CreatedAt`: `timestamp with time zone`, `UpdatedAt`: `timestamp with time zone`, `DeletedAt`: `timestamp with time zone`}
 	_           = bytes.MinRead
 )
 

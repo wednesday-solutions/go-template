@@ -10,6 +10,8 @@ func TestUpsert(t *testing.T) {
 
 	t.Run("Companies", testCompaniesUpsert)
 
+	t.Run("Followers", testFollowersUpsert)
+
 	t.Run("Locations", testLocationsUpsert)
 
 	t.Run("Posts", testPostsUpsert)

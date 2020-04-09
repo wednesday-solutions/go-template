@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/friendsofgo/errors"
+	"github.com/volatiletech/null"
 	"github.com/volatiletech/sqlboiler/boil"
 	"github.com/volatiletech/sqlboiler/queries"
 	"github.com/volatiletech/sqlboiler/queries/qm"
@@ -23,39 +24,54 @@ import (
 
 // Post is an object representing the database table.
 type Post struct {
-	ID     int    `boil:"id" json:"id" toml:"id" yaml:"id"`
-	UserID int    `boil:"user_id" json:"user_id" toml:"user_id" yaml:"user_id"`
-	Title  string `boil:"title" json:"title" toml:"title" yaml:"title"`
-	Body   string `boil:"body" json:"body" toml:"body" yaml:"body"`
+	ID        int       `boil:"id" json:"id" toml:"id" yaml:"id"`
+	UserID    int       `boil:"user_id" json:"user_id" toml:"user_id" yaml:"user_id"`
+	Title     string    `boil:"title" json:"title" toml:"title" yaml:"title"`
+	Body      string    `boil:"body" json:"body" toml:"body" yaml:"body"`
+	CreatedAt null.Time `boil:"created_at" json:"created_at,omitempty" toml:"created_at" yaml:"created_at,omitempty"`
+	UpdatedAt null.Time `boil:"updated_at" json:"updated_at,omitempty" toml:"updated_at" yaml:"updated_at,omitempty"`
+	DeletedAt null.Time `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
 
 	R *postR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L postL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
 var PostColumns = struct {
-	ID     string
-	UserID string
-	Title  string
-	Body   string
+	ID        string
+	UserID    string
+	Title     string
+	Body      string
+	CreatedAt string
+	UpdatedAt string
+	DeletedAt string
 }{
-	ID:     "id",
-	UserID: "user_id",
-	Title:  "title",
-	Body:   "body",
+	ID:        "id",
+	UserID:    "user_id",
+	Title:     "title",
+	Body:      "body",
+	CreatedAt: "created_at",
+	UpdatedAt: "updated_at",
+	DeletedAt: "deleted_at",
 }
 
 // Generated where
 
 var PostWhere = struct {
-	ID     whereHelperint
-	UserID whereHelperint
-	Title  whereHelperstring
-	Body   whereHelperstring
+	ID        whereHelperint
+	UserID    whereHelperint
+	Title     whereHelperstring
+	Body      whereHelperstring
+	CreatedAt whereHelpernull_Time
+	UpdatedAt whereHelpernull_Time
+	DeletedAt whereHelpernull_Time
 }{
-	ID:     whereHelperint{field: "\"posts\".\"id\""},
-	UserID: whereHelperint{field: "\"posts\".\"user_id\""},
-	Title:  whereHelperstring{field: "\"posts\".\"title\""},
-	Body:   whereHelperstring{field: "\"posts\".\"body\""},
+	ID:        whereHelperint{field: "\"posts\".\"id\""},
+	UserID:    whereHelperint{field: "\"posts\".\"user_id\""},
+	Title:     whereHelperstring{field: "\"posts\".\"title\""},
+	Body:      whereHelperstring{field: "\"posts\".\"body\""},
+	CreatedAt: whereHelpernull_Time{field: "\"posts\".\"created_at\""},
+	UpdatedAt: whereHelpernull_Time{field: "\"posts\".\"updated_at\""},
+	DeletedAt: whereHelpernull_Time{field: "\"posts\".\"deleted_at\""},
 }
 
 // PostRels is where relationship names are stored.
@@ -82,8 +98,8 @@ func (*postR) NewStruct() *postR {
 type postL struct{}
 
 var (
-	postAllColumns            = []string{"id", "user_id", "title", "body"}
-	postColumnsWithoutDefault = []string{"user_id", "title", "body"}
+	postAllColumns            = []string{"id", "user_id", "title", "body", "created_at", "updated_at", "deleted_at"}
+	postColumnsWithoutDefault = []string{"user_id", "title", "body", "created_at", "updated_at", "deleted_at"}
 	postColumnsWithDefault    = []string{"id"}
 	postPrimaryKeyColumns     = []string{"id"}
 )
@@ -734,6 +750,16 @@ func (o *Post) Insert(ctx context.Context, exec boil.ContextExecutor, columns bo
 	}
 
 	var err error
+	if !boil.TimestampsAreSkipped(ctx) {
+		currTime := time.Now().In(boil.GetLocation())
+
+		if queries.MustTime(o.CreatedAt).IsZero() {
+			queries.SetScanner(&o.CreatedAt, currTime)
+		}
+		if queries.MustTime(o.UpdatedAt).IsZero() {
+			queries.SetScanner(&o.UpdatedAt, currTime)
+		}
+	}
 
 	if err := o.doBeforeInsertHooks(ctx, exec); err != nil {
 		return err
@@ -809,6 +835,12 @@ func (o *Post) Insert(ctx context.Context, exec boil.ContextExecutor, columns bo
 // See boil.Columns.UpdateColumnSet documentation to understand column list inference for updates.
 // Update does not automatically update the record in case of default values. Use .Reload() to refresh the records.
 func (o *Post) Update(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) (int64, error) {
+	if !boil.TimestampsAreSkipped(ctx) {
+		currTime := time.Now().In(boil.GetLocation())
+
+		queries.SetScanner(&o.UpdatedAt, currTime)
+	}
+
 	var err error
 	if err = o.doBeforeUpdateHooks(ctx, exec); err != nil {
 		return 0, err
@@ -938,6 +970,14 @@ func (o PostSlice) UpdateAll(ctx context.Context, exec boil.ContextExecutor, col
 func (o *Post) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnConflict bool, conflictColumns []string, updateColumns, insertColumns boil.Columns) error {
 	if o == nil {
 		return errors.New("models: no posts provided for upsert")
+	}
+	if !boil.TimestampsAreSkipped(ctx) {
+		currTime := time.Now().In(boil.GetLocation())
+
+		if queries.MustTime(o.CreatedAt).IsZero() {
+			queries.SetScanner(&o.CreatedAt, currTime)
+		}
+		queries.SetScanner(&o.UpdatedAt, currTime)
 	}
 
 	if err := o.doBeforeUpsertHooks(ctx, exec); err != nil {

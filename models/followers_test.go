@@ -21,24 +21,24 @@ var (
 	_ = queries.Equal
 )
 
-func testComments(t *testing.T) {
+func testFollowers(t *testing.T) {
 	t.Parallel()
 
-	query := Comments()
+	query := Followers()
 
 	if query.Query == nil {
 		t.Error("expected a query, got nothing")
 	}
 }
 
-func testCommentsDelete(t *testing.T) {
+func testFollowersDelete(t *testing.T) {
 	t.Parallel()
 
 	seed := randomize.NewSeed()
 	var err error
-	o := &Comment{}
-	if err = randomize.Struct(seed, o, commentDBTypes, true, commentColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Comment struct: %s", err)
+	o := &Follower{}
+	if err = randomize.Struct(seed, o, followerDBTypes, true, followerColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Follower struct: %s", err)
 	}
 
 	ctx := context.Background()
@@ -54,7 +54,7 @@ func testCommentsDelete(t *testing.T) {
 		t.Error("should only have deleted one row, but affected:", rowsAff)
 	}
 
-	count, err := Comments().Count(ctx, tx)
+	count, err := Followers().Count(ctx, tx)
 	if err != nil {
 		t.Error(err)
 	}
@@ -64,14 +64,14 @@ func testCommentsDelete(t *testing.T) {
 	}
 }
 
-func testCommentsQueryDeleteAll(t *testing.T) {
+func testFollowersQueryDeleteAll(t *testing.T) {
 	t.Parallel()
 
 	seed := randomize.NewSeed()
 	var err error
-	o := &Comment{}
-	if err = randomize.Struct(seed, o, commentDBTypes, true, commentColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Comment struct: %s", err)
+	o := &Follower{}
+	if err = randomize.Struct(seed, o, followerDBTypes, true, followerColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Follower struct: %s", err)
 	}
 
 	ctx := context.Background()
@@ -81,13 +81,13 @@ func testCommentsQueryDeleteAll(t *testing.T) {
 		t.Error(err)
 	}
 
-	if rowsAff, err := Comments().DeleteAll(ctx, tx); err != nil {
+	if rowsAff, err := Followers().DeleteAll(ctx, tx); err != nil {
 		t.Error(err)
 	} else if rowsAff != 1 {
 		t.Error("should only have deleted one row, but affected:", rowsAff)
 	}
 
-	count, err := Comments().Count(ctx, tx)
+	count, err := Followers().Count(ctx, tx)
 	if err != nil {
 		t.Error(err)
 	}
@@ -97,14 +97,14 @@ func testCommentsQueryDeleteAll(t *testing.T) {
 	}
 }
 
-func testCommentsSliceDeleteAll(t *testing.T) {
+func testFollowersSliceDeleteAll(t *testing.T) {
 	t.Parallel()
 
 	seed := randomize.NewSeed()
 	var err error
-	o := &Comment{}
-	if err = randomize.Struct(seed, o, commentDBTypes, true, commentColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Comment struct: %s", err)
+	o := &Follower{}
+	if err = randomize.Struct(seed, o, followerDBTypes, true, followerColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Follower struct: %s", err)
 	}
 
 	ctx := context.Background()
@@ -114,7 +114,7 @@ func testCommentsSliceDeleteAll(t *testing.T) {
 		t.Error(err)
 	}
 
-	slice := CommentSlice{o}
+	slice := FollowerSlice{o}
 
 	if rowsAff, err := slice.DeleteAll(ctx, tx); err != nil {
 		t.Error(err)
@@ -122,7 +122,7 @@ func testCommentsSliceDeleteAll(t *testing.T) {
 		t.Error("should only have deleted one row, but affected:", rowsAff)
 	}
 
-	count, err := Comments().Count(ctx, tx)
+	count, err := Followers().Count(ctx, tx)
 	if err != nil {
 		t.Error(err)
 	}
@@ -132,14 +132,14 @@ func testCommentsSliceDeleteAll(t *testing.T) {
 	}
 }
 
-func testCommentsExists(t *testing.T) {
+func testFollowersExists(t *testing.T) {
 	t.Parallel()
 
 	seed := randomize.NewSeed()
 	var err error
-	o := &Comment{}
-	if err = randomize.Struct(seed, o, commentDBTypes, true, commentColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Comment struct: %s", err)
+	o := &Follower{}
+	if err = randomize.Struct(seed, o, followerDBTypes, true, followerColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Follower struct: %s", err)
 	}
 
 	ctx := context.Background()
@@ -149,23 +149,23 @@ func testCommentsExists(t *testing.T) {
 		t.Error(err)
 	}
 
-	e, err := CommentExists(ctx, tx, o.ID)
+	e, err := FollowerExists(ctx, tx, o.FollowerID, o.FolloweeID)
 	if err != nil {
-		t.Errorf("Unable to check if Comment exists: %s", err)
+		t.Errorf("Unable to check if Follower exists: %s", err)
 	}
 	if !e {
-		t.Errorf("Expected CommentExists to return true, but got false.")
+		t.Errorf("Expected FollowerExists to return true, but got false.")
 	}
 }
 
-func testCommentsFind(t *testing.T) {
+func testFollowersFind(t *testing.T) {
 	t.Parallel()
 
 	seed := randomize.NewSeed()
 	var err error
-	o := &Comment{}
-	if err = randomize.Struct(seed, o, commentDBTypes, true, commentColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Comment struct: %s", err)
+	o := &Follower{}
+	if err = randomize.Struct(seed, o, followerDBTypes, true, followerColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Follower struct: %s", err)
 	}
 
 	ctx := context.Background()
@@ -175,24 +175,24 @@ func testCommentsFind(t *testing.T) {
 		t.Error(err)
 	}
 
-	commentFound, err := FindComment(ctx, tx, o.ID)
+	followerFound, err := FindFollower(ctx, tx, o.FollowerID, o.FolloweeID)
 	if err != nil {
 		t.Error(err)
 	}
 
-	if commentFound == nil {
+	if followerFound == nil {
 		t.Error("want a record, got nil")
 	}
 }
 
-func testCommentsBind(t *testing.T) {
+func testFollowersBind(t *testing.T) {
 	t.Parallel()
 
 	seed := randomize.NewSeed()
 	var err error
-	o := &Comment{}
-	if err = randomize.Struct(seed, o, commentDBTypes, true, commentColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Comment struct: %s", err)
+	o := &Follower{}
+	if err = randomize.Struct(seed, o, followerDBTypes, true, followerColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Follower struct: %s", err)
 	}
 
 	ctx := context.Background()
@@ -202,19 +202,19 @@ func testCommentsBind(t *testing.T) {
 		t.Error(err)
 	}
 
-	if err = Comments().Bind(ctx, tx, o); err != nil {
+	if err = Followers().Bind(ctx, tx, o); err != nil {
 		t.Error(err)
 	}
 }
 
-func testCommentsOne(t *testing.T) {
+func testFollowersOne(t *testing.T) {
 	t.Parallel()
 
 	seed := randomize.NewSeed()
 	var err error
-	o := &Comment{}
-	if err = randomize.Struct(seed, o, commentDBTypes, true, commentColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Comment struct: %s", err)
+	o := &Follower{}
+	if err = randomize.Struct(seed, o, followerDBTypes, true, followerColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Follower struct: %s", err)
 	}
 
 	ctx := context.Background()
@@ -224,38 +224,38 @@ func testCommentsOne(t *testing.T) {
 		t.Error(err)
 	}
 
-	if x, err := Comments().One(ctx, tx); err != nil {
+	if x, err := Followers().One(ctx, tx); err != nil {
 		t.Error(err)
 	} else if x == nil {
 		t.Error("expected to get a non nil record")
 	}
 }
 
-func testCommentsAll(t *testing.T) {
+func testFollowersAll(t *testing.T) {
 	t.Parallel()
 
 	seed := randomize.NewSeed()
 	var err error
-	commentOne := &Comment{}
-	commentTwo := &Comment{}
-	if err = randomize.Struct(seed, commentOne, commentDBTypes, false, commentColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Comment struct: %s", err)
+	followerOne := &Follower{}
+	followerTwo := &Follower{}
+	if err = randomize.Struct(seed, followerOne, followerDBTypes, false, followerColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Follower struct: %s", err)
 	}
-	if err = randomize.Struct(seed, commentTwo, commentDBTypes, false, commentColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Comment struct: %s", err)
+	if err = randomize.Struct(seed, followerTwo, followerDBTypes, false, followerColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Follower struct: %s", err)
 	}
 
 	ctx := context.Background()
 	tx := MustTx(boil.BeginTx(ctx, nil))
 	defer func() { _ = tx.Rollback() }()
-	if err = commentOne.Insert(ctx, tx, boil.Infer()); err != nil {
+	if err = followerOne.Insert(ctx, tx, boil.Infer()); err != nil {
 		t.Error(err)
 	}
-	if err = commentTwo.Insert(ctx, tx, boil.Infer()); err != nil {
+	if err = followerTwo.Insert(ctx, tx, boil.Infer()); err != nil {
 		t.Error(err)
 	}
 
-	slice, err := Comments().All(ctx, tx)
+	slice, err := Followers().All(ctx, tx)
 	if err != nil {
 		t.Error(err)
 	}
@@ -265,31 +265,31 @@ func testCommentsAll(t *testing.T) {
 	}
 }
 
-func testCommentsCount(t *testing.T) {
+func testFollowersCount(t *testing.T) {
 	t.Parallel()
 
 	var err error
 	seed := randomize.NewSeed()
-	commentOne := &Comment{}
-	commentTwo := &Comment{}
-	if err = randomize.Struct(seed, commentOne, commentDBTypes, false, commentColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Comment struct: %s", err)
+	followerOne := &Follower{}
+	followerTwo := &Follower{}
+	if err = randomize.Struct(seed, followerOne, followerDBTypes, false, followerColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Follower struct: %s", err)
 	}
-	if err = randomize.Struct(seed, commentTwo, commentDBTypes, false, commentColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Comment struct: %s", err)
+	if err = randomize.Struct(seed, followerTwo, followerDBTypes, false, followerColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Follower struct: %s", err)
 	}
 
 	ctx := context.Background()
 	tx := MustTx(boil.BeginTx(ctx, nil))
 	defer func() { _ = tx.Rollback() }()
-	if err = commentOne.Insert(ctx, tx, boil.Infer()); err != nil {
+	if err = followerOne.Insert(ctx, tx, boil.Infer()); err != nil {
 		t.Error(err)
 	}
-	if err = commentTwo.Insert(ctx, tx, boil.Infer()); err != nil {
+	if err = followerTwo.Insert(ctx, tx, boil.Infer()); err != nil {
 		t.Error(err)
 	}
 
-	count, err := Comments().Count(ctx, tx)
+	count, err := Followers().Count(ctx, tx)
 	if err != nil {
 		t.Error(err)
 	}
@@ -299,155 +299,155 @@ func testCommentsCount(t *testing.T) {
 	}
 }
 
-func commentBeforeInsertHook(ctx context.Context, e boil.ContextExecutor, o *Comment) error {
-	*o = Comment{}
+func followerBeforeInsertHook(ctx context.Context, e boil.ContextExecutor, o *Follower) error {
+	*o = Follower{}
 	return nil
 }
 
-func commentAfterInsertHook(ctx context.Context, e boil.ContextExecutor, o *Comment) error {
-	*o = Comment{}
+func followerAfterInsertHook(ctx context.Context, e boil.ContextExecutor, o *Follower) error {
+	*o = Follower{}
 	return nil
 }
 
-func commentAfterSelectHook(ctx context.Context, e boil.ContextExecutor, o *Comment) error {
-	*o = Comment{}
+func followerAfterSelectHook(ctx context.Context, e boil.ContextExecutor, o *Follower) error {
+	*o = Follower{}
 	return nil
 }
 
-func commentBeforeUpdateHook(ctx context.Context, e boil.ContextExecutor, o *Comment) error {
-	*o = Comment{}
+func followerBeforeUpdateHook(ctx context.Context, e boil.ContextExecutor, o *Follower) error {
+	*o = Follower{}
 	return nil
 }
 
-func commentAfterUpdateHook(ctx context.Context, e boil.ContextExecutor, o *Comment) error {
-	*o = Comment{}
+func followerAfterUpdateHook(ctx context.Context, e boil.ContextExecutor, o *Follower) error {
+	*o = Follower{}
 	return nil
 }
 
-func commentBeforeDeleteHook(ctx context.Context, e boil.ContextExecutor, o *Comment) error {
-	*o = Comment{}
+func followerBeforeDeleteHook(ctx context.Context, e boil.ContextExecutor, o *Follower) error {
+	*o = Follower{}
 	return nil
 }
 
-func commentAfterDeleteHook(ctx context.Context, e boil.ContextExecutor, o *Comment) error {
-	*o = Comment{}
+func followerAfterDeleteHook(ctx context.Context, e boil.ContextExecutor, o *Follower) error {
+	*o = Follower{}
 	return nil
 }
 
-func commentBeforeUpsertHook(ctx context.Context, e boil.ContextExecutor, o *Comment) error {
-	*o = Comment{}
+func followerBeforeUpsertHook(ctx context.Context, e boil.ContextExecutor, o *Follower) error {
+	*o = Follower{}
 	return nil
 }
 
-func commentAfterUpsertHook(ctx context.Context, e boil.ContextExecutor, o *Comment) error {
-	*o = Comment{}
+func followerAfterUpsertHook(ctx context.Context, e boil.ContextExecutor, o *Follower) error {
+	*o = Follower{}
 	return nil
 }
 
-func testCommentsHooks(t *testing.T) {
+func testFollowersHooks(t *testing.T) {
 	t.Parallel()
 
 	var err error
 
 	ctx := context.Background()
-	empty := &Comment{}
-	o := &Comment{}
+	empty := &Follower{}
+	o := &Follower{}
 
 	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, o, commentDBTypes, false); err != nil {
-		t.Errorf("Unable to randomize Comment object: %s", err)
+	if err = randomize.Struct(seed, o, followerDBTypes, false); err != nil {
+		t.Errorf("Unable to randomize Follower object: %s", err)
 	}
 
-	AddCommentHook(boil.BeforeInsertHook, commentBeforeInsertHook)
+	AddFollowerHook(boil.BeforeInsertHook, followerBeforeInsertHook)
 	if err = o.doBeforeInsertHooks(ctx, nil); err != nil {
 		t.Errorf("Unable to execute doBeforeInsertHooks: %s", err)
 	}
 	if !reflect.DeepEqual(o, empty) {
 		t.Errorf("Expected BeforeInsertHook function to empty object, but got: %#v", o)
 	}
-	commentBeforeInsertHooks = []CommentHook{}
+	followerBeforeInsertHooks = []FollowerHook{}
 
-	AddCommentHook(boil.AfterInsertHook, commentAfterInsertHook)
+	AddFollowerHook(boil.AfterInsertHook, followerAfterInsertHook)
 	if err = o.doAfterInsertHooks(ctx, nil); err != nil {
 		t.Errorf("Unable to execute doAfterInsertHooks: %s", err)
 	}
 	if !reflect.DeepEqual(o, empty) {
 		t.Errorf("Expected AfterInsertHook function to empty object, but got: %#v", o)
 	}
-	commentAfterInsertHooks = []CommentHook{}
+	followerAfterInsertHooks = []FollowerHook{}
 
-	AddCommentHook(boil.AfterSelectHook, commentAfterSelectHook)
+	AddFollowerHook(boil.AfterSelectHook, followerAfterSelectHook)
 	if err = o.doAfterSelectHooks(ctx, nil); err != nil {
 		t.Errorf("Unable to execute doAfterSelectHooks: %s", err)
 	}
 	if !reflect.DeepEqual(o, empty) {
 		t.Errorf("Expected AfterSelectHook function to empty object, but got: %#v", o)
 	}
-	commentAfterSelectHooks = []CommentHook{}
+	followerAfterSelectHooks = []FollowerHook{}
 
-	AddCommentHook(boil.BeforeUpdateHook, commentBeforeUpdateHook)
+	AddFollowerHook(boil.BeforeUpdateHook, followerBeforeUpdateHook)
 	if err = o.doBeforeUpdateHooks(ctx, nil); err != nil {
 		t.Errorf("Unable to execute doBeforeUpdateHooks: %s", err)
 	}
 	if !reflect.DeepEqual(o, empty) {
 		t.Errorf("Expected BeforeUpdateHook function to empty object, but got: %#v", o)
 	}
-	commentBeforeUpdateHooks = []CommentHook{}
+	followerBeforeUpdateHooks = []FollowerHook{}
 
-	AddCommentHook(boil.AfterUpdateHook, commentAfterUpdateHook)
+	AddFollowerHook(boil.AfterUpdateHook, followerAfterUpdateHook)
 	if err = o.doAfterUpdateHooks(ctx, nil); err != nil {
 		t.Errorf("Unable to execute doAfterUpdateHooks: %s", err)
 	}
 	if !reflect.DeepEqual(o, empty) {
 		t.Errorf("Expected AfterUpdateHook function to empty object, but got: %#v", o)
 	}
-	commentAfterUpdateHooks = []CommentHook{}
+	followerAfterUpdateHooks = []FollowerHook{}
 
-	AddCommentHook(boil.BeforeDeleteHook, commentBeforeDeleteHook)
+	AddFollowerHook(boil.BeforeDeleteHook, followerBeforeDeleteHook)
 	if err = o.doBeforeDeleteHooks(ctx, nil); err != nil {
 		t.Errorf("Unable to execute doBeforeDeleteHooks: %s", err)
 	}
 	if !reflect.DeepEqual(o, empty) {
 		t.Errorf("Expected BeforeDeleteHook function to empty object, but got: %#v", o)
 	}
-	commentBeforeDeleteHooks = []CommentHook{}
+	followerBeforeDeleteHooks = []FollowerHook{}
 
-	AddCommentHook(boil.AfterDeleteHook, commentAfterDeleteHook)
+	AddFollowerHook(boil.AfterDeleteHook, followerAfterDeleteHook)
 	if err = o.doAfterDeleteHooks(ctx, nil); err != nil {
 		t.Errorf("Unable to execute doAfterDeleteHooks: %s", err)
 	}
 	if !reflect.DeepEqual(o, empty) {
 		t.Errorf("Expected AfterDeleteHook function to empty object, but got: %#v", o)
 	}
-	commentAfterDeleteHooks = []CommentHook{}
+	followerAfterDeleteHooks = []FollowerHook{}
 
-	AddCommentHook(boil.BeforeUpsertHook, commentBeforeUpsertHook)
+	AddFollowerHook(boil.BeforeUpsertHook, followerBeforeUpsertHook)
 	if err = o.doBeforeUpsertHooks(ctx, nil); err != nil {
 		t.Errorf("Unable to execute doBeforeUpsertHooks: %s", err)
 	}
 	if !reflect.DeepEqual(o, empty) {
 		t.Errorf("Expected BeforeUpsertHook function to empty object, but got: %#v", o)
 	}
-	commentBeforeUpsertHooks = []CommentHook{}
+	followerBeforeUpsertHooks = []FollowerHook{}
 
-	AddCommentHook(boil.AfterUpsertHook, commentAfterUpsertHook)
+	AddFollowerHook(boil.AfterUpsertHook, followerAfterUpsertHook)
 	if err = o.doAfterUpsertHooks(ctx, nil); err != nil {
 		t.Errorf("Unable to execute doAfterUpsertHooks: %s", err)
 	}
 	if !reflect.DeepEqual(o, empty) {
 		t.Errorf("Expected AfterUpsertHook function to empty object, but got: %#v", o)
 	}
-	commentAfterUpsertHooks = []CommentHook{}
+	followerAfterUpsertHooks = []FollowerHook{}
 }
 
-func testCommentsInsert(t *testing.T) {
+func testFollowersInsert(t *testing.T) {
 	t.Parallel()
 
 	seed := randomize.NewSeed()
 	var err error
-	o := &Comment{}
-	if err = randomize.Struct(seed, o, commentDBTypes, true, commentColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Comment struct: %s", err)
+	o := &Follower{}
+	if err = randomize.Struct(seed, o, followerDBTypes, true, followerColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Follower struct: %s", err)
 	}
 
 	ctx := context.Background()
@@ -457,7 +457,7 @@ func testCommentsInsert(t *testing.T) {
 		t.Error(err)
 	}
 
-	count, err := Comments().Count(ctx, tx)
+	count, err := Followers().Count(ctx, tx)
 	if err != nil {
 		t.Error(err)
 	}
@@ -467,24 +467,24 @@ func testCommentsInsert(t *testing.T) {
 	}
 }
 
-func testCommentsInsertWhitelist(t *testing.T) {
+func testFollowersInsertWhitelist(t *testing.T) {
 	t.Parallel()
 
 	seed := randomize.NewSeed()
 	var err error
-	o := &Comment{}
-	if err = randomize.Struct(seed, o, commentDBTypes, true); err != nil {
-		t.Errorf("Unable to randomize Comment struct: %s", err)
+	o := &Follower{}
+	if err = randomize.Struct(seed, o, followerDBTypes, true); err != nil {
+		t.Errorf("Unable to randomize Follower struct: %s", err)
 	}
 
 	ctx := context.Background()
 	tx := MustTx(boil.BeginTx(ctx, nil))
 	defer func() { _ = tx.Rollback() }()
-	if err = o.Insert(ctx, tx, boil.Whitelist(commentColumnsWithoutDefault...)); err != nil {
+	if err = o.Insert(ctx, tx, boil.Whitelist(followerColumnsWithoutDefault...)); err != nil {
 		t.Error(err)
 	}
 
-	count, err := Comments().Count(ctx, tx)
+	count, err := Followers().Count(ctx, tx)
 	if err != nil {
 		t.Error(err)
 	}
@@ -494,68 +494,17 @@ func testCommentsInsertWhitelist(t *testing.T) {
 	}
 }
 
-func testCommentToOnePostUsingPost(t *testing.T) {
+func testFollowerToOneUserUsingFollowee(t *testing.T) {
 	ctx := context.Background()
 	tx := MustTx(boil.BeginTx(ctx, nil))
 	defer func() { _ = tx.Rollback() }()
 
-	var local Comment
-	var foreign Post
-
-	seed := randomize.NewSeed()
-	if err := randomize.Struct(seed, &local, commentDBTypes, false, commentColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Comment struct: %s", err)
-	}
-	if err := randomize.Struct(seed, &foreign, postDBTypes, false, postColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Post struct: %s", err)
-	}
-
-	if err := foreign.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	local.PostID = foreign.ID
-	if err := local.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	check, err := local.Post().One(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if check.ID != foreign.ID {
-		t.Errorf("want: %v, got %v", foreign.ID, check.ID)
-	}
-
-	slice := CommentSlice{&local}
-	if err = local.L.LoadPost(ctx, tx, false, (*[]*Comment)(&slice), nil); err != nil {
-		t.Fatal(err)
-	}
-	if local.R.Post == nil {
-		t.Error("struct should have been eager loaded")
-	}
-
-	local.R.Post = nil
-	if err = local.L.LoadPost(ctx, tx, true, &local, nil); err != nil {
-		t.Fatal(err)
-	}
-	if local.R.Post == nil {
-		t.Error("struct should have been eager loaded")
-	}
-}
-
-func testCommentToOneUserUsingUser(t *testing.T) {
-	ctx := context.Background()
-	tx := MustTx(boil.BeginTx(ctx, nil))
-	defer func() { _ = tx.Rollback() }()
-
-	var local Comment
+	var local Follower
 	var foreign User
 
 	seed := randomize.NewSeed()
-	if err := randomize.Struct(seed, &local, commentDBTypes, false, commentColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Comment struct: %s", err)
+	if err := randomize.Struct(seed, &local, followerDBTypes, false, followerColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Follower struct: %s", err)
 	}
 	if err := randomize.Struct(seed, &foreign, userDBTypes, false, userColumnsWithDefault...); err != nil {
 		t.Errorf("Unable to randomize User struct: %s", err)
@@ -565,12 +514,12 @@ func testCommentToOneUserUsingUser(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	local.UserID = foreign.ID
+	local.FolloweeID = foreign.ID
 	if err := local.Insert(ctx, tx, boil.Infer()); err != nil {
 		t.Fatal(err)
 	}
 
-	check, err := local.User().One(ctx, tx)
+	check, err := local.Followee().One(ctx, tx)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -579,92 +528,86 @@ func testCommentToOneUserUsingUser(t *testing.T) {
 		t.Errorf("want: %v, got %v", foreign.ID, check.ID)
 	}
 
-	slice := CommentSlice{&local}
-	if err = local.L.LoadUser(ctx, tx, false, (*[]*Comment)(&slice), nil); err != nil {
+	slice := FollowerSlice{&local}
+	if err = local.L.LoadFollowee(ctx, tx, false, (*[]*Follower)(&slice), nil); err != nil {
 		t.Fatal(err)
 	}
-	if local.R.User == nil {
+	if local.R.Followee == nil {
 		t.Error("struct should have been eager loaded")
 	}
 
-	local.R.User = nil
-	if err = local.L.LoadUser(ctx, tx, true, &local, nil); err != nil {
+	local.R.Followee = nil
+	if err = local.L.LoadFollowee(ctx, tx, true, &local, nil); err != nil {
 		t.Fatal(err)
 	}
-	if local.R.User == nil {
+	if local.R.Followee == nil {
 		t.Error("struct should have been eager loaded")
 	}
 }
 
-func testCommentToOneSetOpPostUsingPost(t *testing.T) {
-	var err error
-
+func testFollowerToOneUserUsingFollower(t *testing.T) {
 	ctx := context.Background()
 	tx := MustTx(boil.BeginTx(ctx, nil))
 	defer func() { _ = tx.Rollback() }()
 
-	var a Comment
-	var b, c Post
+	var local Follower
+	var foreign User
 
 	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, commentDBTypes, false, strmangle.SetComplement(commentPrimaryKeyColumns, commentColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
+	if err := randomize.Struct(seed, &local, followerDBTypes, false, followerColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Follower struct: %s", err)
 	}
-	if err = randomize.Struct(seed, &b, postDBTypes, false, strmangle.SetComplement(postPrimaryKeyColumns, postColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-	if err = randomize.Struct(seed, &c, postDBTypes, false, strmangle.SetComplement(postPrimaryKeyColumns, postColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
+	if err := randomize.Struct(seed, &foreign, userDBTypes, false, userColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize User struct: %s", err)
 	}
 
-	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
+	if err := foreign.Insert(ctx, tx, boil.Infer()); err != nil {
 		t.Fatal(err)
 	}
 
-	for i, x := range []*Post{&b, &c} {
-		err = a.SetPost(ctx, tx, i != 0, x)
-		if err != nil {
-			t.Fatal(err)
-		}
+	local.FollowerID = foreign.ID
+	if err := local.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
 
-		if a.R.Post != x {
-			t.Error("relationship struct not set to correct value")
-		}
+	check, err := local.Follower().One(ctx, tx)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-		if x.R.Comments[0] != &a {
-			t.Error("failed to append to foreign relationship struct")
-		}
-		if a.PostID != x.ID {
-			t.Error("foreign key was wrong value", a.PostID)
-		}
+	if check.ID != foreign.ID {
+		t.Errorf("want: %v, got %v", foreign.ID, check.ID)
+	}
 
-		zero := reflect.Zero(reflect.TypeOf(a.PostID))
-		reflect.Indirect(reflect.ValueOf(&a.PostID)).Set(zero)
+	slice := FollowerSlice{&local}
+	if err = local.L.LoadFollower(ctx, tx, false, (*[]*Follower)(&slice), nil); err != nil {
+		t.Fatal(err)
+	}
+	if local.R.Follower == nil {
+		t.Error("struct should have been eager loaded")
+	}
 
-		if err = a.Reload(ctx, tx); err != nil {
-			t.Fatal("failed to reload", err)
-		}
-
-		if a.PostID != x.ID {
-			t.Error("foreign key was wrong value", a.PostID, x.ID)
-		}
+	local.R.Follower = nil
+	if err = local.L.LoadFollower(ctx, tx, true, &local, nil); err != nil {
+		t.Fatal(err)
+	}
+	if local.R.Follower == nil {
+		t.Error("struct should have been eager loaded")
 	}
 }
-func testCommentToOneSetOpUserUsingUser(t *testing.T) {
+
+func testFollowerToOneSetOpUserUsingFollowee(t *testing.T) {
 	var err error
 
 	ctx := context.Background()
 	tx := MustTx(boil.BeginTx(ctx, nil))
 	defer func() { _ = tx.Rollback() }()
 
-	var a Comment
+	var a Follower
 	var b, c User
 
 	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, commentDBTypes, false, strmangle.SetComplement(commentPrimaryKeyColumns, commentColumnsWithoutDefault)...); err != nil {
+	if err = randomize.Struct(seed, &a, followerDBTypes, false, strmangle.SetComplement(followerPrimaryKeyColumns, followerColumnsWithoutDefault)...); err != nil {
 		t.Fatal(err)
 	}
 	if err = randomize.Struct(seed, &b, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
@@ -682,43 +625,92 @@ func testCommentToOneSetOpUserUsingUser(t *testing.T) {
 	}
 
 	for i, x := range []*User{&b, &c} {
-		err = a.SetUser(ctx, tx, i != 0, x)
+		err = a.SetFollowee(ctx, tx, i != 0, x)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		if a.R.User != x {
+		if a.R.Followee != x {
 			t.Error("relationship struct not set to correct value")
 		}
 
-		if x.R.Comments[0] != &a {
+		if x.R.FolloweeFollowers[0] != &a {
 			t.Error("failed to append to foreign relationship struct")
 		}
-		if a.UserID != x.ID {
-			t.Error("foreign key was wrong value", a.UserID)
+		if a.FolloweeID != x.ID {
+			t.Error("foreign key was wrong value", a.FolloweeID)
 		}
 
-		zero := reflect.Zero(reflect.TypeOf(a.UserID))
-		reflect.Indirect(reflect.ValueOf(&a.UserID)).Set(zero)
-
-		if err = a.Reload(ctx, tx); err != nil {
-			t.Fatal("failed to reload", err)
+		if exists, err := FollowerExists(ctx, tx, a.FollowerID, a.FolloweeID); err != nil {
+			t.Fatal(err)
+		} else if !exists {
+			t.Error("want 'a' to exist")
 		}
 
-		if a.UserID != x.ID {
-			t.Error("foreign key was wrong value", a.UserID, x.ID)
+	}
+}
+func testFollowerToOneSetOpUserUsingFollower(t *testing.T) {
+	var err error
+
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+
+	var a Follower
+	var b, c User
+
+	seed := randomize.NewSeed()
+	if err = randomize.Struct(seed, &a, followerDBTypes, false, strmangle.SetComplement(followerPrimaryKeyColumns, followerColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+	if err = randomize.Struct(seed, &b, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+	if err = randomize.Struct(seed, &c, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	for i, x := range []*User{&b, &c} {
+		err = a.SetFollower(ctx, tx, i != 0, x)
+		if err != nil {
+			t.Fatal(err)
 		}
+
+		if a.R.Follower != x {
+			t.Error("relationship struct not set to correct value")
+		}
+
+		if x.R.FollowerFollowers[0] != &a {
+			t.Error("failed to append to foreign relationship struct")
+		}
+		if a.FollowerID != x.ID {
+			t.Error("foreign key was wrong value", a.FollowerID)
+		}
+
+		if exists, err := FollowerExists(ctx, tx, a.FollowerID, a.FolloweeID); err != nil {
+			t.Fatal(err)
+		} else if !exists {
+			t.Error("want 'a' to exist")
+		}
+
 	}
 }
 
-func testCommentsReload(t *testing.T) {
+func testFollowersReload(t *testing.T) {
 	t.Parallel()
 
 	seed := randomize.NewSeed()
 	var err error
-	o := &Comment{}
-	if err = randomize.Struct(seed, o, commentDBTypes, true, commentColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Comment struct: %s", err)
+	o := &Follower{}
+	if err = randomize.Struct(seed, o, followerDBTypes, true, followerColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Follower struct: %s", err)
 	}
 
 	ctx := context.Background()
@@ -733,14 +725,14 @@ func testCommentsReload(t *testing.T) {
 	}
 }
 
-func testCommentsReloadAll(t *testing.T) {
+func testFollowersReloadAll(t *testing.T) {
 	t.Parallel()
 
 	seed := randomize.NewSeed()
 	var err error
-	o := &Comment{}
-	if err = randomize.Struct(seed, o, commentDBTypes, true, commentColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Comment struct: %s", err)
+	o := &Follower{}
+	if err = randomize.Struct(seed, o, followerDBTypes, true, followerColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Follower struct: %s", err)
 	}
 
 	ctx := context.Background()
@@ -750,21 +742,21 @@ func testCommentsReloadAll(t *testing.T) {
 		t.Error(err)
 	}
 
-	slice := CommentSlice{o}
+	slice := FollowerSlice{o}
 
 	if err = slice.ReloadAll(ctx, tx); err != nil {
 		t.Error(err)
 	}
 }
 
-func testCommentsSelect(t *testing.T) {
+func testFollowersSelect(t *testing.T) {
 	t.Parallel()
 
 	seed := randomize.NewSeed()
 	var err error
-	o := &Comment{}
-	if err = randomize.Struct(seed, o, commentDBTypes, true, commentColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Comment struct: %s", err)
+	o := &Follower{}
+	if err = randomize.Struct(seed, o, followerDBTypes, true, followerColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Follower struct: %s", err)
 	}
 
 	ctx := context.Background()
@@ -774,7 +766,7 @@ func testCommentsSelect(t *testing.T) {
 		t.Error(err)
 	}
 
-	slice, err := Comments().All(ctx, tx)
+	slice, err := Followers().All(ctx, tx)
 	if err != nil {
 		t.Error(err)
 	}
@@ -785,25 +777,25 @@ func testCommentsSelect(t *testing.T) {
 }
 
 var (
-	commentDBTypes = map[string]string{`ID`: `integer`, `UserID`: `integer`, `PostID`: `integer`, `Title`: `character varying`, `Body`: `text`, `CreatedAt`: `timestamp with time zone`, `UpdatedAt`: `timestamp with time zone`, `DeletedAt`: `timestamp with time zone`}
-	_              = bytes.MinRead
+	followerDBTypes = map[string]string{`FollowerID`: `integer`, `FolloweeID`: `integer`, `CreatedAt`: `timestamp with time zone`, `UpdatedAt`: `timestamp with time zone`, `DeletedAt`: `timestamp with time zone`}
+	_               = bytes.MinRead
 )
 
-func testCommentsUpdate(t *testing.T) {
+func testFollowersUpdate(t *testing.T) {
 	t.Parallel()
 
-	if 0 == len(commentPrimaryKeyColumns) {
+	if 0 == len(followerPrimaryKeyColumns) {
 		t.Skip("Skipping table with no primary key columns")
 	}
-	if len(commentAllColumns) == len(commentPrimaryKeyColumns) {
+	if len(followerAllColumns) == len(followerPrimaryKeyColumns) {
 		t.Skip("Skipping table with only primary key columns")
 	}
 
 	seed := randomize.NewSeed()
 	var err error
-	o := &Comment{}
-	if err = randomize.Struct(seed, o, commentDBTypes, true, commentColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Comment struct: %s", err)
+	o := &Follower{}
+	if err = randomize.Struct(seed, o, followerDBTypes, true, followerColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Follower struct: %s", err)
 	}
 
 	ctx := context.Background()
@@ -813,7 +805,7 @@ func testCommentsUpdate(t *testing.T) {
 		t.Error(err)
 	}
 
-	count, err := Comments().Count(ctx, tx)
+	count, err := Followers().Count(ctx, tx)
 	if err != nil {
 		t.Error(err)
 	}
@@ -822,8 +814,8 @@ func testCommentsUpdate(t *testing.T) {
 		t.Error("want one record, got:", count)
 	}
 
-	if err = randomize.Struct(seed, o, commentDBTypes, true, commentPrimaryKeyColumns...); err != nil {
-		t.Errorf("Unable to randomize Comment struct: %s", err)
+	if err = randomize.Struct(seed, o, followerDBTypes, true, followerPrimaryKeyColumns...); err != nil {
+		t.Errorf("Unable to randomize Follower struct: %s", err)
 	}
 
 	if rowsAff, err := o.Update(ctx, tx, boil.Infer()); err != nil {
@@ -833,18 +825,18 @@ func testCommentsUpdate(t *testing.T) {
 	}
 }
 
-func testCommentsSliceUpdateAll(t *testing.T) {
+func testFollowersSliceUpdateAll(t *testing.T) {
 	t.Parallel()
 
-	if len(commentAllColumns) == len(commentPrimaryKeyColumns) {
+	if len(followerAllColumns) == len(followerPrimaryKeyColumns) {
 		t.Skip("Skipping table with only primary key columns")
 	}
 
 	seed := randomize.NewSeed()
 	var err error
-	o := &Comment{}
-	if err = randomize.Struct(seed, o, commentDBTypes, true, commentColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Comment struct: %s", err)
+	o := &Follower{}
+	if err = randomize.Struct(seed, o, followerDBTypes, true, followerColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Follower struct: %s", err)
 	}
 
 	ctx := context.Background()
@@ -854,7 +846,7 @@ func testCommentsSliceUpdateAll(t *testing.T) {
 		t.Error(err)
 	}
 
-	count, err := Comments().Count(ctx, tx)
+	count, err := Followers().Count(ctx, tx)
 	if err != nil {
 		t.Error(err)
 	}
@@ -863,18 +855,18 @@ func testCommentsSliceUpdateAll(t *testing.T) {
 		t.Error("want one record, got:", count)
 	}
 
-	if err = randomize.Struct(seed, o, commentDBTypes, true, commentPrimaryKeyColumns...); err != nil {
-		t.Errorf("Unable to randomize Comment struct: %s", err)
+	if err = randomize.Struct(seed, o, followerDBTypes, true, followerPrimaryKeyColumns...); err != nil {
+		t.Errorf("Unable to randomize Follower struct: %s", err)
 	}
 
 	// Remove Primary keys and unique columns from what we plan to update
 	var fields []string
-	if strmangle.StringSliceMatch(commentAllColumns, commentPrimaryKeyColumns) {
-		fields = commentAllColumns
+	if strmangle.StringSliceMatch(followerAllColumns, followerPrimaryKeyColumns) {
+		fields = followerAllColumns
 	} else {
 		fields = strmangle.SetComplement(
-			commentAllColumns,
-			commentPrimaryKeyColumns,
+			followerAllColumns,
+			followerPrimaryKeyColumns,
 		)
 	}
 
@@ -892,7 +884,7 @@ func testCommentsSliceUpdateAll(t *testing.T) {
 		}
 	}
 
-	slice := CommentSlice{o}
+	slice := FollowerSlice{o}
 	if rowsAff, err := slice.UpdateAll(ctx, tx, updateMap); err != nil {
 		t.Error(err)
 	} else if rowsAff != 1 {
@@ -900,29 +892,29 @@ func testCommentsSliceUpdateAll(t *testing.T) {
 	}
 }
 
-func testCommentsUpsert(t *testing.T) {
+func testFollowersUpsert(t *testing.T) {
 	t.Parallel()
 
-	if len(commentAllColumns) == len(commentPrimaryKeyColumns) {
+	if len(followerAllColumns) == len(followerPrimaryKeyColumns) {
 		t.Skip("Skipping table with only primary key columns")
 	}
 
 	seed := randomize.NewSeed()
 	var err error
 	// Attempt the INSERT side of an UPSERT
-	o := Comment{}
-	if err = randomize.Struct(seed, &o, commentDBTypes, true); err != nil {
-		t.Errorf("Unable to randomize Comment struct: %s", err)
+	o := Follower{}
+	if err = randomize.Struct(seed, &o, followerDBTypes, true); err != nil {
+		t.Errorf("Unable to randomize Follower struct: %s", err)
 	}
 
 	ctx := context.Background()
 	tx := MustTx(boil.BeginTx(ctx, nil))
 	defer func() { _ = tx.Rollback() }()
 	if err = o.Upsert(ctx, tx, false, nil, boil.Infer(), boil.Infer()); err != nil {
-		t.Errorf("Unable to upsert Comment: %s", err)
+		t.Errorf("Unable to upsert Follower: %s", err)
 	}
 
-	count, err := Comments().Count(ctx, tx)
+	count, err := Followers().Count(ctx, tx)
 	if err != nil {
 		t.Error(err)
 	}
@@ -931,15 +923,15 @@ func testCommentsUpsert(t *testing.T) {
 	}
 
 	// Attempt the UPDATE side of an UPSERT
-	if err = randomize.Struct(seed, &o, commentDBTypes, false, commentPrimaryKeyColumns...); err != nil {
-		t.Errorf("Unable to randomize Comment struct: %s", err)
+	if err = randomize.Struct(seed, &o, followerDBTypes, false, followerPrimaryKeyColumns...); err != nil {
+		t.Errorf("Unable to randomize Follower struct: %s", err)
 	}
 
 	if err = o.Upsert(ctx, tx, true, nil, boil.Infer(), boil.Infer()); err != nil {
-		t.Errorf("Unable to upsert Comment: %s", err)
+		t.Errorf("Unable to upsert Follower: %s", err)
 	}
 
-	count, err = Comments().Count(ctx, tx)
+	count, err = Followers().Count(ctx, tx)
 	if err != nil {
 		t.Error(err)
 	}

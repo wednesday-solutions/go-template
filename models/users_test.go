@@ -572,14 +572,14 @@ func testUserToManyComments(t *testing.T) {
 	}
 }
 
-func testUserToManyFollowerUsers(t *testing.T) {
+func testUserToManyFolloweeFollowers(t *testing.T) {
 	var err error
 	ctx := context.Background()
 	tx := MustTx(boil.BeginTx(ctx, nil))
 	defer func() { _ = tx.Rollback() }()
 
 	var a User
-	var b, c User
+	var b, c Follower
 
 	seed := randomize.NewSeed()
 	if err = randomize.Struct(seed, &a, userDBTypes, true, userColumnsWithDefault...); err != nil {
@@ -590,12 +590,15 @@ func testUserToManyFollowerUsers(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err = randomize.Struct(seed, &b, userDBTypes, false, userColumnsWithDefault...); err != nil {
+	if err = randomize.Struct(seed, &b, followerDBTypes, false, followerColumnsWithDefault...); err != nil {
 		t.Fatal(err)
 	}
-	if err = randomize.Struct(seed, &c, userDBTypes, false, userColumnsWithDefault...); err != nil {
+	if err = randomize.Struct(seed, &c, followerDBTypes, false, followerColumnsWithDefault...); err != nil {
 		t.Fatal(err)
 	}
+
+	b.FolloweeID = a.ID
+	c.FolloweeID = a.ID
 
 	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
 		t.Fatal(err)
@@ -604,26 +607,17 @@ func testUserToManyFollowerUsers(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	_, err = tx.Exec("insert into \"followers\" (\"followee_id\", \"follower_id\") values ($1, $2)", a.ID, b.ID)
-	if err != nil {
-		t.Fatal(err)
-	}
-	_, err = tx.Exec("insert into \"followers\" (\"followee_id\", \"follower_id\") values ($1, $2)", a.ID, c.ID)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	check, err := a.FollowerUsers().All(ctx, tx)
+	check, err := a.FolloweeFollowers().All(ctx, tx)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	bFound, cFound := false, false
 	for _, v := range check {
-		if v.ID == b.ID {
+		if v.FolloweeID == b.FolloweeID {
 			bFound = true
 		}
-		if v.ID == c.ID {
+		if v.FolloweeID == c.FolloweeID {
 			cFound = true
 		}
 	}
@@ -636,18 +630,18 @@ func testUserToManyFollowerUsers(t *testing.T) {
 	}
 
 	slice := UserSlice{&a}
-	if err = a.L.LoadFollowerUsers(ctx, tx, false, (*[]*User)(&slice), nil); err != nil {
+	if err = a.L.LoadFolloweeFollowers(ctx, tx, false, (*[]*User)(&slice), nil); err != nil {
 		t.Fatal(err)
 	}
-	if got := len(a.R.FollowerUsers); got != 2 {
+	if got := len(a.R.FolloweeFollowers); got != 2 {
 		t.Error("number of eager loaded records wrong, got:", got)
 	}
 
-	a.R.FollowerUsers = nil
-	if err = a.L.LoadFollowerUsers(ctx, tx, true, &a, nil); err != nil {
+	a.R.FolloweeFollowers = nil
+	if err = a.L.LoadFolloweeFollowers(ctx, tx, true, &a, nil); err != nil {
 		t.Fatal(err)
 	}
-	if got := len(a.R.FollowerUsers); got != 2 {
+	if got := len(a.R.FolloweeFollowers); got != 2 {
 		t.Error("number of eager loaded records wrong, got:", got)
 	}
 
@@ -656,14 +650,14 @@ func testUserToManyFollowerUsers(t *testing.T) {
 	}
 }
 
-func testUserToManyFolloweeUsers(t *testing.T) {
+func testUserToManyFollowerFollowers(t *testing.T) {
 	var err error
 	ctx := context.Background()
 	tx := MustTx(boil.BeginTx(ctx, nil))
 	defer func() { _ = tx.Rollback() }()
 
 	var a User
-	var b, c User
+	var b, c Follower
 
 	seed := randomize.NewSeed()
 	if err = randomize.Struct(seed, &a, userDBTypes, true, userColumnsWithDefault...); err != nil {
@@ -674,12 +668,15 @@ func testUserToManyFolloweeUsers(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err = randomize.Struct(seed, &b, userDBTypes, false, userColumnsWithDefault...); err != nil {
+	if err = randomize.Struct(seed, &b, followerDBTypes, false, followerColumnsWithDefault...); err != nil {
 		t.Fatal(err)
 	}
-	if err = randomize.Struct(seed, &c, userDBTypes, false, userColumnsWithDefault...); err != nil {
+	if err = randomize.Struct(seed, &c, followerDBTypes, false, followerColumnsWithDefault...); err != nil {
 		t.Fatal(err)
 	}
+
+	b.FollowerID = a.ID
+	c.FollowerID = a.ID
 
 	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
 		t.Fatal(err)
@@ -688,26 +685,17 @@ func testUserToManyFolloweeUsers(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	_, err = tx.Exec("insert into \"followers\" (\"follower_id\", \"followee_id\") values ($1, $2)", a.ID, b.ID)
-	if err != nil {
-		t.Fatal(err)
-	}
-	_, err = tx.Exec("insert into \"followers\" (\"follower_id\", \"followee_id\") values ($1, $2)", a.ID, c.ID)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	check, err := a.FolloweeUsers().All(ctx, tx)
+	check, err := a.FollowerFollowers().All(ctx, tx)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	bFound, cFound := false, false
 	for _, v := range check {
-		if v.ID == b.ID {
+		if v.FollowerID == b.FollowerID {
 			bFound = true
 		}
-		if v.ID == c.ID {
+		if v.FollowerID == c.FollowerID {
 			cFound = true
 		}
 	}
@@ -720,18 +708,18 @@ func testUserToManyFolloweeUsers(t *testing.T) {
 	}
 
 	slice := UserSlice{&a}
-	if err = a.L.LoadFolloweeUsers(ctx, tx, false, (*[]*User)(&slice), nil); err != nil {
+	if err = a.L.LoadFollowerFollowers(ctx, tx, false, (*[]*User)(&slice), nil); err != nil {
 		t.Fatal(err)
 	}
-	if got := len(a.R.FolloweeUsers); got != 2 {
+	if got := len(a.R.FollowerFollowers); got != 2 {
 		t.Error("number of eager loaded records wrong, got:", got)
 	}
 
-	a.R.FolloweeUsers = nil
-	if err = a.L.LoadFolloweeUsers(ctx, tx, true, &a, nil); err != nil {
+	a.R.FollowerFollowers = nil
+	if err = a.L.LoadFollowerFollowers(ctx, tx, true, &a, nil); err != nil {
 		t.Fatal(err)
 	}
-	if got := len(a.R.FolloweeUsers); got != 2 {
+	if got := len(a.R.FollowerFollowers); got != 2 {
 		t.Error("number of eager loaded records wrong, got:", got)
 	}
 
@@ -893,7 +881,7 @@ func testUserToManyAddOpComments(t *testing.T) {
 		}
 	}
 }
-func testUserToManyAddOpFollowerUsers(t *testing.T) {
+func testUserToManyAddOpFolloweeFollowers(t *testing.T) {
 	var err error
 
 	ctx := context.Background()
@@ -901,15 +889,15 @@ func testUserToManyAddOpFollowerUsers(t *testing.T) {
 	defer func() { _ = tx.Rollback() }()
 
 	var a User
-	var b, c, d, e User
+	var b, c, d, e Follower
 
 	seed := randomize.NewSeed()
 	if err = randomize.Struct(seed, &a, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
 		t.Fatal(err)
 	}
-	foreigners := []*User{&b, &c, &d, &e}
+	foreigners := []*Follower{&b, &c, &d, &e}
 	for _, x := range foreigners {
-		if err = randomize.Struct(seed, x, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
+		if err = randomize.Struct(seed, x, followerDBTypes, false, strmangle.SetComplement(followerPrimaryKeyColumns, followerColumnsWithoutDefault)...); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -924,13 +912,13 @@ func testUserToManyAddOpFollowerUsers(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	foreignersSplitByInsertion := [][]*User{
+	foreignersSplitByInsertion := [][]*Follower{
 		{&b, &c},
 		{&d, &e},
 	}
 
 	for i, x := range foreignersSplitByInsertion {
-		err = a.AddFollowerUsers(ctx, tx, i != 0, x...)
+		err = a.AddFolloweeFollowers(ctx, tx, i != 0, x...)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -938,21 +926,28 @@ func testUserToManyAddOpFollowerUsers(t *testing.T) {
 		first := x[0]
 		second := x[1]
 
-		if first.R.FolloweeUsers[0] != &a {
-			t.Error("relationship was not added properly to the slice")
+		if a.ID != first.FolloweeID {
+			t.Error("foreign key was wrong value", a.ID, first.FolloweeID)
 		}
-		if second.R.FolloweeUsers[0] != &a {
-			t.Error("relationship was not added properly to the slice")
-		}
-
-		if a.R.FollowerUsers[i*2] != first {
-			t.Error("relationship struct slice not set to correct value")
-		}
-		if a.R.FollowerUsers[i*2+1] != second {
-			t.Error("relationship struct slice not set to correct value")
+		if a.ID != second.FolloweeID {
+			t.Error("foreign key was wrong value", a.ID, second.FolloweeID)
 		}
 
-		count, err := a.FollowerUsers().Count(ctx, tx)
+		if first.R.Followee != &a {
+			t.Error("relationship was not added properly to the foreign slice")
+		}
+		if second.R.Followee != &a {
+			t.Error("relationship was not added properly to the foreign slice")
+		}
+
+		if a.R.FolloweeFollowers[i*2] != first {
+			t.Error("relationship struct slice not set to correct value")
+		}
+		if a.R.FolloweeFollowers[i*2+1] != second {
+			t.Error("relationship struct slice not set to correct value")
+		}
+
+		count, err := a.FolloweeFollowers().Count(ctx, tx)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -961,8 +956,7 @@ func testUserToManyAddOpFollowerUsers(t *testing.T) {
 		}
 	}
 }
-
-func testUserToManySetOpFollowerUsers(t *testing.T) {
+func testUserToManyAddOpFollowerFollowers(t *testing.T) {
 	var err error
 
 	ctx := context.Background()
@@ -970,174 +964,15 @@ func testUserToManySetOpFollowerUsers(t *testing.T) {
 	defer func() { _ = tx.Rollback() }()
 
 	var a User
-	var b, c, d, e User
+	var b, c, d, e Follower
 
 	seed := randomize.NewSeed()
 	if err = randomize.Struct(seed, &a, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
 		t.Fatal(err)
 	}
-	foreigners := []*User{&b, &c, &d, &e}
+	foreigners := []*Follower{&b, &c, &d, &e}
 	for _, x := range foreigners {
-		if err = randomize.Struct(seed, x, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	if err = a.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-	if err = c.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	err = a.SetFollowerUsers(ctx, tx, false, &b, &c)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err := a.FollowerUsers().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 2 {
-		t.Error("count was wrong:", count)
-	}
-
-	err = a.SetFollowerUsers(ctx, tx, true, &d, &e)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err = a.FollowerUsers().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 2 {
-		t.Error("count was wrong:", count)
-	}
-
-	// The following checks cannot be implemented since we have no handle
-	// to these when we call Set(). Leaving them here as wishful thinking
-	// and to let people know there's dragons.
-	//
-	// if len(b.R.FolloweeUsers) != 0 {
-	// 	t.Error("relationship was not removed properly from the slice")
-	// }
-	// if len(c.R.FolloweeUsers) != 0 {
-	// 	t.Error("relationship was not removed properly from the slice")
-	// }
-	if d.R.FolloweeUsers[0] != &a {
-		t.Error("relationship was not added properly to the slice")
-	}
-	if e.R.FolloweeUsers[0] != &a {
-		t.Error("relationship was not added properly to the slice")
-	}
-
-	if a.R.FollowerUsers[0] != &d {
-		t.Error("relationship struct slice not set to correct value")
-	}
-	if a.R.FollowerUsers[1] != &e {
-		t.Error("relationship struct slice not set to correct value")
-	}
-}
-
-func testUserToManyRemoveOpFollowerUsers(t *testing.T) {
-	var err error
-
-	ctx := context.Background()
-	tx := MustTx(boil.BeginTx(ctx, nil))
-	defer func() { _ = tx.Rollback() }()
-
-	var a User
-	var b, c, d, e User
-
-	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-	foreigners := []*User{&b, &c, &d, &e}
-	for _, x := range foreigners {
-		if err = randomize.Struct(seed, x, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	err = a.AddFollowerUsers(ctx, tx, true, foreigners...)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err := a.FollowerUsers().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 4 {
-		t.Error("count was wrong:", count)
-	}
-
-	err = a.RemoveFollowerUsers(ctx, tx, foreigners[:2]...)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err = a.FollowerUsers().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 2 {
-		t.Error("count was wrong:", count)
-	}
-
-	if len(b.R.FolloweeUsers) != 0 {
-		t.Error("relationship was not removed properly from the slice")
-	}
-	if len(c.R.FolloweeUsers) != 0 {
-		t.Error("relationship was not removed properly from the slice")
-	}
-	if d.R.FolloweeUsers[0] != &a {
-		t.Error("relationship was not added properly to the foreign struct")
-	}
-	if e.R.FolloweeUsers[0] != &a {
-		t.Error("relationship was not added properly to the foreign struct")
-	}
-
-	if len(a.R.FollowerUsers) != 2 {
-		t.Error("should have preserved two relationships")
-	}
-
-	// Removal doesn't do a stable deletion for performance so we have to flip the order
-	if a.R.FollowerUsers[1] != &d {
-		t.Error("relationship to d should have been preserved")
-	}
-	if a.R.FollowerUsers[0] != &e {
-		t.Error("relationship to e should have been preserved")
-	}
-}
-
-func testUserToManyAddOpFolloweeUsers(t *testing.T) {
-	var err error
-
-	ctx := context.Background()
-	tx := MustTx(boil.BeginTx(ctx, nil))
-	defer func() { _ = tx.Rollback() }()
-
-	var a User
-	var b, c, d, e User
-
-	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-	foreigners := []*User{&b, &c, &d, &e}
-	for _, x := range foreigners {
-		if err = randomize.Struct(seed, x, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
+		if err = randomize.Struct(seed, x, followerDBTypes, false, strmangle.SetComplement(followerPrimaryKeyColumns, followerColumnsWithoutDefault)...); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -1152,13 +987,13 @@ func testUserToManyAddOpFolloweeUsers(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	foreignersSplitByInsertion := [][]*User{
+	foreignersSplitByInsertion := [][]*Follower{
 		{&b, &c},
 		{&d, &e},
 	}
 
 	for i, x := range foreignersSplitByInsertion {
-		err = a.AddFolloweeUsers(ctx, tx, i != 0, x...)
+		err = a.AddFollowerFollowers(ctx, tx, i != 0, x...)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1166,21 +1001,28 @@ func testUserToManyAddOpFolloweeUsers(t *testing.T) {
 		first := x[0]
 		second := x[1]
 
-		if first.R.FollowerUsers[0] != &a {
-			t.Error("relationship was not added properly to the slice")
+		if a.ID != first.FollowerID {
+			t.Error("foreign key was wrong value", a.ID, first.FollowerID)
 		}
-		if second.R.FollowerUsers[0] != &a {
-			t.Error("relationship was not added properly to the slice")
-		}
-
-		if a.R.FolloweeUsers[i*2] != first {
-			t.Error("relationship struct slice not set to correct value")
-		}
-		if a.R.FolloweeUsers[i*2+1] != second {
-			t.Error("relationship struct slice not set to correct value")
+		if a.ID != second.FollowerID {
+			t.Error("foreign key was wrong value", a.ID, second.FollowerID)
 		}
 
-		count, err := a.FolloweeUsers().Count(ctx, tx)
+		if first.R.Follower != &a {
+			t.Error("relationship was not added properly to the foreign slice")
+		}
+		if second.R.Follower != &a {
+			t.Error("relationship was not added properly to the foreign slice")
+		}
+
+		if a.R.FollowerFollowers[i*2] != first {
+			t.Error("relationship struct slice not set to correct value")
+		}
+		if a.R.FollowerFollowers[i*2+1] != second {
+			t.Error("relationship struct slice not set to correct value")
+		}
+
+		count, err := a.FollowerFollowers().Count(ctx, tx)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1189,166 +1031,6 @@ func testUserToManyAddOpFolloweeUsers(t *testing.T) {
 		}
 	}
 }
-
-func testUserToManySetOpFolloweeUsers(t *testing.T) {
-	var err error
-
-	ctx := context.Background()
-	tx := MustTx(boil.BeginTx(ctx, nil))
-	defer func() { _ = tx.Rollback() }()
-
-	var a User
-	var b, c, d, e User
-
-	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-	foreigners := []*User{&b, &c, &d, &e}
-	for _, x := range foreigners {
-		if err = randomize.Struct(seed, x, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	if err = a.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-	if err = c.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	err = a.SetFolloweeUsers(ctx, tx, false, &b, &c)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err := a.FolloweeUsers().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 2 {
-		t.Error("count was wrong:", count)
-	}
-
-	err = a.SetFolloweeUsers(ctx, tx, true, &d, &e)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err = a.FolloweeUsers().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 2 {
-		t.Error("count was wrong:", count)
-	}
-
-	// The following checks cannot be implemented since we have no handle
-	// to these when we call Set(). Leaving them here as wishful thinking
-	// and to let people know there's dragons.
-	//
-	// if len(b.R.FollowerUsers) != 0 {
-	// 	t.Error("relationship was not removed properly from the slice")
-	// }
-	// if len(c.R.FollowerUsers) != 0 {
-	// 	t.Error("relationship was not removed properly from the slice")
-	// }
-	if d.R.FollowerUsers[0] != &a {
-		t.Error("relationship was not added properly to the slice")
-	}
-	if e.R.FollowerUsers[0] != &a {
-		t.Error("relationship was not added properly to the slice")
-	}
-
-	if a.R.FolloweeUsers[0] != &d {
-		t.Error("relationship struct slice not set to correct value")
-	}
-	if a.R.FolloweeUsers[1] != &e {
-		t.Error("relationship struct slice not set to correct value")
-	}
-}
-
-func testUserToManyRemoveOpFolloweeUsers(t *testing.T) {
-	var err error
-
-	ctx := context.Background()
-	tx := MustTx(boil.BeginTx(ctx, nil))
-	defer func() { _ = tx.Rollback() }()
-
-	var a User
-	var b, c, d, e User
-
-	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-	foreigners := []*User{&b, &c, &d, &e}
-	for _, x := range foreigners {
-		if err = randomize.Struct(seed, x, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	err = a.AddFolloweeUsers(ctx, tx, true, foreigners...)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err := a.FolloweeUsers().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 4 {
-		t.Error("count was wrong:", count)
-	}
-
-	err = a.RemoveFolloweeUsers(ctx, tx, foreigners[:2]...)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err = a.FolloweeUsers().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 2 {
-		t.Error("count was wrong:", count)
-	}
-
-	if len(b.R.FollowerUsers) != 0 {
-		t.Error("relationship was not removed properly from the slice")
-	}
-	if len(c.R.FollowerUsers) != 0 {
-		t.Error("relationship was not removed properly from the slice")
-	}
-	if d.R.FollowerUsers[0] != &a {
-		t.Error("relationship was not added properly to the foreign struct")
-	}
-	if e.R.FollowerUsers[0] != &a {
-		t.Error("relationship was not added properly to the foreign struct")
-	}
-
-	if len(a.R.FolloweeUsers) != 2 {
-		t.Error("should have preserved two relationships")
-	}
-
-	// Removal doesn't do a stable deletion for performance so we have to flip the order
-	if a.R.FolloweeUsers[1] != &d {
-		t.Error("relationship to d should have been preserved")
-	}
-	if a.R.FolloweeUsers[0] != &e {
-		t.Error("relationship to e should have been preserved")
-	}
-}
-
 func testUserToManyAddOpPosts(t *testing.T) {
 	var err error
 

@@ -14,6 +14,7 @@ import "testing"
 func TestParent(t *testing.T) {
 	t.Run("Comments", testComments)
 	t.Run("Companies", testCompanies)
+	t.Run("Followers", testFollowers)
 	t.Run("Locations", testLocations)
 	t.Run("Posts", testPosts)
 	t.Run("Roles", testRoles)
@@ -23,6 +24,7 @@ func TestParent(t *testing.T) {
 func TestDelete(t *testing.T) {
 	t.Run("Comments", testCommentsDelete)
 	t.Run("Companies", testCompaniesDelete)
+	t.Run("Followers", testFollowersDelete)
 	t.Run("Locations", testLocationsDelete)
 	t.Run("Posts", testPostsDelete)
 	t.Run("Roles", testRolesDelete)
@@ -32,6 +34,7 @@ func TestDelete(t *testing.T) {
 func TestQueryDeleteAll(t *testing.T) {
 	t.Run("Comments", testCommentsQueryDeleteAll)
 	t.Run("Companies", testCompaniesQueryDeleteAll)
+	t.Run("Followers", testFollowersQueryDeleteAll)
 	t.Run("Locations", testLocationsQueryDeleteAll)
 	t.Run("Posts", testPostsQueryDeleteAll)
 	t.Run("Roles", testRolesQueryDeleteAll)
@@ -41,6 +44,7 @@ func TestQueryDeleteAll(t *testing.T) {
 func TestSliceDeleteAll(t *testing.T) {
 	t.Run("Comments", testCommentsSliceDeleteAll)
 	t.Run("Companies", testCompaniesSliceDeleteAll)
+	t.Run("Followers", testFollowersSliceDeleteAll)
 	t.Run("Locations", testLocationsSliceDeleteAll)
 	t.Run("Posts", testPostsSliceDeleteAll)
 	t.Run("Roles", testRolesSliceDeleteAll)
@@ -50,6 +54,7 @@ func TestSliceDeleteAll(t *testing.T) {
 func TestExists(t *testing.T) {
 	t.Run("Comments", testCommentsExists)
 	t.Run("Companies", testCompaniesExists)
+	t.Run("Followers", testFollowersExists)
 	t.Run("Locations", testLocationsExists)
 	t.Run("Posts", testPostsExists)
 	t.Run("Roles", testRolesExists)
@@ -59,6 +64,7 @@ func TestExists(t *testing.T) {
 func TestFind(t *testing.T) {
 	t.Run("Comments", testCommentsFind)
 	t.Run("Companies", testCompaniesFind)
+	t.Run("Followers", testFollowersFind)
 	t.Run("Locations", testLocationsFind)
 	t.Run("Posts", testPostsFind)
 	t.Run("Roles", testRolesFind)
@@ -68,6 +74,7 @@ func TestFind(t *testing.T) {
 func TestBind(t *testing.T) {
 	t.Run("Comments", testCommentsBind)
 	t.Run("Companies", testCompaniesBind)
+	t.Run("Followers", testFollowersBind)
 	t.Run("Locations", testLocationsBind)
 	t.Run("Posts", testPostsBind)
 	t.Run("Roles", testRolesBind)
@@ -77,6 +84,7 @@ func TestBind(t *testing.T) {
 func TestOne(t *testing.T) {
 	t.Run("Comments", testCommentsOne)
 	t.Run("Companies", testCompaniesOne)
+	t.Run("Followers", testFollowersOne)
 	t.Run("Locations", testLocationsOne)
 	t.Run("Posts", testPostsOne)
 	t.Run("Roles", testRolesOne)
@@ -86,6 +94,7 @@ func TestOne(t *testing.T) {
 func TestAll(t *testing.T) {
 	t.Run("Comments", testCommentsAll)
 	t.Run("Companies", testCompaniesAll)
+	t.Run("Followers", testFollowersAll)
 	t.Run("Locations", testLocationsAll)
 	t.Run("Posts", testPostsAll)
 	t.Run("Roles", testRolesAll)
@@ -95,6 +104,7 @@ func TestAll(t *testing.T) {
 func TestCount(t *testing.T) {
 	t.Run("Comments", testCommentsCount)
 	t.Run("Companies", testCompaniesCount)
+	t.Run("Followers", testFollowersCount)
 	t.Run("Locations", testLocationsCount)
 	t.Run("Posts", testPostsCount)
 	t.Run("Roles", testRolesCount)
@@ -104,6 +114,7 @@ func TestCount(t *testing.T) {
 func TestHooks(t *testing.T) {
 	t.Run("Comments", testCommentsHooks)
 	t.Run("Companies", testCompaniesHooks)
+	t.Run("Followers", testFollowersHooks)
 	t.Run("Locations", testLocationsHooks)
 	t.Run("Posts", testPostsHooks)
 	t.Run("Roles", testRolesHooks)
@@ -115,6 +126,8 @@ func TestInsert(t *testing.T) {
 	t.Run("Comments", testCommentsInsertWhitelist)
 	t.Run("Companies", testCompaniesInsert)
 	t.Run("Companies", testCompaniesInsertWhitelist)
+	t.Run("Followers", testFollowersInsert)
+	t.Run("Followers", testFollowersInsertWhitelist)
 	t.Run("Locations", testLocationsInsert)
 	t.Run("Locations", testLocationsInsertWhitelist)
 	t.Run("Posts", testPostsInsert)
@@ -130,6 +143,8 @@ func TestInsert(t *testing.T) {
 func TestToOne(t *testing.T) {
 	t.Run("CommentToPostUsingPost", testCommentToOnePostUsingPost)
 	t.Run("CommentToUserUsingUser", testCommentToOneUserUsingUser)
+	t.Run("FollowerToUserUsingFollowee", testFollowerToOneUserUsingFollowee)
+	t.Run("FollowerToUserUsingFollower", testFollowerToOneUserUsingFollower)
 	t.Run("LocationToCompanyUsingCompany", testLocationToOneCompanyUsingCompany)
 	t.Run("PostToUserUsingUser", testPostToOneUserUsingUser)
 	t.Run("UserToCompanyUsingCompany", testUserToOneCompanyUsingCompany)
@@ -150,8 +165,8 @@ func TestToMany(t *testing.T) {
 	t.Run("PostToComments", testPostToManyComments)
 	t.Run("RoleToUsers", testRoleToManyUsers)
 	t.Run("UserToComments", testUserToManyComments)
-	t.Run("UserToFollowerUsers", testUserToManyFollowerUsers)
-	t.Run("UserToFolloweeUsers", testUserToManyFolloweeUsers)
+	t.Run("UserToFolloweeFollowers", testUserToManyFolloweeFollowers)
+	t.Run("UserToFollowerFollowers", testUserToManyFollowerFollowers)
 	t.Run("UserToPosts", testUserToManyPosts)
 }
 
@@ -160,6 +175,8 @@ func TestToMany(t *testing.T) {
 func TestToOneSet(t *testing.T) {
 	t.Run("CommentToPostUsingComments", testCommentToOneSetOpPostUsingPost)
 	t.Run("CommentToUserUsingComments", testCommentToOneSetOpUserUsingUser)
+	t.Run("FollowerToUserUsingFolloweeFollowers", testFollowerToOneSetOpUserUsingFollowee)
+	t.Run("FollowerToUserUsingFollowerFollowers", testFollowerToOneSetOpUserUsingFollower)
 	t.Run("LocationToCompanyUsingLocations", testLocationToOneSetOpCompanyUsingCompany)
 	t.Run("PostToUserUsingPosts", testPostToOneSetOpUserUsingUser)
 	t.Run("UserToCompanyUsingUsers", testUserToOneSetOpCompanyUsingCompany)
@@ -192,8 +209,8 @@ func TestToManyAdd(t *testing.T) {
 	t.Run("PostToComments", testPostToManyAddOpComments)
 	t.Run("RoleToUsers", testRoleToManyAddOpUsers)
 	t.Run("UserToComments", testUserToManyAddOpComments)
-	t.Run("UserToFollowerUsers", testUserToManyAddOpFollowerUsers)
-	t.Run("UserToFolloweeUsers", testUserToManyAddOpFolloweeUsers)
+	t.Run("UserToFolloweeFollowers", testUserToManyAddOpFolloweeFollowers)
+	t.Run("UserToFollowerFollowers", testUserToManyAddOpFollowerFollowers)
 	t.Run("UserToPosts", testUserToManyAddOpPosts)
 }
 
@@ -203,8 +220,6 @@ func TestToManySet(t *testing.T) {
 	t.Run("CompanyToUsers", testCompanyToManySetOpUsers)
 	t.Run("LocationToUsers", testLocationToManySetOpUsers)
 	t.Run("RoleToUsers", testRoleToManySetOpUsers)
-	t.Run("UserToFollowerUsers", testUserToManySetOpFollowerUsers)
-	t.Run("UserToFolloweeUsers", testUserToManySetOpFolloweeUsers)
 }
 
 // TestToManyRemove tests cannot be run in parallel
@@ -213,13 +228,12 @@ func TestToManyRemove(t *testing.T) {
 	t.Run("CompanyToUsers", testCompanyToManyRemoveOpUsers)
 	t.Run("LocationToUsers", testLocationToManyRemoveOpUsers)
 	t.Run("RoleToUsers", testRoleToManyRemoveOpUsers)
-	t.Run("UserToFollowerUsers", testUserToManyRemoveOpFollowerUsers)
-	t.Run("UserToFolloweeUsers", testUserToManyRemoveOpFolloweeUsers)
 }
 
 func TestReload(t *testing.T) {
 	t.Run("Comments", testCommentsReload)
 	t.Run("Companies", testCompaniesReload)
+	t.Run("Followers", testFollowersReload)
 	t.Run("Locations", testLocationsReload)
 	t.Run("Posts", testPostsReload)
 	t.Run("Roles", testRolesReload)
@@ -229,6 +243,7 @@ func TestReload(t *testing.T) {
 func TestReloadAll(t *testing.T) {
 	t.Run("Comments", testCommentsReloadAll)
 	t.Run("Companies", testCompaniesReloadAll)
+	t.Run("Followers", testFollowersReloadAll)
 	t.Run("Locations", testLocationsReloadAll)
 	t.Run("Posts", testPostsReloadAll)
 	t.Run("Roles", testRolesReloadAll)
@@ -238,6 +253,7 @@ func TestReloadAll(t *testing.T) {
 func TestSelect(t *testing.T) {
 	t.Run("Comments", testCommentsSelect)
 	t.Run("Companies", testCompaniesSelect)
+	t.Run("Followers", testFollowersSelect)
 	t.Run("Locations", testLocationsSelect)
 	t.Run("Posts", testPostsSelect)
 	t.Run("Roles", testRolesSelect)
@@ -247,6 +263,7 @@ func TestSelect(t *testing.T) {
 func TestUpdate(t *testing.T) {
 	t.Run("Comments", testCommentsUpdate)
 	t.Run("Companies", testCompaniesUpdate)
+	t.Run("Followers", testFollowersUpdate)
 	t.Run("Locations", testLocationsUpdate)
 	t.Run("Posts", testPostsUpdate)
 	t.Run("Roles", testRolesUpdate)
@@ -256,6 +273,7 @@ func TestUpdate(t *testing.T) {
 func TestSliceUpdateAll(t *testing.T) {
 	t.Run("Comments", testCommentsSliceUpdateAll)
 	t.Run("Companies", testCompaniesSliceUpdateAll)
+	t.Run("Followers", testFollowersSliceUpdateAll)
 	t.Run("Locations", testLocationsSliceUpdateAll)
 	t.Run("Posts", testPostsSliceUpdateAll)
 	t.Run("Roles", testRolesSliceUpdateAll)
