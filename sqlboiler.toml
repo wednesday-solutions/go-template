@@ -1,0 +1,8 @@
+[psql]
+  dbname = "go_boiler"
+  host   = "localhost"
+  port   = 5432
+  user   = "go_boiler_role"
+  pass   = "go_boiler_role456"
+  sslmode = "disable"
+  blacklist = ["gopg_migrations"]

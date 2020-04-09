@@ -20,3 +20,5 @@ do
    go run main.go "$i"
 done
 cd  ../../
+
+sqlboiler psql
