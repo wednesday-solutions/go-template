@@ -3,8 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/wednesday-solution/go-boiler/pkg/utl/postgres"
 	"os"
+
+	"github.com/wednesday-solution/go-boiler/pkg/utl/postgres"
 
 	"github.com/go-pg/migrations/v7"
 )
@@ -59,7 +60,7 @@ func DropTable(db migrations.DB, tableName string) error {
 }
 
 func CreateTableAndAddTrigger(db migrations.DB, createTableQuery string, tableName string) error {
-	fmt.Print(fmt.Sprintf("\nCreating %s", tableName))
+	fmt.Print(fmt.Sprintf("\nCreating %s\n", tableName))
 	_, err := db.Exec(createTableQuery)
 
 	if err != nil {

@@ -2,15 +2,16 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/go-pg/migrations/v7"
 )
 
 func init() {
 	var tableName = "roles"
 	var createTableQuery = fmt.Sprintf(`CREATE TABLE public.%s (
-			id serial unique,
-			access_level bigint,
-			name text
+			id SERIAL UNIQUE PRIMARY KEY,
+			access_level bigint NOT NULL,
+			name text  NOT NULL
 		);`, tableName)
 	migrations.MustRegister(func(db migrations.DB) error {
 		err := CreateTriggerForUpdatedAt(db)
