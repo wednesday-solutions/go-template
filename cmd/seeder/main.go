@@ -8,7 +8,7 @@ import (
 )
 
 func SeedData(tableName string, rawQuery string) error {
-	db := postgres.Connect()
+	db, _ := postgres.Connect()
 
 	fmt.Print(fmt.Sprintf("\n-------------------------------\n***Seeding %s\n", tableName))
 

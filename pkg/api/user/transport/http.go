@@ -1,6 +1,8 @@
 package transport
 
 import (
+	"github.com/volatiletech/null"
+	"github.com/wednesday-solution/go-boiler/models"
 	"net/http"
 	"strconv"
 
@@ -137,7 +139,7 @@ func NewHTTP(svc user.Service, r *echo.Group) {
 
 // Custom errors
 var (
-	ErrPasswordsNotMaching = echo.NewHTTPError(http.StatusBadRequest, "passwords do not match")
+	ErrPasswordsNotMatching = echo.NewHTTPError(http.StatusBadRequest, "passwords do not match")
 )
 
 // User create request
@@ -150,9 +152,9 @@ type createReq struct {
 	PasswordConfirm string `json:"password_confirm" validate:"required"`
 	Email           string `json:"email" validate:"required,email"`
 
-	CompanyID  int              `json:"company_id" validate:"required"`
-	LocationID int              `json:"location_id" validate:"required"`
-	RoleID     goboiler.AccessRole `json:"role_id" validate:"required"`
+	CompanyID  int64 `json:"company_id" validate:"required"`
+	LocationID int64 `json:"location_id" validate:"required"`
+	RoleID     int64 `json:"role_id" validate:"required"`
 }
 
 func (h HTTP) create(c echo.Context) error {
@@ -164,22 +166,18 @@ func (h HTTP) create(c echo.Context) error {
 	}
 
 	if r.Password != r.PasswordConfirm {
-		return ErrPasswordsNotMaching
+		return ErrPasswordsNotMatching
 	}
 
-	if r.RoleID < goboiler.SuperAdminRole || r.RoleID > goboiler.UserRole {
-		return goboiler.ErrBadRequest
-	}
-
-	usr, err := h.svc.Create(c, goboiler.User{
-		Username:   r.Username,
-		Password:   r.Password,
-		Email:      r.Email,
-		FirstName:  r.FirstName,
-		LastName:   r.LastName,
-		CompanyID:  r.CompanyID,
-		LocationID: r.LocationID,
-		RoleID:     r.RoleID,
+	usr, err := h.svc.Create(c, models.User{
+		Username:   null.StringFrom(r.Username),
+		Password:   null.StringFrom(r.Password),
+		Email:      null.StringFrom(r.Email),
+		FirstName:  null.StringFrom(r.FirstName),
+		LastName:   null.StringFrom(r.LastName),
+		CompanyID:  null.Int64From(r.CompanyID),
+		LocationID: null.Int64From(r.LocationID),
+		RoleID:     null.Int64From(r.RoleID),
 	})
 
 	if err != nil {
@@ -190,8 +188,8 @@ func (h HTTP) create(c echo.Context) error {
 }
 
 type listResponse struct {
-	Users []goboiler.User `json:"users"`
-	Page  int          `json:"page"`
+	Users models.UserSlice `json:"users"`
+	Page  int              `json:"page"`
 }
 
 func (h HTTP) list(c echo.Context) error {
@@ -245,13 +243,13 @@ func (h HTTP) update(c echo.Context) error {
 		return err
 	}
 
-	usr, err := h.svc.Update(c, user.Update{
+	usr, err := h.svc.Update(c, models.User{
 		ID:        id,
-		FirstName: req.FirstName,
-		LastName:  req.LastName,
-		Mobile:    req.Mobile,
-		Phone:     req.Phone,
-		Address:   req.Address,
+		FirstName: null.StringFrom(req.FirstName),
+		LastName:  null.StringFrom(req.LastName),
+		Mobile:    null.StringFrom(req.Mobile),
+		Phone:     null.StringFrom(req.Phone),
+		Address:   null.StringFrom(req.Address),
 	})
 
 	if err != nil {

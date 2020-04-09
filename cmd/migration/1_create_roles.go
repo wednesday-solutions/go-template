@@ -11,7 +11,10 @@ func init() {
 	var createTableQuery = fmt.Sprintf(`CREATE TABLE public.%s (
 			id SERIAL UNIQUE PRIMARY KEY,
 			access_level bigint NOT NULL,
-			name text  NOT NULL
+			name text  NOT NULL,
+			created_at TIMESTAMP WITH TIME ZONE,
+			updated_at TIMESTAMP WITH TIME ZONE,
+			deleted_at TIMESTAMP WITH TIME ZONE
 		);`, tableName)
 	migrations.MustRegister(func(db migrations.DB) error {
 		err := CreateTriggerForUpdatedAt(db)

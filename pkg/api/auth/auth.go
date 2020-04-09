@@ -1,6 +1,11 @@
 package auth
 
 import (
+	"context"
+	"github.com/volatiletech/null"
+	"github.com/volatiletech/sqlboiler/boil"
+	"github.com/volatiletech/sqlboiler/queries/qm"
+	"github.com/wednesday-solution/go-boiler/models"
 	"net/http"
 
 	"github.com/labstack/echo"
@@ -15,16 +20,16 @@ var (
 
 // Authenticate tries to authenticate the user provided by username and password
 func (a Auth) Authenticate(c echo.Context, user, pass string) (goboiler.AuthToken, error) {
-	u, err := a.udb.FindByUsername(a.db, user)
+	u, err := models.Users(qm.Where("username=?", user)).One(context.Background(), a.db)
 	if err != nil {
 		return goboiler.AuthToken{}, err
 	}
 
-	if !a.sec.HashMatchesPassword(u.Password, pass) {
+	if !u.Password.Valid || (!a.sec.HashMatchesPassword(u.Password.String, pass)) {
 		return goboiler.AuthToken{}, ErrInvalidCredentials
 	}
 
-	if !u.Active {
+	if  !u.Active.Valid || (!u.Active.Bool) {
 		return goboiler.AuthToken{}, goboiler.ErrUnauthorized
 	}
 
@@ -33,18 +38,16 @@ func (a Auth) Authenticate(c echo.Context, user, pass string) (goboiler.AuthToke
 		return goboiler.AuthToken{}, goboiler.ErrUnauthorized
 	}
 
-	u.UpdateLastLogin(a.sec.Token(token))
+	refreshToken := a.sec.Token(token)
+	u.Token = null.StringFrom(refreshToken)
+	_, err = u.Update(context.Background(), a.db, boil.Infer())
 
-	if err := a.udb.Update(a.db, u); err != nil {
-		return goboiler.AuthToken{}, err
-	}
-
-	return goboiler.AuthToken{Token: token, RefreshToken: u.Token}, nil
+	return goboiler.AuthToken{Token: token, RefreshToken: refreshToken}, nil
 }
 
 // Refresh refreshes jwt token and puts new claims inside
 func (a Auth) Refresh(c echo.Context, refreshToken string) (string, error) {
-	user, err := a.udb.FindByToken(a.db, refreshToken)
+	user, err := models.Users(qm.Where("token=?", refreshToken)).One(context.Background(), a.db)
 	if err != nil {
 		return "", err
 	}
@@ -52,7 +55,6 @@ func (a Auth) Refresh(c echo.Context, refreshToken string) (string, error) {
 }
 
 // Me returns info about currently logged user
-func (a Auth) Me(c echo.Context) (goboiler.User, error) {
-	au := a.rbac.User(c)
-	return a.udb.View(a.db, au.ID)
+func (a Auth) Me(c echo.Context) (*models.User, error) {
+	return models.FindUser(context.Background(), a.db, c.Get("id").(int))
 }

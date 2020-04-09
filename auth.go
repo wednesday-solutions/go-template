@@ -2,6 +2,7 @@ package goboiler
 
 import (
 	"github.com/labstack/echo"
+	"github.com/wednesday-solution/go-boiler/models"
 )
 
 // AuthToken holds authentication token details with refresh token
@@ -17,11 +18,11 @@ type RefreshToken struct {
 
 // RBACService represents role-based access control service interface
 type RBACService interface {
-	User(echo.Context) AuthUser
-	EnforceRole(echo.Context, AccessRole) error
+	User(echo.Context) models.User
+	EnforceRole(echo.Context, int) error
 	EnforceUser(echo.Context, int) error
 	EnforceCompany(echo.Context, int) error
 	EnforceLocation(echo.Context, int) error
-	AccountCreate(echo.Context, AccessRole, int, int) error
-	IsLowerRole(echo.Context, AccessRole) error
+	AccountCreate(echo.Context, int, int, int) error
+	IsLowerRole(echo.Context, int) error
 }

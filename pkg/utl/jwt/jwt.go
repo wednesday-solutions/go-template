@@ -2,6 +2,7 @@ package jwt
 
 import (
 	"fmt"
+	"github.com/wednesday-solution/go-boiler/models"
 	"strings"
 	"time"
 
@@ -61,12 +62,12 @@ func (s Service) ParseToken(authHeader string) (*jwt.Token, error) {
 }
 
 // GenerateToken generates new JWT token and populates it with user data
-func (s Service) GenerateToken(u goboiler.User) (string, error) {
+func (s Service) GenerateToken(u *models.User) (string, error) {
 	return jwt.NewWithClaims(s.algo, jwt.MapClaims{
-		"id":  u.Base.ID,
+		"id":  u.ID,
 		"u":   u.Username,
 		"e":   u.Email,
-		"r":   u.Role.AccessLevel,
+		"r":   u.CompanyID,
 		"c":   u.CompanyID,
 		"l":   u.LocationID,
 		"exp": time.Now().Add(s.ttl).Unix(),

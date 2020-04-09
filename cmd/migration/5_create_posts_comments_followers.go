@@ -13,7 +13,10 @@ func init() {
 			id SERIAL PRIMARY KEY,
 			user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 			title VARCHAR(200) NOT NULL,
-			body TEXT NOT NULL
+			body TEXT NOT NULL,
+			created_at TIMESTAMP WITH TIME ZONE,
+			updated_at TIMESTAMP WITH TIME ZONE,
+			deleted_at TIMESTAMP WITH TIME ZONE
 			);`, tableName)
 	migrations.MustRegister(func(db migrations.DB) error {
 		err := createTable(db, createTableQuery, tableName)
@@ -26,7 +29,10 @@ func init() {
 			user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 			post_id INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
 			title VARCHAR(200) NOT NULL,
-			body TEXT NOT NULL
+			body TEXT NOT NULL,
+			created_at TIMESTAMP WITH TIME ZONE,
+			updated_at TIMESTAMP WITH TIME ZONE,
+			deleted_at TIMESTAMP WITH TIME ZONE
 			);`, tableName)
 		err = createTable(db, createTableQuery, tableName)
 
@@ -34,6 +40,9 @@ func init() {
 		createTableQuery = fmt.Sprintf(`CREATE TABLE IF NOT EXISTS public.%s (
 			follower_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 			followee_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+			created_at TIMESTAMP WITH TIME ZONE,
+			updated_at TIMESTAMP WITH TIME ZONE,
+			deleted_at TIMESTAMP WITH TIME ZONE,
 			PRIMARY KEY(follower_id, followee_id)
 			);`, tableName)
 		err = createTable(db, createTableQuery, tableName)

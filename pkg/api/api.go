@@ -33,9 +33,10 @@ package api
 
 import (
 	"crypto/sha1"
-	"os"
-
+	"github.com/volatiletech/sqlboiler/boil"
+	"github.com/wednesday-solution/go-boiler/pkg/utl/postgres"
 	"github.com/wednesday-solution/go-boiler/pkg/utl/zlog"
+	"os"
 
 	"github.com/wednesday-solution/go-boiler/pkg/api/auth"
 	al "github.com/wednesday-solution/go-boiler/pkg/api/auth/logging"
@@ -47,24 +48,23 @@ import (
 	ul "github.com/wednesday-solution/go-boiler/pkg/api/user/logging"
 	ut "github.com/wednesday-solution/go-boiler/pkg/api/user/transport"
 
+	_ "github.com/lib/pq" // here
 	"github.com/wednesday-solution/go-boiler/pkg/utl/config"
 	"github.com/wednesday-solution/go-boiler/pkg/utl/jwt"
 	authMw "github.com/wednesday-solution/go-boiler/pkg/utl/middleware/auth"
-	"github.com/wednesday-solution/go-boiler/pkg/utl/postgres"
-	"github.com/wednesday-solution/go-boiler/pkg/utl/rbac"
 	"github.com/wednesday-solution/go-boiler/pkg/utl/secure"
 	"github.com/wednesday-solution/go-boiler/pkg/utl/server"
 )
 
 // Start starts the API service
 func Start(cfg *config.Configuration) error {
-	db, err := postgres.New(os.Getenv("DATABASE_URL"), cfg.DB.Timeout, cfg.DB.LogQueries)
+	db, err := postgres.Connect()
 	if err != nil {
 		return err
 	}
+	boil.SetDB(db)
 
 	sec := secure.New(cfg.App.MinPasswordStr, sha1.New())
-	rbac := rbac.Service{}
 	jwt, err := jwt.New(cfg.JWT.SigningAlgorithm, os.Getenv("JWT_SECRET"), cfg.JWT.DurationMinutes, cfg.JWT.MinSecretLength)
 	if err != nil {
 		return err
@@ -77,13 +77,14 @@ func Start(cfg *config.Configuration) error {
 
 	authMiddleware := authMw.Middleware(jwt)
 
-	at.NewHTTP(al.New(auth.Initialize(db, jwt, sec, rbac), log), e, authMiddleware)
+	at.NewHTTP(al.New(auth.Initialize(db, jwt, sec), log), e, authMiddleware)
 
 	v1 := e.Group("/v1")
 	v1.Use(authMiddleware)
 
-	ut.NewHTTP(ul.New(user.Initialize(db, rbac, sec), log), v1)
-	pt.NewHTTP(pl.New(password.Initialize(db, rbac, sec), log), v1)
+
+	ut.NewHTTP(ul.New(user.Initialize(db, sec), log), v1)
+	pt.NewHTTP(pl.New(password.Initialize(db, sec), log), v1)
 
 	server.Start(e, &server.Config{
 		Port:                cfg.Server.Port,

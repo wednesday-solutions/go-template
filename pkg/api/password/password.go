@@ -1,6 +1,12 @@
 package password
 
 import (
+	"context"
+	"fmt"
+	"github.com/volatiletech/null"
+	"github.com/volatiletech/sqlboiler/boil"
+	"github.com/wednesday-solution/go-boiler/models"
+	"github.com/wednesday-solution/go-boiler/pkg/utl"
 	"net/http"
 
 	"github.com/labstack/echo"
@@ -14,23 +20,20 @@ var (
 
 // Change changes user's password
 func (p Password) Change(c echo.Context, userID int, oldPass, newPass string) error {
-	if err := p.rbac.EnforceUser(c, userID); err != nil {
-		return err
-	}
-
-	u, err := p.udb.View(p.db, userID)
+	u, err := models.FindUser(context.Background(), p.db, userID)
 	if err != nil {
 		return err
 	}
-	if !p.sec.HashMatchesPassword(u.Password, oldPass) {
+	fmt.Print("\n\n\n\npass\n\n\nuserID: ",userID)
+	if !p.sec.HashMatchesPassword(utl.FromNullableString(u.Password), oldPass) {
 		return ErrIncorrectPassword
 	}
 
-	if !p.sec.Password(newPass, u.FirstName, u.LastName, u.Username, u.Email) {
+	if !p.sec.Password(newPass, utl.FromNullableString(u.FirstName), utl.FromNullableString(u.LastName), utl.FromNullableString(u.Username), utl.FromNullableString(u.Email)) {
 		return ErrInsecurePassword
 	}
 
-	u.ChangePassword(p.sec.Hash(newPass))
-
-	return p.udb.Update(p.db, u)
+	u.Password = null.StringFrom(p.sec.Hash(newPass))
+	_, err = u.Update(context.Background(), p.db, boil.Infer())
+	return err
 }

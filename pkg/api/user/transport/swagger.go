@@ -1,7 +1,7 @@
 package transport
 
 import (
-	"github.com/wednesday-solution/go-boiler"
+	"github.com/wednesday-solution/go-boiler/models"
 )
 
 // User model response
@@ -9,7 +9,7 @@ import (
 type swaggUserResponse struct {
 	// in:body
 	Body struct {
-		*goboiler.User
+		*models.User
 	}
 }
 
@@ -18,7 +18,7 @@ type swaggUserResponse struct {
 type swaggUserListResponse struct {
 	// in:body
 	Body struct {
-		Users []goboiler.User `json:"users"`
+		Users models.UserSlice `json:"users"`
 		Page  int          `json:"page"`
 	}
 }

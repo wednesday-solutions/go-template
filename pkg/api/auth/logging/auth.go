@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"github.com/wednesday-solution/go-boiler/models"
 	"time"
 
 	"github.com/labstack/echo"
@@ -57,7 +58,7 @@ func (ls *LogService) Refresh(c echo.Context, req string) (token string, err err
 }
 
 // Me logging
-func (ls *LogService) Me(c echo.Context) (resp goboiler.User, err error) {
+func (ls *LogService) Me(c echo.Context) (resp *models.User, err error) {
 	defer func(begin time.Time) {
 		ls.logger.Log(
 			c,

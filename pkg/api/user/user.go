@@ -2,76 +2,49 @@
 package user
 
 import (
+	"context"
 	"github.com/labstack/echo"
+	"github.com/volatiletech/null"
+	"github.com/volatiletech/sqlboiler/boil"
+	"github.com/volatiletech/sqlboiler/queries/qm"
+	"github.com/wednesday-solution/go-boiler/models"
 
 	"github.com/wednesday-solution/go-boiler"
-	"github.com/wednesday-solution/go-boiler/pkg/utl/query"
 )
 
 // Create creates a new user account
-func (u User) Create(c echo.Context, req goboiler.User) (goboiler.User, error) {
-	if err := u.rbac.AccountCreate(c, req.RoleID, req.CompanyID, req.LocationID); err != nil {
-		return goboiler.User{}, err
-	}
-	req.Password = u.sec.Hash(req.Password)
-	return u.udb.Create(u.db, req)
+func (u User) Create(c echo.Context, user models.User) (models.User, error) {
+	user.Password = null.StringFrom(u.sec.Hash(user.Password.String))
+	err := user.Insert(context.Background(), u.db, boil.Infer())
+	return user, err
 }
 
 // List returns list of users
-func (u User) List(c echo.Context, p goboiler.Pagination) ([]goboiler.User, error) {
-	au := u.rbac.User(c)
-	q, err := query.List(au)
+func (u User) List(c echo.Context, p goboiler.Pagination) (models.UserSlice, error) {
+	users, err := models.Users(qm.Select()).All(context.Background(), u.db)
 	if err != nil {
 		return nil, err
 	}
-	return u.udb.List(u.db, q, p)
+	return users, err
 }
 
 // View returns single user
-func (u User) View(c echo.Context, id int) (goboiler.User, error) {
-	if err := u.rbac.EnforceUser(c, id); err != nil {
-		return goboiler.User{}, err
-	}
-	return u.udb.View(u.db, id)
+func (u User) View(c echo.Context, id int) (*models.User, error) {
+	return models.FindUser(context.Background(), u.db, id)
 }
 
 // Delete deletes a user
 func (u User) Delete(c echo.Context, id int) error {
-	user, err := u.udb.View(u.db, id)
+	user, err := models.FindUser(context.Background(), u.db, id)
 	if err != nil {
 		return err
 	}
-	if err := u.rbac.IsLowerRole(c, user.Role.AccessLevel); err != nil {
-		return err
-	}
-	return u.udb.Delete(u.db, user)
-}
-
-// Update contains user's information used for updating
-type Update struct {
-	ID        int
-	FirstName string
-	LastName  string
-	Mobile    string
-	Phone     string
-	Address   string
+	_, err = user.Delete(context.Background(), u.db)
+	return err
 }
 
 // Update updates user's contact information
-func (u User) Update(c echo.Context, r Update) (goboiler.User, error) {
-	if err := u.rbac.EnforceUser(c, r.ID); err != nil {
-		return goboiler.User{}, err
-	}
-
-	if err := u.udb.Update(u.db, goboiler.User{
-		Base:      goboiler.Base{ID: r.ID},
-		FirstName: r.FirstName,
-		LastName:  r.LastName,
-		Mobile:    r.Mobile,
-		Address:   r.Address,
-	}); err != nil {
-		return goboiler.User{}, err
-	}
-
-	return u.udb.View(u.db, r.ID)
+func (u User) Update(c echo.Context, user models.User) (models.User, error) {
+	_, err := user.Update(context.Background(), u.db, boil.Infer())
+	return user, err
 }

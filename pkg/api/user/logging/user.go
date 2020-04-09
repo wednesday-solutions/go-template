@@ -1,9 +1,10 @@
 package user
 
 import (
-	"time"
-
 	"github.com/labstack/echo"
+	"github.com/volatiletech/null"
+	"github.com/wednesday-solution/go-boiler/models"
+	"time"
 
 	"github.com/wednesday-solution/go-boiler"
 	"github.com/wednesday-solution/go-boiler/pkg/api/user"
@@ -26,9 +27,9 @@ type LogService struct {
 const name = "user"
 
 // Create logging
-func (ls *LogService) Create(c echo.Context, req goboiler.User) (resp goboiler.User, err error) {
+func (ls *LogService) Create(c echo.Context, req models.User) (resp models.User, err error) {
 	defer func(begin time.Time) {
-		req.Password = "xxx-redacted-xxx"
+		req.Password= null.StringFrom("xxx-redacted-xxx")
 		ls.logger.Log(
 			c,
 			name, "Create user request", err,
@@ -43,7 +44,7 @@ func (ls *LogService) Create(c echo.Context, req goboiler.User) (resp goboiler.U
 }
 
 // List logging
-func (ls *LogService) List(c echo.Context, req goboiler.Pagination) (resp []goboiler.User, err error) {
+func (ls *LogService) List(c echo.Context, req goboiler.Pagination) (resp models.UserSlice, err error) {
 	defer func(begin time.Time) {
 		ls.logger.Log(
 			c,
@@ -59,7 +60,7 @@ func (ls *LogService) List(c echo.Context, req goboiler.Pagination) (resp []gobo
 }
 
 // View logging
-func (ls *LogService) View(c echo.Context, req int) (resp goboiler.User, err error) {
+func (ls *LogService) View(c echo.Context, req int) (resp *models.User, err error) {
 	defer func(begin time.Time) {
 		ls.logger.Log(
 			c,
@@ -90,7 +91,7 @@ func (ls *LogService) Delete(c echo.Context, req int) (err error) {
 }
 
 // Update logging
-func (ls *LogService) Update(c echo.Context, req user.Update) (resp goboiler.User, err error) {
+func (ls *LogService) Update(c echo.Context, req models.User) (resp models.User, err error) {
 	defer func(begin time.Time) {
 		ls.logger.Log(
 			c,

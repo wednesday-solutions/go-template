@@ -26,7 +26,7 @@ func main() {
 
 	flag.Usage = usage
 	flag.Parse()
-	db := postgres.Connect()
+	db := postgres.MigrationConnect()
 
 	oldVersion, newVersion, err := migrations.Run(db, flag.Args()...)
 	if err != nil {

@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/dgrijalva/jwt-go"
@@ -18,7 +19,9 @@ type TokenParser interface {
 func Middleware(tokenParser TokenParser) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
+
 			token, err := tokenParser.ParseToken(c.Request().Header.Get("Authorization"))
+			fmt.Print("token", c.Request().Header.Get("Authorization"))
 			if err != nil || !token.Valid {
 				return c.NoContent(http.StatusUnauthorized)
 			}
