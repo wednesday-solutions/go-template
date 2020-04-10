@@ -161,3 +161,16 @@ go-boiler is licensed under the MIT license. Check the [LICENSE](LICENSE) file f
 ## Author
 
 [Mohammed Ali Chherawalla](https://github.com/aliChherawalla)
+
+
+# graphQL
+create the schema from the sqlboiler models
+
+```
+go run github.com/web-ridge/sqlboiler-graphql-schema
+```
+
+create the models and resolvers 
+```
+go run github.com/99designs/gqlgen init
+```
