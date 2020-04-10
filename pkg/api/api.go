@@ -33,9 +33,14 @@ package api
 
 import (
 	"crypto/sha1"
+	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/volatiletech/sqlboiler/boil"
+	graphql "github.com/wednesday-solution/go-boiler/graphql"
 	"github.com/wednesday-solution/go-boiler/pkg/utl/postgres"
 	"github.com/wednesday-solution/go-boiler/pkg/utl/zlog"
+	l "log"
+	"net/http"
 	"os"
 
 	"github.com/wednesday-solution/go-boiler/pkg/api/auth"
@@ -82,9 +87,16 @@ func Start(cfg *config.Configuration) error {
 	v1 := e.Group("/v1")
 	v1.Use(authMiddleware)
 
-
 	ut.NewHTTP(ul.New(user.Initialize(db, sec), log), v1)
 	pt.NewHTTP(pl.New(password.Initialize(db, sec), log), v1)
+	port := "9000"
+	srv := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: &graphql.Resolver{}}))
+
+	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
+	http.Handle("/query", srv)
+
+	l.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
+	l.Fatal(http.ListenAndServe(":"+port, nil))
 
 	server.Start(e, &server.Config{
 		Port:                cfg.Server.Port,
