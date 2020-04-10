@@ -1,0 +1,703 @@
+type Comment {
+  id: ID!
+  user: User!
+  post: Post!
+  title: String!
+  body: String!
+  createdAt: Int
+  deletedAt: Int
+  updatedAt: Int
+}
+
+type Company {
+  id: ID!
+  name: String
+  active: Boolean
+  updatedAt: Int
+  createdAt: Int
+  deletedAt: Int
+  locations: [Location]
+  users: [User]
+}
+
+type Follower {
+  follower: User!
+  followee: User!
+  deletedAt: Int
+  createdAt: Int
+  updatedAt: Int
+}
+
+type Location {
+  id: ID!
+  name: String
+  active: Boolean
+  address: String
+  company: Company!
+  createdAt: Int
+  updatedAt: Int
+  deletedAt: Int
+  users: [User]
+}
+
+type Post {
+  id: ID!
+  user: User!
+  title: String!
+  body: String!
+  deletedAt: Int
+  createdAt: Int
+  updatedAt: Int
+  comments: [Comment]
+}
+
+type Role {
+  id: ID!
+  accessLevel: Int!
+  name: String!
+  updatedAt: Int
+  createdAt: Int
+  deletedAt: Int
+  users: [User]
+}
+
+type User {
+  id: ID!
+  firstName: String
+  lastName: String
+  username: String
+  password: String
+  email: String
+  mobile: String
+  phone: String
+  address: String
+  active: Boolean
+  lastLogin: Int
+  lastPasswordChange: Int
+  token: String
+  role: Role
+  company: Company
+  location: Location
+  deletedAt: Int
+  updatedAt: Int
+  createdAt: Int
+  comments: [Comment]
+  followeeFollowers: [Follower]
+  followerFollowers: [Follower]
+  posts: [Post]
+}
+
+input IDFilter {
+  equalTo: ID
+  notEqualTo: ID
+  in: [ID!]
+  notIn: [ID!]
+}
+
+input StringFilter {
+  equalTo: String
+  notEqualTo: String
+
+  in: [String!]
+  notIn: [String!]
+
+  startWith: String
+  notStartWith: String
+
+  endWith: String
+  notEndWith: String
+
+  contain: String
+  notContain: String
+
+  startWithStrict: String # Camel sensitive
+  notStartWithStrict: String # Camel sensitive
+  endWithStrict: String # Camel sensitive
+  notEndWithStrict: String # Camel sensitive
+  containStrict: String # Camel sensitive
+  notContainStrict: String # Camel sensitive
+}
+
+input IntFilter {
+  equalTo: Int
+  notEqualTo: Int
+  lessThan: Int
+  lessThanOrEqualTo: Int
+  moreThan: Int
+  moreThanOrEqualTo: Int
+  in: [Int!]
+  notIn: [Int!]
+}
+
+input FloatFilter {
+  equalTo: Float
+  notEqualTo: Float
+  lessThan: Float
+  lessThanOrEqualTo: Float
+  moreThan: Float
+  moreThanOrEqualTo: Float
+  in: [Float!]
+  notIn: [Float!]
+}
+
+input BooleanFilter {
+  isTrue: Boolean
+  isFalse: Boolean
+  isNull: Boolean
+}
+
+input CommentFilter {
+  search: String
+  where: CommentWhere
+}
+
+input CommentWhere {
+  id: IDFilter
+  user: UserWhere
+  post: PostWhere
+  title: StringFilter
+  body: StringFilter
+  createdAt: IntFilter
+  deletedAt: IntFilter
+  updatedAt: IntFilter
+  or: CommentWhere
+  and: CommentWhere
+}
+
+input CompanyFilter {
+  search: String
+  where: CompanyWhere
+}
+
+input CompanyWhere {
+  id: IDFilter
+  name: StringFilter
+  active: BooleanFilter
+  updatedAt: IntFilter
+  createdAt: IntFilter
+  deletedAt: IntFilter
+  locations: LocationWhere
+  users: UserWhere
+  or: CompanyWhere
+  and: CompanyWhere
+}
+
+input FollowerFilter {
+  search: String
+  where: FollowerWhere
+}
+
+input FollowerWhere {
+  follower: UserWhere
+  followee: UserWhere
+  deletedAt: IntFilter
+  createdAt: IntFilter
+  updatedAt: IntFilter
+  or: FollowerWhere
+  and: FollowerWhere
+}
+
+input LocationFilter {
+  search: String
+  where: LocationWhere
+}
+
+input LocationWhere {
+  id: IDFilter
+  name: StringFilter
+  active: BooleanFilter
+  address: StringFilter
+  company: CompanyWhere
+  createdAt: IntFilter
+  updatedAt: IntFilter
+  deletedAt: IntFilter
+  users: UserWhere
+  or: LocationWhere
+  and: LocationWhere
+}
+
+input PostFilter {
+  search: String
+  where: PostWhere
+}
+
+input PostWhere {
+  id: IDFilter
+  user: UserWhere
+  title: StringFilter
+  body: StringFilter
+  deletedAt: IntFilter
+  createdAt: IntFilter
+  updatedAt: IntFilter
+  comments: CommentWhere
+  or: PostWhere
+  and: PostWhere
+}
+
+input RoleFilter {
+  search: String
+  where: RoleWhere
+}
+
+input RoleWhere {
+  id: IDFilter
+  accessLevel: IntFilter
+  name: StringFilter
+  updatedAt: IntFilter
+  createdAt: IntFilter
+  deletedAt: IntFilter
+  users: UserWhere
+  or: RoleWhere
+  and: RoleWhere
+}
+
+input UserFilter {
+  search: String
+  where: UserWhere
+}
+
+input UserWhere {
+  id: IDFilter
+  firstName: StringFilter
+  lastName: StringFilter
+  username: StringFilter
+  password: StringFilter
+  email: StringFilter
+  mobile: StringFilter
+  phone: StringFilter
+  address: StringFilter
+  active: BooleanFilter
+  lastLogin: IntFilter
+  lastPasswordChange: IntFilter
+  token: StringFilter
+  role: RoleWhere
+  company: CompanyWhere
+  location: LocationWhere
+  deletedAt: IntFilter
+  updatedAt: IntFilter
+  createdAt: IntFilter
+  comments: CommentWhere
+  followeeFollowers: FollowerWhere
+  followerFollowers: FollowerWhere
+  posts: PostWhere
+  or: UserWhere
+  and: UserWhere
+}
+
+type Query {
+  comment(id: ID!): Comment!
+  comments(filter: CommentFilter): [Comment!]!
+  company(id: ID!): Company!
+  companies(filter: CompanyFilter): [Company!]!
+  follower(id: ID!): Follower!
+  followers(filter: FollowerFilter): [Follower!]!
+  location(id: ID!): Location!
+  locations(filter: LocationFilter): [Location!]!
+  post(id: ID!): Post!
+  posts(filter: PostFilter): [Post!]!
+  role(id: ID!): Role!
+  roles(filter: RoleFilter): [Role!]!
+  user(id: ID!): User!
+  users(filter: UserFilter): [User!]!
+}
+
+input CommentCreateInput {
+  userId: ID!
+  postId: ID!
+  title: String!
+  body: String!
+  createdAt: Int
+  deletedAt: Int
+  updatedAt: Int
+}
+
+input CommentUpdateInput {
+  userId: ID
+  postId: ID
+  title: String
+  body: String
+  createdAt: Int
+  deletedAt: Int
+  updatedAt: Int
+}
+
+input CommentsCreateInput {
+  comments: [CommentCreateInput!]!
+}
+
+input CommentsUpdateInput {
+  comments: [CommentUpdateInput!]!
+}
+
+type CommentPayload {
+  comment: Comment!
+}
+
+type CommentDeletePayload {
+  id: ID!
+}
+
+type CommentsPayload {
+  comments: [Comment!]!
+}
+
+type CommentsDeletePayload {
+  ids: [ID!]!
+}
+
+type CommentsUpdatePayload {
+  ok: Boolean!
+}
+
+input CompanyCreateInput {
+  name: String
+  active: Boolean
+  updatedAt: Int
+  createdAt: Int
+  deletedAt: Int
+}
+
+input CompanyUpdateInput {
+  name: String
+  active: Boolean
+  updatedAt: Int
+  createdAt: Int
+  deletedAt: Int
+}
+
+input CompaniesCreateInput {
+  companies: [CompanyCreateInput!]!
+}
+
+input CompaniesUpdateInput {
+  companies: [CompanyUpdateInput!]!
+}
+
+type CompanyPayload {
+  company: Company!
+}
+
+type CompanyDeletePayload {
+  id: ID!
+}
+
+type CompaniesPayload {
+  companies: [Company!]!
+}
+
+type CompaniesDeletePayload {
+  ids: [ID!]!
+}
+
+type CompaniesUpdatePayload {
+  ok: Boolean!
+}
+
+input FollowerCreateInput {
+  followerId: ID!
+  followeeId: ID!
+  deletedAt: Int
+  createdAt: Int
+  updatedAt: Int
+}
+
+input FollowerUpdateInput {
+  followerId: ID
+  followeeId: ID
+  deletedAt: Int
+  createdAt: Int
+  updatedAt: Int
+}
+
+input FollowersCreateInput {
+  followers: [FollowerCreateInput!]!
+}
+
+input FollowersUpdateInput {
+  followers: [FollowerUpdateInput!]!
+}
+
+type FollowerPayload {
+  follower: Follower!
+}
+
+type FollowerDeletePayload {
+  id: ID!
+}
+
+type FollowersPayload {
+  followers: [Follower!]!
+}
+
+type FollowersDeletePayload {
+  ids: [ID!]!
+}
+
+type FollowersUpdatePayload {
+  ok: Boolean!
+}
+
+input LocationCreateInput {
+  name: String
+  active: Boolean
+  address: String
+  companyId: ID!
+  createdAt: Int
+  updatedAt: Int
+  deletedAt: Int
+}
+
+input LocationUpdateInput {
+  name: String
+  active: Boolean
+  address: String
+  companyId: ID
+  createdAt: Int
+  updatedAt: Int
+  deletedAt: Int
+}
+
+input LocationsCreateInput {
+  locations: [LocationCreateInput!]!
+}
+
+input LocationsUpdateInput {
+  locations: [LocationUpdateInput!]!
+}
+
+type LocationPayload {
+  location: Location!
+}
+
+type LocationDeletePayload {
+  id: ID!
+}
+
+type LocationsPayload {
+  locations: [Location!]!
+}
+
+type LocationsDeletePayload {
+  ids: [ID!]!
+}
+
+type LocationsUpdatePayload {
+  ok: Boolean!
+}
+
+input PostCreateInput {
+  userId: ID!
+  title: String!
+  body: String!
+  deletedAt: Int
+  createdAt: Int
+  updatedAt: Int
+}
+
+input PostUpdateInput {
+  userId: ID
+  title: String
+  body: String
+  deletedAt: Int
+  createdAt: Int
+  updatedAt: Int
+}
+
+input PostsCreateInput {
+  posts: [PostCreateInput!]!
+}
+
+input PostsUpdateInput {
+  posts: [PostUpdateInput!]!
+}
+
+type PostPayload {
+  post: Post!
+}
+
+type PostDeletePayload {
+  id: ID!
+}
+
+type PostsPayload {
+  posts: [Post!]!
+}
+
+type PostsDeletePayload {
+  ids: [ID!]!
+}
+
+type PostsUpdatePayload {
+  ok: Boolean!
+}
+
+input RoleCreateInput {
+  accessLevel: Int!
+  name: String!
+  updatedAt: Int
+  createdAt: Int
+  deletedAt: Int
+}
+
+input RoleUpdateInput {
+  accessLevel: Int
+  name: String
+  updatedAt: Int
+  createdAt: Int
+  deletedAt: Int
+}
+
+input RolesCreateInput {
+  roles: [RoleCreateInput!]!
+}
+
+input RolesUpdateInput {
+  roles: [RoleUpdateInput!]!
+}
+
+type RolePayload {
+  role: Role!
+}
+
+type RoleDeletePayload {
+  id: ID!
+}
+
+type RolesPayload {
+  roles: [Role!]!
+}
+
+type RolesDeletePayload {
+  ids: [ID!]!
+}
+
+type RolesUpdatePayload {
+  ok: Boolean!
+}
+
+input UserCreateInput {
+  firstName: String
+  lastName: String
+  username: String
+  password: String
+  email: String
+  mobile: String
+  phone: String
+  address: String
+  active: Boolean
+  lastLogin: Int
+  lastPasswordChange: Int
+  token: String
+  roleId: ID
+  companyId: ID
+  locationId: ID
+  deletedAt: Int
+  updatedAt: Int
+  createdAt: Int
+}
+
+input UserUpdateInput {
+  firstName: String
+  lastName: String
+  username: String
+  password: String
+  email: String
+  mobile: String
+  phone: String
+  address: String
+  active: Boolean
+  lastLogin: Int
+  lastPasswordChange: Int
+  token: String
+  roleId: ID
+  companyId: ID
+  locationId: ID
+  deletedAt: Int
+  updatedAt: Int
+  createdAt: Int
+}
+
+input UsersCreateInput {
+  users: [UserCreateInput!]!
+}
+
+input UsersUpdateInput {
+  users: [UserUpdateInput!]!
+}
+
+type UserPayload {
+  user: User!
+}
+
+type UserDeletePayload {
+  id: ID!
+}
+
+type UsersPayload {
+  users: [User!]!
+}
+
+type UsersDeletePayload {
+  ids: [ID!]!
+}
+
+type UsersUpdatePayload {
+  ok: Boolean!
+}
+
+type Mutation {
+  createComment(input: CommentCreateInput!): CommentPayload!
+  createComments(input: CommentsCreateInput!): CommentsPayload!
+  updateComment(id: ID!, input: CommentUpdateInput!): CommentPayload!
+  updateComments(
+    filter: CommentFilter
+    input: CommentsUpdateInput!
+  ): CommentsUpdatePayload!
+  deleteComment(id: ID!): CommentDeletePayload!
+  deleteComments(filter: CommentFilter): CommentsDeletePayload!
+  createCompany(input: CompanyCreateInput!): CompanyPayload!
+  createCompanies(input: CompaniesCreateInput!): CompaniesPayload!
+  updateCompany(id: ID!, input: CompanyUpdateInput!): CompanyPayload!
+  updateCompanies(
+    filter: CompanyFilter
+    input: CompaniesUpdateInput!
+  ): CompaniesUpdatePayload!
+  deleteCompany(id: ID!): CompanyDeletePayload!
+  deleteCompanies(filter: CompanyFilter): CompaniesDeletePayload!
+  createFollower(input: FollowerCreateInput!): FollowerPayload!
+  createFollowers(input: FollowersCreateInput!): FollowersPayload!
+  updateFollower(id: ID!, input: FollowerUpdateInput!): FollowerPayload!
+  updateFollowers(
+    filter: FollowerFilter
+    input: FollowersUpdateInput!
+  ): FollowersUpdatePayload!
+  deleteFollower(id: ID!): FollowerDeletePayload!
+  deleteFollowers(filter: FollowerFilter): FollowersDeletePayload!
+  createLocation(input: LocationCreateInput!): LocationPayload!
+  createLocations(input: LocationsCreateInput!): LocationsPayload!
+  updateLocation(id: ID!, input: LocationUpdateInput!): LocationPayload!
+  updateLocations(
+    filter: LocationFilter
+    input: LocationsUpdateInput!
+  ): LocationsUpdatePayload!
+  deleteLocation(id: ID!): LocationDeletePayload!
+  deleteLocations(filter: LocationFilter): LocationsDeletePayload!
+  createPost(input: PostCreateInput!): PostPayload!
+  createPosts(input: PostsCreateInput!): PostsPayload!
+  updatePost(id: ID!, input: PostUpdateInput!): PostPayload!
+  updatePosts(filter: PostFilter, input: PostsUpdateInput!): PostsUpdatePayload!
+  deletePost(id: ID!): PostDeletePayload!
+  deletePosts(filter: PostFilter): PostsDeletePayload!
+  createRole(input: RoleCreateInput!): RolePayload!
+  createRoles(input: RolesCreateInput!): RolesPayload!
+  updateRole(id: ID!, input: RoleUpdateInput!): RolePayload!
+  updateRoles(filter: RoleFilter, input: RolesUpdateInput!): RolesUpdatePayload!
+  deleteRole(id: ID!): RoleDeletePayload!
+  deleteRoles(filter: RoleFilter): RolesDeletePayload!
+  createUser(input: UserCreateInput!): UserPayload!
+  createUsers(input: UsersCreateInput!): UsersPayload!
+  updateUser(id: ID!, input: UserUpdateInput!): UserPayload!
+  updateUsers(filter: UserFilter, input: UsersUpdateInput!): UsersUpdatePayload!
+  deleteUser(id: ID!): UserDeletePayload!
+  deleteUsers(filter: UserFilter): UsersDeletePayload!
+}
