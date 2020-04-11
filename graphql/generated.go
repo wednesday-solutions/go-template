@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -40,6 +41,7 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
+	IsAuthenticated func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
@@ -195,19 +197,19 @@ type ComplexityRoot struct {
 		DeleteUser      func(childComplexity int, id string) int
 		DeleteUsers     func(childComplexity int, filter *gqlmodels.UserFilter) int
 		UpdateComment   func(childComplexity int, id string, input gqlmodels.CommentUpdateInput) int
-		UpdateComments  func(childComplexity int, filter *gqlmodels.CommentFilter, input gqlmodels.CommentsUpdateInput) int
-		UpdateCompanies func(childComplexity int, filter *gqlmodels.CompanyFilter, input gqlmodels.CompaniesUpdateInput) int
+		UpdateComments  func(childComplexity int, filter *gqlmodels.CommentFilter, input gqlmodels.CommentUpdateInput) int
+		UpdateCompanies func(childComplexity int, filter *gqlmodels.CompanyFilter, input gqlmodels.CompanyUpdateInput) int
 		UpdateCompany   func(childComplexity int, id string, input gqlmodels.CompanyUpdateInput) int
 		UpdateFollower  func(childComplexity int, id string, input gqlmodels.FollowerUpdateInput) int
-		UpdateFollowers func(childComplexity int, filter *gqlmodels.FollowerFilter, input gqlmodels.FollowersUpdateInput) int
+		UpdateFollowers func(childComplexity int, filter *gqlmodels.FollowerFilter, input gqlmodels.FollowerUpdateInput) int
 		UpdateLocation  func(childComplexity int, id string, input gqlmodels.LocationUpdateInput) int
-		UpdateLocations func(childComplexity int, filter *gqlmodels.LocationFilter, input gqlmodels.LocationsUpdateInput) int
+		UpdateLocations func(childComplexity int, filter *gqlmodels.LocationFilter, input gqlmodels.LocationUpdateInput) int
 		UpdatePost      func(childComplexity int, id string, input gqlmodels.PostUpdateInput) int
-		UpdatePosts     func(childComplexity int, filter *gqlmodels.PostFilter, input gqlmodels.PostsUpdateInput) int
+		UpdatePosts     func(childComplexity int, filter *gqlmodels.PostFilter, input gqlmodels.PostUpdateInput) int
 		UpdateRole      func(childComplexity int, id string, input gqlmodels.RoleUpdateInput) int
-		UpdateRoles     func(childComplexity int, filter *gqlmodels.RoleFilter, input gqlmodels.RolesUpdateInput) int
+		UpdateRoles     func(childComplexity int, filter *gqlmodels.RoleFilter, input gqlmodels.RoleUpdateInput) int
 		UpdateUser      func(childComplexity int, id string, input gqlmodels.UserUpdateInput) int
-		UpdateUsers     func(childComplexity int, filter *gqlmodels.UserFilter, input gqlmodels.UsersUpdateInput) int
+		UpdateUsers     func(childComplexity int, filter *gqlmodels.UserFilter, input gqlmodels.UserUpdateInput) int
 	}
 
 	Post struct {
@@ -339,43 +341,43 @@ type MutationResolver interface {
 	CreateComment(ctx context.Context, input gqlmodels.CommentCreateInput) (*gqlmodels.CommentPayload, error)
 	CreateComments(ctx context.Context, input gqlmodels.CommentsCreateInput) (*gqlmodels.CommentsPayload, error)
 	UpdateComment(ctx context.Context, id string, input gqlmodels.CommentUpdateInput) (*gqlmodels.CommentPayload, error)
-	UpdateComments(ctx context.Context, filter *gqlmodels.CommentFilter, input gqlmodels.CommentsUpdateInput) (*gqlmodels.CommentsUpdatePayload, error)
+	UpdateComments(ctx context.Context, filter *gqlmodels.CommentFilter, input gqlmodels.CommentUpdateInput) (*gqlmodels.CommentsUpdatePayload, error)
 	DeleteComment(ctx context.Context, id string) (*gqlmodels.CommentDeletePayload, error)
 	DeleteComments(ctx context.Context, filter *gqlmodels.CommentFilter) (*gqlmodels.CommentsDeletePayload, error)
 	CreateCompany(ctx context.Context, input gqlmodels.CompanyCreateInput) (*gqlmodels.CompanyPayload, error)
 	CreateCompanies(ctx context.Context, input gqlmodels.CompaniesCreateInput) (*gqlmodels.CompaniesPayload, error)
 	UpdateCompany(ctx context.Context, id string, input gqlmodels.CompanyUpdateInput) (*gqlmodels.CompanyPayload, error)
-	UpdateCompanies(ctx context.Context, filter *gqlmodels.CompanyFilter, input gqlmodels.CompaniesUpdateInput) (*gqlmodels.CompaniesUpdatePayload, error)
+	UpdateCompanies(ctx context.Context, filter *gqlmodels.CompanyFilter, input gqlmodels.CompanyUpdateInput) (*gqlmodels.CompaniesUpdatePayload, error)
 	DeleteCompany(ctx context.Context, id string) (*gqlmodels.CompanyDeletePayload, error)
 	DeleteCompanies(ctx context.Context, filter *gqlmodels.CompanyFilter) (*gqlmodels.CompaniesDeletePayload, error)
 	CreateFollower(ctx context.Context, input gqlmodels.FollowerCreateInput) (*gqlmodels.FollowerPayload, error)
 	CreateFollowers(ctx context.Context, input gqlmodels.FollowersCreateInput) (*gqlmodels.FollowersPayload, error)
 	UpdateFollower(ctx context.Context, id string, input gqlmodels.FollowerUpdateInput) (*gqlmodels.FollowerPayload, error)
-	UpdateFollowers(ctx context.Context, filter *gqlmodels.FollowerFilter, input gqlmodels.FollowersUpdateInput) (*gqlmodels.FollowersUpdatePayload, error)
+	UpdateFollowers(ctx context.Context, filter *gqlmodels.FollowerFilter, input gqlmodels.FollowerUpdateInput) (*gqlmodels.FollowersUpdatePayload, error)
 	DeleteFollower(ctx context.Context, id string) (*gqlmodels.FollowerDeletePayload, error)
 	DeleteFollowers(ctx context.Context, filter *gqlmodels.FollowerFilter) (*gqlmodels.FollowersDeletePayload, error)
 	CreateLocation(ctx context.Context, input gqlmodels.LocationCreateInput) (*gqlmodels.LocationPayload, error)
 	CreateLocations(ctx context.Context, input gqlmodels.LocationsCreateInput) (*gqlmodels.LocationsPayload, error)
 	UpdateLocation(ctx context.Context, id string, input gqlmodels.LocationUpdateInput) (*gqlmodels.LocationPayload, error)
-	UpdateLocations(ctx context.Context, filter *gqlmodels.LocationFilter, input gqlmodels.LocationsUpdateInput) (*gqlmodels.LocationsUpdatePayload, error)
+	UpdateLocations(ctx context.Context, filter *gqlmodels.LocationFilter, input gqlmodels.LocationUpdateInput) (*gqlmodels.LocationsUpdatePayload, error)
 	DeleteLocation(ctx context.Context, id string) (*gqlmodels.LocationDeletePayload, error)
 	DeleteLocations(ctx context.Context, filter *gqlmodels.LocationFilter) (*gqlmodels.LocationsDeletePayload, error)
 	CreatePost(ctx context.Context, input gqlmodels.PostCreateInput) (*gqlmodels.PostPayload, error)
 	CreatePosts(ctx context.Context, input gqlmodels.PostsCreateInput) (*gqlmodels.PostsPayload, error)
 	UpdatePost(ctx context.Context, id string, input gqlmodels.PostUpdateInput) (*gqlmodels.PostPayload, error)
-	UpdatePosts(ctx context.Context, filter *gqlmodels.PostFilter, input gqlmodels.PostsUpdateInput) (*gqlmodels.PostsUpdatePayload, error)
+	UpdatePosts(ctx context.Context, filter *gqlmodels.PostFilter, input gqlmodels.PostUpdateInput) (*gqlmodels.PostsUpdatePayload, error)
 	DeletePost(ctx context.Context, id string) (*gqlmodels.PostDeletePayload, error)
 	DeletePosts(ctx context.Context, filter *gqlmodels.PostFilter) (*gqlmodels.PostsDeletePayload, error)
 	CreateRole(ctx context.Context, input gqlmodels.RoleCreateInput) (*gqlmodels.RolePayload, error)
 	CreateRoles(ctx context.Context, input gqlmodels.RolesCreateInput) (*gqlmodels.RolesPayload, error)
 	UpdateRole(ctx context.Context, id string, input gqlmodels.RoleUpdateInput) (*gqlmodels.RolePayload, error)
-	UpdateRoles(ctx context.Context, filter *gqlmodels.RoleFilter, input gqlmodels.RolesUpdateInput) (*gqlmodels.RolesUpdatePayload, error)
+	UpdateRoles(ctx context.Context, filter *gqlmodels.RoleFilter, input gqlmodels.RoleUpdateInput) (*gqlmodels.RolesUpdatePayload, error)
 	DeleteRole(ctx context.Context, id string) (*gqlmodels.RoleDeletePayload, error)
 	DeleteRoles(ctx context.Context, filter *gqlmodels.RoleFilter) (*gqlmodels.RolesDeletePayload, error)
 	CreateUser(ctx context.Context, input gqlmodels.UserCreateInput) (*gqlmodels.UserPayload, error)
 	CreateUsers(ctx context.Context, input gqlmodels.UsersCreateInput) (*gqlmodels.UsersPayload, error)
 	UpdateUser(ctx context.Context, id string, input gqlmodels.UserUpdateInput) (*gqlmodels.UserPayload, error)
-	UpdateUsers(ctx context.Context, filter *gqlmodels.UserFilter, input gqlmodels.UsersUpdateInput) (*gqlmodels.UsersUpdatePayload, error)
+	UpdateUsers(ctx context.Context, filter *gqlmodels.UserFilter, input gqlmodels.UserUpdateInput) (*gqlmodels.UsersUpdatePayload, error)
 	DeleteUser(ctx context.Context, id string) (*gqlmodels.UserDeletePayload, error)
 	DeleteUsers(ctx context.Context, filter *gqlmodels.UserFilter) (*gqlmodels.UsersDeletePayload, error)
 }
@@ -1119,7 +1121,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateComments(childComplexity, args["filter"].(*gqlmodels.CommentFilter), args["input"].(gqlmodels.CommentsUpdateInput)), true
+		return e.complexity.Mutation.UpdateComments(childComplexity, args["filter"].(*gqlmodels.CommentFilter), args["input"].(gqlmodels.CommentUpdateInput)), true
 
 	case "Mutation.updateCompanies":
 		if e.complexity.Mutation.UpdateCompanies == nil {
@@ -1131,7 +1133,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateCompanies(childComplexity, args["filter"].(*gqlmodels.CompanyFilter), args["input"].(gqlmodels.CompaniesUpdateInput)), true
+		return e.complexity.Mutation.UpdateCompanies(childComplexity, args["filter"].(*gqlmodels.CompanyFilter), args["input"].(gqlmodels.CompanyUpdateInput)), true
 
 	case "Mutation.updateCompany":
 		if e.complexity.Mutation.UpdateCompany == nil {
@@ -1167,7 +1169,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateFollowers(childComplexity, args["filter"].(*gqlmodels.FollowerFilter), args["input"].(gqlmodels.FollowersUpdateInput)), true
+		return e.complexity.Mutation.UpdateFollowers(childComplexity, args["filter"].(*gqlmodels.FollowerFilter), args["input"].(gqlmodels.FollowerUpdateInput)), true
 
 	case "Mutation.updateLocation":
 		if e.complexity.Mutation.UpdateLocation == nil {
@@ -1191,7 +1193,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateLocations(childComplexity, args["filter"].(*gqlmodels.LocationFilter), args["input"].(gqlmodels.LocationsUpdateInput)), true
+		return e.complexity.Mutation.UpdateLocations(childComplexity, args["filter"].(*gqlmodels.LocationFilter), args["input"].(gqlmodels.LocationUpdateInput)), true
 
 	case "Mutation.updatePost":
 		if e.complexity.Mutation.UpdatePost == nil {
@@ -1215,7 +1217,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdatePosts(childComplexity, args["filter"].(*gqlmodels.PostFilter), args["input"].(gqlmodels.PostsUpdateInput)), true
+		return e.complexity.Mutation.UpdatePosts(childComplexity, args["filter"].(*gqlmodels.PostFilter), args["input"].(gqlmodels.PostUpdateInput)), true
 
 	case "Mutation.updateRole":
 		if e.complexity.Mutation.UpdateRole == nil {
@@ -1239,7 +1241,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateRoles(childComplexity, args["filter"].(*gqlmodels.RoleFilter), args["input"].(gqlmodels.RolesUpdateInput)), true
+		return e.complexity.Mutation.UpdateRoles(childComplexity, args["filter"].(*gqlmodels.RoleFilter), args["input"].(gqlmodels.RoleUpdateInput)), true
 
 	case "Mutation.updateUser":
 		if e.complexity.Mutation.UpdateUser == nil {
@@ -1263,7 +1265,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateUsers(childComplexity, args["filter"].(*gqlmodels.UserFilter), args["input"].(gqlmodels.UsersUpdateInput)), true
+		return e.complexity.Mutation.UpdateUsers(childComplexity, args["filter"].(*gqlmodels.UserFilter), args["input"].(gqlmodels.UserUpdateInput)), true
 
 	case "Post.body":
 		if e.complexity.Post.Body == nil {
@@ -1868,24 +1870,26 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	&ast.Source{Name: "schema.graphql", Input: `type Comment {
+	&ast.Source{Name: "schema.graphql", Input: `directive @isAuthenticated on FIELD_DEFINITION
+
+type Comment {
   id: ID!
   user: User!
   post: Post!
   title: String!
   body: String!
   createdAt: Int
-  deletedAt: Int
   updatedAt: Int
+  deletedAt: Int
 }
 
 type Company {
   id: ID!
   name: String
   active: Boolean
-  updatedAt: Int
   createdAt: Int
   deletedAt: Int
+  updatedAt: Int
   locations: [Location]
   users: [User]
 }
@@ -1894,8 +1898,8 @@ type Follower {
   follower: User!
   followee: User!
   deletedAt: Int
-  createdAt: Int
   updatedAt: Int
+  createdAt: Int
 }
 
 type Location {
@@ -1905,8 +1909,8 @@ type Location {
   address: String
   company: Company!
   createdAt: Int
-  updatedAt: Int
   deletedAt: Int
+  updatedAt: Int
   users: [User]
 }
 
@@ -1915,8 +1919,8 @@ type Post {
   user: User!
   title: String!
   body: String!
-  deletedAt: Int
   createdAt: Int
+  deletedAt: Int
   updatedAt: Int
   comments: [Comment]
 }
@@ -1925,9 +1929,9 @@ type Role {
   id: ID!
   accessLevel: Int!
   name: String!
+  deletedAt: Int
   updatedAt: Int
   createdAt: Int
-  deletedAt: Int
   users: [User]
 }
 
@@ -1949,8 +1953,8 @@ type User {
   company: Company
   location: Location
   deletedAt: Int
-  updatedAt: Int
   createdAt: Int
+  updatedAt: Int
   comments: [Comment]
   followeeFollowers: [Follower]
   followerFollowers: [Follower]
@@ -2028,8 +2032,8 @@ input CommentWhere {
   title: StringFilter
   body: StringFilter
   createdAt: IntFilter
-  deletedAt: IntFilter
   updatedAt: IntFilter
+  deletedAt: IntFilter
   or: CommentWhere
   and: CommentWhere
 }
@@ -2043,9 +2047,9 @@ input CompanyWhere {
   id: IDFilter
   name: StringFilter
   active: BooleanFilter
-  updatedAt: IntFilter
   createdAt: IntFilter
   deletedAt: IntFilter
+  updatedAt: IntFilter
   locations: LocationWhere
   users: UserWhere
   or: CompanyWhere
@@ -2061,8 +2065,8 @@ input FollowerWhere {
   follower: UserWhere
   followee: UserWhere
   deletedAt: IntFilter
-  createdAt: IntFilter
   updatedAt: IntFilter
+  createdAt: IntFilter
   or: FollowerWhere
   and: FollowerWhere
 }
@@ -2079,8 +2083,8 @@ input LocationWhere {
   address: StringFilter
   company: CompanyWhere
   createdAt: IntFilter
-  updatedAt: IntFilter
   deletedAt: IntFilter
+  updatedAt: IntFilter
   users: UserWhere
   or: LocationWhere
   and: LocationWhere
@@ -2096,8 +2100,8 @@ input PostWhere {
   user: UserWhere
   title: StringFilter
   body: StringFilter
-  deletedAt: IntFilter
   createdAt: IntFilter
+  deletedAt: IntFilter
   updatedAt: IntFilter
   comments: CommentWhere
   or: PostWhere
@@ -2113,9 +2117,9 @@ input RoleWhere {
   id: IDFilter
   accessLevel: IntFilter
   name: StringFilter
+  deletedAt: IntFilter
   updatedAt: IntFilter
   createdAt: IntFilter
-  deletedAt: IntFilter
   users: UserWhere
   or: RoleWhere
   and: RoleWhere
@@ -2144,8 +2148,8 @@ input UserWhere {
   company: CompanyWhere
   location: LocationWhere
   deletedAt: IntFilter
-  updatedAt: IntFilter
   createdAt: IntFilter
+  updatedAt: IntFilter
   comments: CommentWhere
   followeeFollowers: FollowerWhere
   followerFollowers: FollowerWhere
@@ -2155,48 +2159,42 @@ input UserWhere {
 }
 
 type Query {
-  comment(id: ID!): Comment!
-  comments(filter: CommentFilter): [Comment!]!
-  company(id: ID!): Company!
-  companies(filter: CompanyFilter): [Company!]!
-  follower(id: ID!): Follower!
-  followers(filter: FollowerFilter): [Follower!]!
-  location(id: ID!): Location!
-  locations(filter: LocationFilter): [Location!]!
-  post(id: ID!): Post!
-  posts(filter: PostFilter): [Post!]!
-  role(id: ID!): Role!
-  roles(filter: RoleFilter): [Role!]!
-  user(id: ID!): User!
-  users(filter: UserFilter): [User!]!
+  comment(id: ID!): Comment! @isAuthenticated
+  comments(filter: CommentFilter): [Comment!]! @isAuthenticated
+  company(id: ID!): Company! @isAuthenticated
+  companies(filter: CompanyFilter): [Company!]! @isAuthenticated
+  follower(id: ID!): Follower! @isAuthenticated
+  followers(filter: FollowerFilter): [Follower!]! @isAuthenticated
+  location(id: ID!): Location! @isAuthenticated
+  locations(filter: LocationFilter): [Location!]! @isAuthenticated
+  post(id: ID!): Post! @isAuthenticated
+  posts(filter: PostFilter): [Post!]! @isAuthenticated
+  role(id: ID!): Role! @isAuthenticated
+  roles(filter: RoleFilter): [Role!]! @isAuthenticated
+  user(id: ID!): User! @isAuthenticated
+  users(filter: UserFilter): [User!]! @isAuthenticated
 }
 
 input CommentCreateInput {
-  userId: ID!
   postId: ID!
   title: String!
   body: String!
   createdAt: Int
-  deletedAt: Int
   updatedAt: Int
+  deletedAt: Int
 }
 
 input CommentUpdateInput {
-  userId: ID
   postId: ID
   title: String
   body: String
   createdAt: Int
-  deletedAt: Int
   updatedAt: Int
+  deletedAt: Int
 }
 
 input CommentsCreateInput {
   comments: [CommentCreateInput!]!
-}
-
-input CommentsUpdateInput {
-  comments: [CommentUpdateInput!]!
 }
 
 type CommentPayload {
@@ -2222,25 +2220,21 @@ type CommentsUpdatePayload {
 input CompanyCreateInput {
   name: String
   active: Boolean
-  updatedAt: Int
   createdAt: Int
   deletedAt: Int
+  updatedAt: Int
 }
 
 input CompanyUpdateInput {
   name: String
   active: Boolean
-  updatedAt: Int
   createdAt: Int
   deletedAt: Int
+  updatedAt: Int
 }
 
 input CompaniesCreateInput {
   companies: [CompanyCreateInput!]!
-}
-
-input CompaniesUpdateInput {
-  companies: [CompanyUpdateInput!]!
 }
 
 type CompanyPayload {
@@ -2267,24 +2261,20 @@ input FollowerCreateInput {
   followerId: ID!
   followeeId: ID!
   deletedAt: Int
-  createdAt: Int
   updatedAt: Int
+  createdAt: Int
 }
 
 input FollowerUpdateInput {
   followerId: ID
   followeeId: ID
   deletedAt: Int
-  createdAt: Int
   updatedAt: Int
+  createdAt: Int
 }
 
 input FollowersCreateInput {
   followers: [FollowerCreateInput!]!
-}
-
-input FollowersUpdateInput {
-  followers: [FollowerUpdateInput!]!
 }
 
 type FollowerPayload {
@@ -2313,8 +2303,8 @@ input LocationCreateInput {
   address: String
   companyId: ID!
   createdAt: Int
-  updatedAt: Int
   deletedAt: Int
+  updatedAt: Int
 }
 
 input LocationUpdateInput {
@@ -2323,16 +2313,12 @@ input LocationUpdateInput {
   address: String
   companyId: ID
   createdAt: Int
-  updatedAt: Int
   deletedAt: Int
+  updatedAt: Int
 }
 
 input LocationsCreateInput {
   locations: [LocationCreateInput!]!
-}
-
-input LocationsUpdateInput {
-  locations: [LocationUpdateInput!]!
 }
 
 type LocationPayload {
@@ -2356,29 +2342,23 @@ type LocationsUpdatePayload {
 }
 
 input PostCreateInput {
-  userId: ID!
   title: String!
   body: String!
-  deletedAt: Int
   createdAt: Int
+  deletedAt: Int
   updatedAt: Int
 }
 
 input PostUpdateInput {
-  userId: ID
   title: String
   body: String
-  deletedAt: Int
   createdAt: Int
+  deletedAt: Int
   updatedAt: Int
 }
 
 input PostsCreateInput {
   posts: [PostCreateInput!]!
-}
-
-input PostsUpdateInput {
-  posts: [PostUpdateInput!]!
 }
 
 type PostPayload {
@@ -2404,25 +2384,21 @@ type PostsUpdatePayload {
 input RoleCreateInput {
   accessLevel: Int!
   name: String!
+  deletedAt: Int
   updatedAt: Int
   createdAt: Int
-  deletedAt: Int
 }
 
 input RoleUpdateInput {
   accessLevel: Int
   name: String
+  deletedAt: Int
   updatedAt: Int
   createdAt: Int
-  deletedAt: Int
 }
 
 input RolesCreateInput {
   roles: [RoleCreateInput!]!
-}
-
-input RolesUpdateInput {
-  roles: [RoleUpdateInput!]!
 }
 
 type RolePayload {
@@ -2462,8 +2438,8 @@ input UserCreateInput {
   companyId: ID
   locationId: ID
   deletedAt: Int
-  updatedAt: Int
   createdAt: Int
+  updatedAt: Int
 }
 
 input UserUpdateInput {
@@ -2483,16 +2459,12 @@ input UserUpdateInput {
   companyId: ID
   locationId: ID
   deletedAt: Int
-  updatedAt: Int
   createdAt: Int
+  updatedAt: Int
 }
 
 input UsersCreateInput {
   users: [UserCreateInput!]!
-}
-
-input UsersUpdateInput {
-  users: [UserUpdateInput!]!
 }
 
 type UserPayload {
@@ -2516,60 +2488,73 @@ type UsersUpdatePayload {
 }
 
 type Mutation {
-  createComment(input: CommentCreateInput!): CommentPayload!
-  createComments(input: CommentsCreateInput!): CommentsPayload!
+  createComment(input: CommentCreateInput!): CommentPayload! @isAuthenticated
+  createComments(input: CommentsCreateInput!): CommentsPayload! @isAuthenticated
   updateComment(id: ID!, input: CommentUpdateInput!): CommentPayload!
+    @isAuthenticated
   updateComments(
     filter: CommentFilter
-    input: CommentsUpdateInput!
-  ): CommentsUpdatePayload!
-  deleteComment(id: ID!): CommentDeletePayload!
-  deleteComments(filter: CommentFilter): CommentsDeletePayload!
-  createCompany(input: CompanyCreateInput!): CompanyPayload!
+    input: CommentUpdateInput!
+  ): CommentsUpdatePayload! @isAuthenticated
+  deleteComment(id: ID!): CommentDeletePayload! @isAuthenticated
+  deleteComments(filter: CommentFilter): CommentsDeletePayload! @isAuthenticated
+  createCompany(input: CompanyCreateInput!): CompanyPayload! @isAuthenticated
   createCompanies(input: CompaniesCreateInput!): CompaniesPayload!
+    @isAuthenticated
   updateCompany(id: ID!, input: CompanyUpdateInput!): CompanyPayload!
+    @isAuthenticated
   updateCompanies(
     filter: CompanyFilter
-    input: CompaniesUpdateInput!
-  ): CompaniesUpdatePayload!
-  deleteCompany(id: ID!): CompanyDeletePayload!
+    input: CompanyUpdateInput!
+  ): CompaniesUpdatePayload! @isAuthenticated
+  deleteCompany(id: ID!): CompanyDeletePayload! @isAuthenticated
   deleteCompanies(filter: CompanyFilter): CompaniesDeletePayload!
-  createFollower(input: FollowerCreateInput!): FollowerPayload!
+    @isAuthenticated
+  createFollower(input: FollowerCreateInput!): FollowerPayload! @isAuthenticated
   createFollowers(input: FollowersCreateInput!): FollowersPayload!
+    @isAuthenticated
   updateFollower(id: ID!, input: FollowerUpdateInput!): FollowerPayload!
+    @isAuthenticated
   updateFollowers(
     filter: FollowerFilter
-    input: FollowersUpdateInput!
-  ): FollowersUpdatePayload!
-  deleteFollower(id: ID!): FollowerDeletePayload!
+    input: FollowerUpdateInput!
+  ): FollowersUpdatePayload! @isAuthenticated
+  deleteFollower(id: ID!): FollowerDeletePayload! @isAuthenticated
   deleteFollowers(filter: FollowerFilter): FollowersDeletePayload!
-  createLocation(input: LocationCreateInput!): LocationPayload!
+    @isAuthenticated
+  createLocation(input: LocationCreateInput!): LocationPayload! @isAuthenticated
   createLocations(input: LocationsCreateInput!): LocationsPayload!
+    @isAuthenticated
   updateLocation(id: ID!, input: LocationUpdateInput!): LocationPayload!
+    @isAuthenticated
   updateLocations(
     filter: LocationFilter
-    input: LocationsUpdateInput!
-  ): LocationsUpdatePayload!
-  deleteLocation(id: ID!): LocationDeletePayload!
+    input: LocationUpdateInput!
+  ): LocationsUpdatePayload! @isAuthenticated
+  deleteLocation(id: ID!): LocationDeletePayload! @isAuthenticated
   deleteLocations(filter: LocationFilter): LocationsDeletePayload!
-  createPost(input: PostCreateInput!): PostPayload!
-  createPosts(input: PostsCreateInput!): PostsPayload!
-  updatePost(id: ID!, input: PostUpdateInput!): PostPayload!
-  updatePosts(filter: PostFilter, input: PostsUpdateInput!): PostsUpdatePayload!
-  deletePost(id: ID!): PostDeletePayload!
-  deletePosts(filter: PostFilter): PostsDeletePayload!
-  createRole(input: RoleCreateInput!): RolePayload!
-  createRoles(input: RolesCreateInput!): RolesPayload!
-  updateRole(id: ID!, input: RoleUpdateInput!): RolePayload!
-  updateRoles(filter: RoleFilter, input: RolesUpdateInput!): RolesUpdatePayload!
-  deleteRole(id: ID!): RoleDeletePayload!
-  deleteRoles(filter: RoleFilter): RolesDeletePayload!
-  createUser(input: UserCreateInput!): UserPayload!
-  createUsers(input: UsersCreateInput!): UsersPayload!
-  updateUser(id: ID!, input: UserUpdateInput!): UserPayload!
-  updateUsers(filter: UserFilter, input: UsersUpdateInput!): UsersUpdatePayload!
-  deleteUser(id: ID!): UserDeletePayload!
-  deleteUsers(filter: UserFilter): UsersDeletePayload!
+    @isAuthenticated
+  createPost(input: PostCreateInput!): PostPayload! @isAuthenticated
+  createPosts(input: PostsCreateInput!): PostsPayload! @isAuthenticated
+  updatePost(id: ID!, input: PostUpdateInput!): PostPayload! @isAuthenticated
+  updatePosts(filter: PostFilter, input: PostUpdateInput!): PostsUpdatePayload!
+    @isAuthenticated
+  deletePost(id: ID!): PostDeletePayload! @isAuthenticated
+  deletePosts(filter: PostFilter): PostsDeletePayload! @isAuthenticated
+  createRole(input: RoleCreateInput!): RolePayload! @isAuthenticated
+  createRoles(input: RolesCreateInput!): RolesPayload! @isAuthenticated
+  updateRole(id: ID!, input: RoleUpdateInput!): RolePayload! @isAuthenticated
+  updateRoles(filter: RoleFilter, input: RoleUpdateInput!): RolesUpdatePayload!
+    @isAuthenticated
+  deleteRole(id: ID!): RoleDeletePayload! @isAuthenticated
+  deleteRoles(filter: RoleFilter): RolesDeletePayload! @isAuthenticated
+  createUser(input: UserCreateInput!): UserPayload! @isAuthenticated
+  createUsers(input: UsersCreateInput!): UsersPayload! @isAuthenticated
+  updateUser(id: ID!, input: UserUpdateInput!): UserPayload! @isAuthenticated
+  updateUsers(filter: UserFilter, input: UserUpdateInput!): UsersUpdatePayload!
+    @isAuthenticated
+  deleteUser(id: ID!): UserDeletePayload! @isAuthenticated
+  deleteUsers(filter: UserFilter): UsersDeletePayload! @isAuthenticated
 }
 `, BuiltIn: false},
 }
@@ -3004,9 +2989,9 @@ func (ec *executionContext) field_Mutation_updateComments_args(ctx context.Conte
 		}
 	}
 	args["filter"] = arg0
-	var arg1 gqlmodels.CommentsUpdateInput
+	var arg1 gqlmodels.CommentUpdateInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg1, err = ec.unmarshalNCommentsUpdateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐCommentsUpdateInput(ctx, tmp)
+		arg1, err = ec.unmarshalNCommentUpdateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐCommentUpdateInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -3026,9 +3011,9 @@ func (ec *executionContext) field_Mutation_updateCompanies_args(ctx context.Cont
 		}
 	}
 	args["filter"] = arg0
-	var arg1 gqlmodels.CompaniesUpdateInput
+	var arg1 gqlmodels.CompanyUpdateInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg1, err = ec.unmarshalNCompaniesUpdateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐCompaniesUpdateInput(ctx, tmp)
+		arg1, err = ec.unmarshalNCompanyUpdateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐCompanyUpdateInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -3092,9 +3077,9 @@ func (ec *executionContext) field_Mutation_updateFollowers_args(ctx context.Cont
 		}
 	}
 	args["filter"] = arg0
-	var arg1 gqlmodels.FollowersUpdateInput
+	var arg1 gqlmodels.FollowerUpdateInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg1, err = ec.unmarshalNFollowersUpdateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐFollowersUpdateInput(ctx, tmp)
+		arg1, err = ec.unmarshalNFollowerUpdateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐFollowerUpdateInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -3136,9 +3121,9 @@ func (ec *executionContext) field_Mutation_updateLocations_args(ctx context.Cont
 		}
 	}
 	args["filter"] = arg0
-	var arg1 gqlmodels.LocationsUpdateInput
+	var arg1 gqlmodels.LocationUpdateInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg1, err = ec.unmarshalNLocationsUpdateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐLocationsUpdateInput(ctx, tmp)
+		arg1, err = ec.unmarshalNLocationUpdateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐLocationUpdateInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -3180,9 +3165,9 @@ func (ec *executionContext) field_Mutation_updatePosts_args(ctx context.Context,
 		}
 	}
 	args["filter"] = arg0
-	var arg1 gqlmodels.PostsUpdateInput
+	var arg1 gqlmodels.PostUpdateInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg1, err = ec.unmarshalNPostsUpdateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐPostsUpdateInput(ctx, tmp)
+		arg1, err = ec.unmarshalNPostUpdateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐPostUpdateInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -3224,9 +3209,9 @@ func (ec *executionContext) field_Mutation_updateRoles_args(ctx context.Context,
 		}
 	}
 	args["filter"] = arg0
-	var arg1 gqlmodels.RolesUpdateInput
+	var arg1 gqlmodels.RoleUpdateInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg1, err = ec.unmarshalNRolesUpdateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐRolesUpdateInput(ctx, tmp)
+		arg1, err = ec.unmarshalNRoleUpdateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐRoleUpdateInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -3268,9 +3253,9 @@ func (ec *executionContext) field_Mutation_updateUsers_args(ctx context.Context,
 		}
 	}
 	args["filter"] = arg0
-	var arg1 gqlmodels.UsersUpdateInput
+	var arg1 gqlmodels.UserUpdateInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg1, err = ec.unmarshalNUsersUpdateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐUsersUpdateInput(ctx, tmp)
+		arg1, err = ec.unmarshalNUserUpdateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐUserUpdateInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -3726,37 +3711,6 @@ func (ec *executionContext) _Comment_createdAt(ctx context.Context, field graphq
 	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Comment_deletedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Comment) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:   "Comment",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.DeletedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
-}
-
 func (ec *executionContext) _Comment_updatedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Comment) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -3775,6 +3729,37 @@ func (ec *executionContext) _Comment_updatedAt(ctx context.Context, field graphq
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Comment_deletedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Comment) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Comment",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DeletedAt, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4156,37 +4141,6 @@ func (ec *executionContext) _Company_active(ctx context.Context, field graphql.C
 	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Company_updatedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Company) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:   "Company",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
-}
-
 func (ec *executionContext) _Company_createdAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Company) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -4236,6 +4190,37 @@ func (ec *executionContext) _Company_deletedAt(ctx context.Context, field graphq
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.DeletedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Company_updatedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Company) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Company",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4478,37 +4463,6 @@ func (ec *executionContext) _Follower_deletedAt(ctx context.Context, field graph
 	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Follower_createdAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Follower) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:   "Follower",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
-}
-
 func (ec *executionContext) _Follower_updatedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Follower) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -4527,6 +4481,37 @@ func (ec *executionContext) _Follower_updatedAt(ctx context.Context, field graph
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Follower_createdAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Follower) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Follower",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4902,37 +4887,6 @@ func (ec *executionContext) _Location_createdAt(ctx context.Context, field graph
 	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Location_updatedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Location) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:   "Location",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
-}
-
 func (ec *executionContext) _Location_deletedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Location) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -4951,6 +4905,37 @@ func (ec *executionContext) _Location_deletedAt(ctx context.Context, field graph
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.DeletedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Location_updatedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Location) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Location",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5188,8 +5173,28 @@ func (ec *executionContext) _Mutation_createComment(ctx context.Context, field g
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateComment(rctx, args["input"].(gqlmodels.CommentCreateInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateComment(rctx, args["input"].(gqlmodels.CommentCreateInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.CommentPayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.CommentPayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5229,8 +5234,28 @@ func (ec *executionContext) _Mutation_createComments(ctx context.Context, field 
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateComments(rctx, args["input"].(gqlmodels.CommentsCreateInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateComments(rctx, args["input"].(gqlmodels.CommentsCreateInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.CommentsPayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.CommentsPayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5270,8 +5295,28 @@ func (ec *executionContext) _Mutation_updateComment(ctx context.Context, field g
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateComment(rctx, args["id"].(string), args["input"].(gqlmodels.CommentUpdateInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateComment(rctx, args["id"].(string), args["input"].(gqlmodels.CommentUpdateInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.CommentPayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.CommentPayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5311,8 +5356,28 @@ func (ec *executionContext) _Mutation_updateComments(ctx context.Context, field 
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateComments(rctx, args["filter"].(*gqlmodels.CommentFilter), args["input"].(gqlmodels.CommentsUpdateInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateComments(rctx, args["filter"].(*gqlmodels.CommentFilter), args["input"].(gqlmodels.CommentUpdateInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.CommentsUpdatePayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.CommentsUpdatePayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5352,8 +5417,28 @@ func (ec *executionContext) _Mutation_deleteComment(ctx context.Context, field g
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteComment(rctx, args["id"].(string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteComment(rctx, args["id"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.CommentDeletePayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.CommentDeletePayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5393,8 +5478,28 @@ func (ec *executionContext) _Mutation_deleteComments(ctx context.Context, field 
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteComments(rctx, args["filter"].(*gqlmodels.CommentFilter))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteComments(rctx, args["filter"].(*gqlmodels.CommentFilter))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.CommentsDeletePayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.CommentsDeletePayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5434,8 +5539,28 @@ func (ec *executionContext) _Mutation_createCompany(ctx context.Context, field g
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateCompany(rctx, args["input"].(gqlmodels.CompanyCreateInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateCompany(rctx, args["input"].(gqlmodels.CompanyCreateInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.CompanyPayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.CompanyPayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5475,8 +5600,28 @@ func (ec *executionContext) _Mutation_createCompanies(ctx context.Context, field
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateCompanies(rctx, args["input"].(gqlmodels.CompaniesCreateInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateCompanies(rctx, args["input"].(gqlmodels.CompaniesCreateInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.CompaniesPayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.CompaniesPayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5516,8 +5661,28 @@ func (ec *executionContext) _Mutation_updateCompany(ctx context.Context, field g
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateCompany(rctx, args["id"].(string), args["input"].(gqlmodels.CompanyUpdateInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateCompany(rctx, args["id"].(string), args["input"].(gqlmodels.CompanyUpdateInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.CompanyPayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.CompanyPayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5557,8 +5722,28 @@ func (ec *executionContext) _Mutation_updateCompanies(ctx context.Context, field
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateCompanies(rctx, args["filter"].(*gqlmodels.CompanyFilter), args["input"].(gqlmodels.CompaniesUpdateInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateCompanies(rctx, args["filter"].(*gqlmodels.CompanyFilter), args["input"].(gqlmodels.CompanyUpdateInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.CompaniesUpdatePayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.CompaniesUpdatePayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5598,8 +5783,28 @@ func (ec *executionContext) _Mutation_deleteCompany(ctx context.Context, field g
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteCompany(rctx, args["id"].(string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteCompany(rctx, args["id"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.CompanyDeletePayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.CompanyDeletePayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5639,8 +5844,28 @@ func (ec *executionContext) _Mutation_deleteCompanies(ctx context.Context, field
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteCompanies(rctx, args["filter"].(*gqlmodels.CompanyFilter))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteCompanies(rctx, args["filter"].(*gqlmodels.CompanyFilter))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.CompaniesDeletePayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.CompaniesDeletePayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5680,8 +5905,28 @@ func (ec *executionContext) _Mutation_createFollower(ctx context.Context, field 
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateFollower(rctx, args["input"].(gqlmodels.FollowerCreateInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateFollower(rctx, args["input"].(gqlmodels.FollowerCreateInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.FollowerPayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.FollowerPayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5721,8 +5966,28 @@ func (ec *executionContext) _Mutation_createFollowers(ctx context.Context, field
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateFollowers(rctx, args["input"].(gqlmodels.FollowersCreateInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateFollowers(rctx, args["input"].(gqlmodels.FollowersCreateInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.FollowersPayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.FollowersPayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5762,8 +6027,28 @@ func (ec *executionContext) _Mutation_updateFollower(ctx context.Context, field 
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateFollower(rctx, args["id"].(string), args["input"].(gqlmodels.FollowerUpdateInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateFollower(rctx, args["id"].(string), args["input"].(gqlmodels.FollowerUpdateInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.FollowerPayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.FollowerPayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5803,8 +6088,28 @@ func (ec *executionContext) _Mutation_updateFollowers(ctx context.Context, field
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateFollowers(rctx, args["filter"].(*gqlmodels.FollowerFilter), args["input"].(gqlmodels.FollowersUpdateInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateFollowers(rctx, args["filter"].(*gqlmodels.FollowerFilter), args["input"].(gqlmodels.FollowerUpdateInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.FollowersUpdatePayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.FollowersUpdatePayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5844,8 +6149,28 @@ func (ec *executionContext) _Mutation_deleteFollower(ctx context.Context, field 
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteFollower(rctx, args["id"].(string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteFollower(rctx, args["id"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.FollowerDeletePayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.FollowerDeletePayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5885,8 +6210,28 @@ func (ec *executionContext) _Mutation_deleteFollowers(ctx context.Context, field
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteFollowers(rctx, args["filter"].(*gqlmodels.FollowerFilter))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteFollowers(rctx, args["filter"].(*gqlmodels.FollowerFilter))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.FollowersDeletePayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.FollowersDeletePayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5926,8 +6271,28 @@ func (ec *executionContext) _Mutation_createLocation(ctx context.Context, field 
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateLocation(rctx, args["input"].(gqlmodels.LocationCreateInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateLocation(rctx, args["input"].(gqlmodels.LocationCreateInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.LocationPayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.LocationPayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5967,8 +6332,28 @@ func (ec *executionContext) _Mutation_createLocations(ctx context.Context, field
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateLocations(rctx, args["input"].(gqlmodels.LocationsCreateInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateLocations(rctx, args["input"].(gqlmodels.LocationsCreateInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.LocationsPayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.LocationsPayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6008,8 +6393,28 @@ func (ec *executionContext) _Mutation_updateLocation(ctx context.Context, field 
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateLocation(rctx, args["id"].(string), args["input"].(gqlmodels.LocationUpdateInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateLocation(rctx, args["id"].(string), args["input"].(gqlmodels.LocationUpdateInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.LocationPayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.LocationPayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6049,8 +6454,28 @@ func (ec *executionContext) _Mutation_updateLocations(ctx context.Context, field
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateLocations(rctx, args["filter"].(*gqlmodels.LocationFilter), args["input"].(gqlmodels.LocationsUpdateInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateLocations(rctx, args["filter"].(*gqlmodels.LocationFilter), args["input"].(gqlmodels.LocationUpdateInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.LocationsUpdatePayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.LocationsUpdatePayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6090,8 +6515,28 @@ func (ec *executionContext) _Mutation_deleteLocation(ctx context.Context, field 
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteLocation(rctx, args["id"].(string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteLocation(rctx, args["id"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.LocationDeletePayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.LocationDeletePayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6131,8 +6576,28 @@ func (ec *executionContext) _Mutation_deleteLocations(ctx context.Context, field
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteLocations(rctx, args["filter"].(*gqlmodels.LocationFilter))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteLocations(rctx, args["filter"].(*gqlmodels.LocationFilter))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.LocationsDeletePayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.LocationsDeletePayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6172,8 +6637,28 @@ func (ec *executionContext) _Mutation_createPost(ctx context.Context, field grap
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreatePost(rctx, args["input"].(gqlmodels.PostCreateInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreatePost(rctx, args["input"].(gqlmodels.PostCreateInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.PostPayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.PostPayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6213,8 +6698,28 @@ func (ec *executionContext) _Mutation_createPosts(ctx context.Context, field gra
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreatePosts(rctx, args["input"].(gqlmodels.PostsCreateInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreatePosts(rctx, args["input"].(gqlmodels.PostsCreateInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.PostsPayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.PostsPayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6254,8 +6759,28 @@ func (ec *executionContext) _Mutation_updatePost(ctx context.Context, field grap
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdatePost(rctx, args["id"].(string), args["input"].(gqlmodels.PostUpdateInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdatePost(rctx, args["id"].(string), args["input"].(gqlmodels.PostUpdateInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.PostPayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.PostPayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6295,8 +6820,28 @@ func (ec *executionContext) _Mutation_updatePosts(ctx context.Context, field gra
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdatePosts(rctx, args["filter"].(*gqlmodels.PostFilter), args["input"].(gqlmodels.PostsUpdateInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdatePosts(rctx, args["filter"].(*gqlmodels.PostFilter), args["input"].(gqlmodels.PostUpdateInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.PostsUpdatePayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.PostsUpdatePayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6336,8 +6881,28 @@ func (ec *executionContext) _Mutation_deletePost(ctx context.Context, field grap
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeletePost(rctx, args["id"].(string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeletePost(rctx, args["id"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.PostDeletePayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.PostDeletePayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6377,8 +6942,28 @@ func (ec *executionContext) _Mutation_deletePosts(ctx context.Context, field gra
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeletePosts(rctx, args["filter"].(*gqlmodels.PostFilter))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeletePosts(rctx, args["filter"].(*gqlmodels.PostFilter))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.PostsDeletePayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.PostsDeletePayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6418,8 +7003,28 @@ func (ec *executionContext) _Mutation_createRole(ctx context.Context, field grap
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateRole(rctx, args["input"].(gqlmodels.RoleCreateInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateRole(rctx, args["input"].(gqlmodels.RoleCreateInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.RolePayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.RolePayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6459,8 +7064,28 @@ func (ec *executionContext) _Mutation_createRoles(ctx context.Context, field gra
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateRoles(rctx, args["input"].(gqlmodels.RolesCreateInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateRoles(rctx, args["input"].(gqlmodels.RolesCreateInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.RolesPayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.RolesPayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6500,8 +7125,28 @@ func (ec *executionContext) _Mutation_updateRole(ctx context.Context, field grap
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateRole(rctx, args["id"].(string), args["input"].(gqlmodels.RoleUpdateInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateRole(rctx, args["id"].(string), args["input"].(gqlmodels.RoleUpdateInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.RolePayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.RolePayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6541,8 +7186,28 @@ func (ec *executionContext) _Mutation_updateRoles(ctx context.Context, field gra
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateRoles(rctx, args["filter"].(*gqlmodels.RoleFilter), args["input"].(gqlmodels.RolesUpdateInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateRoles(rctx, args["filter"].(*gqlmodels.RoleFilter), args["input"].(gqlmodels.RoleUpdateInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.RolesUpdatePayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.RolesUpdatePayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6582,8 +7247,28 @@ func (ec *executionContext) _Mutation_deleteRole(ctx context.Context, field grap
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteRole(rctx, args["id"].(string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteRole(rctx, args["id"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.RoleDeletePayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.RoleDeletePayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6623,8 +7308,28 @@ func (ec *executionContext) _Mutation_deleteRoles(ctx context.Context, field gra
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteRoles(rctx, args["filter"].(*gqlmodels.RoleFilter))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteRoles(rctx, args["filter"].(*gqlmodels.RoleFilter))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.RolesDeletePayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.RolesDeletePayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6664,8 +7369,28 @@ func (ec *executionContext) _Mutation_createUser(ctx context.Context, field grap
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateUser(rctx, args["input"].(gqlmodels.UserCreateInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateUser(rctx, args["input"].(gqlmodels.UserCreateInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.UserPayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.UserPayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6705,8 +7430,28 @@ func (ec *executionContext) _Mutation_createUsers(ctx context.Context, field gra
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateUsers(rctx, args["input"].(gqlmodels.UsersCreateInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateUsers(rctx, args["input"].(gqlmodels.UsersCreateInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.UsersPayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.UsersPayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6746,8 +7491,28 @@ func (ec *executionContext) _Mutation_updateUser(ctx context.Context, field grap
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateUser(rctx, args["id"].(string), args["input"].(gqlmodels.UserUpdateInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateUser(rctx, args["id"].(string), args["input"].(gqlmodels.UserUpdateInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.UserPayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.UserPayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6787,8 +7552,28 @@ func (ec *executionContext) _Mutation_updateUsers(ctx context.Context, field gra
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateUsers(rctx, args["filter"].(*gqlmodels.UserFilter), args["input"].(gqlmodels.UsersUpdateInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateUsers(rctx, args["filter"].(*gqlmodels.UserFilter), args["input"].(gqlmodels.UserUpdateInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.UsersUpdatePayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.UsersUpdatePayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6828,8 +7613,28 @@ func (ec *executionContext) _Mutation_deleteUser(ctx context.Context, field grap
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteUser(rctx, args["id"].(string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteUser(rctx, args["id"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.UserDeletePayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.UserDeletePayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6869,8 +7674,28 @@ func (ec *executionContext) _Mutation_deleteUsers(ctx context.Context, field gra
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteUsers(rctx, args["filter"].(*gqlmodels.UserFilter))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteUsers(rctx, args["filter"].(*gqlmodels.UserFilter))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.UsersDeletePayload); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.UsersDeletePayload`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7023,37 +7848,6 @@ func (ec *executionContext) _Post_body(ctx context.Context, field graphql.Collec
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Post_deletedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Post) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:   "Post",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.DeletedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
-}
-
 func (ec *executionContext) _Post_createdAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Post) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -7072,6 +7866,37 @@ func (ec *executionContext) _Post_createdAt(ctx context.Context, field graphql.C
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Post_deletedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Post) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Post",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DeletedAt, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7340,8 +8165,28 @@ func (ec *executionContext) _Query_comment(ctx context.Context, field graphql.Co
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Comment(rctx, args["id"].(string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().Comment(rctx, args["id"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.Comment); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.Comment`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7381,8 +8226,28 @@ func (ec *executionContext) _Query_comments(ctx context.Context, field graphql.C
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Comments(rctx, args["filter"].(*gqlmodels.CommentFilter))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().Comments(rctx, args["filter"].(*gqlmodels.CommentFilter))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*gqlmodels.Comment); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/wednesday-solution/go-boiler/graphql/models.Comment`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7422,8 +8287,28 @@ func (ec *executionContext) _Query_company(ctx context.Context, field graphql.Co
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Company(rctx, args["id"].(string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().Company(rctx, args["id"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.Company); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.Company`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7463,8 +8348,28 @@ func (ec *executionContext) _Query_companies(ctx context.Context, field graphql.
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Companies(rctx, args["filter"].(*gqlmodels.CompanyFilter))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().Companies(rctx, args["filter"].(*gqlmodels.CompanyFilter))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*gqlmodels.Company); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/wednesday-solution/go-boiler/graphql/models.Company`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7504,8 +8409,28 @@ func (ec *executionContext) _Query_follower(ctx context.Context, field graphql.C
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Follower(rctx, args["id"].(string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().Follower(rctx, args["id"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.Follower); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.Follower`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7545,8 +8470,28 @@ func (ec *executionContext) _Query_followers(ctx context.Context, field graphql.
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Followers(rctx, args["filter"].(*gqlmodels.FollowerFilter))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().Followers(rctx, args["filter"].(*gqlmodels.FollowerFilter))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*gqlmodels.Follower); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/wednesday-solution/go-boiler/graphql/models.Follower`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7586,8 +8531,28 @@ func (ec *executionContext) _Query_location(ctx context.Context, field graphql.C
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Location(rctx, args["id"].(string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().Location(rctx, args["id"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.Location); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.Location`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7627,8 +8592,28 @@ func (ec *executionContext) _Query_locations(ctx context.Context, field graphql.
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Locations(rctx, args["filter"].(*gqlmodels.LocationFilter))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().Locations(rctx, args["filter"].(*gqlmodels.LocationFilter))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*gqlmodels.Location); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/wednesday-solution/go-boiler/graphql/models.Location`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7668,8 +8653,28 @@ func (ec *executionContext) _Query_post(ctx context.Context, field graphql.Colle
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Post(rctx, args["id"].(string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().Post(rctx, args["id"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.Post); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.Post`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7709,8 +8714,28 @@ func (ec *executionContext) _Query_posts(ctx context.Context, field graphql.Coll
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Posts(rctx, args["filter"].(*gqlmodels.PostFilter))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().Posts(rctx, args["filter"].(*gqlmodels.PostFilter))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*gqlmodels.Post); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/wednesday-solution/go-boiler/graphql/models.Post`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7750,8 +8775,28 @@ func (ec *executionContext) _Query_role(ctx context.Context, field graphql.Colle
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Role(rctx, args["id"].(string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().Role(rctx, args["id"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.Role); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.Role`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7791,8 +8836,28 @@ func (ec *executionContext) _Query_roles(ctx context.Context, field graphql.Coll
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Roles(rctx, args["filter"].(*gqlmodels.RoleFilter))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().Roles(rctx, args["filter"].(*gqlmodels.RoleFilter))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*gqlmodels.Role); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/wednesday-solution/go-boiler/graphql/models.Role`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7832,8 +8897,28 @@ func (ec *executionContext) _Query_user(ctx context.Context, field graphql.Colle
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().User(rctx, args["id"].(string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().User(rctx, args["id"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodels.User); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/wednesday-solution/go-boiler/graphql/models.User`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7873,8 +8958,28 @@ func (ec *executionContext) _Query_users(ctx context.Context, field graphql.Coll
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Users(rctx, args["filter"].(*gqlmodels.UserFilter))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().Users(rctx, args["filter"].(*gqlmodels.UserFilter))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*gqlmodels.User); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/wednesday-solution/go-boiler/graphql/models.User`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8062,6 +9167,37 @@ func (ec *executionContext) _Role_name(ctx context.Context, field graphql.Collec
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Role_deletedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Role) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Role",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DeletedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Role_updatedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Role) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -8111,37 +9247,6 @@ func (ec *executionContext) _Role_createdAt(ctx context.Context, field graphql.C
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.CreatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Role_deletedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Role) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:   "Role",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.DeletedAt, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8886,37 +9991,6 @@ func (ec *executionContext) _User_deletedAt(ctx context.Context, field graphql.C
 	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _User_updatedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.User) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:   "User",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
-}
-
 func (ec *executionContext) _User_createdAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.User) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -8935,6 +10009,37 @@ func (ec *executionContext) _User_createdAt(ctx context.Context, field graphql.C
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _User_updatedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.User) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "User",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10333,12 +11438,6 @@ func (ec *executionContext) unmarshalInputCommentCreateInput(ctx context.Context
 
 	for k, v := range asMap {
 		switch k {
-		case "userId":
-			var err error
-			it.UserID, err = ec.unmarshalNID2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "postId":
 			var err error
 			it.PostID, err = ec.unmarshalNID2string(ctx, v)
@@ -10363,15 +11462,15 @@ func (ec *executionContext) unmarshalInputCommentCreateInput(ctx context.Context
 			if err != nil {
 				return it, err
 			}
-		case "deletedAt":
-			var err error
-			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "updatedAt":
 			var err error
 			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "deletedAt":
+			var err error
+			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -10411,12 +11510,6 @@ func (ec *executionContext) unmarshalInputCommentUpdateInput(ctx context.Context
 
 	for k, v := range asMap {
 		switch k {
-		case "userId":
-			var err error
-			it.UserID, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "postId":
 			var err error
 			it.PostID, err = ec.unmarshalOID2ᚖstring(ctx, v)
@@ -10441,15 +11534,15 @@ func (ec *executionContext) unmarshalInputCommentUpdateInput(ctx context.Context
 			if err != nil {
 				return it, err
 			}
-		case "deletedAt":
-			var err error
-			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "updatedAt":
 			var err error
 			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "deletedAt":
+			var err error
+			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -10501,15 +11594,15 @@ func (ec *executionContext) unmarshalInputCommentWhere(ctx context.Context, obj 
 			if err != nil {
 				return it, err
 			}
-		case "deletedAt":
-			var err error
-			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "updatedAt":
 			var err error
 			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "deletedAt":
+			var err error
+			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -10549,24 +11642,6 @@ func (ec *executionContext) unmarshalInputCommentsCreateInput(ctx context.Contex
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCommentsUpdateInput(ctx context.Context, obj interface{}) (gqlmodels.CommentsUpdateInput, error) {
-	var it gqlmodels.CommentsUpdateInput
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "comments":
-			var err error
-			it.Comments, err = ec.unmarshalNCommentUpdateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐCommentUpdateInputᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputCompaniesCreateInput(ctx context.Context, obj interface{}) (gqlmodels.CompaniesCreateInput, error) {
 	var it gqlmodels.CompaniesCreateInput
 	var asMap = obj.(map[string]interface{})
@@ -10576,24 +11651,6 @@ func (ec *executionContext) unmarshalInputCompaniesCreateInput(ctx context.Conte
 		case "companies":
 			var err error
 			it.Companies, err = ec.unmarshalNCompanyCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐCompanyCreateInputᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputCompaniesUpdateInput(ctx context.Context, obj interface{}) (gqlmodels.CompaniesUpdateInput, error) {
-	var it gqlmodels.CompaniesUpdateInput
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "companies":
-			var err error
-			it.Companies, err = ec.unmarshalNCompanyUpdateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐCompanyUpdateInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -10621,12 +11678,6 @@ func (ec *executionContext) unmarshalInputCompanyCreateInput(ctx context.Context
 			if err != nil {
 				return it, err
 			}
-		case "updatedAt":
-			var err error
-			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "createdAt":
 			var err error
 			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
@@ -10636,6 +11687,12 @@ func (ec *executionContext) unmarshalInputCompanyCreateInput(ctx context.Context
 		case "deletedAt":
 			var err error
 			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "updatedAt":
+			var err error
+			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -10687,12 +11744,6 @@ func (ec *executionContext) unmarshalInputCompanyUpdateInput(ctx context.Context
 			if err != nil {
 				return it, err
 			}
-		case "updatedAt":
-			var err error
-			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "createdAt":
 			var err error
 			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
@@ -10702,6 +11753,12 @@ func (ec *executionContext) unmarshalInputCompanyUpdateInput(ctx context.Context
 		case "deletedAt":
 			var err error
 			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "updatedAt":
+			var err error
+			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -10735,12 +11792,6 @@ func (ec *executionContext) unmarshalInputCompanyWhere(ctx context.Context, obj 
 			if err != nil {
 				return it, err
 			}
-		case "updatedAt":
-			var err error
-			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "createdAt":
 			var err error
 			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
@@ -10750,6 +11801,12 @@ func (ec *executionContext) unmarshalInputCompanyWhere(ctx context.Context, obj 
 		case "deletedAt":
 			var err error
 			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "updatedAt":
+			var err error
+			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -10867,15 +11924,15 @@ func (ec *executionContext) unmarshalInputFollowerCreateInput(ctx context.Contex
 			if err != nil {
 				return it, err
 			}
-		case "createdAt":
-			var err error
-			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "updatedAt":
 			var err error
 			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "createdAt":
+			var err error
+			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -10933,15 +11990,15 @@ func (ec *executionContext) unmarshalInputFollowerUpdateInput(ctx context.Contex
 			if err != nil {
 				return it, err
 			}
-		case "createdAt":
-			var err error
-			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "updatedAt":
 			var err error
 			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "createdAt":
+			var err error
+			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -10975,15 +12032,15 @@ func (ec *executionContext) unmarshalInputFollowerWhere(ctx context.Context, obj
 			if err != nil {
 				return it, err
 			}
-		case "createdAt":
-			var err error
-			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "updatedAt":
 			var err error
 			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "createdAt":
+			var err error
+			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -11014,24 +12071,6 @@ func (ec *executionContext) unmarshalInputFollowersCreateInput(ctx context.Conte
 		case "followers":
 			var err error
 			it.Followers, err = ec.unmarshalNFollowerCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐFollowerCreateInputᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputFollowersUpdateInput(ctx context.Context, obj interface{}) (gqlmodels.FollowersUpdateInput, error) {
-	var it gqlmodels.FollowersUpdateInput
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "followers":
-			var err error
-			it.Followers, err = ec.unmarshalNFollowerUpdateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐFollowerUpdateInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -11173,15 +12212,15 @@ func (ec *executionContext) unmarshalInputLocationCreateInput(ctx context.Contex
 			if err != nil {
 				return it, err
 			}
-		case "updatedAt":
-			var err error
-			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "deletedAt":
 			var err error
 			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "updatedAt":
+			var err error
+			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -11251,15 +12290,15 @@ func (ec *executionContext) unmarshalInputLocationUpdateInput(ctx context.Contex
 			if err != nil {
 				return it, err
 			}
-		case "updatedAt":
-			var err error
-			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "deletedAt":
 			var err error
 			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "updatedAt":
+			var err error
+			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -11311,15 +12350,15 @@ func (ec *executionContext) unmarshalInputLocationWhere(ctx context.Context, obj
 			if err != nil {
 				return it, err
 			}
-		case "updatedAt":
-			var err error
-			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "deletedAt":
 			var err error
 			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "updatedAt":
+			var err error
+			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -11365,36 +12404,12 @@ func (ec *executionContext) unmarshalInputLocationsCreateInput(ctx context.Conte
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputLocationsUpdateInput(ctx context.Context, obj interface{}) (gqlmodels.LocationsUpdateInput, error) {
-	var it gqlmodels.LocationsUpdateInput
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "locations":
-			var err error
-			it.Locations, err = ec.unmarshalNLocationUpdateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐLocationUpdateInputᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputPostCreateInput(ctx context.Context, obj interface{}) (gqlmodels.PostCreateInput, error) {
 	var it gqlmodels.PostCreateInput
 	var asMap = obj.(map[string]interface{})
 
 	for k, v := range asMap {
 		switch k {
-		case "userId":
-			var err error
-			it.UserID, err = ec.unmarshalNID2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "title":
 			var err error
 			it.Title, err = ec.unmarshalNString2string(ctx, v)
@@ -11407,15 +12422,15 @@ func (ec *executionContext) unmarshalInputPostCreateInput(ctx context.Context, o
 			if err != nil {
 				return it, err
 			}
-		case "deletedAt":
-			var err error
-			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "createdAt":
 			var err error
 			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "deletedAt":
+			var err error
+			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -11461,12 +12476,6 @@ func (ec *executionContext) unmarshalInputPostUpdateInput(ctx context.Context, o
 
 	for k, v := range asMap {
 		switch k {
-		case "userId":
-			var err error
-			it.UserID, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "title":
 			var err error
 			it.Title, err = ec.unmarshalOString2ᚖstring(ctx, v)
@@ -11479,15 +12488,15 @@ func (ec *executionContext) unmarshalInputPostUpdateInput(ctx context.Context, o
 			if err != nil {
 				return it, err
 			}
-		case "deletedAt":
-			var err error
-			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "createdAt":
 			var err error
 			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "deletedAt":
+			var err error
+			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -11533,15 +12542,15 @@ func (ec *executionContext) unmarshalInputPostWhere(ctx context.Context, obj int
 			if err != nil {
 				return it, err
 			}
-		case "deletedAt":
-			var err error
-			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "createdAt":
 			var err error
 			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "deletedAt":
+			var err error
+			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -11593,24 +12602,6 @@ func (ec *executionContext) unmarshalInputPostsCreateInput(ctx context.Context, 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputPostsUpdateInput(ctx context.Context, obj interface{}) (gqlmodels.PostsUpdateInput, error) {
-	var it gqlmodels.PostsUpdateInput
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "posts":
-			var err error
-			it.Posts, err = ec.unmarshalNPostUpdateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐPostUpdateInputᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputRoleCreateInput(ctx context.Context, obj interface{}) (gqlmodels.RoleCreateInput, error) {
 	var it gqlmodels.RoleCreateInput
 	var asMap = obj.(map[string]interface{})
@@ -11629,6 +12620,12 @@ func (ec *executionContext) unmarshalInputRoleCreateInput(ctx context.Context, o
 			if err != nil {
 				return it, err
 			}
+		case "deletedAt":
+			var err error
+			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "updatedAt":
 			var err error
 			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
@@ -11638,12 +12635,6 @@ func (ec *executionContext) unmarshalInputRoleCreateInput(ctx context.Context, o
 		case "createdAt":
 			var err error
 			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt":
-			var err error
-			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -11695,6 +12686,12 @@ func (ec *executionContext) unmarshalInputRoleUpdateInput(ctx context.Context, o
 			if err != nil {
 				return it, err
 			}
+		case "deletedAt":
+			var err error
+			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "updatedAt":
 			var err error
 			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
@@ -11704,12 +12701,6 @@ func (ec *executionContext) unmarshalInputRoleUpdateInput(ctx context.Context, o
 		case "createdAt":
 			var err error
 			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt":
-			var err error
-			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -11743,6 +12734,12 @@ func (ec *executionContext) unmarshalInputRoleWhere(ctx context.Context, obj int
 			if err != nil {
 				return it, err
 			}
+		case "deletedAt":
+			var err error
+			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "updatedAt":
 			var err error
 			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
@@ -11752,12 +12749,6 @@ func (ec *executionContext) unmarshalInputRoleWhere(ctx context.Context, obj int
 		case "createdAt":
 			var err error
 			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt":
-			var err error
-			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -11794,24 +12785,6 @@ func (ec *executionContext) unmarshalInputRolesCreateInput(ctx context.Context, 
 		case "roles":
 			var err error
 			it.Roles, err = ec.unmarshalNRoleCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐRoleCreateInputᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputRolesUpdateInput(ctx context.Context, obj interface{}) (gqlmodels.RolesUpdateInput, error) {
-	var it gqlmodels.RolesUpdateInput
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "roles":
-			var err error
-			it.Roles, err = ec.unmarshalNRoleUpdateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐRoleUpdateInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -12031,15 +13004,15 @@ func (ec *executionContext) unmarshalInputUserCreateInput(ctx context.Context, o
 			if err != nil {
 				return it, err
 			}
-		case "updatedAt":
-			var err error
-			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "createdAt":
 			var err error
 			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "updatedAt":
+			var err error
+			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -12175,15 +13148,15 @@ func (ec *executionContext) unmarshalInputUserUpdateInput(ctx context.Context, o
 			if err != nil {
 				return it, err
 			}
-		case "updatedAt":
-			var err error
-			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "createdAt":
 			var err error
 			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "updatedAt":
+			var err error
+			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -12301,15 +13274,15 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			if err != nil {
 				return it, err
 			}
-		case "updatedAt":
-			var err error
-			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "createdAt":
 			var err error
 			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "updatedAt":
+			var err error
+			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -12373,24 +13346,6 @@ func (ec *executionContext) unmarshalInputUsersCreateInput(ctx context.Context, 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUsersUpdateInput(ctx context.Context, obj interface{}) (gqlmodels.UsersUpdateInput, error) {
-	var it gqlmodels.UsersUpdateInput
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "users":
-			var err error
-			it.Users, err = ec.unmarshalNUserUpdateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐUserUpdateInputᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -12437,10 +13392,10 @@ func (ec *executionContext) _Comment(ctx context.Context, sel ast.SelectionSet, 
 			}
 		case "createdAt":
 			out.Values[i] = ec._Comment_createdAt(ctx, field, obj)
-		case "deletedAt":
-			out.Values[i] = ec._Comment_deletedAt(ctx, field, obj)
 		case "updatedAt":
 			out.Values[i] = ec._Comment_updatedAt(ctx, field, obj)
+		case "deletedAt":
+			out.Values[i] = ec._Comment_deletedAt(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -12688,12 +13643,12 @@ func (ec *executionContext) _Company(ctx context.Context, sel ast.SelectionSet, 
 			out.Values[i] = ec._Company_name(ctx, field, obj)
 		case "active":
 			out.Values[i] = ec._Company_active(ctx, field, obj)
-		case "updatedAt":
-			out.Values[i] = ec._Company_updatedAt(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._Company_createdAt(ctx, field, obj)
 		case "deletedAt":
 			out.Values[i] = ec._Company_deletedAt(ctx, field, obj)
+		case "updatedAt":
+			out.Values[i] = ec._Company_updatedAt(ctx, field, obj)
 		case "locations":
 			out.Values[i] = ec._Company_locations(ctx, field, obj)
 		case "users":
@@ -12786,10 +13741,10 @@ func (ec *executionContext) _Follower(ctx context.Context, sel ast.SelectionSet,
 			}
 		case "deletedAt":
 			out.Values[i] = ec._Follower_deletedAt(ctx, field, obj)
-		case "createdAt":
-			out.Values[i] = ec._Follower_createdAt(ctx, field, obj)
 		case "updatedAt":
 			out.Values[i] = ec._Follower_updatedAt(ctx, field, obj)
+		case "createdAt":
+			out.Values[i] = ec._Follower_createdAt(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -12965,10 +13920,10 @@ func (ec *executionContext) _Location(ctx context.Context, sel ast.SelectionSet,
 			}
 		case "createdAt":
 			out.Values[i] = ec._Location_createdAt(ctx, field, obj)
-		case "updatedAt":
-			out.Values[i] = ec._Location_updatedAt(ctx, field, obj)
 		case "deletedAt":
 			out.Values[i] = ec._Location_deletedAt(ctx, field, obj)
+		case "updatedAt":
+			out.Values[i] = ec._Location_updatedAt(ctx, field, obj)
 		case "users":
 			out.Values[i] = ec._Location_users(ctx, field, obj)
 		default:
@@ -13384,10 +14339,10 @@ func (ec *executionContext) _Post(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "deletedAt":
-			out.Values[i] = ec._Post_deletedAt(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._Post_createdAt(ctx, field, obj)
+		case "deletedAt":
+			out.Values[i] = ec._Post_deletedAt(ctx, field, obj)
 		case "updatedAt":
 			out.Values[i] = ec._Post_updatedAt(ctx, field, obj)
 		case "comments":
@@ -13790,12 +14745,12 @@ func (ec *executionContext) _Role(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "deletedAt":
+			out.Values[i] = ec._Role_deletedAt(ctx, field, obj)
 		case "updatedAt":
 			out.Values[i] = ec._Role_updatedAt(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._Role_createdAt(ctx, field, obj)
-		case "deletedAt":
-			out.Values[i] = ec._Role_deletedAt(ctx, field, obj)
 		case "users":
 			out.Values[i] = ec._Role_users(ctx, field, obj)
 		default:
@@ -13992,10 +14947,10 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._User_location(ctx, field, obj)
 		case "deletedAt":
 			out.Values[i] = ec._User_deletedAt(ctx, field, obj)
-		case "updatedAt":
-			out.Values[i] = ec._User_updatedAt(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._User_createdAt(ctx, field, obj)
+		case "updatedAt":
+			out.Values[i] = ec._User_updatedAt(ctx, field, obj)
 		case "comments":
 			out.Values[i] = ec._User_comments(ctx, field, obj)
 		case "followeeFollowers":
@@ -14524,34 +15479,6 @@ func (ec *executionContext) unmarshalNCommentUpdateInput2githubᚗcomᚋwednesda
 	return ec.unmarshalInputCommentUpdateInput(ctx, v)
 }
 
-func (ec *executionContext) unmarshalNCommentUpdateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐCommentUpdateInputᚄ(ctx context.Context, v interface{}) ([]*gqlmodels.CommentUpdateInput, error) {
-	var vSlice []interface{}
-	if v != nil {
-		if tmp1, ok := v.([]interface{}); ok {
-			vSlice = tmp1
-		} else {
-			vSlice = []interface{}{v}
-		}
-	}
-	var err error
-	res := make([]*gqlmodels.CommentUpdateInput, len(vSlice))
-	for i := range vSlice {
-		res[i], err = ec.unmarshalNCommentUpdateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐCommentUpdateInput(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) unmarshalNCommentUpdateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐCommentUpdateInput(ctx context.Context, v interface{}) (*gqlmodels.CommentUpdateInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalNCommentUpdateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐCommentUpdateInput(ctx, v)
-	return &res, err
-}
-
 func (ec *executionContext) unmarshalNCommentsCreateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐCommentsCreateInput(ctx context.Context, v interface{}) (gqlmodels.CommentsCreateInput, error) {
 	return ec.unmarshalInputCommentsCreateInput(ctx, v)
 }
@@ -14582,10 +15509,6 @@ func (ec *executionContext) marshalNCommentsPayload2ᚖgithubᚗcomᚋwednesday�
 		return graphql.Null
 	}
 	return ec._CommentsPayload(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNCommentsUpdateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐCommentsUpdateInput(ctx context.Context, v interface{}) (gqlmodels.CommentsUpdateInput, error) {
-	return ec.unmarshalInputCommentsUpdateInput(ctx, v)
 }
 
 func (ec *executionContext) marshalNCommentsUpdatePayload2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐCommentsUpdatePayload(ctx context.Context, sel ast.SelectionSet, v gqlmodels.CommentsUpdatePayload) graphql.Marshaler {
@@ -14632,10 +15555,6 @@ func (ec *executionContext) marshalNCompaniesPayload2ᚖgithubᚗcomᚋwednesday
 		return graphql.Null
 	}
 	return ec._CompaniesPayload(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNCompaniesUpdateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐCompaniesUpdateInput(ctx context.Context, v interface{}) (gqlmodels.CompaniesUpdateInput, error) {
-	return ec.unmarshalInputCompaniesUpdateInput(ctx, v)
 }
 
 func (ec *executionContext) marshalNCompaniesUpdatePayload2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐCompaniesUpdatePayload(ctx context.Context, sel ast.SelectionSet, v gqlmodels.CompaniesUpdatePayload) graphql.Marshaler {
@@ -14767,34 +15686,6 @@ func (ec *executionContext) unmarshalNCompanyUpdateInput2githubᚗcomᚋwednesda
 	return ec.unmarshalInputCompanyUpdateInput(ctx, v)
 }
 
-func (ec *executionContext) unmarshalNCompanyUpdateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐCompanyUpdateInputᚄ(ctx context.Context, v interface{}) ([]*gqlmodels.CompanyUpdateInput, error) {
-	var vSlice []interface{}
-	if v != nil {
-		if tmp1, ok := v.([]interface{}); ok {
-			vSlice = tmp1
-		} else {
-			vSlice = []interface{}{v}
-		}
-	}
-	var err error
-	res := make([]*gqlmodels.CompanyUpdateInput, len(vSlice))
-	for i := range vSlice {
-		res[i], err = ec.unmarshalNCompanyUpdateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐCompanyUpdateInput(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) unmarshalNCompanyUpdateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐCompanyUpdateInput(ctx context.Context, v interface{}) (*gqlmodels.CompanyUpdateInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalNCompanyUpdateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐCompanyUpdateInput(ctx, v)
-	return &res, err
-}
-
 func (ec *executionContext) unmarshalNFloat2float64(ctx context.Context, v interface{}) (float64, error) {
 	return graphql.UnmarshalFloat(v)
 }
@@ -14924,34 +15815,6 @@ func (ec *executionContext) unmarshalNFollowerUpdateInput2githubᚗcomᚋwednesd
 	return ec.unmarshalInputFollowerUpdateInput(ctx, v)
 }
 
-func (ec *executionContext) unmarshalNFollowerUpdateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐFollowerUpdateInputᚄ(ctx context.Context, v interface{}) ([]*gqlmodels.FollowerUpdateInput, error) {
-	var vSlice []interface{}
-	if v != nil {
-		if tmp1, ok := v.([]interface{}); ok {
-			vSlice = tmp1
-		} else {
-			vSlice = []interface{}{v}
-		}
-	}
-	var err error
-	res := make([]*gqlmodels.FollowerUpdateInput, len(vSlice))
-	for i := range vSlice {
-		res[i], err = ec.unmarshalNFollowerUpdateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐFollowerUpdateInput(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) unmarshalNFollowerUpdateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐFollowerUpdateInput(ctx context.Context, v interface{}) (*gqlmodels.FollowerUpdateInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalNFollowerUpdateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐFollowerUpdateInput(ctx, v)
-	return &res, err
-}
-
 func (ec *executionContext) unmarshalNFollowersCreateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐFollowersCreateInput(ctx context.Context, v interface{}) (gqlmodels.FollowersCreateInput, error) {
 	return ec.unmarshalInputFollowersCreateInput(ctx, v)
 }
@@ -14982,10 +15845,6 @@ func (ec *executionContext) marshalNFollowersPayload2ᚖgithubᚗcomᚋwednesday
 		return graphql.Null
 	}
 	return ec._FollowersPayload(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNFollowersUpdateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐFollowersUpdateInput(ctx context.Context, v interface{}) (gqlmodels.FollowersUpdateInput, error) {
-	return ec.unmarshalInputFollowersUpdateInput(ctx, v)
 }
 
 func (ec *executionContext) marshalNFollowersUpdatePayload2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐFollowersUpdatePayload(ctx context.Context, sel ast.SelectionSet, v gqlmodels.FollowersUpdatePayload) graphql.Marshaler {
@@ -15174,34 +16033,6 @@ func (ec *executionContext) unmarshalNLocationUpdateInput2githubᚗcomᚋwednesd
 	return ec.unmarshalInputLocationUpdateInput(ctx, v)
 }
 
-func (ec *executionContext) unmarshalNLocationUpdateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐLocationUpdateInputᚄ(ctx context.Context, v interface{}) ([]*gqlmodels.LocationUpdateInput, error) {
-	var vSlice []interface{}
-	if v != nil {
-		if tmp1, ok := v.([]interface{}); ok {
-			vSlice = tmp1
-		} else {
-			vSlice = []interface{}{v}
-		}
-	}
-	var err error
-	res := make([]*gqlmodels.LocationUpdateInput, len(vSlice))
-	for i := range vSlice {
-		res[i], err = ec.unmarshalNLocationUpdateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐLocationUpdateInput(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) unmarshalNLocationUpdateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐLocationUpdateInput(ctx context.Context, v interface{}) (*gqlmodels.LocationUpdateInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalNLocationUpdateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐLocationUpdateInput(ctx, v)
-	return &res, err
-}
-
 func (ec *executionContext) unmarshalNLocationsCreateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐLocationsCreateInput(ctx context.Context, v interface{}) (gqlmodels.LocationsCreateInput, error) {
 	return ec.unmarshalInputLocationsCreateInput(ctx, v)
 }
@@ -15232,10 +16063,6 @@ func (ec *executionContext) marshalNLocationsPayload2ᚖgithubᚗcomᚋwednesday
 		return graphql.Null
 	}
 	return ec._LocationsPayload(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNLocationsUpdateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐLocationsUpdateInput(ctx context.Context, v interface{}) (gqlmodels.LocationsUpdateInput, error) {
-	return ec.unmarshalInputLocationsUpdateInput(ctx, v)
 }
 
 func (ec *executionContext) marshalNLocationsUpdatePayload2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐLocationsUpdatePayload(ctx context.Context, sel ast.SelectionSet, v gqlmodels.LocationsUpdatePayload) graphql.Marshaler {
@@ -15367,34 +16194,6 @@ func (ec *executionContext) unmarshalNPostUpdateInput2githubᚗcomᚋwednesday�
 	return ec.unmarshalInputPostUpdateInput(ctx, v)
 }
 
-func (ec *executionContext) unmarshalNPostUpdateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐPostUpdateInputᚄ(ctx context.Context, v interface{}) ([]*gqlmodels.PostUpdateInput, error) {
-	var vSlice []interface{}
-	if v != nil {
-		if tmp1, ok := v.([]interface{}); ok {
-			vSlice = tmp1
-		} else {
-			vSlice = []interface{}{v}
-		}
-	}
-	var err error
-	res := make([]*gqlmodels.PostUpdateInput, len(vSlice))
-	for i := range vSlice {
-		res[i], err = ec.unmarshalNPostUpdateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐPostUpdateInput(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) unmarshalNPostUpdateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐPostUpdateInput(ctx context.Context, v interface{}) (*gqlmodels.PostUpdateInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalNPostUpdateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐPostUpdateInput(ctx, v)
-	return &res, err
-}
-
 func (ec *executionContext) unmarshalNPostsCreateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐPostsCreateInput(ctx context.Context, v interface{}) (gqlmodels.PostsCreateInput, error) {
 	return ec.unmarshalInputPostsCreateInput(ctx, v)
 }
@@ -15425,10 +16224,6 @@ func (ec *executionContext) marshalNPostsPayload2ᚖgithubᚗcomᚋwednesdayᚑs
 		return graphql.Null
 	}
 	return ec._PostsPayload(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNPostsUpdateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐPostsUpdateInput(ctx context.Context, v interface{}) (gqlmodels.PostsUpdateInput, error) {
-	return ec.unmarshalInputPostsUpdateInput(ctx, v)
 }
 
 func (ec *executionContext) marshalNPostsUpdatePayload2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐPostsUpdatePayload(ctx context.Context, sel ast.SelectionSet, v gqlmodels.PostsUpdatePayload) graphql.Marshaler {
@@ -15560,34 +16355,6 @@ func (ec *executionContext) unmarshalNRoleUpdateInput2githubᚗcomᚋwednesday�
 	return ec.unmarshalInputRoleUpdateInput(ctx, v)
 }
 
-func (ec *executionContext) unmarshalNRoleUpdateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐRoleUpdateInputᚄ(ctx context.Context, v interface{}) ([]*gqlmodels.RoleUpdateInput, error) {
-	var vSlice []interface{}
-	if v != nil {
-		if tmp1, ok := v.([]interface{}); ok {
-			vSlice = tmp1
-		} else {
-			vSlice = []interface{}{v}
-		}
-	}
-	var err error
-	res := make([]*gqlmodels.RoleUpdateInput, len(vSlice))
-	for i := range vSlice {
-		res[i], err = ec.unmarshalNRoleUpdateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐRoleUpdateInput(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) unmarshalNRoleUpdateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐRoleUpdateInput(ctx context.Context, v interface{}) (*gqlmodels.RoleUpdateInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalNRoleUpdateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐRoleUpdateInput(ctx, v)
-	return &res, err
-}
-
 func (ec *executionContext) unmarshalNRolesCreateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐRolesCreateInput(ctx context.Context, v interface{}) (gqlmodels.RolesCreateInput, error) {
 	return ec.unmarshalInputRolesCreateInput(ctx, v)
 }
@@ -15618,10 +16385,6 @@ func (ec *executionContext) marshalNRolesPayload2ᚖgithubᚗcomᚋwednesdayᚑs
 		return graphql.Null
 	}
 	return ec._RolesPayload(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNRolesUpdateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐRolesUpdateInput(ctx context.Context, v interface{}) (gqlmodels.RolesUpdateInput, error) {
-	return ec.unmarshalInputRolesUpdateInput(ctx, v)
 }
 
 func (ec *executionContext) marshalNRolesUpdatePayload2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐRolesUpdatePayload(ctx context.Context, sel ast.SelectionSet, v gqlmodels.RolesUpdatePayload) graphql.Marshaler {
@@ -15767,34 +16530,6 @@ func (ec *executionContext) unmarshalNUserUpdateInput2githubᚗcomᚋwednesday�
 	return ec.unmarshalInputUserUpdateInput(ctx, v)
 }
 
-func (ec *executionContext) unmarshalNUserUpdateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐUserUpdateInputᚄ(ctx context.Context, v interface{}) ([]*gqlmodels.UserUpdateInput, error) {
-	var vSlice []interface{}
-	if v != nil {
-		if tmp1, ok := v.([]interface{}); ok {
-			vSlice = tmp1
-		} else {
-			vSlice = []interface{}{v}
-		}
-	}
-	var err error
-	res := make([]*gqlmodels.UserUpdateInput, len(vSlice))
-	for i := range vSlice {
-		res[i], err = ec.unmarshalNUserUpdateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐUserUpdateInput(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) unmarshalNUserUpdateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐUserUpdateInput(ctx context.Context, v interface{}) (*gqlmodels.UserUpdateInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalNUserUpdateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐUserUpdateInput(ctx, v)
-	return &res, err
-}
-
 func (ec *executionContext) unmarshalNUsersCreateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐUsersCreateInput(ctx context.Context, v interface{}) (gqlmodels.UsersCreateInput, error) {
 	return ec.unmarshalInputUsersCreateInput(ctx, v)
 }
@@ -15825,10 +16560,6 @@ func (ec *executionContext) marshalNUsersPayload2ᚖgithubᚗcomᚋwednesdayᚑs
 		return graphql.Null
 	}
 	return ec._UsersPayload(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNUsersUpdateInput2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐUsersUpdateInput(ctx context.Context, v interface{}) (gqlmodels.UsersUpdateInput, error) {
-	return ec.unmarshalInputUsersUpdateInput(ctx, v)
 }
 
 func (ec *executionContext) marshalNUsersUpdatePayload2githubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐUsersUpdatePayload(ctx context.Context, sel ast.SelectionSet, v gqlmodels.UsersUpdatePayload) graphql.Marshaler {

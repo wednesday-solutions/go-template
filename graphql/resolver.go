@@ -22,7 +22,7 @@ func (r *mutationResolver) UpdateComment(ctx context.Context, id string, input g
 	panic("not implemented")
 }
 
-func (r *mutationResolver) UpdateComments(ctx context.Context, filter *gqlmodels.CommentFilter, input gqlmodels.CommentsUpdateInput) (*gqlmodels.CommentsUpdatePayload, error) {
+func (r *mutationResolver) UpdateComments(ctx context.Context, filter *gqlmodels.CommentFilter, input gqlmodels.CommentUpdateInput) (*gqlmodels.CommentsUpdatePayload, error) {
 	panic("not implemented")
 }
 
@@ -46,7 +46,7 @@ func (r *mutationResolver) UpdateCompany(ctx context.Context, id string, input g
 	panic("not implemented")
 }
 
-func (r *mutationResolver) UpdateCompanies(ctx context.Context, filter *gqlmodels.CompanyFilter, input gqlmodels.CompaniesUpdateInput) (*gqlmodels.CompaniesUpdatePayload, error) {
+func (r *mutationResolver) UpdateCompanies(ctx context.Context, filter *gqlmodels.CompanyFilter, input gqlmodels.CompanyUpdateInput) (*gqlmodels.CompaniesUpdatePayload, error) {
 	panic("not implemented")
 }
 
@@ -70,7 +70,7 @@ func (r *mutationResolver) UpdateFollower(ctx context.Context, id string, input 
 	panic("not implemented")
 }
 
-func (r *mutationResolver) UpdateFollowers(ctx context.Context, filter *gqlmodels.FollowerFilter, input gqlmodels.FollowersUpdateInput) (*gqlmodels.FollowersUpdatePayload, error) {
+func (r *mutationResolver) UpdateFollowers(ctx context.Context, filter *gqlmodels.FollowerFilter, input gqlmodels.FollowerUpdateInput) (*gqlmodels.FollowersUpdatePayload, error) {
 	panic("not implemented")
 }
 
@@ -94,7 +94,7 @@ func (r *mutationResolver) UpdateLocation(ctx context.Context, id string, input 
 	panic("not implemented")
 }
 
-func (r *mutationResolver) UpdateLocations(ctx context.Context, filter *gqlmodels.LocationFilter, input gqlmodels.LocationsUpdateInput) (*gqlmodels.LocationsUpdatePayload, error) {
+func (r *mutationResolver) UpdateLocations(ctx context.Context, filter *gqlmodels.LocationFilter, input gqlmodels.LocationUpdateInput) (*gqlmodels.LocationsUpdatePayload, error) {
 	panic("not implemented")
 }
 
@@ -118,7 +118,7 @@ func (r *mutationResolver) UpdatePost(ctx context.Context, id string, input gqlm
 	panic("not implemented")
 }
 
-func (r *mutationResolver) UpdatePosts(ctx context.Context, filter *gqlmodels.PostFilter, input gqlmodels.PostsUpdateInput) (*gqlmodels.PostsUpdatePayload, error) {
+func (r *mutationResolver) UpdatePosts(ctx context.Context, filter *gqlmodels.PostFilter, input gqlmodels.PostUpdateInput) (*gqlmodels.PostsUpdatePayload, error) {
 	panic("not implemented")
 }
 
@@ -142,7 +142,7 @@ func (r *mutationResolver) UpdateRole(ctx context.Context, id string, input gqlm
 	panic("not implemented")
 }
 
-func (r *mutationResolver) UpdateRoles(ctx context.Context, filter *gqlmodels.RoleFilter, input gqlmodels.RolesUpdateInput) (*gqlmodels.RolesUpdatePayload, error) {
+func (r *mutationResolver) UpdateRoles(ctx context.Context, filter *gqlmodels.RoleFilter, input gqlmodels.RoleUpdateInput) (*gqlmodels.RolesUpdatePayload, error) {
 	panic("not implemented")
 }
 
@@ -166,7 +166,7 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input gqlm
 	panic("not implemented")
 }
 
-func (r *mutationResolver) UpdateUsers(ctx context.Context, filter *gqlmodels.UserFilter, input gqlmodels.UsersUpdateInput) (*gqlmodels.UsersUpdatePayload, error) {
+func (r *mutationResolver) UpdateUsers(ctx context.Context, filter *gqlmodels.UserFilter, input gqlmodels.UserUpdateInput) (*gqlmodels.UsersUpdatePayload, error) {
 	panic("not implemented")
 }
 
