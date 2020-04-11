@@ -28,4 +28,4 @@ do
 done
 cd  ../../
 
-sqlboiler psql
+sqlboiler psql --no-hooks
