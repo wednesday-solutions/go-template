@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/wednesday-solution/go-boiler/pkg/utl/postgres"
+	"github.com/wednesday-solutions/go-boiler/pkg/utl/postgres"
 	"log"
 	"strings"
 )

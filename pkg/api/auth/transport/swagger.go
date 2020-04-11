@@ -1,7 +1,7 @@
 package transport
 
 import (
-	"github.com/wednesday-solution/go-boiler"
+	"github.com/wednesday-solutions/go-boiler"
 )
 
 // Login request

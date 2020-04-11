@@ -6,9 +6,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/wednesday-solution/go-boiler"
+	"github.com/wednesday-solutions/go-boiler"
 
-	"github.com/wednesday-solution/go-boiler/pkg/utl/postgres"
+	"github.com/wednesday-solutions/go-boiler/pkg/utl/postgres"
 
 	"github.com/fortytw2/dockertest"
 )

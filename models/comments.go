@@ -168,8 +168,6 @@ type (
 	// CommentSlice is an alias for a slice of pointers to Comment.
 	// This should generally be used opposed to []Comment.
 	CommentSlice []*Comment
-	// CommentHook is the signature for custom Comment hook methods
-	CommentHook func(context.Context, boil.ContextExecutor, *Comment) error
 
 	commentQuery struct {
 		*queries.Query
@@ -197,176 +195,6 @@ var (
 	_ = qmhelper.Where
 )
 
-var commentBeforeInsertHooks []CommentHook
-var commentBeforeUpdateHooks []CommentHook
-var commentBeforeDeleteHooks []CommentHook
-var commentBeforeUpsertHooks []CommentHook
-
-var commentAfterInsertHooks []CommentHook
-var commentAfterSelectHooks []CommentHook
-var commentAfterUpdateHooks []CommentHook
-var commentAfterDeleteHooks []CommentHook
-var commentAfterUpsertHooks []CommentHook
-
-// doBeforeInsertHooks executes all "before insert" hooks.
-func (o *Comment) doBeforeInsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range commentBeforeInsertHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doBeforeUpdateHooks executes all "before Update" hooks.
-func (o *Comment) doBeforeUpdateHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range commentBeforeUpdateHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doBeforeDeleteHooks executes all "before Delete" hooks.
-func (o *Comment) doBeforeDeleteHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range commentBeforeDeleteHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doBeforeUpsertHooks executes all "before Upsert" hooks.
-func (o *Comment) doBeforeUpsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range commentBeforeUpsertHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterInsertHooks executes all "after Insert" hooks.
-func (o *Comment) doAfterInsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range commentAfterInsertHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterSelectHooks executes all "after Select" hooks.
-func (o *Comment) doAfterSelectHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range commentAfterSelectHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterUpdateHooks executes all "after Update" hooks.
-func (o *Comment) doAfterUpdateHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range commentAfterUpdateHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterDeleteHooks executes all "after Delete" hooks.
-func (o *Comment) doAfterDeleteHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range commentAfterDeleteHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterUpsertHooks executes all "after Upsert" hooks.
-func (o *Comment) doAfterUpsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range commentAfterUpsertHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// AddCommentHook registers your hook function for all future operations.
-func AddCommentHook(hookPoint boil.HookPoint, commentHook CommentHook) {
-	switch hookPoint {
-	case boil.BeforeInsertHook:
-		commentBeforeInsertHooks = append(commentBeforeInsertHooks, commentHook)
-	case boil.BeforeUpdateHook:
-		commentBeforeUpdateHooks = append(commentBeforeUpdateHooks, commentHook)
-	case boil.BeforeDeleteHook:
-		commentBeforeDeleteHooks = append(commentBeforeDeleteHooks, commentHook)
-	case boil.BeforeUpsertHook:
-		commentBeforeUpsertHooks = append(commentBeforeUpsertHooks, commentHook)
-	case boil.AfterInsertHook:
-		commentAfterInsertHooks = append(commentAfterInsertHooks, commentHook)
-	case boil.AfterSelectHook:
-		commentAfterSelectHooks = append(commentAfterSelectHooks, commentHook)
-	case boil.AfterUpdateHook:
-		commentAfterUpdateHooks = append(commentAfterUpdateHooks, commentHook)
-	case boil.AfterDeleteHook:
-		commentAfterDeleteHooks = append(commentAfterDeleteHooks, commentHook)
-	case boil.AfterUpsertHook:
-		commentAfterUpsertHooks = append(commentAfterUpsertHooks, commentHook)
-	}
-}
-
 // One returns a single comment record from the query.
 func (q commentQuery) One(ctx context.Context, exec boil.ContextExecutor) (*Comment, error) {
 	o := &Comment{}
@@ -381,10 +209,6 @@ func (q commentQuery) One(ctx context.Context, exec boil.ContextExecutor) (*Comm
 		return nil, errors.Wrap(err, "models: failed to execute a one query for comments")
 	}
 
-	if err := o.doAfterSelectHooks(ctx, exec); err != nil {
-		return o, err
-	}
-
 	return o, nil
 }
 
@@ -395,14 +219,6 @@ func (q commentQuery) All(ctx context.Context, exec boil.ContextExecutor) (Comme
 	err := q.Bind(ctx, exec, &o)
 	if err != nil {
 		return nil, errors.Wrap(err, "models: failed to assign all query results to Comment slice")
-	}
-
-	if len(commentAfterSelectHooks) != 0 {
-		for _, obj := range o {
-			if err := obj.doAfterSelectHooks(ctx, exec); err != nil {
-				return o, err
-			}
-		}
 	}
 
 	return o, nil
@@ -530,14 +346,6 @@ func (commentL) LoadPost(ctx context.Context, e boil.ContextExecutor, singular b
 		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for posts")
 	}
 
-	if len(commentAfterSelectHooks) != 0 {
-		for _, obj := range resultSlice {
-			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
-				return err
-			}
-		}
-	}
-
 	if len(resultSlice) == 0 {
 		return nil
 	}
@@ -629,14 +437,6 @@ func (commentL) LoadUser(ctx context.Context, e boil.ContextExecutor, singular b
 	}
 	if err = results.Err(); err != nil {
 		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for users")
-	}
-
-	if len(commentAfterSelectHooks) != 0 {
-		for _, obj := range resultSlice {
-			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
-				return err
-			}
-		}
 	}
 
 	if len(resultSlice) == 0 {
@@ -814,10 +614,6 @@ func (o *Comment) Insert(ctx context.Context, exec boil.ContextExecutor, columns
 		}
 	}
 
-	if err := o.doBeforeInsertHooks(ctx, exec); err != nil {
-		return err
-	}
-
 	nzDefaults := queries.NonZeroDefaultSet(commentColumnsWithDefault, o)
 
 	key := makeCacheKey(columns, nzDefaults)
@@ -881,7 +677,7 @@ func (o *Comment) Insert(ctx context.Context, exec boil.ContextExecutor, columns
 		commentInsertCacheMut.Unlock()
 	}
 
-	return o.doAfterInsertHooks(ctx, exec)
+	return nil
 }
 
 // Update uses an executor to update the Comment.
@@ -895,9 +691,6 @@ func (o *Comment) Update(ctx context.Context, exec boil.ContextExecutor, columns
 	}
 
 	var err error
-	if err = o.doBeforeUpdateHooks(ctx, exec); err != nil {
-		return 0, err
-	}
 	key := makeCacheKey(columns, nil)
 	commentUpdateCacheMut.RLock()
 	cache, cached := commentUpdateCache[key]
@@ -950,7 +743,7 @@ func (o *Comment) Update(ctx context.Context, exec boil.ContextExecutor, columns
 		commentUpdateCacheMut.Unlock()
 	}
 
-	return rowsAff, o.doAfterUpdateHooks(ctx, exec)
+	return rowsAff, nil
 }
 
 // UpdateAll updates all rows with the specified column values.
@@ -1031,10 +824,6 @@ func (o *Comment) Upsert(ctx context.Context, exec boil.ContextExecutor, updateO
 			queries.SetScanner(&o.CreatedAt, currTime)
 		}
 		queries.SetScanner(&o.UpdatedAt, currTime)
-	}
-
-	if err := o.doBeforeUpsertHooks(ctx, exec); err != nil {
-		return err
 	}
 
 	nzDefaults := queries.NonZeroDefaultSet(commentColumnsWithDefault, o)
@@ -1138,7 +927,7 @@ func (o *Comment) Upsert(ctx context.Context, exec boil.ContextExecutor, updateO
 		commentUpsertCacheMut.Unlock()
 	}
 
-	return o.doAfterUpsertHooks(ctx, exec)
+	return nil
 }
 
 // Delete deletes a single Comment record with an executor.
@@ -1146,10 +935,6 @@ func (o *Comment) Upsert(ctx context.Context, exec boil.ContextExecutor, updateO
 func (o *Comment) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if o == nil {
 		return 0, errors.New("models: no Comment provided for delete")
-	}
-
-	if err := o.doBeforeDeleteHooks(ctx, exec); err != nil {
-		return 0, err
 	}
 
 	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), commentPrimaryKeyMapping)
@@ -1168,10 +953,6 @@ func (o *Comment) Delete(ctx context.Context, exec boil.ContextExecutor) (int64,
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
 		return 0, errors.Wrap(err, "models: failed to get rows affected by delete for comments")
-	}
-
-	if err := o.doAfterDeleteHooks(ctx, exec); err != nil {
-		return 0, err
 	}
 
 	return rowsAff, nil
@@ -1204,14 +985,6 @@ func (o CommentSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) 
 		return 0, nil
 	}
 
-	if len(commentBeforeDeleteHooks) != 0 {
-		for _, obj := range o {
-			if err := obj.doBeforeDeleteHooks(ctx, exec); err != nil {
-				return 0, err
-			}
-		}
-	}
-
 	var args []interface{}
 	for _, obj := range o {
 		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), commentPrimaryKeyMapping)
@@ -1234,14 +1007,6 @@ func (o CommentSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
 		return 0, errors.Wrap(err, "models: failed to get rows affected by deleteall for comments")
-	}
-
-	if len(commentAfterDeleteHooks) != 0 {
-		for _, obj := range o {
-			if err := obj.doAfterDeleteHooks(ctx, exec); err != nil {
-				return 0, err
-			}
-		}
 	}
 
 	return rowsAff, nil

@@ -113,8 +113,6 @@ type (
 	// LocationSlice is an alias for a slice of pointers to Location.
 	// This should generally be used opposed to []Location.
 	LocationSlice []*Location
-	// LocationHook is the signature for custom Location hook methods
-	LocationHook func(context.Context, boil.ContextExecutor, *Location) error
 
 	locationQuery struct {
 		*queries.Query
@@ -142,176 +140,6 @@ var (
 	_ = qmhelper.Where
 )
 
-var locationBeforeInsertHooks []LocationHook
-var locationBeforeUpdateHooks []LocationHook
-var locationBeforeDeleteHooks []LocationHook
-var locationBeforeUpsertHooks []LocationHook
-
-var locationAfterInsertHooks []LocationHook
-var locationAfterSelectHooks []LocationHook
-var locationAfterUpdateHooks []LocationHook
-var locationAfterDeleteHooks []LocationHook
-var locationAfterUpsertHooks []LocationHook
-
-// doBeforeInsertHooks executes all "before insert" hooks.
-func (o *Location) doBeforeInsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range locationBeforeInsertHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doBeforeUpdateHooks executes all "before Update" hooks.
-func (o *Location) doBeforeUpdateHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range locationBeforeUpdateHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doBeforeDeleteHooks executes all "before Delete" hooks.
-func (o *Location) doBeforeDeleteHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range locationBeforeDeleteHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doBeforeUpsertHooks executes all "before Upsert" hooks.
-func (o *Location) doBeforeUpsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range locationBeforeUpsertHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterInsertHooks executes all "after Insert" hooks.
-func (o *Location) doAfterInsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range locationAfterInsertHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterSelectHooks executes all "after Select" hooks.
-func (o *Location) doAfterSelectHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range locationAfterSelectHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterUpdateHooks executes all "after Update" hooks.
-func (o *Location) doAfterUpdateHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range locationAfterUpdateHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterDeleteHooks executes all "after Delete" hooks.
-func (o *Location) doAfterDeleteHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range locationAfterDeleteHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterUpsertHooks executes all "after Upsert" hooks.
-func (o *Location) doAfterUpsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range locationAfterUpsertHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// AddLocationHook registers your hook function for all future operations.
-func AddLocationHook(hookPoint boil.HookPoint, locationHook LocationHook) {
-	switch hookPoint {
-	case boil.BeforeInsertHook:
-		locationBeforeInsertHooks = append(locationBeforeInsertHooks, locationHook)
-	case boil.BeforeUpdateHook:
-		locationBeforeUpdateHooks = append(locationBeforeUpdateHooks, locationHook)
-	case boil.BeforeDeleteHook:
-		locationBeforeDeleteHooks = append(locationBeforeDeleteHooks, locationHook)
-	case boil.BeforeUpsertHook:
-		locationBeforeUpsertHooks = append(locationBeforeUpsertHooks, locationHook)
-	case boil.AfterInsertHook:
-		locationAfterInsertHooks = append(locationAfterInsertHooks, locationHook)
-	case boil.AfterSelectHook:
-		locationAfterSelectHooks = append(locationAfterSelectHooks, locationHook)
-	case boil.AfterUpdateHook:
-		locationAfterUpdateHooks = append(locationAfterUpdateHooks, locationHook)
-	case boil.AfterDeleteHook:
-		locationAfterDeleteHooks = append(locationAfterDeleteHooks, locationHook)
-	case boil.AfterUpsertHook:
-		locationAfterUpsertHooks = append(locationAfterUpsertHooks, locationHook)
-	}
-}
-
 // One returns a single location record from the query.
 func (q locationQuery) One(ctx context.Context, exec boil.ContextExecutor) (*Location, error) {
 	o := &Location{}
@@ -326,10 +154,6 @@ func (q locationQuery) One(ctx context.Context, exec boil.ContextExecutor) (*Loc
 		return nil, errors.Wrap(err, "models: failed to execute a one query for locations")
 	}
 
-	if err := o.doAfterSelectHooks(ctx, exec); err != nil {
-		return o, err
-	}
-
 	return o, nil
 }
 
@@ -340,14 +164,6 @@ func (q locationQuery) All(ctx context.Context, exec boil.ContextExecutor) (Loca
 	err := q.Bind(ctx, exec, &o)
 	if err != nil {
 		return nil, errors.Wrap(err, "models: failed to assign all query results to Location slice")
-	}
-
-	if len(locationAfterSelectHooks) != 0 {
-		for _, obj := range o {
-			if err := obj.doAfterSelectHooks(ctx, exec); err != nil {
-				return o, err
-			}
-		}
 	}
 
 	return o, nil
@@ -482,14 +298,6 @@ func (locationL) LoadCompany(ctx context.Context, e boil.ContextExecutor, singul
 		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for companies")
 	}
 
-	if len(locationAfterSelectHooks) != 0 {
-		for _, obj := range resultSlice {
-			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
-				return err
-			}
-		}
-	}
-
 	if len(resultSlice) == 0 {
 		return nil
 	}
@@ -581,13 +389,6 @@ func (locationL) LoadUsers(ctx context.Context, e boil.ContextExecutor, singular
 		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for users")
 	}
 
-	if len(userAfterSelectHooks) != 0 {
-		for _, obj := range resultSlice {
-			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
-				return err
-			}
-		}
-	}
 	if singular {
 		object.R.Users = resultSlice
 		for _, foreign := range resultSlice {
@@ -836,10 +637,6 @@ func (o *Location) Insert(ctx context.Context, exec boil.ContextExecutor, column
 		}
 	}
 
-	if err := o.doBeforeInsertHooks(ctx, exec); err != nil {
-		return err
-	}
-
 	nzDefaults := queries.NonZeroDefaultSet(locationColumnsWithDefault, o)
 
 	key := makeCacheKey(columns, nzDefaults)
@@ -903,7 +700,7 @@ func (o *Location) Insert(ctx context.Context, exec boil.ContextExecutor, column
 		locationInsertCacheMut.Unlock()
 	}
 
-	return o.doAfterInsertHooks(ctx, exec)
+	return nil
 }
 
 // Update uses an executor to update the Location.
@@ -917,9 +714,6 @@ func (o *Location) Update(ctx context.Context, exec boil.ContextExecutor, column
 	}
 
 	var err error
-	if err = o.doBeforeUpdateHooks(ctx, exec); err != nil {
-		return 0, err
-	}
 	key := makeCacheKey(columns, nil)
 	locationUpdateCacheMut.RLock()
 	cache, cached := locationUpdateCache[key]
@@ -972,7 +766,7 @@ func (o *Location) Update(ctx context.Context, exec boil.ContextExecutor, column
 		locationUpdateCacheMut.Unlock()
 	}
 
-	return rowsAff, o.doAfterUpdateHooks(ctx, exec)
+	return rowsAff, nil
 }
 
 // UpdateAll updates all rows with the specified column values.
@@ -1053,10 +847,6 @@ func (o *Location) Upsert(ctx context.Context, exec boil.ContextExecutor, update
 			queries.SetScanner(&o.CreatedAt, currTime)
 		}
 		queries.SetScanner(&o.UpdatedAt, currTime)
-	}
-
-	if err := o.doBeforeUpsertHooks(ctx, exec); err != nil {
-		return err
 	}
 
 	nzDefaults := queries.NonZeroDefaultSet(locationColumnsWithDefault, o)
@@ -1160,7 +950,7 @@ func (o *Location) Upsert(ctx context.Context, exec boil.ContextExecutor, update
 		locationUpsertCacheMut.Unlock()
 	}
 
-	return o.doAfterUpsertHooks(ctx, exec)
+	return nil
 }
 
 // Delete deletes a single Location record with an executor.
@@ -1168,10 +958,6 @@ func (o *Location) Upsert(ctx context.Context, exec boil.ContextExecutor, update
 func (o *Location) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if o == nil {
 		return 0, errors.New("models: no Location provided for delete")
-	}
-
-	if err := o.doBeforeDeleteHooks(ctx, exec); err != nil {
-		return 0, err
 	}
 
 	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), locationPrimaryKeyMapping)
@@ -1190,10 +976,6 @@ func (o *Location) Delete(ctx context.Context, exec boil.ContextExecutor) (int64
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
 		return 0, errors.Wrap(err, "models: failed to get rows affected by delete for locations")
-	}
-
-	if err := o.doAfterDeleteHooks(ctx, exec); err != nil {
-		return 0, err
 	}
 
 	return rowsAff, nil
@@ -1226,14 +1008,6 @@ func (o LocationSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor)
 		return 0, nil
 	}
 
-	if len(locationBeforeDeleteHooks) != 0 {
-		for _, obj := range o {
-			if err := obj.doBeforeDeleteHooks(ctx, exec); err != nil {
-				return 0, err
-			}
-		}
-	}
-
 	var args []interface{}
 	for _, obj := range o {
 		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), locationPrimaryKeyMapping)
@@ -1256,14 +1030,6 @@ func (o LocationSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor)
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
 		return 0, errors.Wrap(err, "models: failed to get rows affected by deleteall for locations")
-	}
-
-	if len(locationAfterDeleteHooks) != 0 {
-		for _, obj := range o {
-			if err := obj.doAfterDeleteHooks(ctx, exec); err != nil {
-				return 0, err
-			}
-		}
 	}
 
 	return rowsAff, nil

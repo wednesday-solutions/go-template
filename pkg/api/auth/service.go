@@ -3,9 +3,9 @@ package auth
 import (
 	"database/sql"
 	"github.com/labstack/echo"
-	"github.com/wednesday-solution/go-boiler/models"
+	"github.com/wednesday-solutions/go-boiler/models"
 
-	"github.com/wednesday-solution/go-boiler"
+	"github.com/wednesday-solutions/go-boiler"
 )
 
 // New creates new iam service

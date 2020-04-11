@@ -25,9 +25,9 @@ func init() {
 				last_login TIMESTAMP WITH TIME ZONE,
 				last_password_change TIMESTAMP WITH TIME ZONE,
 				token TEXT,
-				role_id BIGINT REFERENCES roles(id),
-				company_id BIGINT REFERENCES companies(id),
-				location_id BIGINT REFERENCES locations(id)
+				role_id int REFERENCES roles(id),
+				company_id int REFERENCES companies(id),
+				location_id int REFERENCES locations(id)
 			);`, tableName)
 	migrations.MustRegister(func(db migrations.DB) error {
 		err := CreateTableAndAddTrigger(db, createTableQuery, tableName)

@@ -8,7 +8,7 @@ import (
 
 	"github.com/go-pg/pg/v9"
 
-	"github.com/wednesday-solution/go-boiler/pkg/utl/postgres"
+	"github.com/wednesday-solutions/go-boiler/pkg/utl/postgres"
 
 	"github.com/fortytw2/dockertest"
 )

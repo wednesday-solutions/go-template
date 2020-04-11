@@ -10,7 +10,7 @@ func init() {
 	var tableName = "roles"
 	var createTableQuery = fmt.Sprintf(`CREATE TABLE public.%s (
 			id SERIAL UNIQUE PRIMARY KEY,
-			access_level bigint NOT NULL,
+			access_level int NOT NULL,
 			name text  NOT NULL,
 			created_at TIMESTAMP WITH TIME ZONE,
 			updated_at TIMESTAMP WITH TIME ZONE,

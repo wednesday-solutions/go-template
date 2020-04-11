@@ -149,7 +149,7 @@ func testFollowersExists(t *testing.T) {
 		t.Error(err)
 	}
 
-	e, err := FollowerExists(ctx, tx, o.FollowerID, o.FolloweeID)
+	e, err := FollowerExists(ctx, tx, o.ID)
 	if err != nil {
 		t.Errorf("Unable to check if Follower exists: %s", err)
 	}
@@ -175,7 +175,7 @@ func testFollowersFind(t *testing.T) {
 		t.Error(err)
 	}
 
-	followerFound, err := FindFollower(ctx, tx, o.FollowerID, o.FolloweeID)
+	followerFound, err := FindFollower(ctx, tx, o.ID)
 	if err != nil {
 		t.Error(err)
 	}
@@ -297,147 +297,6 @@ func testFollowersCount(t *testing.T) {
 	if count != 2 {
 		t.Error("want 2 records, got:", count)
 	}
-}
-
-func followerBeforeInsertHook(ctx context.Context, e boil.ContextExecutor, o *Follower) error {
-	*o = Follower{}
-	return nil
-}
-
-func followerAfterInsertHook(ctx context.Context, e boil.ContextExecutor, o *Follower) error {
-	*o = Follower{}
-	return nil
-}
-
-func followerAfterSelectHook(ctx context.Context, e boil.ContextExecutor, o *Follower) error {
-	*o = Follower{}
-	return nil
-}
-
-func followerBeforeUpdateHook(ctx context.Context, e boil.ContextExecutor, o *Follower) error {
-	*o = Follower{}
-	return nil
-}
-
-func followerAfterUpdateHook(ctx context.Context, e boil.ContextExecutor, o *Follower) error {
-	*o = Follower{}
-	return nil
-}
-
-func followerBeforeDeleteHook(ctx context.Context, e boil.ContextExecutor, o *Follower) error {
-	*o = Follower{}
-	return nil
-}
-
-func followerAfterDeleteHook(ctx context.Context, e boil.ContextExecutor, o *Follower) error {
-	*o = Follower{}
-	return nil
-}
-
-func followerBeforeUpsertHook(ctx context.Context, e boil.ContextExecutor, o *Follower) error {
-	*o = Follower{}
-	return nil
-}
-
-func followerAfterUpsertHook(ctx context.Context, e boil.ContextExecutor, o *Follower) error {
-	*o = Follower{}
-	return nil
-}
-
-func testFollowersHooks(t *testing.T) {
-	t.Parallel()
-
-	var err error
-
-	ctx := context.Background()
-	empty := &Follower{}
-	o := &Follower{}
-
-	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, o, followerDBTypes, false); err != nil {
-		t.Errorf("Unable to randomize Follower object: %s", err)
-	}
-
-	AddFollowerHook(boil.BeforeInsertHook, followerBeforeInsertHook)
-	if err = o.doBeforeInsertHooks(ctx, nil); err != nil {
-		t.Errorf("Unable to execute doBeforeInsertHooks: %s", err)
-	}
-	if !reflect.DeepEqual(o, empty) {
-		t.Errorf("Expected BeforeInsertHook function to empty object, but got: %#v", o)
-	}
-	followerBeforeInsertHooks = []FollowerHook{}
-
-	AddFollowerHook(boil.AfterInsertHook, followerAfterInsertHook)
-	if err = o.doAfterInsertHooks(ctx, nil); err != nil {
-		t.Errorf("Unable to execute doAfterInsertHooks: %s", err)
-	}
-	if !reflect.DeepEqual(o, empty) {
-		t.Errorf("Expected AfterInsertHook function to empty object, but got: %#v", o)
-	}
-	followerAfterInsertHooks = []FollowerHook{}
-
-	AddFollowerHook(boil.AfterSelectHook, followerAfterSelectHook)
-	if err = o.doAfterSelectHooks(ctx, nil); err != nil {
-		t.Errorf("Unable to execute doAfterSelectHooks: %s", err)
-	}
-	if !reflect.DeepEqual(o, empty) {
-		t.Errorf("Expected AfterSelectHook function to empty object, but got: %#v", o)
-	}
-	followerAfterSelectHooks = []FollowerHook{}
-
-	AddFollowerHook(boil.BeforeUpdateHook, followerBeforeUpdateHook)
-	if err = o.doBeforeUpdateHooks(ctx, nil); err != nil {
-		t.Errorf("Unable to execute doBeforeUpdateHooks: %s", err)
-	}
-	if !reflect.DeepEqual(o, empty) {
-		t.Errorf("Expected BeforeUpdateHook function to empty object, but got: %#v", o)
-	}
-	followerBeforeUpdateHooks = []FollowerHook{}
-
-	AddFollowerHook(boil.AfterUpdateHook, followerAfterUpdateHook)
-	if err = o.doAfterUpdateHooks(ctx, nil); err != nil {
-		t.Errorf("Unable to execute doAfterUpdateHooks: %s", err)
-	}
-	if !reflect.DeepEqual(o, empty) {
-		t.Errorf("Expected AfterUpdateHook function to empty object, but got: %#v", o)
-	}
-	followerAfterUpdateHooks = []FollowerHook{}
-
-	AddFollowerHook(boil.BeforeDeleteHook, followerBeforeDeleteHook)
-	if err = o.doBeforeDeleteHooks(ctx, nil); err != nil {
-		t.Errorf("Unable to execute doBeforeDeleteHooks: %s", err)
-	}
-	if !reflect.DeepEqual(o, empty) {
-		t.Errorf("Expected BeforeDeleteHook function to empty object, but got: %#v", o)
-	}
-	followerBeforeDeleteHooks = []FollowerHook{}
-
-	AddFollowerHook(boil.AfterDeleteHook, followerAfterDeleteHook)
-	if err = o.doAfterDeleteHooks(ctx, nil); err != nil {
-		t.Errorf("Unable to execute doAfterDeleteHooks: %s", err)
-	}
-	if !reflect.DeepEqual(o, empty) {
-		t.Errorf("Expected AfterDeleteHook function to empty object, but got: %#v", o)
-	}
-	followerAfterDeleteHooks = []FollowerHook{}
-
-	AddFollowerHook(boil.BeforeUpsertHook, followerBeforeUpsertHook)
-	if err = o.doBeforeUpsertHooks(ctx, nil); err != nil {
-		t.Errorf("Unable to execute doBeforeUpsertHooks: %s", err)
-	}
-	if !reflect.DeepEqual(o, empty) {
-		t.Errorf("Expected BeforeUpsertHook function to empty object, but got: %#v", o)
-	}
-	followerBeforeUpsertHooks = []FollowerHook{}
-
-	AddFollowerHook(boil.AfterUpsertHook, followerAfterUpsertHook)
-	if err = o.doAfterUpsertHooks(ctx, nil); err != nil {
-		t.Errorf("Unable to execute doAfterUpsertHooks: %s", err)
-	}
-	if !reflect.DeepEqual(o, empty) {
-		t.Errorf("Expected AfterUpsertHook function to empty object, but got: %#v", o)
-	}
-	followerAfterUpsertHooks = []FollowerHook{}
 }
 
 func testFollowersInsert(t *testing.T) {
@@ -641,12 +500,16 @@ func testFollowerToOneSetOpUserUsingFollowee(t *testing.T) {
 			t.Error("foreign key was wrong value", a.FolloweeID)
 		}
 
-		if exists, err := FollowerExists(ctx, tx, a.FollowerID, a.FolloweeID); err != nil {
-			t.Fatal(err)
-		} else if !exists {
-			t.Error("want 'a' to exist")
+		zero := reflect.Zero(reflect.TypeOf(a.FolloweeID))
+		reflect.Indirect(reflect.ValueOf(&a.FolloweeID)).Set(zero)
+
+		if err = a.Reload(ctx, tx); err != nil {
+			t.Fatal("failed to reload", err)
 		}
 
+		if a.FolloweeID != x.ID {
+			t.Error("foreign key was wrong value", a.FolloweeID, x.ID)
+		}
 	}
 }
 func testFollowerToOneSetOpUserUsingFollower(t *testing.T) {
@@ -694,12 +557,16 @@ func testFollowerToOneSetOpUserUsingFollower(t *testing.T) {
 			t.Error("foreign key was wrong value", a.FollowerID)
 		}
 
-		if exists, err := FollowerExists(ctx, tx, a.FollowerID, a.FolloweeID); err != nil {
-			t.Fatal(err)
-		} else if !exists {
-			t.Error("want 'a' to exist")
+		zero := reflect.Zero(reflect.TypeOf(a.FollowerID))
+		reflect.Indirect(reflect.ValueOf(&a.FollowerID)).Set(zero)
+
+		if err = a.Reload(ctx, tx); err != nil {
+			t.Fatal("failed to reload", err)
 		}
 
+		if a.FollowerID != x.ID {
+			t.Error("foreign key was wrong value", a.FollowerID, x.ID)
+		}
 	}
 }
 
@@ -777,7 +644,7 @@ func testFollowersSelect(t *testing.T) {
 }
 
 var (
-	followerDBTypes = map[string]string{`FollowerID`: `integer`, `FolloweeID`: `integer`, `CreatedAt`: `timestamp with time zone`, `UpdatedAt`: `timestamp with time zone`, `DeletedAt`: `timestamp with time zone`}
+	followerDBTypes = map[string]string{`ID`: `integer`, `FollowerID`: `integer`, `FolloweeID`: `integer`, `CreatedAt`: `timestamp with time zone`, `UpdatedAt`: `timestamp with time zone`, `DeletedAt`: `timestamp with time zone`}
 	_               = bytes.MinRead
 )
 

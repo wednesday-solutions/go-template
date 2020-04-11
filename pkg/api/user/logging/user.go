@@ -3,11 +3,11 @@ package user
 import (
 	"github.com/labstack/echo"
 	"github.com/volatiletech/null"
-	"github.com/wednesday-solution/go-boiler/models"
+	"github.com/wednesday-solutions/go-boiler/models"
 	"time"
 
-	"github.com/wednesday-solution/go-boiler"
-	"github.com/wednesday-solution/go-boiler/pkg/api/user"
+	"github.com/wednesday-solutions/go-boiler"
+	"github.com/wednesday-solutions/go-boiler/pkg/api/user"
 )
 
 // New creates new user logging service

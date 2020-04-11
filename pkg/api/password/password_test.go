@@ -3,14 +3,14 @@ package password_test
 import (
 	"testing"
 
-	"github.com/wednesday-solution/go-boiler"
-	"github.com/wednesday-solution/go-boiler/pkg/api/password"
+	"github.com/wednesday-solutions/go-boiler"
+	"github.com/wednesday-solutions/go-boiler/pkg/api/password"
 
 	"github.com/go-pg/pg/v9/orm"
 	"github.com/labstack/echo"
 
-	"github.com/wednesday-solution/go-boiler/pkg/utl/mock"
-	"github.com/wednesday-solution/go-boiler/pkg/utl/mock/mockdb"
+	"github.com/wednesday-solutions/go-boiler/pkg/utl/mock"
+	"github.com/wednesday-solutions/go-boiler/pkg/utl/mock/mockdb"
 
 	"github.com/stretchr/testify/assert"
 )

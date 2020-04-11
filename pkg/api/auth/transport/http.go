@@ -3,7 +3,7 @@ package transport
 import (
 	"net/http"
 
-	"github.com/wednesday-solution/go-boiler/pkg/api/auth"
+	"github.com/wednesday-solutions/go-boiler/pkg/api/auth"
 
 	"github.com/labstack/echo"
 )

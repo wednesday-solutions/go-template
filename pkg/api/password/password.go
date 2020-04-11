@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/volatiletech/null"
 	"github.com/volatiletech/sqlboiler/boil"
-	"github.com/wednesday-solution/go-boiler/models"
-	"github.com/wednesday-solution/go-boiler/pkg/utl"
+	"github.com/wednesday-solutions/go-boiler/models"
+	"github.com/wednesday-solutions/go-boiler/pkg/utl"
 	"net/http"
 
 	"github.com/labstack/echo"

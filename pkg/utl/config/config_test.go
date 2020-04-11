@@ -3,7 +3,7 @@ package config_test
 import (
 	"testing"
 
-	"github.com/wednesday-solution/go-boiler/pkg/utl/config"
+	"github.com/wednesday-solutions/go-boiler/pkg/utl/config"
 	"github.com/stretchr/testify/assert"
 )
 

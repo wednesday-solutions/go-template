@@ -3,8 +3,8 @@ package user
 import (
 	"database/sql"
 	"github.com/labstack/echo"
-	"github.com/wednesday-solution/go-boiler"
-	"github.com/wednesday-solution/go-boiler/models"
+	"github.com/wednesday-solutions/go-boiler"
+	"github.com/wednesday-solutions/go-boiler/models"
 )
 
 // Service represents user application interface

@@ -7,13 +7,13 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/wednesday-solution/go-boiler"
-	"github.com/wednesday-solution/go-boiler/pkg/api/user"
-	"github.com/wednesday-solution/go-boiler/pkg/api/user/transport"
+	"github.com/wednesday-solutions/go-boiler"
+	"github.com/wednesday-solutions/go-boiler/pkg/api/user"
+	"github.com/wednesday-solutions/go-boiler/pkg/api/user/transport"
 
-	"github.com/wednesday-solution/go-boiler/pkg/utl/mock"
-	"github.com/wednesday-solution/go-boiler/pkg/utl/mock/mockdb"
-	"github.com/wednesday-solution/go-boiler/pkg/utl/server"
+	"github.com/wednesday-solutions/go-boiler/pkg/utl/mock"
+	"github.com/wednesday-solutions/go-boiler/pkg/utl/mock/mockdb"
+	"github.com/wednesday-solutions/go-boiler/pkg/utl/server"
 
 	"github.com/go-pg/pg/v9/orm"
 	"github.com/labstack/echo"

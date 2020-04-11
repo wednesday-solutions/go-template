@@ -3,7 +3,7 @@ package server_test
 import (
 	"testing"
 
-	"github.com/wednesday-solution/go-boiler/pkg/utl/server"
+	"github.com/wednesday-solutions/go-boiler/pkg/utl/server"
 )
 
 // Improve tests

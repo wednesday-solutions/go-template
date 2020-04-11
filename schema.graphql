@@ -1,5 +1,3 @@
-directive @isAuthenticated on FIELD_DEFINITION
-
 type Comment {
   id: ID!
   user: User!
@@ -23,11 +21,12 @@ type Company {
 }
 
 type Follower {
+  id: ID!
   follower: User!
   followee: User!
-  deletedAt: Int
-  updatedAt: Int
   createdAt: Int
+  updatedAt: Int
+  deletedAt: Int
 }
 
 type Location {
@@ -47,8 +46,8 @@ type Post {
   user: User!
   title: String!
   body: String!
-  createdAt: Int
   deletedAt: Int
+  createdAt: Int
   updatedAt: Int
   comments: [Comment]
 }
@@ -57,9 +56,9 @@ type Role {
   id: ID!
   accessLevel: Int!
   name: String!
-  deletedAt: Int
   updatedAt: Int
   createdAt: Int
+  deletedAt: Int
   users: [User]
 }
 
@@ -190,11 +189,12 @@ input FollowerFilter {
 }
 
 input FollowerWhere {
+  id: IDFilter
   follower: UserWhere
   followee: UserWhere
-  deletedAt: IntFilter
-  updatedAt: IntFilter
   createdAt: IntFilter
+  updatedAt: IntFilter
+  deletedAt: IntFilter
   or: FollowerWhere
   and: FollowerWhere
 }
@@ -228,8 +228,8 @@ input PostWhere {
   user: UserWhere
   title: StringFilter
   body: StringFilter
-  createdAt: IntFilter
   deletedAt: IntFilter
+  createdAt: IntFilter
   updatedAt: IntFilter
   comments: CommentWhere
   or: PostWhere
@@ -245,9 +245,9 @@ input RoleWhere {
   id: IDFilter
   accessLevel: IntFilter
   name: StringFilter
-  deletedAt: IntFilter
   updatedAt: IntFilter
   createdAt: IntFilter
+  deletedAt: IntFilter
   users: UserWhere
   or: RoleWhere
   and: RoleWhere
@@ -287,23 +287,24 @@ input UserWhere {
 }
 
 type Query {
-  comment(id: ID!): Comment! @isAuthenticated
-  comments(filter: CommentFilter): [Comment!]! @isAuthenticated
-  company(id: ID!): Company! @isAuthenticated
-  companies(filter: CompanyFilter): [Company!]! @isAuthenticated
-  follower(id: ID!): Follower! @isAuthenticated
-  followers(filter: FollowerFilter): [Follower!]! @isAuthenticated
-  location(id: ID!): Location! @isAuthenticated
-  locations(filter: LocationFilter): [Location!]! @isAuthenticated
-  post(id: ID!): Post! @isAuthenticated
-  posts(filter: PostFilter): [Post!]! @isAuthenticated
-  role(id: ID!): Role! @isAuthenticated
-  roles(filter: RoleFilter): [Role!]! @isAuthenticated
-  user(id: ID!): User! @isAuthenticated
-  users(filter: UserFilter): [User!]! @isAuthenticated
+  comment(id: ID!): Comment!
+  comments(filter: CommentFilter): [Comment!]!
+  company(id: ID!): Company!
+  companies(filter: CompanyFilter): [Company!]!
+  follower(id: ID!): Follower!
+  followers(filter: FollowerFilter): [Follower!]!
+  location(id: ID!): Location!
+  locations(filter: LocationFilter): [Location!]!
+  post(id: ID!): Post!
+  posts(filter: PostFilter): [Post!]!
+  role(id: ID!): Role!
+  roles(filter: RoleFilter): [Role!]!
+  user(id: ID!): User!
+  users(filter: UserFilter): [User!]!
 }
 
 input CommentCreateInput {
+  userId: ID!
   postId: ID!
   title: String!
   body: String!
@@ -313,6 +314,7 @@ input CommentCreateInput {
 }
 
 input CommentUpdateInput {
+  userId: ID
   postId: ID
   title: String
   body: String
@@ -388,17 +390,17 @@ type CompaniesUpdatePayload {
 input FollowerCreateInput {
   followerId: ID!
   followeeId: ID!
-  deletedAt: Int
-  updatedAt: Int
   createdAt: Int
+  updatedAt: Int
+  deletedAt: Int
 }
 
 input FollowerUpdateInput {
   followerId: ID
   followeeId: ID
-  deletedAt: Int
-  updatedAt: Int
   createdAt: Int
+  updatedAt: Int
+  deletedAt: Int
 }
 
 input FollowersCreateInput {
@@ -470,18 +472,20 @@ type LocationsUpdatePayload {
 }
 
 input PostCreateInput {
+  userId: ID!
   title: String!
   body: String!
-  createdAt: Int
   deletedAt: Int
+  createdAt: Int
   updatedAt: Int
 }
 
 input PostUpdateInput {
+  userId: ID
   title: String
   body: String
-  createdAt: Int
   deletedAt: Int
+  createdAt: Int
   updatedAt: Int
 }
 
@@ -512,17 +516,17 @@ type PostsUpdatePayload {
 input RoleCreateInput {
   accessLevel: Int!
   name: String!
-  deletedAt: Int
   updatedAt: Int
   createdAt: Int
+  deletedAt: Int
 }
 
 input RoleUpdateInput {
   accessLevel: Int
   name: String
-  deletedAt: Int
   updatedAt: Int
   createdAt: Int
+  deletedAt: Int
 }
 
 input RolesCreateInput {
@@ -616,71 +620,58 @@ type UsersUpdatePayload {
 }
 
 type Mutation {
-  createComment(input: CommentCreateInput!): CommentPayload! @isAuthenticated
-  createComments(input: CommentsCreateInput!): CommentsPayload! @isAuthenticated
+  createComment(input: CommentCreateInput!): CommentPayload!
+  createComments(input: CommentsCreateInput!): CommentsPayload!
   updateComment(id: ID!, input: CommentUpdateInput!): CommentPayload!
-    @isAuthenticated
   updateComments(
     filter: CommentFilter
     input: CommentUpdateInput!
-  ): CommentsUpdatePayload! @isAuthenticated
-  deleteComment(id: ID!): CommentDeletePayload! @isAuthenticated
-  deleteComments(filter: CommentFilter): CommentsDeletePayload! @isAuthenticated
-  createCompany(input: CompanyCreateInput!): CompanyPayload! @isAuthenticated
+  ): CommentsUpdatePayload!
+  deleteComment(id: ID!): CommentDeletePayload!
+  deleteComments(filter: CommentFilter): CommentsDeletePayload!
+  createCompany(input: CompanyCreateInput!): CompanyPayload!
   createCompanies(input: CompaniesCreateInput!): CompaniesPayload!
-    @isAuthenticated
   updateCompany(id: ID!, input: CompanyUpdateInput!): CompanyPayload!
-    @isAuthenticated
   updateCompanies(
     filter: CompanyFilter
     input: CompanyUpdateInput!
-  ): CompaniesUpdatePayload! @isAuthenticated
-  deleteCompany(id: ID!): CompanyDeletePayload! @isAuthenticated
+  ): CompaniesUpdatePayload!
+  deleteCompany(id: ID!): CompanyDeletePayload!
   deleteCompanies(filter: CompanyFilter): CompaniesDeletePayload!
-    @isAuthenticated
-  createFollower(input: FollowerCreateInput!): FollowerPayload! @isAuthenticated
+  createFollower(input: FollowerCreateInput!): FollowerPayload!
   createFollowers(input: FollowersCreateInput!): FollowersPayload!
-    @isAuthenticated
   updateFollower(id: ID!, input: FollowerUpdateInput!): FollowerPayload!
-    @isAuthenticated
   updateFollowers(
     filter: FollowerFilter
     input: FollowerUpdateInput!
-  ): FollowersUpdatePayload! @isAuthenticated
-  deleteFollower(id: ID!): FollowerDeletePayload! @isAuthenticated
+  ): FollowersUpdatePayload!
+  deleteFollower(id: ID!): FollowerDeletePayload!
   deleteFollowers(filter: FollowerFilter): FollowersDeletePayload!
-    @isAuthenticated
-  createLocation(input: LocationCreateInput!): LocationPayload! @isAuthenticated
+  createLocation(input: LocationCreateInput!): LocationPayload!
   createLocations(input: LocationsCreateInput!): LocationsPayload!
-    @isAuthenticated
   updateLocation(id: ID!, input: LocationUpdateInput!): LocationPayload!
-    @isAuthenticated
   updateLocations(
     filter: LocationFilter
     input: LocationUpdateInput!
-  ): LocationsUpdatePayload! @isAuthenticated
-  deleteLocation(id: ID!): LocationDeletePayload! @isAuthenticated
+  ): LocationsUpdatePayload!
+  deleteLocation(id: ID!): LocationDeletePayload!
   deleteLocations(filter: LocationFilter): LocationsDeletePayload!
-    @isAuthenticated
-  createPost(input: PostCreateInput!): PostPayload! @isAuthenticated
-  createPosts(input: PostsCreateInput!): PostsPayload! @isAuthenticated
-  updatePost(id: ID!, input: PostUpdateInput!): PostPayload! @isAuthenticated
+  createPost(input: PostCreateInput!): PostPayload!
+  createPosts(input: PostsCreateInput!): PostsPayload!
+  updatePost(id: ID!, input: PostUpdateInput!): PostPayload!
   updatePosts(filter: PostFilter, input: PostUpdateInput!): PostsUpdatePayload!
-    @isAuthenticated
-  deletePost(id: ID!): PostDeletePayload! @isAuthenticated
-  deletePosts(filter: PostFilter): PostsDeletePayload! @isAuthenticated
-  createRole(input: RoleCreateInput!): RolePayload! @isAuthenticated
-  createRoles(input: RolesCreateInput!): RolesPayload! @isAuthenticated
-  updateRole(id: ID!, input: RoleUpdateInput!): RolePayload! @isAuthenticated
+  deletePost(id: ID!): PostDeletePayload!
+  deletePosts(filter: PostFilter): PostsDeletePayload!
+  createRole(input: RoleCreateInput!): RolePayload!
+  createRoles(input: RolesCreateInput!): RolesPayload!
+  updateRole(id: ID!, input: RoleUpdateInput!): RolePayload!
   updateRoles(filter: RoleFilter, input: RoleUpdateInput!): RolesUpdatePayload!
-    @isAuthenticated
-  deleteRole(id: ID!): RoleDeletePayload! @isAuthenticated
-  deleteRoles(filter: RoleFilter): RolesDeletePayload! @isAuthenticated
-  createUser(input: UserCreateInput!): UserPayload! @isAuthenticated
-  createUsers(input: UsersCreateInput!): UsersPayload! @isAuthenticated
-  updateUser(id: ID!, input: UserUpdateInput!): UserPayload! @isAuthenticated
+  deleteRole(id: ID!): RoleDeletePayload!
+  deleteRoles(filter: RoleFilter): RolesDeletePayload!
+  createUser(input: UserCreateInput!): UserPayload!
+  createUsers(input: UsersCreateInput!): UsersPayload!
+  updateUser(id: ID!, input: UserUpdateInput!): UserPayload!
   updateUsers(filter: UserFilter, input: UserUpdateInput!): UsersUpdatePayload!
-    @isAuthenticated
-  deleteUser(id: ID!): UserDeletePayload! @isAuthenticated
-  deleteUsers(filter: UserFilter): UsersDeletePayload! @isAuthenticated
+  deleteUser(id: ID!): UserDeletePayload!
+  deleteUsers(filter: UserFilter): UsersDeletePayload!
 }

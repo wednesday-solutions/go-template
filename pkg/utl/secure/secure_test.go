@@ -4,7 +4,7 @@ import (
 	"crypto/sha1"
 	"testing"
 
-	"github.com/wednesday-solution/go-boiler/pkg/utl/secure"
+	"github.com/wednesday-solutions/go-boiler/pkg/utl/secure"
 	"github.com/stretchr/testify/assert"
 )
 

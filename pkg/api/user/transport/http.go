@@ -2,12 +2,12 @@ package transport
 
 import (
 	"github.com/volatiletech/null"
-	"github.com/wednesday-solution/go-boiler/models"
+	"github.com/wednesday-solutions/go-boiler/models"
 	"net/http"
 	"strconv"
 
-	"github.com/wednesday-solution/go-boiler"
-	"github.com/wednesday-solution/go-boiler/pkg/api/user"
+	"github.com/wednesday-solutions/go-boiler"
+	"github.com/wednesday-solutions/go-boiler/pkg/api/user"
 
 	"github.com/labstack/echo"
 )
@@ -152,9 +152,9 @@ type createReq struct {
 	PasswordConfirm string `json:"password_confirm" validate:"required"`
 	Email           string `json:"email" validate:"required,email"`
 
-	CompanyID  int64 `json:"company_id" validate:"required"`
-	LocationID int64 `json:"location_id" validate:"required"`
-	RoleID     int64 `json:"role_id" validate:"required"`
+	CompanyID  int `json:"company_id" validate:"required"`
+	LocationID int `json:"location_id" validate:"required"`
+	RoleID     int `json:"role_id" validate:"required"`
 }
 
 func (h HTTP) create(c echo.Context) error {
@@ -175,9 +175,9 @@ func (h HTTP) create(c echo.Context) error {
 		Email:      null.StringFrom(r.Email),
 		FirstName:  null.StringFrom(r.FirstName),
 		LastName:   null.StringFrom(r.LastName),
-		CompanyID:  null.Int64From(r.CompanyID),
-		LocationID: null.Int64From(r.LocationID),
-		RoleID:     null.Int64From(r.RoleID),
+		CompanyID:  null.IntFrom(r.CompanyID),
+		LocationID: null.IntFrom(r.LocationID),
+		RoleID:     null.IntFrom(r.RoleID),
 	})
 
 	if err != nil {

@@ -108,8 +108,6 @@ type (
 	// PostSlice is an alias for a slice of pointers to Post.
 	// This should generally be used opposed to []Post.
 	PostSlice []*Post
-	// PostHook is the signature for custom Post hook methods
-	PostHook func(context.Context, boil.ContextExecutor, *Post) error
 
 	postQuery struct {
 		*queries.Query
@@ -137,176 +135,6 @@ var (
 	_ = qmhelper.Where
 )
 
-var postBeforeInsertHooks []PostHook
-var postBeforeUpdateHooks []PostHook
-var postBeforeDeleteHooks []PostHook
-var postBeforeUpsertHooks []PostHook
-
-var postAfterInsertHooks []PostHook
-var postAfterSelectHooks []PostHook
-var postAfterUpdateHooks []PostHook
-var postAfterDeleteHooks []PostHook
-var postAfterUpsertHooks []PostHook
-
-// doBeforeInsertHooks executes all "before insert" hooks.
-func (o *Post) doBeforeInsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range postBeforeInsertHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doBeforeUpdateHooks executes all "before Update" hooks.
-func (o *Post) doBeforeUpdateHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range postBeforeUpdateHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doBeforeDeleteHooks executes all "before Delete" hooks.
-func (o *Post) doBeforeDeleteHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range postBeforeDeleteHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doBeforeUpsertHooks executes all "before Upsert" hooks.
-func (o *Post) doBeforeUpsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range postBeforeUpsertHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterInsertHooks executes all "after Insert" hooks.
-func (o *Post) doAfterInsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range postAfterInsertHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterSelectHooks executes all "after Select" hooks.
-func (o *Post) doAfterSelectHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range postAfterSelectHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterUpdateHooks executes all "after Update" hooks.
-func (o *Post) doAfterUpdateHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range postAfterUpdateHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterDeleteHooks executes all "after Delete" hooks.
-func (o *Post) doAfterDeleteHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range postAfterDeleteHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterUpsertHooks executes all "after Upsert" hooks.
-func (o *Post) doAfterUpsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range postAfterUpsertHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// AddPostHook registers your hook function for all future operations.
-func AddPostHook(hookPoint boil.HookPoint, postHook PostHook) {
-	switch hookPoint {
-	case boil.BeforeInsertHook:
-		postBeforeInsertHooks = append(postBeforeInsertHooks, postHook)
-	case boil.BeforeUpdateHook:
-		postBeforeUpdateHooks = append(postBeforeUpdateHooks, postHook)
-	case boil.BeforeDeleteHook:
-		postBeforeDeleteHooks = append(postBeforeDeleteHooks, postHook)
-	case boil.BeforeUpsertHook:
-		postBeforeUpsertHooks = append(postBeforeUpsertHooks, postHook)
-	case boil.AfterInsertHook:
-		postAfterInsertHooks = append(postAfterInsertHooks, postHook)
-	case boil.AfterSelectHook:
-		postAfterSelectHooks = append(postAfterSelectHooks, postHook)
-	case boil.AfterUpdateHook:
-		postAfterUpdateHooks = append(postAfterUpdateHooks, postHook)
-	case boil.AfterDeleteHook:
-		postAfterDeleteHooks = append(postAfterDeleteHooks, postHook)
-	case boil.AfterUpsertHook:
-		postAfterUpsertHooks = append(postAfterUpsertHooks, postHook)
-	}
-}
-
 // One returns a single post record from the query.
 func (q postQuery) One(ctx context.Context, exec boil.ContextExecutor) (*Post, error) {
 	o := &Post{}
@@ -321,10 +149,6 @@ func (q postQuery) One(ctx context.Context, exec boil.ContextExecutor) (*Post, e
 		return nil, errors.Wrap(err, "models: failed to execute a one query for posts")
 	}
 
-	if err := o.doAfterSelectHooks(ctx, exec); err != nil {
-		return o, err
-	}
-
 	return o, nil
 }
 
@@ -335,14 +159,6 @@ func (q postQuery) All(ctx context.Context, exec boil.ContextExecutor) (PostSlic
 	err := q.Bind(ctx, exec, &o)
 	if err != nil {
 		return nil, errors.Wrap(err, "models: failed to assign all query results to Post slice")
-	}
-
-	if len(postAfterSelectHooks) != 0 {
-		for _, obj := range o {
-			if err := obj.doAfterSelectHooks(ctx, exec); err != nil {
-				return o, err
-			}
-		}
 	}
 
 	return o, nil
@@ -477,14 +293,6 @@ func (postL) LoadUser(ctx context.Context, e boil.ContextExecutor, singular bool
 		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for users")
 	}
 
-	if len(postAfterSelectHooks) != 0 {
-		for _, obj := range resultSlice {
-			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
-				return err
-			}
-		}
-	}
-
 	if len(resultSlice) == 0 {
 		return nil
 	}
@@ -576,13 +384,6 @@ func (postL) LoadComments(ctx context.Context, e boil.ContextExecutor, singular 
 		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for comments")
 	}
 
-	if len(commentAfterSelectHooks) != 0 {
-		for _, obj := range resultSlice {
-			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
-				return err
-			}
-		}
-	}
 	if singular {
 		object.R.Comments = resultSlice
 		for _, foreign := range resultSlice {
@@ -761,10 +562,6 @@ func (o *Post) Insert(ctx context.Context, exec boil.ContextExecutor, columns bo
 		}
 	}
 
-	if err := o.doBeforeInsertHooks(ctx, exec); err != nil {
-		return err
-	}
-
 	nzDefaults := queries.NonZeroDefaultSet(postColumnsWithDefault, o)
 
 	key := makeCacheKey(columns, nzDefaults)
@@ -828,7 +625,7 @@ func (o *Post) Insert(ctx context.Context, exec boil.ContextExecutor, columns bo
 		postInsertCacheMut.Unlock()
 	}
 
-	return o.doAfterInsertHooks(ctx, exec)
+	return nil
 }
 
 // Update uses an executor to update the Post.
@@ -842,9 +639,6 @@ func (o *Post) Update(ctx context.Context, exec boil.ContextExecutor, columns bo
 	}
 
 	var err error
-	if err = o.doBeforeUpdateHooks(ctx, exec); err != nil {
-		return 0, err
-	}
 	key := makeCacheKey(columns, nil)
 	postUpdateCacheMut.RLock()
 	cache, cached := postUpdateCache[key]
@@ -897,7 +691,7 @@ func (o *Post) Update(ctx context.Context, exec boil.ContextExecutor, columns bo
 		postUpdateCacheMut.Unlock()
 	}
 
-	return rowsAff, o.doAfterUpdateHooks(ctx, exec)
+	return rowsAff, nil
 }
 
 // UpdateAll updates all rows with the specified column values.
@@ -978,10 +772,6 @@ func (o *Post) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnCo
 			queries.SetScanner(&o.CreatedAt, currTime)
 		}
 		queries.SetScanner(&o.UpdatedAt, currTime)
-	}
-
-	if err := o.doBeforeUpsertHooks(ctx, exec); err != nil {
-		return err
 	}
 
 	nzDefaults := queries.NonZeroDefaultSet(postColumnsWithDefault, o)
@@ -1085,7 +875,7 @@ func (o *Post) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnCo
 		postUpsertCacheMut.Unlock()
 	}
 
-	return o.doAfterUpsertHooks(ctx, exec)
+	return nil
 }
 
 // Delete deletes a single Post record with an executor.
@@ -1093,10 +883,6 @@ func (o *Post) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnCo
 func (o *Post) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if o == nil {
 		return 0, errors.New("models: no Post provided for delete")
-	}
-
-	if err := o.doBeforeDeleteHooks(ctx, exec); err != nil {
-		return 0, err
 	}
 
 	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), postPrimaryKeyMapping)
@@ -1115,10 +901,6 @@ func (o *Post) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, er
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
 		return 0, errors.Wrap(err, "models: failed to get rows affected by delete for posts")
-	}
-
-	if err := o.doAfterDeleteHooks(ctx, exec); err != nil {
-		return 0, err
 	}
 
 	return rowsAff, nil
@@ -1151,14 +933,6 @@ func (o PostSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (in
 		return 0, nil
 	}
 
-	if len(postBeforeDeleteHooks) != 0 {
-		for _, obj := range o {
-			if err := obj.doBeforeDeleteHooks(ctx, exec); err != nil {
-				return 0, err
-			}
-		}
-	}
-
 	var args []interface{}
 	for _, obj := range o {
 		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), postPrimaryKeyMapping)
@@ -1181,14 +955,6 @@ func (o PostSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (in
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
 		return 0, errors.Wrap(err, "models: failed to get rows affected by deleteall for posts")
-	}
-
-	if len(postAfterDeleteHooks) != 0 {
-		for _, obj := range o {
-			if err := obj.doAfterDeleteHooks(ctx, exec); err != nil {
-				return 0, err
-			}
-		}
 	}
 
 	return rowsAff, nil

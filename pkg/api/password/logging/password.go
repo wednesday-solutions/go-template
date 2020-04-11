@@ -1,12 +1,11 @@
 package password
 
 import (
+	goboiler "github.com/wednesday-solutions/go-boiler"
 	"time"
 
 	"github.com/labstack/echo"
-
-	"github.com/wednesday-solution/go-boiler"
-	"github.com/wednesday-solution/go-boiler/pkg/api/password"
+	"github.com/wednesday-solutions/go-boiler/pkg/api/password"
 )
 
 // New creates new password logging service

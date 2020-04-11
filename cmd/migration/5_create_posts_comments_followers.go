@@ -38,12 +38,12 @@ func init() {
 
 		tableName = "followers"
 		createTableQuery = fmt.Sprintf(`CREATE TABLE IF NOT EXISTS public.%s (
+			id SERIAL NOT NULL PRIMARY KEY,
 			follower_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 			followee_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 			created_at TIMESTAMP WITH TIME ZONE,
 			updated_at TIMESTAMP WITH TIME ZONE,
-			deleted_at TIMESTAMP WITH TIME ZONE,
-			PRIMARY KEY(follower_id, followee_id)
+			deleted_at TIMESTAMP WITH TIME ZONE
 			);`, tableName)
 		err = createTable(db, createTableQuery, tableName)
 		return err

@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/wednesday-solution/go-boiler"
-	"github.com/wednesday-solution/go-boiler/pkg/utl/jwt"
+	"github.com/wednesday-solutions/go-boiler"
+	"github.com/wednesday-solutions/go-boiler/pkg/utl/jwt"
 
 	"github.com/stretchr/testify/assert"
 )

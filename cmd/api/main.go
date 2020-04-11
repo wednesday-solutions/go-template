@@ -3,14 +3,14 @@ package main
 import (
 	"flag"
 
-	"github.com/wednesday-solution/go-boiler/pkg/api"
+	"github.com/wednesday-solutions/go-boiler/pkg/api"
 
-	"github.com/wednesday-solution/go-boiler/pkg/utl/config"
+	"github.com/wednesday-solutions/go-boiler/pkg/utl/config"
 )
 
 func main() {
 
-	cfgPath := flag.String("p", "./conf.local.yaml", "Path to config file")
+	cfgPath := flag.String("p", "./cmd/api/conf.local.yaml", "Path to config file")
 	flag.Parse()
 
 	cfg, err := config.Load(*cfgPath)

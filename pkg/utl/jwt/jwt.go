@@ -2,11 +2,11 @@ package jwt
 
 import (
 	"fmt"
-	"github.com/wednesday-solution/go-boiler/models"
+	"github.com/wednesday-solutions/go-boiler/models"
 	"strings"
 	"time"
 
-	"github.com/wednesday-solution/go-boiler"
+	"github.com/wednesday-solutions/go-boiler"
 
 	"github.com/dgrijalva/jwt-go"
 )
@@ -48,7 +48,7 @@ type Service struct {
 // ParseToken parses token from Authorization header
 func (s Service) ParseToken(authHeader string) (*jwt.Token, error) {
 	parts := strings.SplitN(authHeader, " ", 2)
-	if !(len(parts) == 2 && parts[0] == "Bearer") {
+	if !(len(parts) == 2 && strings.ToLower(parts[0]) == "bearer") {
 		return nil, goboiler.ErrGeneric
 	}
 

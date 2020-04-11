@@ -1,7 +1,7 @@
 package transport
 
 import (
-	"github.com/wednesday-solution/go-boiler/models"
+	"github.com/wednesday-solutions/go-boiler/models"
 )
 
 // User model response
