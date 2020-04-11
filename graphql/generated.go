@@ -1874,8 +1874,8 @@ var sources = []*ast.Source{
   post: Post!
   title: String!
   body: String!
-  deletedAt: Int
   createdAt: Int
+  deletedAt: Int
   updatedAt: Int
 }
 
@@ -1883,9 +1883,9 @@ type Company {
   id: ID!
   name: String
   active: Boolean
+  updatedAt: Int
   createdAt: Int
   deletedAt: Int
-  updatedAt: Int
   locations: [Location]
   users: [User]
 }
@@ -1893,9 +1893,9 @@ type Company {
 type Follower {
   follower: User!
   followee: User!
-  updatedAt: Int
   deletedAt: Int
   createdAt: Int
+  updatedAt: Int
 }
 
 type Location {
@@ -1905,8 +1905,8 @@ type Location {
   address: String
   company: Company!
   createdAt: Int
-  deletedAt: Int
   updatedAt: Int
+  deletedAt: Int
   users: [User]
 }
 
@@ -1915,9 +1915,9 @@ type Post {
   user: User!
   title: String!
   body: String!
+  deletedAt: Int
   createdAt: Int
   updatedAt: Int
-  deletedAt: Int
   comments: [Comment]
 }
 
@@ -1925,9 +1925,9 @@ type Role {
   id: ID!
   accessLevel: Int!
   name: String!
-  deletedAt: Int
-  createdAt: Int
   updatedAt: Int
+  createdAt: Int
+  deletedAt: Int
   users: [User]
 }
 
@@ -1948,9 +1948,9 @@ type User {
   role: Role
   company: Company
   location: Location
+  deletedAt: Int
   updatedAt: Int
   createdAt: Int
-  deletedAt: Int
   comments: [Comment]
   followeeFollowers: [Follower]
   followerFollowers: [Follower]
@@ -2027,8 +2027,8 @@ input CommentWhere {
   post: PostWhere
   title: StringFilter
   body: StringFilter
-  deletedAt: IntFilter
   createdAt: IntFilter
+  deletedAt: IntFilter
   updatedAt: IntFilter
   or: CommentWhere
   and: CommentWhere
@@ -2043,9 +2043,9 @@ input CompanyWhere {
   id: IDFilter
   name: StringFilter
   active: BooleanFilter
+  updatedAt: IntFilter
   createdAt: IntFilter
   deletedAt: IntFilter
-  updatedAt: IntFilter
   locations: LocationWhere
   users: UserWhere
   or: CompanyWhere
@@ -2060,9 +2060,9 @@ input FollowerFilter {
 input FollowerWhere {
   follower: UserWhere
   followee: UserWhere
-  updatedAt: IntFilter
   deletedAt: IntFilter
   createdAt: IntFilter
+  updatedAt: IntFilter
   or: FollowerWhere
   and: FollowerWhere
 }
@@ -2079,8 +2079,8 @@ input LocationWhere {
   address: StringFilter
   company: CompanyWhere
   createdAt: IntFilter
-  deletedAt: IntFilter
   updatedAt: IntFilter
+  deletedAt: IntFilter
   users: UserWhere
   or: LocationWhere
   and: LocationWhere
@@ -2096,9 +2096,9 @@ input PostWhere {
   user: UserWhere
   title: StringFilter
   body: StringFilter
+  deletedAt: IntFilter
   createdAt: IntFilter
   updatedAt: IntFilter
-  deletedAt: IntFilter
   comments: CommentWhere
   or: PostWhere
   and: PostWhere
@@ -2113,9 +2113,9 @@ input RoleWhere {
   id: IDFilter
   accessLevel: IntFilter
   name: StringFilter
-  deletedAt: IntFilter
-  createdAt: IntFilter
   updatedAt: IntFilter
+  createdAt: IntFilter
+  deletedAt: IntFilter
   users: UserWhere
   or: RoleWhere
   and: RoleWhere
@@ -2143,9 +2143,9 @@ input UserWhere {
   role: RoleWhere
   company: CompanyWhere
   location: LocationWhere
+  deletedAt: IntFilter
   updatedAt: IntFilter
   createdAt: IntFilter
-  deletedAt: IntFilter
   comments: CommentWhere
   followeeFollowers: FollowerWhere
   followerFollowers: FollowerWhere
@@ -2176,8 +2176,8 @@ input CommentCreateInput {
   postId: ID!
   title: String!
   body: String!
-  deletedAt: Int
   createdAt: Int
+  deletedAt: Int
   updatedAt: Int
 }
 
@@ -2186,8 +2186,8 @@ input CommentUpdateInput {
   postId: ID
   title: String
   body: String
-  deletedAt: Int
   createdAt: Int
+  deletedAt: Int
   updatedAt: Int
 }
 
@@ -2222,17 +2222,17 @@ type CommentsUpdatePayload {
 input CompanyCreateInput {
   name: String
   active: Boolean
+  updatedAt: Int
   createdAt: Int
   deletedAt: Int
-  updatedAt: Int
 }
 
 input CompanyUpdateInput {
   name: String
   active: Boolean
+  updatedAt: Int
   createdAt: Int
   deletedAt: Int
-  updatedAt: Int
 }
 
 input CompaniesCreateInput {
@@ -2266,17 +2266,17 @@ type CompaniesUpdatePayload {
 input FollowerCreateInput {
   followerId: ID!
   followeeId: ID!
-  updatedAt: Int
   deletedAt: Int
   createdAt: Int
+  updatedAt: Int
 }
 
 input FollowerUpdateInput {
   followerId: ID
   followeeId: ID
-  updatedAt: Int
   deletedAt: Int
   createdAt: Int
+  updatedAt: Int
 }
 
 input FollowersCreateInput {
@@ -2313,8 +2313,8 @@ input LocationCreateInput {
   address: String
   companyId: ID!
   createdAt: Int
-  deletedAt: Int
   updatedAt: Int
+  deletedAt: Int
 }
 
 input LocationUpdateInput {
@@ -2323,8 +2323,8 @@ input LocationUpdateInput {
   address: String
   companyId: ID
   createdAt: Int
-  deletedAt: Int
   updatedAt: Int
+  deletedAt: Int
 }
 
 input LocationsCreateInput {
@@ -2359,18 +2359,18 @@ input PostCreateInput {
   userId: ID!
   title: String!
   body: String!
+  deletedAt: Int
   createdAt: Int
   updatedAt: Int
-  deletedAt: Int
 }
 
 input PostUpdateInput {
   userId: ID
   title: String
   body: String
+  deletedAt: Int
   createdAt: Int
   updatedAt: Int
-  deletedAt: Int
 }
 
 input PostsCreateInput {
@@ -2404,17 +2404,17 @@ type PostsUpdatePayload {
 input RoleCreateInput {
   accessLevel: Int!
   name: String!
-  deletedAt: Int
-  createdAt: Int
   updatedAt: Int
+  createdAt: Int
+  deletedAt: Int
 }
 
 input RoleUpdateInput {
   accessLevel: Int
   name: String
-  deletedAt: Int
-  createdAt: Int
   updatedAt: Int
+  createdAt: Int
+  deletedAt: Int
 }
 
 input RolesCreateInput {
@@ -2461,9 +2461,9 @@ input UserCreateInput {
   roleId: ID
   companyId: ID
   locationId: ID
+  deletedAt: Int
   updatedAt: Int
   createdAt: Int
-  deletedAt: Int
 }
 
 input UserUpdateInput {
@@ -2482,9 +2482,9 @@ input UserUpdateInput {
   roleId: ID
   companyId: ID
   locationId: ID
+  deletedAt: Int
   updatedAt: Int
   createdAt: Int
-  deletedAt: Int
 }
 
 input UsersCreateInput {
@@ -3695,37 +3695,6 @@ func (ec *executionContext) _Comment_body(ctx context.Context, field graphql.Col
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Comment_deletedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Comment) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:   "Comment",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.DeletedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
-}
-
 func (ec *executionContext) _Comment_createdAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Comment) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -3744,6 +3713,37 @@ func (ec *executionContext) _Comment_createdAt(ctx context.Context, field graphq
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Comment_deletedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Comment) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Comment",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DeletedAt, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4156,6 +4156,37 @@ func (ec *executionContext) _Company_active(ctx context.Context, field graphql.C
 	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Company_updatedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Company) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Company",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Company_createdAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Company) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -4205,37 +4236,6 @@ func (ec *executionContext) _Company_deletedAt(ctx context.Context, field graphq
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.DeletedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Company_updatedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Company) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:   "Company",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4447,37 +4447,6 @@ func (ec *executionContext) _Follower_followee(ctx context.Context, field graphq
 	return ec.marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐUser(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Follower_updatedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Follower) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:   "Follower",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
-}
-
 func (ec *executionContext) _Follower_deletedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Follower) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -4527,6 +4496,37 @@ func (ec *executionContext) _Follower_createdAt(ctx context.Context, field graph
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Follower_updatedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Follower) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Follower",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4902,37 +4902,6 @@ func (ec *executionContext) _Location_createdAt(ctx context.Context, field graph
 	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Location_deletedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Location) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:   "Location",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.DeletedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
-}
-
 func (ec *executionContext) _Location_updatedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Location) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -4951,6 +4920,37 @@ func (ec *executionContext) _Location_updatedAt(ctx context.Context, field graph
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Location_deletedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Location) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Location",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DeletedAt, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7023,6 +7023,37 @@ func (ec *executionContext) _Post_body(ctx context.Context, field graphql.Collec
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Post_deletedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Post) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Post",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DeletedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Post_createdAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Post) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -7072,37 +7103,6 @@ func (ec *executionContext) _Post_updatedAt(ctx context.Context, field graphql.C
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.UpdatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Post_deletedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Post) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:   "Post",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.DeletedAt, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8062,7 +8062,7 @@ func (ec *executionContext) _Role_name(ctx context.Context, field graphql.Collec
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Role_deletedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Role) (ret graphql.Marshaler) {
+func (ec *executionContext) _Role_updatedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Role) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -8079,7 +8079,7 @@ func (ec *executionContext) _Role_deletedAt(ctx context.Context, field graphql.C
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.DeletedAt, nil
+		return obj.UpdatedAt, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8124,7 +8124,7 @@ func (ec *executionContext) _Role_createdAt(ctx context.Context, field graphql.C
 	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Role_updatedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Role) (ret graphql.Marshaler) {
+func (ec *executionContext) _Role_deletedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.Role) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -8141,7 +8141,7 @@ func (ec *executionContext) _Role_updatedAt(ctx context.Context, field graphql.C
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
+		return obj.DeletedAt, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8855,6 +8855,37 @@ func (ec *executionContext) _User_location(ctx context.Context, field graphql.Co
 	return ec.marshalOLocation2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐLocation(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _User_deletedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.User) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "User",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DeletedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _User_updatedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.User) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -8904,37 +8935,6 @@ func (ec *executionContext) _User_createdAt(ctx context.Context, field graphql.C
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.CreatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _User_deletedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodels.User) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:   "User",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.DeletedAt, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10357,15 +10357,15 @@ func (ec *executionContext) unmarshalInputCommentCreateInput(ctx context.Context
 			if err != nil {
 				return it, err
 			}
-		case "deletedAt":
-			var err error
-			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "createdAt":
 			var err error
 			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "deletedAt":
+			var err error
+			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -10435,15 +10435,15 @@ func (ec *executionContext) unmarshalInputCommentUpdateInput(ctx context.Context
 			if err != nil {
 				return it, err
 			}
-		case "deletedAt":
-			var err error
-			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "createdAt":
 			var err error
 			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "deletedAt":
+			var err error
+			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -10495,15 +10495,15 @@ func (ec *executionContext) unmarshalInputCommentWhere(ctx context.Context, obj 
 			if err != nil {
 				return it, err
 			}
-		case "deletedAt":
-			var err error
-			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "createdAt":
 			var err error
 			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "deletedAt":
+			var err error
+			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -10621,6 +10621,12 @@ func (ec *executionContext) unmarshalInputCompanyCreateInput(ctx context.Context
 			if err != nil {
 				return it, err
 			}
+		case "updatedAt":
+			var err error
+			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "createdAt":
 			var err error
 			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
@@ -10630,12 +10636,6 @@ func (ec *executionContext) unmarshalInputCompanyCreateInput(ctx context.Context
 		case "deletedAt":
 			var err error
 			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAt":
-			var err error
-			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -10687,6 +10687,12 @@ func (ec *executionContext) unmarshalInputCompanyUpdateInput(ctx context.Context
 			if err != nil {
 				return it, err
 			}
+		case "updatedAt":
+			var err error
+			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "createdAt":
 			var err error
 			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
@@ -10696,12 +10702,6 @@ func (ec *executionContext) unmarshalInputCompanyUpdateInput(ctx context.Context
 		case "deletedAt":
 			var err error
 			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAt":
-			var err error
-			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -10735,6 +10735,12 @@ func (ec *executionContext) unmarshalInputCompanyWhere(ctx context.Context, obj 
 			if err != nil {
 				return it, err
 			}
+		case "updatedAt":
+			var err error
+			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "createdAt":
 			var err error
 			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
@@ -10744,12 +10750,6 @@ func (ec *executionContext) unmarshalInputCompanyWhere(ctx context.Context, obj 
 		case "deletedAt":
 			var err error
 			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAt":
-			var err error
-			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -10861,12 +10861,6 @@ func (ec *executionContext) unmarshalInputFollowerCreateInput(ctx context.Contex
 			if err != nil {
 				return it, err
 			}
-		case "updatedAt":
-			var err error
-			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "deletedAt":
 			var err error
 			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
@@ -10876,6 +10870,12 @@ func (ec *executionContext) unmarshalInputFollowerCreateInput(ctx context.Contex
 		case "createdAt":
 			var err error
 			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "updatedAt":
+			var err error
+			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -10927,12 +10927,6 @@ func (ec *executionContext) unmarshalInputFollowerUpdateInput(ctx context.Contex
 			if err != nil {
 				return it, err
 			}
-		case "updatedAt":
-			var err error
-			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "deletedAt":
 			var err error
 			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
@@ -10942,6 +10936,12 @@ func (ec *executionContext) unmarshalInputFollowerUpdateInput(ctx context.Contex
 		case "createdAt":
 			var err error
 			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "updatedAt":
+			var err error
+			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -10969,12 +10969,6 @@ func (ec *executionContext) unmarshalInputFollowerWhere(ctx context.Context, obj
 			if err != nil {
 				return it, err
 			}
-		case "updatedAt":
-			var err error
-			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "deletedAt":
 			var err error
 			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
@@ -10984,6 +10978,12 @@ func (ec *executionContext) unmarshalInputFollowerWhere(ctx context.Context, obj
 		case "createdAt":
 			var err error
 			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "updatedAt":
+			var err error
+			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -11173,15 +11173,15 @@ func (ec *executionContext) unmarshalInputLocationCreateInput(ctx context.Contex
 			if err != nil {
 				return it, err
 			}
-		case "deletedAt":
-			var err error
-			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "updatedAt":
 			var err error
 			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "deletedAt":
+			var err error
+			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -11251,15 +11251,15 @@ func (ec *executionContext) unmarshalInputLocationUpdateInput(ctx context.Contex
 			if err != nil {
 				return it, err
 			}
-		case "deletedAt":
-			var err error
-			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "updatedAt":
 			var err error
 			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "deletedAt":
+			var err error
+			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -11311,15 +11311,15 @@ func (ec *executionContext) unmarshalInputLocationWhere(ctx context.Context, obj
 			if err != nil {
 				return it, err
 			}
-		case "deletedAt":
-			var err error
-			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "updatedAt":
 			var err error
 			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "deletedAt":
+			var err error
+			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -11407,6 +11407,12 @@ func (ec *executionContext) unmarshalInputPostCreateInput(ctx context.Context, o
 			if err != nil {
 				return it, err
 			}
+		case "deletedAt":
+			var err error
+			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "createdAt":
 			var err error
 			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
@@ -11416,12 +11422,6 @@ func (ec *executionContext) unmarshalInputPostCreateInput(ctx context.Context, o
 		case "updatedAt":
 			var err error
 			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt":
-			var err error
-			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -11479,6 +11479,12 @@ func (ec *executionContext) unmarshalInputPostUpdateInput(ctx context.Context, o
 			if err != nil {
 				return it, err
 			}
+		case "deletedAt":
+			var err error
+			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "createdAt":
 			var err error
 			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
@@ -11488,12 +11494,6 @@ func (ec *executionContext) unmarshalInputPostUpdateInput(ctx context.Context, o
 		case "updatedAt":
 			var err error
 			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt":
-			var err error
-			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -11533,6 +11533,12 @@ func (ec *executionContext) unmarshalInputPostWhere(ctx context.Context, obj int
 			if err != nil {
 				return it, err
 			}
+		case "deletedAt":
+			var err error
+			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "createdAt":
 			var err error
 			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
@@ -11542,12 +11548,6 @@ func (ec *executionContext) unmarshalInputPostWhere(ctx context.Context, obj int
 		case "updatedAt":
 			var err error
 			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt":
-			var err error
-			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -11629,9 +11629,9 @@ func (ec *executionContext) unmarshalInputRoleCreateInput(ctx context.Context, o
 			if err != nil {
 				return it, err
 			}
-		case "deletedAt":
+		case "updatedAt":
 			var err error
-			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -11641,9 +11641,9 @@ func (ec *executionContext) unmarshalInputRoleCreateInput(ctx context.Context, o
 			if err != nil {
 				return it, err
 			}
-		case "updatedAt":
+		case "deletedAt":
 			var err error
-			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -11695,9 +11695,9 @@ func (ec *executionContext) unmarshalInputRoleUpdateInput(ctx context.Context, o
 			if err != nil {
 				return it, err
 			}
-		case "deletedAt":
+		case "updatedAt":
 			var err error
-			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -11707,9 +11707,9 @@ func (ec *executionContext) unmarshalInputRoleUpdateInput(ctx context.Context, o
 			if err != nil {
 				return it, err
 			}
-		case "updatedAt":
+		case "deletedAt":
 			var err error
-			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -11743,9 +11743,9 @@ func (ec *executionContext) unmarshalInputRoleWhere(ctx context.Context, obj int
 			if err != nil {
 				return it, err
 			}
-		case "deletedAt":
+		case "updatedAt":
 			var err error
-			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
+			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -11755,9 +11755,9 @@ func (ec *executionContext) unmarshalInputRoleWhere(ctx context.Context, obj int
 			if err != nil {
 				return it, err
 			}
-		case "updatedAt":
+		case "deletedAt":
 			var err error
-			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
+			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -12025,6 +12025,12 @@ func (ec *executionContext) unmarshalInputUserCreateInput(ctx context.Context, o
 			if err != nil {
 				return it, err
 			}
+		case "deletedAt":
+			var err error
+			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "updatedAt":
 			var err error
 			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
@@ -12034,12 +12040,6 @@ func (ec *executionContext) unmarshalInputUserCreateInput(ctx context.Context, o
 		case "createdAt":
 			var err error
 			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt":
-			var err error
-			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -12169,6 +12169,12 @@ func (ec *executionContext) unmarshalInputUserUpdateInput(ctx context.Context, o
 			if err != nil {
 				return it, err
 			}
+		case "deletedAt":
+			var err error
+			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "updatedAt":
 			var err error
 			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
@@ -12178,12 +12184,6 @@ func (ec *executionContext) unmarshalInputUserUpdateInput(ctx context.Context, o
 		case "createdAt":
 			var err error
 			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt":
-			var err error
-			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -12295,6 +12295,12 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			if err != nil {
 				return it, err
 			}
+		case "deletedAt":
+			var err error
+			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "updatedAt":
 			var err error
 			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
@@ -12304,12 +12310,6 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 		case "createdAt":
 			var err error
 			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt":
-			var err error
-			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionᚋgoᚑboilerᚋgraphqlᚋmodelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -12435,10 +12435,10 @@ func (ec *executionContext) _Comment(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "deletedAt":
-			out.Values[i] = ec._Comment_deletedAt(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._Comment_createdAt(ctx, field, obj)
+		case "deletedAt":
+			out.Values[i] = ec._Comment_deletedAt(ctx, field, obj)
 		case "updatedAt":
 			out.Values[i] = ec._Comment_updatedAt(ctx, field, obj)
 		default:
@@ -12688,12 +12688,12 @@ func (ec *executionContext) _Company(ctx context.Context, sel ast.SelectionSet, 
 			out.Values[i] = ec._Company_name(ctx, field, obj)
 		case "active":
 			out.Values[i] = ec._Company_active(ctx, field, obj)
+		case "updatedAt":
+			out.Values[i] = ec._Company_updatedAt(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._Company_createdAt(ctx, field, obj)
 		case "deletedAt":
 			out.Values[i] = ec._Company_deletedAt(ctx, field, obj)
-		case "updatedAt":
-			out.Values[i] = ec._Company_updatedAt(ctx, field, obj)
 		case "locations":
 			out.Values[i] = ec._Company_locations(ctx, field, obj)
 		case "users":
@@ -12784,12 +12784,12 @@ func (ec *executionContext) _Follower(ctx context.Context, sel ast.SelectionSet,
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "updatedAt":
-			out.Values[i] = ec._Follower_updatedAt(ctx, field, obj)
 		case "deletedAt":
 			out.Values[i] = ec._Follower_deletedAt(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._Follower_createdAt(ctx, field, obj)
+		case "updatedAt":
+			out.Values[i] = ec._Follower_updatedAt(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -12965,10 +12965,10 @@ func (ec *executionContext) _Location(ctx context.Context, sel ast.SelectionSet,
 			}
 		case "createdAt":
 			out.Values[i] = ec._Location_createdAt(ctx, field, obj)
-		case "deletedAt":
-			out.Values[i] = ec._Location_deletedAt(ctx, field, obj)
 		case "updatedAt":
 			out.Values[i] = ec._Location_updatedAt(ctx, field, obj)
+		case "deletedAt":
+			out.Values[i] = ec._Location_deletedAt(ctx, field, obj)
 		case "users":
 			out.Values[i] = ec._Location_users(ctx, field, obj)
 		default:
@@ -13384,12 +13384,12 @@ func (ec *executionContext) _Post(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "deletedAt":
+			out.Values[i] = ec._Post_deletedAt(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._Post_createdAt(ctx, field, obj)
 		case "updatedAt":
 			out.Values[i] = ec._Post_updatedAt(ctx, field, obj)
-		case "deletedAt":
-			out.Values[i] = ec._Post_deletedAt(ctx, field, obj)
 		case "comments":
 			out.Values[i] = ec._Post_comments(ctx, field, obj)
 		default:
@@ -13790,12 +13790,12 @@ func (ec *executionContext) _Role(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "deletedAt":
-			out.Values[i] = ec._Role_deletedAt(ctx, field, obj)
-		case "createdAt":
-			out.Values[i] = ec._Role_createdAt(ctx, field, obj)
 		case "updatedAt":
 			out.Values[i] = ec._Role_updatedAt(ctx, field, obj)
+		case "createdAt":
+			out.Values[i] = ec._Role_createdAt(ctx, field, obj)
+		case "deletedAt":
+			out.Values[i] = ec._Role_deletedAt(ctx, field, obj)
 		case "users":
 			out.Values[i] = ec._Role_users(ctx, field, obj)
 		default:
@@ -13990,12 +13990,12 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._User_company(ctx, field, obj)
 		case "location":
 			out.Values[i] = ec._User_location(ctx, field, obj)
+		case "deletedAt":
+			out.Values[i] = ec._User_deletedAt(ctx, field, obj)
 		case "updatedAt":
 			out.Values[i] = ec._User_updatedAt(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._User_createdAt(ctx, field, obj)
-		case "deletedAt":
-			out.Values[i] = ec._User_deletedAt(ctx, field, obj)
 		case "comments":
 			out.Values[i] = ec._User_comments(ctx, field, obj)
 		case "followeeFollowers":

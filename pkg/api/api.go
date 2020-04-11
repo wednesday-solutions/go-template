@@ -33,15 +33,16 @@ package api
 
 import (
 	"crypto/sha1"
+	l "log"
+	"net/http"
+	"os"
+
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/volatiletech/sqlboiler/boil"
 	graphql "github.com/wednesday-solution/go-boiler/graphql"
 	"github.com/wednesday-solution/go-boiler/pkg/utl/postgres"
 	"github.com/wednesday-solution/go-boiler/pkg/utl/zlog"
-	l "log"
-	"net/http"
-	"os"
 
 	"github.com/wednesday-solution/go-boiler/pkg/api/auth"
 	al "github.com/wednesday-solution/go-boiler/pkg/api/auth/logging"
