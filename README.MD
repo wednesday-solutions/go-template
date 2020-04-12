@@ -163,6 +163,10 @@ go-boiler is licensed under the MIT license. Check the [LICENSE](LICENSE) file f
 
 # graphQL
 
+generate all the models
+```
+sqlboiler psql --no-hooks
+```
 create the schema from the sqlboiler models
 
 ```
