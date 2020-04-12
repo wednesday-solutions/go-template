@@ -176,5 +176,5 @@ go run github.com/web-ridge/sqlboiler-graphql-schema
 create the models and resolvers
 
 ```
-go run github.com/99designs/gqlgen init
+go run cmd/gqlgen/main.go
 ```
