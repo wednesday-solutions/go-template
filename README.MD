@@ -178,3 +178,9 @@ create the models and resolvers
 ```
 go run cmd/gqlgen/main.go
 ```
+
+create resolvers with mapping between sqlboiler models to graphql models
+
+```
+ go run cmd/convert/convert_plugin.go
+```
