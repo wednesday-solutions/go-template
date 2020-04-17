@@ -16,8 +16,76 @@ var CommentPreloadMap = map[string]helper.ColumnSetting{
 		Name:        models.CommentRels.Post + "." + models.PostRels.Comments,
 		IDAvailable: false,
 	},
+	"post.comments.post": helper.ColumnSetting{
+		Name:        models.CommentRels.Post + "." + models.PostRels.Comments + "." + models.CommentRels.Post,
+		IDAvailable: false,
+	},
+	"post.comments.user": helper.ColumnSetting{
+		Name:        models.CommentRels.Post + "." + models.PostRels.Comments + "." + models.CommentRels.User,
+		IDAvailable: false,
+	},
 	"post.user": helper.ColumnSetting{
 		Name:        models.CommentRels.Post + "." + models.PostRels.User,
+		IDAvailable: false,
+	},
+	"post.user.comments": helper.ColumnSetting{
+		Name:        models.CommentRels.Post + "." + models.PostRels.User + "." + models.UserRels.Comments,
+		IDAvailable: false,
+	},
+	"post.user.comments.post": helper.ColumnSetting{
+		Name:        models.CommentRels.Post + "." + models.PostRels.User + "." + models.UserRels.Comments + "." + models.CommentRels.Post,
+		IDAvailable: false,
+	},
+	"post.user.comments.user": helper.ColumnSetting{
+		Name:        models.CommentRels.Post + "." + models.PostRels.User + "." + models.UserRels.Comments + "." + models.CommentRels.User,
+		IDAvailable: false,
+	},
+	"post.user.company": helper.ColumnSetting{
+		Name:        models.CommentRels.Post + "." + models.PostRels.User + "." + models.UserRels.Company,
+		IDAvailable: false,
+	},
+	"post.user.company.locations": helper.ColumnSetting{
+		Name:        models.CommentRels.Post + "." + models.PostRels.User + "." + models.UserRels.Company + "." + models.CompanyRels.Locations,
+		IDAvailable: false,
+	},
+	"post.user.company.users": helper.ColumnSetting{
+		Name:        models.CommentRels.Post + "." + models.PostRels.User + "." + models.UserRels.Company + "." + models.CompanyRels.Users,
+		IDAvailable: false,
+	},
+	"post.user.followeeFollowers": helper.ColumnSetting{
+		Name:        models.CommentRels.Post + "." + models.PostRels.User + "." + models.UserRels.FolloweeFollowers,
+		IDAvailable: false,
+	},
+	"post.user.followeeFollowers.followee": helper.ColumnSetting{
+		Name:        models.CommentRels.Post + "." + models.PostRels.User + "." + models.UserRels.FolloweeFollowers + "." + models.FollowerRels.Followee,
+		IDAvailable: false,
+	},
+	"post.user.followeeFollowers.follower": helper.ColumnSetting{
+		Name:        models.CommentRels.Post + "." + models.PostRels.User + "." + models.UserRels.FolloweeFollowers + "." + models.FollowerRels.Follower,
+		IDAvailable: false,
+	},
+	"post.user.followerFollowers": helper.ColumnSetting{
+		Name:        models.CommentRels.Post + "." + models.PostRels.User + "." + models.UserRels.FollowerFollowers,
+		IDAvailable: false,
+	},
+	"post.user.location": helper.ColumnSetting{
+		Name:        models.CommentRels.Post + "." + models.PostRels.User + "." + models.UserRels.Location,
+		IDAvailable: false,
+	},
+	"post.user.location.company": helper.ColumnSetting{
+		Name:        models.CommentRels.Post + "." + models.PostRels.User + "." + models.UserRels.Location + "." + models.LocationRels.Company,
+		IDAvailable: false,
+	},
+	"post.user.location.users": helper.ColumnSetting{
+		Name:        models.CommentRels.Post + "." + models.PostRels.User + "." + models.UserRels.Location + "." + models.LocationRels.Users,
+		IDAvailable: false,
+	},
+	"post.user.posts": helper.ColumnSetting{
+		Name:        models.CommentRels.Post + "." + models.PostRels.User + "." + models.UserRels.Posts,
+		IDAvailable: false,
+	},
+	"post.user.role": helper.ColumnSetting{
+		Name:        models.CommentRels.Post + "." + models.PostRels.User + "." + models.UserRels.Role,
 		IDAvailable: false,
 	},
 	"user": helper.ColumnSetting{
@@ -30,14 +98,6 @@ var CommentPreloadMap = map[string]helper.ColumnSetting{
 	},
 	"user.company": helper.ColumnSetting{
 		Name:        models.CommentRels.User + "." + models.UserRels.Company,
-		IDAvailable: false,
-	},
-	"user.company.locations": helper.ColumnSetting{
-		Name:        models.CommentRels.User + "." + models.UserRels.Company + "." + models.CompanyRels.Locations,
-		IDAvailable: false,
-	},
-	"user.company.users": helper.ColumnSetting{
-		Name:        models.CommentRels.User + "." + models.UserRels.Company + "." + models.CompanyRels.Users,
 		IDAvailable: false,
 	},
 	"user.followeeFollowers": helper.ColumnSetting{
@@ -56,20 +116,8 @@ var CommentPreloadMap = map[string]helper.ColumnSetting{
 		Name:        models.CommentRels.User + "." + models.UserRels.Posts,
 		IDAvailable: false,
 	},
-	"user.posts.comments": helper.ColumnSetting{
-		Name:        models.CommentRels.User + "." + models.UserRels.Posts + "." + models.PostRels.Comments,
-		IDAvailable: false,
-	},
-	"user.posts.user": helper.ColumnSetting{
-		Name:        models.CommentRels.User + "." + models.UserRels.Posts + "." + models.PostRels.User,
-		IDAvailable: false,
-	},
 	"user.role": helper.ColumnSetting{
 		Name:        models.CommentRels.User + "." + models.UserRels.Role,
-		IDAvailable: false,
-	},
-	"user.role.users": helper.ColumnSetting{
-		Name:        models.CommentRels.User + "." + models.UserRels.Role + "." + models.RoleRels.Users,
 		IDAvailable: false,
 	},
 }
@@ -87,6 +135,14 @@ var CompanyPreloadMap = map[string]helper.ColumnSetting{
 	},
 	"locations.company": helper.ColumnSetting{
 		Name:        models.CompanyRels.Locations + "." + models.LocationRels.Company,
+		IDAvailable: false,
+	},
+	"locations.company.locations": helper.ColumnSetting{
+		Name:        models.CompanyRels.Locations + "." + models.LocationRels.Company + "." + models.CompanyRels.Locations,
+		IDAvailable: false,
+	},
+	"locations.company.users": helper.ColumnSetting{
+		Name:        models.CompanyRels.Locations + "." + models.LocationRels.Company + "." + models.CompanyRels.Users,
 		IDAvailable: false,
 	},
 	"locations.users": helper.ColumnSetting{
@@ -174,16 +230,16 @@ var FollowerPreloadMap = map[string]helper.ColumnSetting{
 		Name:        models.FollowerRels.Follower + "." + models.UserRels.Comments,
 		IDAvailable: false,
 	},
+	"follower.comments.post": helper.ColumnSetting{
+		Name:        models.FollowerRels.Follower + "." + models.UserRels.Comments + "." + models.CommentRels.Post,
+		IDAvailable: false,
+	},
+	"follower.comments.user": helper.ColumnSetting{
+		Name:        models.FollowerRels.Follower + "." + models.UserRels.Comments + "." + models.CommentRels.User,
+		IDAvailable: false,
+	},
 	"follower.company": helper.ColumnSetting{
 		Name:        models.FollowerRels.Follower + "." + models.UserRels.Company,
-		IDAvailable: false,
-	},
-	"follower.company.locations": helper.ColumnSetting{
-		Name:        models.FollowerRels.Follower + "." + models.UserRels.Company + "." + models.CompanyRels.Locations,
-		IDAvailable: false,
-	},
-	"follower.company.users": helper.ColumnSetting{
-		Name:        models.FollowerRels.Follower + "." + models.UserRels.Company + "." + models.CompanyRels.Users,
 		IDAvailable: false,
 	},
 	"follower.followeeFollowers": helper.ColumnSetting{
@@ -192,14 +248,6 @@ var FollowerPreloadMap = map[string]helper.ColumnSetting{
 	},
 	"follower.followerFollowers": helper.ColumnSetting{
 		Name:        models.FollowerRels.Follower + "." + models.UserRels.FollowerFollowers,
-		IDAvailable: false,
-	},
-	"follower.followerFollowers.followee": helper.ColumnSetting{
-		Name:        models.FollowerRels.Follower + "." + models.UserRels.FollowerFollowers + "." + models.FollowerRels.Followee,
-		IDAvailable: false,
-	},
-	"follower.followerFollowers.follower": helper.ColumnSetting{
-		Name:        models.FollowerRels.Follower + "." + models.UserRels.FollowerFollowers + "." + models.FollowerRels.Follower,
 		IDAvailable: false,
 	},
 	"follower.location": helper.ColumnSetting{
@@ -218,20 +266,8 @@ var FollowerPreloadMap = map[string]helper.ColumnSetting{
 		Name:        models.FollowerRels.Follower + "." + models.UserRels.Posts,
 		IDAvailable: false,
 	},
-	"follower.posts.comments": helper.ColumnSetting{
-		Name:        models.FollowerRels.Follower + "." + models.UserRels.Posts + "." + models.PostRels.Comments,
-		IDAvailable: false,
-	},
-	"follower.posts.user": helper.ColumnSetting{
-		Name:        models.FollowerRels.Follower + "." + models.UserRels.Posts + "." + models.PostRels.User,
-		IDAvailable: false,
-	},
 	"follower.role": helper.ColumnSetting{
 		Name:        models.FollowerRels.Follower + "." + models.UserRels.Role,
-		IDAvailable: false,
-	},
-	"follower.role.users": helper.ColumnSetting{
-		Name:        models.FollowerRels.Follower + "." + models.UserRels.Role + "." + models.RoleRels.Users,
 		IDAvailable: false,
 	},
 }
@@ -299,28 +335,12 @@ var LocationPreloadMap = map[string]helper.ColumnSetting{
 		Name:        models.LocationRels.Users + "." + models.UserRels.Comments,
 		IDAvailable: false,
 	},
-	"users.comments.post": helper.ColumnSetting{
-		Name:        models.LocationRels.Users + "." + models.UserRels.Comments + "." + models.CommentRels.Post,
-		IDAvailable: false,
-	},
-	"users.comments.user": helper.ColumnSetting{
-		Name:        models.LocationRels.Users + "." + models.UserRels.Comments + "." + models.CommentRels.User,
-		IDAvailable: false,
-	},
 	"users.company": helper.ColumnSetting{
 		Name:        models.LocationRels.Users + "." + models.UserRels.Company,
 		IDAvailable: false,
 	},
 	"users.followeeFollowers": helper.ColumnSetting{
 		Name:        models.LocationRels.Users + "." + models.UserRels.FolloweeFollowers,
-		IDAvailable: false,
-	},
-	"users.followeeFollowers.followee": helper.ColumnSetting{
-		Name:        models.LocationRels.Users + "." + models.UserRels.FolloweeFollowers + "." + models.FollowerRels.Followee,
-		IDAvailable: false,
-	},
-	"users.followeeFollowers.follower": helper.ColumnSetting{
-		Name:        models.LocationRels.Users + "." + models.UserRels.FolloweeFollowers + "." + models.FollowerRels.Follower,
 		IDAvailable: false,
 	},
 	"users.followerFollowers": helper.ColumnSetting{
@@ -331,20 +351,16 @@ var LocationPreloadMap = map[string]helper.ColumnSetting{
 		Name:        models.LocationRels.Users + "." + models.UserRels.Location,
 		IDAvailable: false,
 	},
-	"users.location.company": helper.ColumnSetting{
-		Name:        models.LocationRels.Users + "." + models.UserRels.Location + "." + models.LocationRels.Company,
-		IDAvailable: false,
-	},
-	"users.location.users": helper.ColumnSetting{
-		Name:        models.LocationRels.Users + "." + models.UserRels.Location + "." + models.LocationRels.Users,
-		IDAvailable: false,
-	},
 	"users.posts": helper.ColumnSetting{
 		Name:        models.LocationRels.Users + "." + models.UserRels.Posts,
 		IDAvailable: false,
 	},
 	"users.role": helper.ColumnSetting{
 		Name:        models.LocationRels.Users + "." + models.UserRels.Role,
+		IDAvailable: false,
+	},
+	"users.role.users": helper.ColumnSetting{
+		Name:        models.LocationRels.Users + "." + models.UserRels.Role + "." + models.RoleRels.Users,
 		IDAvailable: false,
 	},
 }
@@ -388,28 +404,12 @@ var PostPreloadMap = map[string]helper.ColumnSetting{
 		Name:        models.PostRels.User + "." + models.UserRels.FollowerFollowers,
 		IDAvailable: false,
 	},
-	"user.followerFollowers.followee": helper.ColumnSetting{
-		Name:        models.PostRels.User + "." + models.UserRels.FollowerFollowers + "." + models.FollowerRels.Followee,
-		IDAvailable: false,
-	},
-	"user.followerFollowers.follower": helper.ColumnSetting{
-		Name:        models.PostRels.User + "." + models.UserRels.FollowerFollowers + "." + models.FollowerRels.Follower,
-		IDAvailable: false,
-	},
 	"user.location": helper.ColumnSetting{
 		Name:        models.PostRels.User + "." + models.UserRels.Location,
 		IDAvailable: false,
 	},
 	"user.posts": helper.ColumnSetting{
 		Name:        models.PostRels.User + "." + models.UserRels.Posts,
-		IDAvailable: false,
-	},
-	"user.posts.comments": helper.ColumnSetting{
-		Name:        models.PostRels.User + "." + models.UserRels.Posts + "." + models.PostRels.Comments,
-		IDAvailable: false,
-	},
-	"user.posts.user": helper.ColumnSetting{
-		Name:        models.PostRels.User + "." + models.UserRels.Posts + "." + models.PostRels.User,
 		IDAvailable: false,
 	},
 	"user.role": helper.ColumnSetting{
@@ -445,6 +445,14 @@ var RolePreloadMap = map[string]helper.ColumnSetting{
 		Name:        models.RoleRels.Users + "." + models.UserRels.Company,
 		IDAvailable: false,
 	},
+	"users.company.locations": helper.ColumnSetting{
+		Name:        models.RoleRels.Users + "." + models.UserRels.Company + "." + models.CompanyRels.Locations,
+		IDAvailable: false,
+	},
+	"users.company.users": helper.ColumnSetting{
+		Name:        models.RoleRels.Users + "." + models.UserRels.Company + "." + models.CompanyRels.Users,
+		IDAvailable: false,
+	},
 	"users.followeeFollowers": helper.ColumnSetting{
 		Name:        models.RoleRels.Users + "." + models.UserRels.FolloweeFollowers,
 		IDAvailable: false,
@@ -461,6 +469,14 @@ var RolePreloadMap = map[string]helper.ColumnSetting{
 		Name:        models.RoleRels.Users + "." + models.UserRels.FollowerFollowers,
 		IDAvailable: false,
 	},
+	"users.followerFollowers.followee": helper.ColumnSetting{
+		Name:        models.RoleRels.Users + "." + models.UserRels.FollowerFollowers + "." + models.FollowerRels.Followee,
+		IDAvailable: false,
+	},
+	"users.followerFollowers.follower": helper.ColumnSetting{
+		Name:        models.RoleRels.Users + "." + models.UserRels.FollowerFollowers + "." + models.FollowerRels.Follower,
+		IDAvailable: false,
+	},
 	"users.location": helper.ColumnSetting{
 		Name:        models.RoleRels.Users + "." + models.UserRels.Location,
 		IDAvailable: false,
@@ -469,8 +485,20 @@ var RolePreloadMap = map[string]helper.ColumnSetting{
 		Name:        models.RoleRels.Users + "." + models.UserRels.Posts,
 		IDAvailable: false,
 	},
+	"users.posts.comments": helper.ColumnSetting{
+		Name:        models.RoleRels.Users + "." + models.UserRels.Posts + "." + models.PostRels.Comments,
+		IDAvailable: false,
+	},
+	"users.posts.user": helper.ColumnSetting{
+		Name:        models.RoleRels.Users + "." + models.UserRels.Posts + "." + models.PostRels.User,
+		IDAvailable: false,
+	},
 	"users.role": helper.ColumnSetting{
 		Name:        models.RoleRels.Users + "." + models.UserRels.Role,
+		IDAvailable: false,
+	},
+	"users.role.users": helper.ColumnSetting{
+		Name:        models.RoleRels.Users + "." + models.UserRels.Role + "." + models.RoleRels.Users,
 		IDAvailable: false,
 	},
 }

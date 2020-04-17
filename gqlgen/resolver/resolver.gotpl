@@ -6,8 +6,10 @@
 {{ reserveImport "sync"  }}
 {{ reserveImport "errors"  }}
 {{ reserveImport "bytes"  }}
+{{ reserveImport "github.com/volatiletech/sqlboiler/boil"  }}
 {{ reserveImport "github.com/volatiletech/sqlboiler/queries/qm" }}
 {{ reserveImport "github.com/wednesday-solutions/go-boiler/gqlgen/helper" }}
+{{ reserveImport "github.com/wednesday-solutions/go-boiler/pkg/utl/middleware/auth" }}
 {{ reserveImport "database/sql" }}
 {{ reserveImport "github.com/vektah/gqlparser/v2" }}
 {{ reserveImport "github.com/vektah/gqlparser/v2/ast" }}
@@ -48,7 +50,7 @@ const inputKey = "input"
 				))
 			{{- end }}
 			m, err := dm.{{ .Model.PluralName|go }}(mods...).One(context.Background(), boil.GetContextDB())
-			return {{ .Model.Name|go }}ToGraphQL(m, nil), err
+			return {{ .Model.Name|go }}ToGraphQL(m, nil, 0), err
 
 		{{- end -}}
 
@@ -69,9 +71,10 @@ const inputKey = "input"
 					auth.UserIDFromContext(ctx),
 				))
 			{{- end }}
+			mods = append(mods, {{.Model.Name}}PaginationToMods(pagination)...)
 			mods = append(mods, {{.Model.Name}}FilterToMods(filter)...)
 			a, err := dm.{{ .Model.PluralName|go }}(mods...).All(context.Background(), boil.GetContextDB())
-			return {{ .Model.PluralName|go }}ToGraphQL(a, nil), err
+			return {{ .Model.PluralName|go }}ToGraphQL(a, nil, 0), err
 
 		{{- end -}}
 
@@ -161,7 +164,7 @@ const inputKey = "input"
 			{{- end }}
 			pM, err := dm.{{ .Model.PluralName|go }}(mods...).One(context.Background(), boil.GetContextDB())
 			return &fm.{{ .Model.Name }}Payload{
-				{{ .Model.Name|go }}: {{ .Model.Name|go }}ToGraphQL(pM, nil),
+				{{ .Model.Name|go }}: {{ .Model.Name|go }}ToGraphQL(pM, nil, 0),
 			}, err
 
 		{{- end -}}
@@ -235,7 +238,7 @@ const inputKey = "input"
 
 			pM, err := dm.{{ .Model.PluralName|go }}(mods...).One(context.Background(), boil.GetContextDB())
 			return &fm.{{ .Model.Name|go }}Payload{
-				{{ .Model.Name|go }}: {{ .Model.Name|go }}ToGraphQL(pM, nil),
+				{{ .Model.Name|go }}: {{ .Model.Name|go }}ToGraphQL(pM, nil, 0),
 			}, err
 
 		{{- end -}}

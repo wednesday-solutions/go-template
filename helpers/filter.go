@@ -127,6 +127,38 @@ func IntFilterToMods(m *graphql_models.IntFilter, column string) []qm.QueryMod {
 	return queryMods
 }
 
+func FloatFilterToMods(m *graphql_models.FloatFilter, column string) []qm.QueryMod {
+	if m == nil {
+		return nil
+	}
+	var queryMods []qm.QueryMod
+	if m.EqualTo != nil {
+		queryMods = append(queryMods, qmhelper.Where(column, qmhelper.EQ, *m.EqualTo))
+	}
+	if m.NotEqualTo != nil {
+		queryMods = append(queryMods, qmhelper.Where(column, qmhelper.NEQ, *m.NotEqualTo))
+	}
+	if m.LessThan != nil {
+		queryMods = append(queryMods, qmhelper.Where(column, qmhelper.LT, *m.LessThan))
+	}
+	if m.MoreThan != nil {
+		queryMods = append(queryMods, qmhelper.Where(column, qmhelper.GT, *m.MoreThan))
+	}
+	if m.LessThanOrEqualTo != nil {
+		queryMods = append(queryMods, qmhelper.Where(column, qmhelper.LTE, *m.LessThanOrEqualTo))
+	}
+	if m.MoreThanOrEqualTo != nil {
+		queryMods = append(queryMods, qmhelper.Where(column, qmhelper.GTE, *m.MoreThanOrEqualTo))
+	}
+	if len(m.In) > 0 {
+		queryMods = append(queryMods, qm.WhereIn(column+in, helper.FloatsToInterfaces(m.In)...))
+	}
+	if len(m.NotIn) > 0 {
+		queryMods = append(queryMods, qm.WhereIn(column+notIn, helper.FloatsToInterfaces(m.NotIn)...))
+	}
+	return queryMods
+}
+
 func BooleanFilterToMods(m *graphql_models.BooleanFilter, column string) []qm.QueryMod {
 	if m == nil {
 		return nil
@@ -162,6 +194,18 @@ func CommentFilterToMods(m *graphql_models.CommentFilter) []qm.QueryMod {
 }
 func CommentSearchToMods(search *string) []qm.QueryMod {
 	// TODO: implement your own custom search here
+	return nil
+}
+
+func CommentPaginationToMods(m *graphql_models.CommentPagination) []qm.QueryMod {
+	if m == nil {
+		return nil
+	}
+	if m.Limit != 0 {
+		var queryMods []qm.QueryMod
+		queryMods = append(queryMods, qm.Limit(m.Limit), qm.Offset(m.Page*m.Limit))
+		return queryMods
+	}
 	return nil
 }
 
@@ -232,6 +276,18 @@ func CompanySearchToMods(search *string) []qm.QueryMod {
 	return nil
 }
 
+func CompanyPaginationToMods(m *graphql_models.CompanyPagination) []qm.QueryMod {
+	if m == nil {
+		return nil
+	}
+	if m.Limit != 0 {
+		var queryMods []qm.QueryMod
+		queryMods = append(queryMods, qm.Limit(m.Limit), qm.Offset(m.Page*m.Limit))
+		return queryMods
+	}
+	return nil
+}
+
 func CompanyWhereSubqueryToMods(m *graphql_models.CompanyWhere, foreignColumn string) []qm.QueryMod {
 	if m == nil {
 		return nil
@@ -264,9 +320,9 @@ func CompanyWhereToMods(m *graphql_models.CompanyWhere, withPrimaryID bool) []qm
 	}
 	queryMods = append(queryMods, StringFilterToMods(m.Name, models.CompanyColumns.Name)...)
 	queryMods = append(queryMods, BooleanFilterToMods(m.Active, models.CompanyColumns.Active)...)
-	queryMods = append(queryMods, IntFilterToMods(m.CreatedAt, models.CompanyColumns.CreatedAt)...)
-	queryMods = append(queryMods, IntFilterToMods(m.DeletedAt, models.CompanyColumns.DeletedAt)...)
 	queryMods = append(queryMods, IntFilterToMods(m.UpdatedAt, models.CompanyColumns.UpdatedAt)...)
+	queryMods = append(queryMods, IntFilterToMods(m.DeletedAt, models.CompanyColumns.DeletedAt)...)
+	queryMods = append(queryMods, IntFilterToMods(m.CreatedAt, models.CompanyColumns.CreatedAt)...)
 	queryMods = append(queryMods, LocationWhereSubqueryToMods(m.Locations, "")...)
 	queryMods = append(queryMods, UserWhereSubqueryToMods(m.Users, "")...)
 	if m.Or != nil {
@@ -296,6 +352,18 @@ func FollowerFilterToMods(m *graphql_models.FollowerFilter) []qm.QueryMod {
 }
 func FollowerSearchToMods(search *string) []qm.QueryMod {
 	// TODO: implement your own custom search here
+	return nil
+}
+
+func FollowerPaginationToMods(m *graphql_models.FollowerPagination) []qm.QueryMod {
+	if m == nil {
+		return nil
+	}
+	if m.Limit != 0 {
+		var queryMods []qm.QueryMod
+		queryMods = append(queryMods, qm.Limit(m.Limit), qm.Offset(m.Page*m.Limit))
+		return queryMods
+	}
 	return nil
 }
 
@@ -331,9 +399,9 @@ func FollowerWhereToMods(m *graphql_models.FollowerWhere, withPrimaryID bool) []
 	}
 	queryMods = append(queryMods, UserWhereSubqueryToMods(m.Follower, models.FollowerColumns.FollowerID)...)
 	queryMods = append(queryMods, UserWhereSubqueryToMods(m.Followee, models.FollowerColumns.FolloweeID)...)
-	queryMods = append(queryMods, IntFilterToMods(m.CreatedAt, models.FollowerColumns.CreatedAt)...)
-	queryMods = append(queryMods, IntFilterToMods(m.UpdatedAt, models.FollowerColumns.UpdatedAt)...)
 	queryMods = append(queryMods, IntFilterToMods(m.DeletedAt, models.FollowerColumns.DeletedAt)...)
+	queryMods = append(queryMods, IntFilterToMods(m.UpdatedAt, models.FollowerColumns.UpdatedAt)...)
+	queryMods = append(queryMods, IntFilterToMods(m.CreatedAt, models.FollowerColumns.CreatedAt)...)
 	if m.Or != nil {
 		queryMods = append(queryMods, qm.Or2(qm.Expr(FollowerWhereToMods(m.Or, true)...)))
 	}
@@ -361,6 +429,18 @@ func LocationFilterToMods(m *graphql_models.LocationFilter) []qm.QueryMod {
 }
 func LocationSearchToMods(search *string) []qm.QueryMod {
 	// TODO: implement your own custom search here
+	return nil
+}
+
+func LocationPaginationToMods(m *graphql_models.LocationPagination) []qm.QueryMod {
+	if m == nil {
+		return nil
+	}
+	if m.Limit != 0 {
+		var queryMods []qm.QueryMod
+		queryMods = append(queryMods, qm.Limit(m.Limit), qm.Offset(m.Page*m.Limit))
+		return queryMods
+	}
 	return nil
 }
 
@@ -398,9 +478,9 @@ func LocationWhereToMods(m *graphql_models.LocationWhere, withPrimaryID bool) []
 	queryMods = append(queryMods, BooleanFilterToMods(m.Active, models.LocationColumns.Active)...)
 	queryMods = append(queryMods, StringFilterToMods(m.Address, models.LocationColumns.Address)...)
 	queryMods = append(queryMods, CompanyWhereSubqueryToMods(m.Company, models.LocationColumns.CompanyID)...)
-	queryMods = append(queryMods, IntFilterToMods(m.CreatedAt, models.LocationColumns.CreatedAt)...)
-	queryMods = append(queryMods, IntFilterToMods(m.DeletedAt, models.LocationColumns.DeletedAt)...)
 	queryMods = append(queryMods, IntFilterToMods(m.UpdatedAt, models.LocationColumns.UpdatedAt)...)
+	queryMods = append(queryMods, IntFilterToMods(m.DeletedAt, models.LocationColumns.DeletedAt)...)
+	queryMods = append(queryMods, IntFilterToMods(m.CreatedAt, models.LocationColumns.CreatedAt)...)
 	queryMods = append(queryMods, UserWhereSubqueryToMods(m.Users, "")...)
 	if m.Or != nil {
 		queryMods = append(queryMods, qm.Or2(qm.Expr(LocationWhereToMods(m.Or, true)...)))
@@ -429,6 +509,18 @@ func PostFilterToMods(m *graphql_models.PostFilter) []qm.QueryMod {
 }
 func PostSearchToMods(search *string) []qm.QueryMod {
 	// TODO: implement your own custom search here
+	return nil
+}
+
+func PostPaginationToMods(m *graphql_models.PostPagination) []qm.QueryMod {
+	if m == nil {
+		return nil
+	}
+	if m.Limit != 0 {
+		var queryMods []qm.QueryMod
+		queryMods = append(queryMods, qm.Limit(m.Limit), qm.Offset(m.Page*m.Limit))
+		return queryMods
+	}
 	return nil
 }
 
@@ -499,6 +591,18 @@ func RoleSearchToMods(search *string) []qm.QueryMod {
 	return nil
 }
 
+func RolePaginationToMods(m *graphql_models.RolePagination) []qm.QueryMod {
+	if m == nil {
+		return nil
+	}
+	if m.Limit != 0 {
+		var queryMods []qm.QueryMod
+		queryMods = append(queryMods, qm.Limit(m.Limit), qm.Offset(m.Page*m.Limit))
+		return queryMods
+	}
+	return nil
+}
+
 func RoleWhereSubqueryToMods(m *graphql_models.RoleWhere, foreignColumn string) []qm.QueryMod {
 	if m == nil {
 		return nil
@@ -532,8 +636,8 @@ func RoleWhereToMods(m *graphql_models.RoleWhere, withPrimaryID bool) []qm.Query
 	queryMods = append(queryMods, IntFilterToMods(m.AccessLevel, models.RoleColumns.AccessLevel)...)
 	queryMods = append(queryMods, StringFilterToMods(m.Name, models.RoleColumns.Name)...)
 	queryMods = append(queryMods, IntFilterToMods(m.UpdatedAt, models.RoleColumns.UpdatedAt)...)
-	queryMods = append(queryMods, IntFilterToMods(m.CreatedAt, models.RoleColumns.CreatedAt)...)
 	queryMods = append(queryMods, IntFilterToMods(m.DeletedAt, models.RoleColumns.DeletedAt)...)
+	queryMods = append(queryMods, IntFilterToMods(m.CreatedAt, models.RoleColumns.CreatedAt)...)
 	queryMods = append(queryMods, UserWhereSubqueryToMods(m.Users, "")...)
 	if m.Or != nil {
 		queryMods = append(queryMods, qm.Or2(qm.Expr(RoleWhereToMods(m.Or, true)...)))
@@ -562,6 +666,18 @@ func UserFilterToMods(m *graphql_models.UserFilter) []qm.QueryMod {
 }
 func UserSearchToMods(search *string) []qm.QueryMod {
 	// TODO: implement your own custom search here
+	return nil
+}
+
+func UserPaginationToMods(m *graphql_models.UserPagination) []qm.QueryMod {
+	if m == nil {
+		return nil
+	}
+	if m.Limit != 0 {
+		var queryMods []qm.QueryMod
+		queryMods = append(queryMods, qm.Limit(m.Limit), qm.Offset(m.Page*m.Limit))
+		return queryMods
+	}
 	return nil
 }
 
@@ -610,8 +726,8 @@ func UserWhereToMods(m *graphql_models.UserWhere, withPrimaryID bool) []qm.Query
 	queryMods = append(queryMods, RoleWhereSubqueryToMods(m.Role, models.UserColumns.RoleID)...)
 	queryMods = append(queryMods, CompanyWhereSubqueryToMods(m.Company, models.UserColumns.CompanyID)...)
 	queryMods = append(queryMods, LocationWhereSubqueryToMods(m.Location, models.UserColumns.LocationID)...)
-	queryMods = append(queryMods, IntFilterToMods(m.DeletedAt, models.UserColumns.DeletedAt)...)
 	queryMods = append(queryMods, IntFilterToMods(m.CreatedAt, models.UserColumns.CreatedAt)...)
+	queryMods = append(queryMods, IntFilterToMods(m.DeletedAt, models.UserColumns.DeletedAt)...)
 	queryMods = append(queryMods, IntFilterToMods(m.UpdatedAt, models.UserColumns.UpdatedAt)...)
 	queryMods = append(queryMods, CommentWhereSubqueryToMods(m.Comments, "")...)
 	queryMods = append(queryMods, FollowerWhereSubqueryToMods(m.FolloweeFollowers, "")...)

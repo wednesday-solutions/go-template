@@ -60,6 +60,7 @@ type Model struct {
 	IsPayload             bool
 	IsWhere               bool
 	IsFilter              bool
+	IsPagination          bool
 	PreloadMap            map[string]ColumnSetting
 	HasOrganizationID     bool
 	HasUserOrganizationID bool
@@ -372,8 +373,8 @@ func enhanceModelsWithFields(schema *ast.Schema, cfg *config.Config, models []*M
 					// ignore
 				} else if pluralizer.IsPlural(name) {
 					// ignore
-				} else if (m.IsFilter || m.IsWhere) && (name == "and" || name == "or" || name == "search" ||
-					name == "where") {
+				} else if (m.IsFilter || m.IsWhere || m.IsPagination) && (name == "and" || name == "or" || name == "search" ||
+					name == "where" || name == "limit" || name == "page") {
 					// ignore
 				} else {
 					fmt.Println("[WARN] boiler type not available for ", name)
@@ -381,7 +382,7 @@ func enhanceModelsWithFields(schema *ast.Schema, cfg *config.Config, models []*M
 			}
 
 			if boilerField.Name == "" {
-				if m.IsPayload || m.IsFilter || m.IsWhere {
+				if m.IsPayload || m.IsFilter || m.IsWhere || m.IsPagination {
 				} else {
 					fmt.Println("[WARN] boiler name not available for ", m.Name+"."+golangName)
 				}
@@ -569,12 +570,13 @@ func getModelsFromSchema(schema *ast.Schema, boilerModels []*boiler.BoilerModel)
 				isCreateInput := strings.HasSuffix(modelName, "CreateInput") && modelName != "CreateInput"
 				isUpdateInput := strings.HasSuffix(modelName, "UpdateInput") && modelName != "UpdateInput"
 				isFilter := strings.HasSuffix(modelName, "Filter") && modelName != "Filter"
+				IsPagination := strings.HasSuffix(modelName, "Pagination") && modelName != "Pagination"
 				isWhere := strings.HasSuffix(modelName, "Where") && modelName != "Where"
 				isPayload := strings.HasSuffix(modelName, "Payload") && modelName != "Payload"
 
 				// if no boiler model is found
 				if boilerModel.Name == "" {
-					if isInput || isWhere || isFilter || isPayload {
+					if isInput || isWhere || isFilter || isPayload || IsPagination {
 						// silent continue
 						continue
 					}
@@ -592,12 +594,13 @@ func getModelsFromSchema(schema *ast.Schema, boilerModels []*boiler.BoilerModel)
 					BoilerModel:   boilerModel,
 					IsInput:       isInput,
 					IsFilter:      isFilter,
+					IsPagination:  IsPagination,
 					IsWhere:       isWhere,
 					IsUpdateInput: isUpdateInput,
 					IsCreateInput: isCreateInput,
 					IsNormalInput: isNormalInput,
 					IsPayload:     isPayload,
-					IsNormal:      !isInput && !isWhere && !isFilter && !isPayload,
+					IsNormal:      !isInput && !isWhere && !isFilter && !isPayload && !IsPagination,
 				}
 
 				for _, implementor := range schema.GetImplements(schemaType) {
@@ -699,6 +702,7 @@ func getBaseModelFromName(v string) string {
 	v = safeTrim(v, "Payload")
 	v = safeTrim(v, "Where")
 	v = safeTrim(v, "Filter")
+	v = safeTrim(v, "Pagination")
 	return v
 }
 

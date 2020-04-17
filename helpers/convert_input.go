@@ -9,6 +9,18 @@ import (
 	"github.com/wednesday-solutions/go-boiler/models"
 )
 
+func unique(stringSlice []string) []string {
+	keys := make(map[string]bool)
+	list := []string{}
+	for _, entry := range stringSlice {
+		if _, value := keys[entry]; !value {
+			keys[entry] = true
+			list = append(list, entry)
+		}
+	}
+	return list
+}
+
 func CommentCreateInputsToBoiler(am []*graphql_models.CommentCreateInput) []*models.Comment {
 	ar := make([]*models.Comment, len(am))
 	for i, m := range am {
@@ -84,7 +96,8 @@ func CommentCreateInputToBoilerWhitelist(input map[string]interface{}, extraColu
 		}
 	}
 	columnsWhichAreSet = append(columnsWhichAreSet, extraColumns...)
-	return boil.Whitelist(columnsWhichAreSet...)
+
+	return boil.Whitelist(unique(columnsWhichAreSet)...)
 }
 
 func CommentUpdateInputsToBoiler(am []*graphql_models.CommentUpdateInput) []*models.Comment {
@@ -162,7 +175,8 @@ func CommentUpdateInputToBoilerWhitelist(input map[string]interface{}, extraColu
 		}
 	}
 	columnsWhichAreSet = append(columnsWhichAreSet, extraColumns...)
-	return boil.Whitelist(columnsWhichAreSet...)
+
+	return boil.Whitelist(unique(columnsWhichAreSet)...)
 }
 
 func CompanyCreateInputsToBoiler(am []*graphql_models.CompanyCreateInput) []*models.Company {
@@ -184,9 +198,9 @@ func CompanyCreateInputToBoiler(
 	r := &models.Company{
 		Name:      helper.PointerStringToNullDotString(m.Name),
 		Active:    helper.PointerBoolToNullDotBool(m.Active),
-		CreatedAt: helper.PointerIntToNullDotTime(m.CreatedAt),
-		DeletedAt: helper.PointerIntToNullDotTime(m.DeletedAt),
 		UpdatedAt: helper.PointerIntToNullDotTime(m.UpdatedAt),
+		DeletedAt: helper.PointerIntToNullDotTime(m.DeletedAt),
+		CreatedAt: helper.PointerIntToNullDotTime(m.CreatedAt),
 	}
 	return r
 }
@@ -202,12 +216,12 @@ func CompanyCreateInputToModelM(
 			modelM[models.CompanyColumns.Name] = helper.PointerStringToNullDotString(m.Name)
 		case "active":
 			modelM[models.CompanyColumns.Active] = helper.PointerBoolToNullDotBool(m.Active)
-		case "createdAt":
-			modelM[models.CompanyColumns.CreatedAt] = helper.PointerIntToNullDotTime(m.CreatedAt)
-		case "deletedAt":
-			modelM[models.CompanyColumns.DeletedAt] = helper.PointerIntToNullDotTime(m.DeletedAt)
 		case "updatedAt":
 			modelM[models.CompanyColumns.UpdatedAt] = helper.PointerIntToNullDotTime(m.UpdatedAt)
+		case "deletedAt":
+			modelM[models.CompanyColumns.DeletedAt] = helper.PointerIntToNullDotTime(m.DeletedAt)
+		case "createdAt":
+			modelM[models.CompanyColumns.CreatedAt] = helper.PointerIntToNullDotTime(m.CreatedAt)
 		}
 	}
 	return modelM
@@ -221,16 +235,17 @@ func CompanyCreateInputToBoilerWhitelist(input map[string]interface{}, extraColu
 			columnsWhichAreSet = append(columnsWhichAreSet, models.CompanyColumns.Name)
 		case "active":
 			columnsWhichAreSet = append(columnsWhichAreSet, models.CompanyColumns.Active)
-		case "createdAt":
-			columnsWhichAreSet = append(columnsWhichAreSet, models.CompanyColumns.CreatedAt)
-		case "deletedAt":
-			columnsWhichAreSet = append(columnsWhichAreSet, models.CompanyColumns.DeletedAt)
 		case "updatedAt":
 			columnsWhichAreSet = append(columnsWhichAreSet, models.CompanyColumns.UpdatedAt)
+		case "deletedAt":
+			columnsWhichAreSet = append(columnsWhichAreSet, models.CompanyColumns.DeletedAt)
+		case "createdAt":
+			columnsWhichAreSet = append(columnsWhichAreSet, models.CompanyColumns.CreatedAt)
 		}
 	}
 	columnsWhichAreSet = append(columnsWhichAreSet, extraColumns...)
-	return boil.Whitelist(columnsWhichAreSet...)
+
+	return boil.Whitelist(unique(columnsWhichAreSet)...)
 }
 
 func CompanyUpdateInputsToBoiler(am []*graphql_models.CompanyUpdateInput) []*models.Company {
@@ -252,9 +267,9 @@ func CompanyUpdateInputToBoiler(
 	r := &models.Company{
 		Name:      helper.PointerStringToNullDotString(m.Name),
 		Active:    helper.PointerBoolToNullDotBool(m.Active),
-		CreatedAt: helper.PointerIntToNullDotTime(m.CreatedAt),
-		DeletedAt: helper.PointerIntToNullDotTime(m.DeletedAt),
 		UpdatedAt: helper.PointerIntToNullDotTime(m.UpdatedAt),
+		DeletedAt: helper.PointerIntToNullDotTime(m.DeletedAt),
+		CreatedAt: helper.PointerIntToNullDotTime(m.CreatedAt),
 	}
 	return r
 }
@@ -270,12 +285,12 @@ func CompanyUpdateInputToModelM(
 			modelM[models.CompanyColumns.Name] = helper.PointerStringToNullDotString(m.Name)
 		case "active":
 			modelM[models.CompanyColumns.Active] = helper.PointerBoolToNullDotBool(m.Active)
-		case "createdAt":
-			modelM[models.CompanyColumns.CreatedAt] = helper.PointerIntToNullDotTime(m.CreatedAt)
-		case "deletedAt":
-			modelM[models.CompanyColumns.DeletedAt] = helper.PointerIntToNullDotTime(m.DeletedAt)
 		case "updatedAt":
 			modelM[models.CompanyColumns.UpdatedAt] = helper.PointerIntToNullDotTime(m.UpdatedAt)
+		case "deletedAt":
+			modelM[models.CompanyColumns.DeletedAt] = helper.PointerIntToNullDotTime(m.DeletedAt)
+		case "createdAt":
+			modelM[models.CompanyColumns.CreatedAt] = helper.PointerIntToNullDotTime(m.CreatedAt)
 		}
 	}
 	return modelM
@@ -289,16 +304,17 @@ func CompanyUpdateInputToBoilerWhitelist(input map[string]interface{}, extraColu
 			columnsWhichAreSet = append(columnsWhichAreSet, models.CompanyColumns.Name)
 		case "active":
 			columnsWhichAreSet = append(columnsWhichAreSet, models.CompanyColumns.Active)
-		case "createdAt":
-			columnsWhichAreSet = append(columnsWhichAreSet, models.CompanyColumns.CreatedAt)
-		case "deletedAt":
-			columnsWhichAreSet = append(columnsWhichAreSet, models.CompanyColumns.DeletedAt)
 		case "updatedAt":
 			columnsWhichAreSet = append(columnsWhichAreSet, models.CompanyColumns.UpdatedAt)
+		case "deletedAt":
+			columnsWhichAreSet = append(columnsWhichAreSet, models.CompanyColumns.DeletedAt)
+		case "createdAt":
+			columnsWhichAreSet = append(columnsWhichAreSet, models.CompanyColumns.CreatedAt)
 		}
 	}
 	columnsWhichAreSet = append(columnsWhichAreSet, extraColumns...)
-	return boil.Whitelist(columnsWhichAreSet...)
+
+	return boil.Whitelist(unique(columnsWhichAreSet)...)
 }
 
 func FollowerCreateInputsToBoiler(am []*graphql_models.FollowerCreateInput) []*models.Follower {
@@ -320,9 +336,9 @@ func FollowerCreateInputToBoiler(
 	r := &models.Follower{
 		FollowerID: helper.IDToBoiler(m.FollowerID),
 		FolloweeID: helper.IDToBoiler(m.FolloweeID),
-		CreatedAt:  helper.PointerIntToNullDotTime(m.CreatedAt),
-		UpdatedAt:  helper.PointerIntToNullDotTime(m.UpdatedAt),
 		DeletedAt:  helper.PointerIntToNullDotTime(m.DeletedAt),
+		UpdatedAt:  helper.PointerIntToNullDotTime(m.UpdatedAt),
+		CreatedAt:  helper.PointerIntToNullDotTime(m.CreatedAt),
 	}
 	return r
 }
@@ -338,12 +354,12 @@ func FollowerCreateInputToModelM(
 			modelM[models.FollowerColumns.FollowerID] = helper.IDToBoiler(m.FollowerID)
 		case "followeeId":
 			modelM[models.FollowerColumns.FolloweeID] = helper.IDToBoiler(m.FolloweeID)
-		case "createdAt":
-			modelM[models.FollowerColumns.CreatedAt] = helper.PointerIntToNullDotTime(m.CreatedAt)
-		case "updatedAt":
-			modelM[models.FollowerColumns.UpdatedAt] = helper.PointerIntToNullDotTime(m.UpdatedAt)
 		case "deletedAt":
 			modelM[models.FollowerColumns.DeletedAt] = helper.PointerIntToNullDotTime(m.DeletedAt)
+		case "updatedAt":
+			modelM[models.FollowerColumns.UpdatedAt] = helper.PointerIntToNullDotTime(m.UpdatedAt)
+		case "createdAt":
+			modelM[models.FollowerColumns.CreatedAt] = helper.PointerIntToNullDotTime(m.CreatedAt)
 		}
 	}
 	return modelM
@@ -357,16 +373,17 @@ func FollowerCreateInputToBoilerWhitelist(input map[string]interface{}, extraCol
 			columnsWhichAreSet = append(columnsWhichAreSet, models.FollowerColumns.FollowerID)
 		case "followeeId":
 			columnsWhichAreSet = append(columnsWhichAreSet, models.FollowerColumns.FolloweeID)
-		case "createdAt":
-			columnsWhichAreSet = append(columnsWhichAreSet, models.FollowerColumns.CreatedAt)
-		case "updatedAt":
-			columnsWhichAreSet = append(columnsWhichAreSet, models.FollowerColumns.UpdatedAt)
 		case "deletedAt":
 			columnsWhichAreSet = append(columnsWhichAreSet, models.FollowerColumns.DeletedAt)
+		case "updatedAt":
+			columnsWhichAreSet = append(columnsWhichAreSet, models.FollowerColumns.UpdatedAt)
+		case "createdAt":
+			columnsWhichAreSet = append(columnsWhichAreSet, models.FollowerColumns.CreatedAt)
 		}
 	}
 	columnsWhichAreSet = append(columnsWhichAreSet, extraColumns...)
-	return boil.Whitelist(columnsWhichAreSet...)
+
+	return boil.Whitelist(unique(columnsWhichAreSet)...)
 }
 
 func FollowerUpdateInputsToBoiler(am []*graphql_models.FollowerUpdateInput) []*models.Follower {
@@ -388,9 +405,9 @@ func FollowerUpdateInputToBoiler(
 	r := &models.Follower{
 		FollowerID: helper.IDToBoiler(helper.PointerStringToString(m.FollowerID)),
 		FolloweeID: helper.IDToBoiler(helper.PointerStringToString(m.FolloweeID)),
-		CreatedAt:  helper.PointerIntToNullDotTime(m.CreatedAt),
-		UpdatedAt:  helper.PointerIntToNullDotTime(m.UpdatedAt),
 		DeletedAt:  helper.PointerIntToNullDotTime(m.DeletedAt),
+		UpdatedAt:  helper.PointerIntToNullDotTime(m.UpdatedAt),
+		CreatedAt:  helper.PointerIntToNullDotTime(m.CreatedAt),
 	}
 	return r
 }
@@ -406,12 +423,12 @@ func FollowerUpdateInputToModelM(
 			modelM[models.FollowerColumns.FollowerID] = helper.IDToBoiler(helper.PointerStringToString(m.FollowerID))
 		case "followeeId":
 			modelM[models.FollowerColumns.FolloweeID] = helper.IDToBoiler(helper.PointerStringToString(m.FolloweeID))
-		case "createdAt":
-			modelM[models.FollowerColumns.CreatedAt] = helper.PointerIntToNullDotTime(m.CreatedAt)
-		case "updatedAt":
-			modelM[models.FollowerColumns.UpdatedAt] = helper.PointerIntToNullDotTime(m.UpdatedAt)
 		case "deletedAt":
 			modelM[models.FollowerColumns.DeletedAt] = helper.PointerIntToNullDotTime(m.DeletedAt)
+		case "updatedAt":
+			modelM[models.FollowerColumns.UpdatedAt] = helper.PointerIntToNullDotTime(m.UpdatedAt)
+		case "createdAt":
+			modelM[models.FollowerColumns.CreatedAt] = helper.PointerIntToNullDotTime(m.CreatedAt)
 		}
 	}
 	return modelM
@@ -425,16 +442,17 @@ func FollowerUpdateInputToBoilerWhitelist(input map[string]interface{}, extraCol
 			columnsWhichAreSet = append(columnsWhichAreSet, models.FollowerColumns.FollowerID)
 		case "followeeId":
 			columnsWhichAreSet = append(columnsWhichAreSet, models.FollowerColumns.FolloweeID)
-		case "createdAt":
-			columnsWhichAreSet = append(columnsWhichAreSet, models.FollowerColumns.CreatedAt)
-		case "updatedAt":
-			columnsWhichAreSet = append(columnsWhichAreSet, models.FollowerColumns.UpdatedAt)
 		case "deletedAt":
 			columnsWhichAreSet = append(columnsWhichAreSet, models.FollowerColumns.DeletedAt)
+		case "updatedAt":
+			columnsWhichAreSet = append(columnsWhichAreSet, models.FollowerColumns.UpdatedAt)
+		case "createdAt":
+			columnsWhichAreSet = append(columnsWhichAreSet, models.FollowerColumns.CreatedAt)
 		}
 	}
 	columnsWhichAreSet = append(columnsWhichAreSet, extraColumns...)
-	return boil.Whitelist(columnsWhichAreSet...)
+
+	return boil.Whitelist(unique(columnsWhichAreSet)...)
 }
 
 func LocationCreateInputsToBoiler(am []*graphql_models.LocationCreateInput) []*models.Location {
@@ -458,9 +476,9 @@ func LocationCreateInputToBoiler(
 		Active:    helper.PointerBoolToNullDotBool(m.Active),
 		Address:   helper.PointerStringToNullDotString(m.Address),
 		CompanyID: helper.IDToBoiler(m.CompanyID),
-		CreatedAt: helper.PointerIntToNullDotTime(m.CreatedAt),
-		DeletedAt: helper.PointerIntToNullDotTime(m.DeletedAt),
 		UpdatedAt: helper.PointerIntToNullDotTime(m.UpdatedAt),
+		DeletedAt: helper.PointerIntToNullDotTime(m.DeletedAt),
+		CreatedAt: helper.PointerIntToNullDotTime(m.CreatedAt),
 	}
 	return r
 }
@@ -480,12 +498,12 @@ func LocationCreateInputToModelM(
 			modelM[models.LocationColumns.Address] = helper.PointerStringToNullDotString(m.Address)
 		case "companyId":
 			modelM[models.LocationColumns.CompanyID] = helper.IDToBoiler(m.CompanyID)
-		case "createdAt":
-			modelM[models.LocationColumns.CreatedAt] = helper.PointerIntToNullDotTime(m.CreatedAt)
-		case "deletedAt":
-			modelM[models.LocationColumns.DeletedAt] = helper.PointerIntToNullDotTime(m.DeletedAt)
 		case "updatedAt":
 			modelM[models.LocationColumns.UpdatedAt] = helper.PointerIntToNullDotTime(m.UpdatedAt)
+		case "deletedAt":
+			modelM[models.LocationColumns.DeletedAt] = helper.PointerIntToNullDotTime(m.DeletedAt)
+		case "createdAt":
+			modelM[models.LocationColumns.CreatedAt] = helper.PointerIntToNullDotTime(m.CreatedAt)
 		}
 	}
 	return modelM
@@ -503,16 +521,17 @@ func LocationCreateInputToBoilerWhitelist(input map[string]interface{}, extraCol
 			columnsWhichAreSet = append(columnsWhichAreSet, models.LocationColumns.Address)
 		case "companyId":
 			columnsWhichAreSet = append(columnsWhichAreSet, models.LocationColumns.CompanyID)
-		case "createdAt":
-			columnsWhichAreSet = append(columnsWhichAreSet, models.LocationColumns.CreatedAt)
-		case "deletedAt":
-			columnsWhichAreSet = append(columnsWhichAreSet, models.LocationColumns.DeletedAt)
 		case "updatedAt":
 			columnsWhichAreSet = append(columnsWhichAreSet, models.LocationColumns.UpdatedAt)
+		case "deletedAt":
+			columnsWhichAreSet = append(columnsWhichAreSet, models.LocationColumns.DeletedAt)
+		case "createdAt":
+			columnsWhichAreSet = append(columnsWhichAreSet, models.LocationColumns.CreatedAt)
 		}
 	}
 	columnsWhichAreSet = append(columnsWhichAreSet, extraColumns...)
-	return boil.Whitelist(columnsWhichAreSet...)
+
+	return boil.Whitelist(unique(columnsWhichAreSet)...)
 }
 
 func LocationUpdateInputsToBoiler(am []*graphql_models.LocationUpdateInput) []*models.Location {
@@ -536,9 +555,9 @@ func LocationUpdateInputToBoiler(
 		Active:    helper.PointerBoolToNullDotBool(m.Active),
 		Address:   helper.PointerStringToNullDotString(m.Address),
 		CompanyID: helper.IDToBoiler(helper.PointerStringToString(m.CompanyID)),
-		CreatedAt: helper.PointerIntToNullDotTime(m.CreatedAt),
-		DeletedAt: helper.PointerIntToNullDotTime(m.DeletedAt),
 		UpdatedAt: helper.PointerIntToNullDotTime(m.UpdatedAt),
+		DeletedAt: helper.PointerIntToNullDotTime(m.DeletedAt),
+		CreatedAt: helper.PointerIntToNullDotTime(m.CreatedAt),
 	}
 	return r
 }
@@ -558,12 +577,12 @@ func LocationUpdateInputToModelM(
 			modelM[models.LocationColumns.Address] = helper.PointerStringToNullDotString(m.Address)
 		case "companyId":
 			modelM[models.LocationColumns.CompanyID] = helper.IDToBoiler(helper.PointerStringToString(m.CompanyID))
-		case "createdAt":
-			modelM[models.LocationColumns.CreatedAt] = helper.PointerIntToNullDotTime(m.CreatedAt)
-		case "deletedAt":
-			modelM[models.LocationColumns.DeletedAt] = helper.PointerIntToNullDotTime(m.DeletedAt)
 		case "updatedAt":
 			modelM[models.LocationColumns.UpdatedAt] = helper.PointerIntToNullDotTime(m.UpdatedAt)
+		case "deletedAt":
+			modelM[models.LocationColumns.DeletedAt] = helper.PointerIntToNullDotTime(m.DeletedAt)
+		case "createdAt":
+			modelM[models.LocationColumns.CreatedAt] = helper.PointerIntToNullDotTime(m.CreatedAt)
 		}
 	}
 	return modelM
@@ -581,16 +600,17 @@ func LocationUpdateInputToBoilerWhitelist(input map[string]interface{}, extraCol
 			columnsWhichAreSet = append(columnsWhichAreSet, models.LocationColumns.Address)
 		case "companyId":
 			columnsWhichAreSet = append(columnsWhichAreSet, models.LocationColumns.CompanyID)
-		case "createdAt":
-			columnsWhichAreSet = append(columnsWhichAreSet, models.LocationColumns.CreatedAt)
-		case "deletedAt":
-			columnsWhichAreSet = append(columnsWhichAreSet, models.LocationColumns.DeletedAt)
 		case "updatedAt":
 			columnsWhichAreSet = append(columnsWhichAreSet, models.LocationColumns.UpdatedAt)
+		case "deletedAt":
+			columnsWhichAreSet = append(columnsWhichAreSet, models.LocationColumns.DeletedAt)
+		case "createdAt":
+			columnsWhichAreSet = append(columnsWhichAreSet, models.LocationColumns.CreatedAt)
 		}
 	}
 	columnsWhichAreSet = append(columnsWhichAreSet, extraColumns...)
-	return boil.Whitelist(columnsWhichAreSet...)
+
+	return boil.Whitelist(unique(columnsWhichAreSet)...)
 }
 
 func PostCreateInputsToBoiler(am []*graphql_models.PostCreateInput) []*models.Post {
@@ -663,7 +683,8 @@ func PostCreateInputToBoilerWhitelist(input map[string]interface{}, extraColumns
 		}
 	}
 	columnsWhichAreSet = append(columnsWhichAreSet, extraColumns...)
-	return boil.Whitelist(columnsWhichAreSet...)
+
+	return boil.Whitelist(unique(columnsWhichAreSet)...)
 }
 
 func PostUpdateInputsToBoiler(am []*graphql_models.PostUpdateInput) []*models.Post {
@@ -736,7 +757,8 @@ func PostUpdateInputToBoilerWhitelist(input map[string]interface{}, extraColumns
 		}
 	}
 	columnsWhichAreSet = append(columnsWhichAreSet, extraColumns...)
-	return boil.Whitelist(columnsWhichAreSet...)
+
+	return boil.Whitelist(unique(columnsWhichAreSet)...)
 }
 
 func RoleCreateInputsToBoiler(am []*graphql_models.RoleCreateInput) []*models.Role {
@@ -759,8 +781,8 @@ func RoleCreateInputToBoiler(
 		AccessLevel: m.AccessLevel,
 		Name:        m.Name,
 		UpdatedAt:   helper.PointerIntToNullDotTime(m.UpdatedAt),
-		CreatedAt:   helper.PointerIntToNullDotTime(m.CreatedAt),
 		DeletedAt:   helper.PointerIntToNullDotTime(m.DeletedAt),
+		CreatedAt:   helper.PointerIntToNullDotTime(m.CreatedAt),
 	}
 	return r
 }
@@ -778,10 +800,10 @@ func RoleCreateInputToModelM(
 			modelM[models.RoleColumns.Name] = m.Name
 		case "updatedAt":
 			modelM[models.RoleColumns.UpdatedAt] = helper.PointerIntToNullDotTime(m.UpdatedAt)
-		case "createdAt":
-			modelM[models.RoleColumns.CreatedAt] = helper.PointerIntToNullDotTime(m.CreatedAt)
 		case "deletedAt":
 			modelM[models.RoleColumns.DeletedAt] = helper.PointerIntToNullDotTime(m.DeletedAt)
+		case "createdAt":
+			modelM[models.RoleColumns.CreatedAt] = helper.PointerIntToNullDotTime(m.CreatedAt)
 		}
 	}
 	return modelM
@@ -797,14 +819,15 @@ func RoleCreateInputToBoilerWhitelist(input map[string]interface{}, extraColumns
 			columnsWhichAreSet = append(columnsWhichAreSet, models.RoleColumns.Name)
 		case "updatedAt":
 			columnsWhichAreSet = append(columnsWhichAreSet, models.RoleColumns.UpdatedAt)
-		case "createdAt":
-			columnsWhichAreSet = append(columnsWhichAreSet, models.RoleColumns.CreatedAt)
 		case "deletedAt":
 			columnsWhichAreSet = append(columnsWhichAreSet, models.RoleColumns.DeletedAt)
+		case "createdAt":
+			columnsWhichAreSet = append(columnsWhichAreSet, models.RoleColumns.CreatedAt)
 		}
 	}
 	columnsWhichAreSet = append(columnsWhichAreSet, extraColumns...)
-	return boil.Whitelist(columnsWhichAreSet...)
+
+	return boil.Whitelist(unique(columnsWhichAreSet)...)
 }
 
 func RoleUpdateInputsToBoiler(am []*graphql_models.RoleUpdateInput) []*models.Role {
@@ -827,8 +850,8 @@ func RoleUpdateInputToBoiler(
 		AccessLevel: helper.PointerIntToInt(m.AccessLevel),
 		Name:        helper.PointerStringToString(m.Name),
 		UpdatedAt:   helper.PointerIntToNullDotTime(m.UpdatedAt),
-		CreatedAt:   helper.PointerIntToNullDotTime(m.CreatedAt),
 		DeletedAt:   helper.PointerIntToNullDotTime(m.DeletedAt),
+		CreatedAt:   helper.PointerIntToNullDotTime(m.CreatedAt),
 	}
 	return r
 }
@@ -846,10 +869,10 @@ func RoleUpdateInputToModelM(
 			modelM[models.RoleColumns.Name] = helper.PointerStringToString(m.Name)
 		case "updatedAt":
 			modelM[models.RoleColumns.UpdatedAt] = helper.PointerIntToNullDotTime(m.UpdatedAt)
-		case "createdAt":
-			modelM[models.RoleColumns.CreatedAt] = helper.PointerIntToNullDotTime(m.CreatedAt)
 		case "deletedAt":
 			modelM[models.RoleColumns.DeletedAt] = helper.PointerIntToNullDotTime(m.DeletedAt)
+		case "createdAt":
+			modelM[models.RoleColumns.CreatedAt] = helper.PointerIntToNullDotTime(m.CreatedAt)
 		}
 	}
 	return modelM
@@ -865,14 +888,15 @@ func RoleUpdateInputToBoilerWhitelist(input map[string]interface{}, extraColumns
 			columnsWhichAreSet = append(columnsWhichAreSet, models.RoleColumns.Name)
 		case "updatedAt":
 			columnsWhichAreSet = append(columnsWhichAreSet, models.RoleColumns.UpdatedAt)
-		case "createdAt":
-			columnsWhichAreSet = append(columnsWhichAreSet, models.RoleColumns.CreatedAt)
 		case "deletedAt":
 			columnsWhichAreSet = append(columnsWhichAreSet, models.RoleColumns.DeletedAt)
+		case "createdAt":
+			columnsWhichAreSet = append(columnsWhichAreSet, models.RoleColumns.CreatedAt)
 		}
 	}
 	columnsWhichAreSet = append(columnsWhichAreSet, extraColumns...)
-	return boil.Whitelist(columnsWhichAreSet...)
+
+	return boil.Whitelist(unique(columnsWhichAreSet)...)
 }
 
 func UserCreateInputsToBoiler(am []*graphql_models.UserCreateInput) []*models.User {
@@ -907,8 +931,8 @@ func UserCreateInputToBoiler(
 		RoleID:             helper.IDToNullBoiler(helper.PointerStringToString(m.RoleID)),
 		CompanyID:          helper.IDToNullBoiler(helper.PointerStringToString(m.CompanyID)),
 		LocationID:         helper.IDToNullBoiler(helper.PointerStringToString(m.LocationID)),
-		DeletedAt:          helper.PointerIntToNullDotTime(m.DeletedAt),
 		CreatedAt:          helper.PointerIntToNullDotTime(m.CreatedAt),
+		DeletedAt:          helper.PointerIntToNullDotTime(m.DeletedAt),
 		UpdatedAt:          helper.PointerIntToNullDotTime(m.UpdatedAt),
 	}
 	return r
@@ -951,10 +975,10 @@ func UserCreateInputToModelM(
 			modelM[models.UserColumns.CompanyID] = helper.IDToNullBoiler(helper.PointerStringToString(m.CompanyID))
 		case "locationId":
 			modelM[models.UserColumns.LocationID] = helper.IDToNullBoiler(helper.PointerStringToString(m.LocationID))
-		case "deletedAt":
-			modelM[models.UserColumns.DeletedAt] = helper.PointerIntToNullDotTime(m.DeletedAt)
 		case "createdAt":
 			modelM[models.UserColumns.CreatedAt] = helper.PointerIntToNullDotTime(m.CreatedAt)
+		case "deletedAt":
+			modelM[models.UserColumns.DeletedAt] = helper.PointerIntToNullDotTime(m.DeletedAt)
 		case "updatedAt":
 			modelM[models.UserColumns.UpdatedAt] = helper.PointerIntToNullDotTime(m.UpdatedAt)
 		}
@@ -996,16 +1020,17 @@ func UserCreateInputToBoilerWhitelist(input map[string]interface{}, extraColumns
 			columnsWhichAreSet = append(columnsWhichAreSet, models.UserColumns.CompanyID)
 		case "locationId":
 			columnsWhichAreSet = append(columnsWhichAreSet, models.UserColumns.LocationID)
-		case "deletedAt":
-			columnsWhichAreSet = append(columnsWhichAreSet, models.UserColumns.DeletedAt)
 		case "createdAt":
 			columnsWhichAreSet = append(columnsWhichAreSet, models.UserColumns.CreatedAt)
+		case "deletedAt":
+			columnsWhichAreSet = append(columnsWhichAreSet, models.UserColumns.DeletedAt)
 		case "updatedAt":
 			columnsWhichAreSet = append(columnsWhichAreSet, models.UserColumns.UpdatedAt)
 		}
 	}
 	columnsWhichAreSet = append(columnsWhichAreSet, extraColumns...)
-	return boil.Whitelist(columnsWhichAreSet...)
+
+	return boil.Whitelist(unique(columnsWhichAreSet)...)
 }
 
 func UserUpdateInputsToBoiler(am []*graphql_models.UserUpdateInput) []*models.User {
@@ -1040,8 +1065,8 @@ func UserUpdateInputToBoiler(
 		RoleID:             helper.IDToNullBoiler(helper.PointerStringToString(m.RoleID)),
 		CompanyID:          helper.IDToNullBoiler(helper.PointerStringToString(m.CompanyID)),
 		LocationID:         helper.IDToNullBoiler(helper.PointerStringToString(m.LocationID)),
-		DeletedAt:          helper.PointerIntToNullDotTime(m.DeletedAt),
 		CreatedAt:          helper.PointerIntToNullDotTime(m.CreatedAt),
+		DeletedAt:          helper.PointerIntToNullDotTime(m.DeletedAt),
 		UpdatedAt:          helper.PointerIntToNullDotTime(m.UpdatedAt),
 	}
 	return r
@@ -1084,10 +1109,10 @@ func UserUpdateInputToModelM(
 			modelM[models.UserColumns.CompanyID] = helper.IDToNullBoiler(helper.PointerStringToString(m.CompanyID))
 		case "locationId":
 			modelM[models.UserColumns.LocationID] = helper.IDToNullBoiler(helper.PointerStringToString(m.LocationID))
-		case "deletedAt":
-			modelM[models.UserColumns.DeletedAt] = helper.PointerIntToNullDotTime(m.DeletedAt)
 		case "createdAt":
 			modelM[models.UserColumns.CreatedAt] = helper.PointerIntToNullDotTime(m.CreatedAt)
+		case "deletedAt":
+			modelM[models.UserColumns.DeletedAt] = helper.PointerIntToNullDotTime(m.DeletedAt)
 		case "updatedAt":
 			modelM[models.UserColumns.UpdatedAt] = helper.PointerIntToNullDotTime(m.UpdatedAt)
 		}
@@ -1129,14 +1154,15 @@ func UserUpdateInputToBoilerWhitelist(input map[string]interface{}, extraColumns
 			columnsWhichAreSet = append(columnsWhichAreSet, models.UserColumns.CompanyID)
 		case "locationId":
 			columnsWhichAreSet = append(columnsWhichAreSet, models.UserColumns.LocationID)
-		case "deletedAt":
-			columnsWhichAreSet = append(columnsWhichAreSet, models.UserColumns.DeletedAt)
 		case "createdAt":
 			columnsWhichAreSet = append(columnsWhichAreSet, models.UserColumns.CreatedAt)
+		case "deletedAt":
+			columnsWhichAreSet = append(columnsWhichAreSet, models.UserColumns.DeletedAt)
 		case "updatedAt":
 			columnsWhichAreSet = append(columnsWhichAreSet, models.UserColumns.UpdatedAt)
 		}
 	}
 	columnsWhichAreSet = append(columnsWhichAreSet, extraColumns...)
-	return boil.Whitelist(columnsWhichAreSet...)
+
+	return boil.Whitelist(unique(columnsWhichAreSet)...)
 }

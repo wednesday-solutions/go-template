@@ -21,7 +21,17 @@
 {{ reserveImport  $.BackendModelsPath }}
 {{ reserveImport  $.FrontendModelsPath }}
 
-
+func unique(stringSlice []string) []string {
+	keys := make(map[string]bool)
+	list := []string{}
+	for _, entry := range stringSlice {
+		if _, value := keys[entry]; !value {
+			keys[entry] = true
+			list = append(list, entry)
+		}
+	}
+	return list
+}
 {{ range $model := .Models }}
 	{{with .Description }} {{.|prefixLines "// "}} {{end}}
 	{{- if .IsInput }}
@@ -91,7 +101,8 @@
 				}
 			}
 			columnsWhichAreSet = append(columnsWhichAreSet, extraColumns...)
-			return boil.Whitelist(columnsWhichAreSet...)
+			
+			return boil.Whitelist(unique(columnsWhichAreSet)...)
 		}
 	{{- end }}
 {{- end }}

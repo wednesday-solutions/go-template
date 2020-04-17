@@ -292,8 +292,12 @@ github.com/volatiletech/sqlboiler v3.7.0+incompatible h1:tgc0UL8e1YW2g01ic472UMt
 github.com/volatiletech/sqlboiler v3.7.0+incompatible/go.mod h1:jLfDkkHWPbS2cWRLkyC20vQWaIQsASEY7gM7zSo11Yw=
 github.com/web-ridge/gqlgen-sqlboiler/boiler v0.0.0-20200409201443-82c6f4a43f5e h1:VF70tfkqQa2pAXIAPseNvZHwdRU8koQXARBbkjpxGkw=
 github.com/web-ridge/gqlgen-sqlboiler/boiler v0.0.0-20200409201443-82c6f4a43f5e/go.mod h1:AgDut76hnp3R2MmUtWx/iek5/BbelQvHquxYMiwffMk=
+github.com/web-ridge/gqlgen-sqlboiler/boiler v0.0.0-20200416094100-889354b08a01 h1:EkEBurJjGfigl45A3BATyaAvpSG5YokZhKVidfQCUwM=
+github.com/web-ridge/gqlgen-sqlboiler/boiler v0.0.0-20200416094100-889354b08a01/go.mod h1:AgDut76hnp3R2MmUtWx/iek5/BbelQvHquxYMiwffMk=
 github.com/web-ridge/sqlboiler-graphql-schema v0.0.0-20200410214211-bce8aed49f93 h1:TRsZP9qBYvXp0+PnvcK+Xv1e9m8r3CyWz3NT4nx8DvY=
 github.com/web-ridge/sqlboiler-graphql-schema v0.0.0-20200410214211-bce8aed49f93/go.mod h1:BQcwT+e/FwlhGG7UfhU5nxq78o2VwPPQvzJbDdKILqI=
+github.com/web-ridge/sqlboiler-graphql-schema v0.0.0-20200417090103-18469c700a98 h1:OGuUFtk+ryRCS1aG3CtKJ1faDntG+mFSvWTEDkk7T48=
+github.com/web-ridge/sqlboiler-graphql-schema v0.0.0-20200417090103-18469c700a98/go.mod h1:BQcwT+e/FwlhGG7UfhU5nxq78o2VwPPQvzJbDdKILqI=
 github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2/go.mod h1:UETIi67q53MR2AWcXfiuqkDkRtnGDLqkBTpCHuJHxtU=
 github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77/go.mod h1:aYKd//L2LvnjZzWKhF00oedf4jCCReLcmhLdhm1A27Q=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=

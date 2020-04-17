@@ -29,10 +29,10 @@ func CommentWithNullDotIntID(id null.Int) *graphql_models.Comment {
 	return CommentWithIntID(id.Int)
 }
 
-func CommentsToGraphQL(am []*models.Comment, roots []interface{}) []*graphql_models.Comment {
+func CommentsToGraphQL(am []*models.Comment, roots []interface{}, recursive int) []*graphql_models.Comment {
 	ar := make([]*graphql_models.Comment, len(am))
 	for i, m := range am {
-		ar[i] = CommentToGraphQL(m, append(roots, m))
+		ar[i] = CommentToGraphQL(m, append(roots, m), recursive+1)
 	}
 	return ar
 }
@@ -41,7 +41,7 @@ func CommentIDToGraphQL(v int) string {
 	return helper.IDToGraphQL(v, models.TableNames.Comments)
 }
 
-func CommentToGraphQL(m *models.Comment, roots []interface{}) *graphql_models.Comment {
+func CommentToGraphQL(m *models.Comment, roots []interface{}, recursive int) *graphql_models.Comment {
 	if m == nil {
 		return nil
 	}
@@ -55,10 +55,14 @@ func CommentToGraphQL(m *models.Comment, roots []interface{}) *graphql_models.Co
 		DeletedAt: helper.NullDotTimeToPointerInt(m.DeletedAt),
 	}
 
+	if recursive > 3 {
+		return r
+	}
+
 	if helper.IntIsFilled(m.UserID) {
 		if m.R != nil && m.R.User != nil {
 			if !alreadyConverted(roots, m.R.User) {
-				r.User = UserToGraphQL(m.R.User, append(roots, m))
+				r.User = UserToGraphQL(m.R.User, append(roots, m.R.User), recursive+1)
 			}
 		} else {
 			r.User = UserWithIntID(m.UserID)
@@ -68,7 +72,7 @@ func CommentToGraphQL(m *models.Comment, roots []interface{}) *graphql_models.Co
 	if helper.IntIsFilled(m.PostID) {
 		if m.R != nil && m.R.Post != nil {
 			if !alreadyConverted(roots, m.R.Post) {
-				r.Post = PostToGraphQL(m.R.Post, append(roots, m))
+				r.Post = PostToGraphQL(m.R.Post, append(roots, m.R.Post), recursive+1)
 			}
 		} else {
 			r.Post = PostWithIntID(m.PostID)
@@ -96,10 +100,10 @@ func CompanyWithNullDotIntID(id null.Int) *graphql_models.Company {
 	return CompanyWithIntID(id.Int)
 }
 
-func CompaniesToGraphQL(am []*models.Company, roots []interface{}) []*graphql_models.Company {
+func CompaniesToGraphQL(am []*models.Company, roots []interface{}, recursive int) []*graphql_models.Company {
 	ar := make([]*graphql_models.Company, len(am))
 	for i, m := range am {
-		ar[i] = CompanyToGraphQL(m, append(roots, m))
+		ar[i] = CompanyToGraphQL(m, append(roots, m), recursive+1)
 	}
 	return ar
 }
@@ -108,7 +112,7 @@ func CompanyIDToGraphQL(v int) string {
 	return helper.IDToGraphQL(v, models.TableNames.Companies)
 }
 
-func CompanyToGraphQL(m *models.Company, roots []interface{}) *graphql_models.Company {
+func CompanyToGraphQL(m *models.Company, roots []interface{}, recursive int) *graphql_models.Company {
 	if m == nil {
 		return nil
 	}
@@ -117,16 +121,20 @@ func CompanyToGraphQL(m *models.Company, roots []interface{}) *graphql_models.Co
 		ID:        CompanyIDToGraphQL(m.ID),
 		Name:      helper.NullDotStringToPointerString(m.Name),
 		Active:    helper.NullDotBoolToPointerBool(m.Active),
-		CreatedAt: helper.NullDotTimeToPointerInt(m.CreatedAt),
-		DeletedAt: helper.NullDotTimeToPointerInt(m.DeletedAt),
 		UpdatedAt: helper.NullDotTimeToPointerInt(m.UpdatedAt),
+		DeletedAt: helper.NullDotTimeToPointerInt(m.DeletedAt),
+		CreatedAt: helper.NullDotTimeToPointerInt(m.CreatedAt),
+	}
+
+	if recursive > 3 {
+		return r
 	}
 
 	if m.R != nil && m.R.Locations != nil {
-		r.Locations = LocationsToGraphQL(m.R.Locations, append(roots, m))
+		r.Locations = LocationsToGraphQL(m.R.Locations, append(roots, m.R.Locations), recursive+1)
 	}
 	if m.R != nil && m.R.Users != nil {
-		r.Users = UsersToGraphQL(m.R.Users, append(roots, m))
+		r.Users = UsersToGraphQL(m.R.Users, append(roots, m.R.Users), recursive+1)
 	}
 
 	return r
@@ -150,10 +158,10 @@ func FollowerWithNullDotIntID(id null.Int) *graphql_models.Follower {
 	return FollowerWithIntID(id.Int)
 }
 
-func FollowersToGraphQL(am []*models.Follower, roots []interface{}) []*graphql_models.Follower {
+func FollowersToGraphQL(am []*models.Follower, roots []interface{}, recursive int) []*graphql_models.Follower {
 	ar := make([]*graphql_models.Follower, len(am))
 	for i, m := range am {
-		ar[i] = FollowerToGraphQL(m, append(roots, m))
+		ar[i] = FollowerToGraphQL(m, append(roots, m), recursive+1)
 	}
 	return ar
 }
@@ -162,22 +170,26 @@ func FollowerIDToGraphQL(v int) string {
 	return helper.IDToGraphQL(v, models.TableNames.Followers)
 }
 
-func FollowerToGraphQL(m *models.Follower, roots []interface{}) *graphql_models.Follower {
+func FollowerToGraphQL(m *models.Follower, roots []interface{}, recursive int) *graphql_models.Follower {
 	if m == nil {
 		return nil
 	}
 
 	r := &graphql_models.Follower{
 		ID:        FollowerIDToGraphQL(m.ID),
-		CreatedAt: helper.NullDotTimeToPointerInt(m.CreatedAt),
-		UpdatedAt: helper.NullDotTimeToPointerInt(m.UpdatedAt),
 		DeletedAt: helper.NullDotTimeToPointerInt(m.DeletedAt),
+		UpdatedAt: helper.NullDotTimeToPointerInt(m.UpdatedAt),
+		CreatedAt: helper.NullDotTimeToPointerInt(m.CreatedAt),
+	}
+
+	if recursive > 3 {
+		return r
 	}
 
 	if helper.IntIsFilled(m.FollowerID) {
 		if m.R != nil && m.R.Follower != nil {
 			if !alreadyConverted(roots, m.R.Follower) {
-				r.Follower = UserToGraphQL(m.R.Follower, append(roots, m))
+				r.Follower = UserToGraphQL(m.R.Follower, append(roots, m.R.Follower), recursive+1)
 			}
 		} else {
 			r.Follower = UserWithIntID(m.FollowerID)
@@ -187,7 +199,7 @@ func FollowerToGraphQL(m *models.Follower, roots []interface{}) *graphql_models.
 	if helper.IntIsFilled(m.FolloweeID) {
 		if m.R != nil && m.R.Followee != nil {
 			if !alreadyConverted(roots, m.R.Followee) {
-				r.Followee = UserToGraphQL(m.R.Followee, append(roots, m))
+				r.Followee = UserToGraphQL(m.R.Followee, append(roots, m.R.Followee), recursive+1)
 			}
 		} else {
 			r.Followee = UserWithIntID(m.FolloweeID)
@@ -215,10 +227,10 @@ func LocationWithNullDotIntID(id null.Int) *graphql_models.Location {
 	return LocationWithIntID(id.Int)
 }
 
-func LocationsToGraphQL(am []*models.Location, roots []interface{}) []*graphql_models.Location {
+func LocationsToGraphQL(am []*models.Location, roots []interface{}, recursive int) []*graphql_models.Location {
 	ar := make([]*graphql_models.Location, len(am))
 	for i, m := range am {
-		ar[i] = LocationToGraphQL(m, append(roots, m))
+		ar[i] = LocationToGraphQL(m, append(roots, m), recursive+1)
 	}
 	return ar
 }
@@ -227,7 +239,7 @@ func LocationIDToGraphQL(v int) string {
 	return helper.IDToGraphQL(v, models.TableNames.Locations)
 }
 
-func LocationToGraphQL(m *models.Location, roots []interface{}) *graphql_models.Location {
+func LocationToGraphQL(m *models.Location, roots []interface{}, recursive int) *graphql_models.Location {
 	if m == nil {
 		return nil
 	}
@@ -237,22 +249,26 @@ func LocationToGraphQL(m *models.Location, roots []interface{}) *graphql_models.
 		Name:      helper.NullDotStringToPointerString(m.Name),
 		Active:    helper.NullDotBoolToPointerBool(m.Active),
 		Address:   helper.NullDotStringToPointerString(m.Address),
-		CreatedAt: helper.NullDotTimeToPointerInt(m.CreatedAt),
-		DeletedAt: helper.NullDotTimeToPointerInt(m.DeletedAt),
 		UpdatedAt: helper.NullDotTimeToPointerInt(m.UpdatedAt),
+		DeletedAt: helper.NullDotTimeToPointerInt(m.DeletedAt),
+		CreatedAt: helper.NullDotTimeToPointerInt(m.CreatedAt),
+	}
+
+	if recursive > 3 {
+		return r
 	}
 
 	if helper.IntIsFilled(m.CompanyID) {
 		if m.R != nil && m.R.Company != nil {
 			if !alreadyConverted(roots, m.R.Company) {
-				r.Company = CompanyToGraphQL(m.R.Company, append(roots, m))
+				r.Company = CompanyToGraphQL(m.R.Company, append(roots, m.R.Company), recursive+1)
 			}
 		} else {
 			r.Company = CompanyWithIntID(m.CompanyID)
 		}
 	}
 	if m.R != nil && m.R.Users != nil {
-		r.Users = UsersToGraphQL(m.R.Users, append(roots, m))
+		r.Users = UsersToGraphQL(m.R.Users, append(roots, m.R.Users), recursive+1)
 	}
 
 	return r
@@ -276,10 +292,10 @@ func PostWithNullDotIntID(id null.Int) *graphql_models.Post {
 	return PostWithIntID(id.Int)
 }
 
-func PostsToGraphQL(am []*models.Post, roots []interface{}) []*graphql_models.Post {
+func PostsToGraphQL(am []*models.Post, roots []interface{}, recursive int) []*graphql_models.Post {
 	ar := make([]*graphql_models.Post, len(am))
 	for i, m := range am {
-		ar[i] = PostToGraphQL(m, append(roots, m))
+		ar[i] = PostToGraphQL(m, append(roots, m), recursive+1)
 	}
 	return ar
 }
@@ -288,7 +304,7 @@ func PostIDToGraphQL(v int) string {
 	return helper.IDToGraphQL(v, models.TableNames.Posts)
 }
 
-func PostToGraphQL(m *models.Post, roots []interface{}) *graphql_models.Post {
+func PostToGraphQL(m *models.Post, roots []interface{}, recursive int) *graphql_models.Post {
 	if m == nil {
 		return nil
 	}
@@ -302,17 +318,21 @@ func PostToGraphQL(m *models.Post, roots []interface{}) *graphql_models.Post {
 		UpdatedAt: helper.NullDotTimeToPointerInt(m.UpdatedAt),
 	}
 
+	if recursive > 3 {
+		return r
+	}
+
 	if helper.IntIsFilled(m.UserID) {
 		if m.R != nil && m.R.User != nil {
 			if !alreadyConverted(roots, m.R.User) {
-				r.User = UserToGraphQL(m.R.User, append(roots, m))
+				r.User = UserToGraphQL(m.R.User, append(roots, m.R.User), recursive+1)
 			}
 		} else {
 			r.User = UserWithIntID(m.UserID)
 		}
 	}
 	if m.R != nil && m.R.Comments != nil {
-		r.Comments = CommentsToGraphQL(m.R.Comments, append(roots, m))
+		r.Comments = CommentsToGraphQL(m.R.Comments, append(roots, m.R.Comments), recursive+1)
 	}
 
 	return r
@@ -336,10 +356,10 @@ func RoleWithNullDotIntID(id null.Int) *graphql_models.Role {
 	return RoleWithIntID(id.Int)
 }
 
-func RolesToGraphQL(am []*models.Role, roots []interface{}) []*graphql_models.Role {
+func RolesToGraphQL(am []*models.Role, roots []interface{}, recursive int) []*graphql_models.Role {
 	ar := make([]*graphql_models.Role, len(am))
 	for i, m := range am {
-		ar[i] = RoleToGraphQL(m, append(roots, m))
+		ar[i] = RoleToGraphQL(m, append(roots, m), recursive+1)
 	}
 	return ar
 }
@@ -348,7 +368,7 @@ func RoleIDToGraphQL(v int) string {
 	return helper.IDToGraphQL(v, models.TableNames.Roles)
 }
 
-func RoleToGraphQL(m *models.Role, roots []interface{}) *graphql_models.Role {
+func RoleToGraphQL(m *models.Role, roots []interface{}, recursive int) *graphql_models.Role {
 	if m == nil {
 		return nil
 	}
@@ -358,12 +378,16 @@ func RoleToGraphQL(m *models.Role, roots []interface{}) *graphql_models.Role {
 		AccessLevel: m.AccessLevel,
 		Name:        m.Name,
 		UpdatedAt:   helper.NullDotTimeToPointerInt(m.UpdatedAt),
-		CreatedAt:   helper.NullDotTimeToPointerInt(m.CreatedAt),
 		DeletedAt:   helper.NullDotTimeToPointerInt(m.DeletedAt),
+		CreatedAt:   helper.NullDotTimeToPointerInt(m.CreatedAt),
+	}
+
+	if recursive > 3 {
+		return r
 	}
 
 	if m.R != nil && m.R.Users != nil {
-		r.Users = UsersToGraphQL(m.R.Users, append(roots, m))
+		r.Users = UsersToGraphQL(m.R.Users, append(roots, m.R.Users), recursive+1)
 	}
 
 	return r
@@ -387,10 +411,10 @@ func UserWithNullDotIntID(id null.Int) *graphql_models.User {
 	return UserWithIntID(id.Int)
 }
 
-func UsersToGraphQL(am []*models.User, roots []interface{}) []*graphql_models.User {
+func UsersToGraphQL(am []*models.User, roots []interface{}, recursive int) []*graphql_models.User {
 	ar := make([]*graphql_models.User, len(am))
 	for i, m := range am {
-		ar[i] = UserToGraphQL(m, append(roots, m))
+		ar[i] = UserToGraphQL(m, append(roots, m), recursive+1)
 	}
 	return ar
 }
@@ -399,7 +423,7 @@ func UserIDToGraphQL(v int) string {
 	return helper.IDToGraphQL(v, models.TableNames.Users)
 }
 
-func UserToGraphQL(m *models.User, roots []interface{}) *graphql_models.User {
+func UserToGraphQL(m *models.User, roots []interface{}, recursive int) *graphql_models.User {
 	if m == nil {
 		return nil
 	}
@@ -418,15 +442,19 @@ func UserToGraphQL(m *models.User, roots []interface{}) *graphql_models.User {
 		LastLogin:          helper.NullDotTimeToPointerInt(m.LastLogin),
 		LastPasswordChange: helper.NullDotTimeToPointerInt(m.LastPasswordChange),
 		Token:              helper.NullDotStringToPointerString(m.Token),
-		DeletedAt:          helper.NullDotTimeToPointerInt(m.DeletedAt),
 		CreatedAt:          helper.NullDotTimeToPointerInt(m.CreatedAt),
+		DeletedAt:          helper.NullDotTimeToPointerInt(m.DeletedAt),
 		UpdatedAt:          helper.NullDotTimeToPointerInt(m.UpdatedAt),
+	}
+
+	if recursive > 3 {
+		return r
 	}
 
 	if helper.NullDotIntIsFilled(m.RoleID) {
 		if m.R != nil && m.R.Role != nil {
 			if !alreadyConverted(roots, m.R.Role) {
-				r.Role = RoleToGraphQL(m.R.Role, append(roots, m))
+				r.Role = RoleToGraphQL(m.R.Role, append(roots, m.R.Role), recursive+1)
 			}
 		} else {
 			r.Role = RoleWithNullDotIntID(m.RoleID)
@@ -436,7 +464,7 @@ func UserToGraphQL(m *models.User, roots []interface{}) *graphql_models.User {
 	if helper.NullDotIntIsFilled(m.CompanyID) {
 		if m.R != nil && m.R.Company != nil {
 			if !alreadyConverted(roots, m.R.Company) {
-				r.Company = CompanyToGraphQL(m.R.Company, append(roots, m))
+				r.Company = CompanyToGraphQL(m.R.Company, append(roots, m.R.Company), recursive+1)
 			}
 		} else {
 			r.Company = CompanyWithNullDotIntID(m.CompanyID)
@@ -446,23 +474,23 @@ func UserToGraphQL(m *models.User, roots []interface{}) *graphql_models.User {
 	if helper.NullDotIntIsFilled(m.LocationID) {
 		if m.R != nil && m.R.Location != nil {
 			if !alreadyConverted(roots, m.R.Location) {
-				r.Location = LocationToGraphQL(m.R.Location, append(roots, m))
+				r.Location = LocationToGraphQL(m.R.Location, append(roots, m.R.Location), recursive+1)
 			}
 		} else {
 			r.Location = LocationWithNullDotIntID(m.LocationID)
 		}
 	}
 	if m.R != nil && m.R.Comments != nil {
-		r.Comments = CommentsToGraphQL(m.R.Comments, append(roots, m))
+		r.Comments = CommentsToGraphQL(m.R.Comments, append(roots, m.R.Comments), recursive+1)
 	}
 	if m.R != nil && m.R.FolloweeFollowers != nil {
-		r.FolloweeFollowers = FollowersToGraphQL(m.R.FolloweeFollowers, append(roots, m))
+		r.FolloweeFollowers = FollowersToGraphQL(m.R.FolloweeFollowers, append(roots, m.R.FolloweeFollowers), recursive+1)
 	}
 	if m.R != nil && m.R.FollowerFollowers != nil {
-		r.FollowerFollowers = FollowersToGraphQL(m.R.FollowerFollowers, append(roots, m))
+		r.FollowerFollowers = FollowersToGraphQL(m.R.FollowerFollowers, append(roots, m.R.FollowerFollowers), recursive+1)
 	}
 	if m.R != nil && m.R.Posts != nil {
-		r.Posts = PostsToGraphQL(m.R.Posts, append(roots, m))
+		r.Posts = PostsToGraphQL(m.R.Posts, append(roots, m.R.Posts), recursive+1)
 	}
 
 	return r

@@ -31,6 +31,14 @@ func IntsToInterfaces(ints []int) []interface{} {
 	return interfaces
 }
 
+func FloatsToInterfaces(floats []float64) []interface{} {
+	interfaces := make([]interface{}, len(floats))
+	for index, number := range floats {
+		interfaces[index] = number
+	}
+	return interfaces
+}
+
 func IDsToBoilerInterfaces(ids []string) []interface{} {
 	interfaces := make([]interface{}, len(ids))
 	for index, id := range ids {
@@ -51,7 +59,7 @@ func IDToBoiler(ID string) int {
 	splitted := strings.Split(ID, "-")
 	if len(splitted) > 1 {
 		// nolint: errcheck
-		i, _ := strconv.ParseInt(splitted[1], 10, 64)
+		i, _ := strconv.ParseInt(splitted[len(splitted) - 1], 10, 64)
 		return int(i)
 	}
 	return 0
@@ -63,8 +71,8 @@ func IDToNullBoiler(ID string) null.Int {
 		return null.NewInt(0, false)
 	}
 	return null.Int{
-		Int:  intID,
-		Valid: false,
+		Int:   intID,
+		Valid: true,
 	}
 }
 
@@ -88,6 +96,13 @@ func NullDotStringToPointerString(v null.String) *string {
 	return v.Ptr()
 }
 
+func TypesDecimalToFloat64(v types.Decimal) float64 {
+	floatValue, isErr := v.Float64()
+	if isErr {
+		return 0.0
+	}
+	return floatValue
+}
 func NullDotTimeToPointerInt(v null.Time) *int {
 	pv := v.Ptr()
 	if pv == nil {
@@ -105,13 +120,19 @@ func IntToTimeTime(v int) time.Time {
 	return time.Unix(int64(v), 0)
 }
 
+func PointerIntToTimeTime(v *int) time.Time {
+	if v == nil {
+		return time.Unix(int64(0), 0)
+	}
+	return time.Unix(int64(*v), 0)
+}
+
 func NullDotStringToString(v null.String) string {
 	if v.Ptr() == nil {
 		return ""
 	}
 	return *v.Ptr()
 }
-
 
 func NullDotIntToPointerInt(v null.Int) *int {
 	pv := v.Ptr()
@@ -166,6 +187,32 @@ func Float64ToTypesNullDecimal(v float64) types.NullDecimal {
 	return types.NewNullDecimal(d)
 }
 
+func Float64ToTypesDecimal(v float64) types.Decimal {
+	d := new(types.Decimal)
+	d.SetFloat64(v)
+	return *d
+}
+func PointerFloat64ToTypesDecimal(v *float64) types.Decimal {
+	d := new(types.Decimal)
+
+	if v == nil {
+		d.SetFloat64(0)
+	} else {
+		d.SetFloat64(*v)
+	}
+	return *d
+}
+
+func PointerFloat64ToTypesNullDecimal(v *float64) types.NullDecimal {
+	d := new(decimal.Big)
+	if v == nil {
+		d.SetFloat64(0)
+	} else {
+		d.SetFloat64(*v)
+	}
+	return types.NewNullDecimal(d)
+}
+
 func TypesNullDecimalToPointerString(v types.NullDecimal) *string {
 	s := v.String()
 	if s == "" {
@@ -213,6 +260,13 @@ func NullDotFloat64ToPointerFloat64(v null.Float64) *float64 {
 
 func PointerFloat64ToNullDotFloat64(v *float64) null.Float64 {
 	return null.Float64FromPtr(v)
+}
+
+func PointerFloat64ToFloat64(v *float64) float64 {
+	if v == nil {
+		return 0.0
+	}
+	return *v
 }
 
 func IntToInt(v int) int {
@@ -265,4 +319,7 @@ func NullDotIntIsFilled(v null.Int) bool {
 
 func IntIsFilled(v int) bool {
 	return v != 0
+}
+func StringIsFilled(v string) bool {
+	return len(strings.TrimSpace(v)) != 0
 }

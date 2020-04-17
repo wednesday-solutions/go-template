@@ -13,9 +13,9 @@ type Company {
   id: ID!
   name: String
   active: Boolean
-  createdAt: Int
-  deletedAt: Int
   updatedAt: Int
+  deletedAt: Int
+  createdAt: Int
   locations: [Location]
   users: [User]
 }
@@ -24,9 +24,9 @@ type Follower {
   id: ID!
   follower: User!
   followee: User!
-  createdAt: Int
-  updatedAt: Int
   deletedAt: Int
+  updatedAt: Int
+  createdAt: Int
 }
 
 type Location {
@@ -35,9 +35,9 @@ type Location {
   active: Boolean
   address: String
   company: Company!
-  createdAt: Int
-  deletedAt: Int
   updatedAt: Int
+  deletedAt: Int
+  createdAt: Int
   users: [User]
 }
 
@@ -57,8 +57,8 @@ type Role {
   accessLevel: Int!
   name: String!
   updatedAt: Int
-  createdAt: Int
   deletedAt: Int
+  createdAt: Int
   users: [User]
 }
 
@@ -79,8 +79,8 @@ type User {
   role: Role
   company: Company
   location: Location
-  deletedAt: Int
   createdAt: Int
+  deletedAt: Int
   updatedAt: Int
   comments: [Comment]
   followeeFollowers: [Follower]
@@ -152,6 +152,11 @@ input CommentFilter {
   where: CommentWhere
 }
 
+input CommentPagination {
+  limit: Int!
+  page: Int!
+}
+
 input CommentWhere {
   id: IDFilter
   user: UserWhere
@@ -170,13 +175,18 @@ input CompanyFilter {
   where: CompanyWhere
 }
 
+input CompanyPagination {
+  limit: Int!
+  page: Int!
+}
+
 input CompanyWhere {
   id: IDFilter
   name: StringFilter
   active: BooleanFilter
-  createdAt: IntFilter
-  deletedAt: IntFilter
   updatedAt: IntFilter
+  deletedAt: IntFilter
+  createdAt: IntFilter
   locations: LocationWhere
   users: UserWhere
   or: CompanyWhere
@@ -188,13 +198,18 @@ input FollowerFilter {
   where: FollowerWhere
 }
 
+input FollowerPagination {
+  limit: Int!
+  page: Int!
+}
+
 input FollowerWhere {
   id: IDFilter
   follower: UserWhere
   followee: UserWhere
-  createdAt: IntFilter
-  updatedAt: IntFilter
   deletedAt: IntFilter
+  updatedAt: IntFilter
+  createdAt: IntFilter
   or: FollowerWhere
   and: FollowerWhere
 }
@@ -204,15 +219,20 @@ input LocationFilter {
   where: LocationWhere
 }
 
+input LocationPagination {
+  limit: Int!
+  page: Int!
+}
+
 input LocationWhere {
   id: IDFilter
   name: StringFilter
   active: BooleanFilter
   address: StringFilter
   company: CompanyWhere
-  createdAt: IntFilter
-  deletedAt: IntFilter
   updatedAt: IntFilter
+  deletedAt: IntFilter
+  createdAt: IntFilter
   users: UserWhere
   or: LocationWhere
   and: LocationWhere
@@ -221,6 +241,11 @@ input LocationWhere {
 input PostFilter {
   search: String
   where: PostWhere
+}
+
+input PostPagination {
+  limit: Int!
+  page: Int!
 }
 
 input PostWhere {
@@ -241,13 +266,18 @@ input RoleFilter {
   where: RoleWhere
 }
 
+input RolePagination {
+  limit: Int!
+  page: Int!
+}
+
 input RoleWhere {
   id: IDFilter
   accessLevel: IntFilter
   name: StringFilter
   updatedAt: IntFilter
-  createdAt: IntFilter
   deletedAt: IntFilter
+  createdAt: IntFilter
   users: UserWhere
   or: RoleWhere
   and: RoleWhere
@@ -256,6 +286,11 @@ input RoleWhere {
 input UserFilter {
   search: String
   where: UserWhere
+}
+
+input UserPagination {
+  limit: Int!
+  page: Int!
 }
 
 input UserWhere {
@@ -275,8 +310,8 @@ input UserWhere {
   role: RoleWhere
   company: CompanyWhere
   location: LocationWhere
-  deletedAt: IntFilter
   createdAt: IntFilter
+  deletedAt: IntFilter
   updatedAt: IntFilter
   comments: CommentWhere
   followeeFollowers: FollowerWhere
@@ -288,19 +323,25 @@ input UserWhere {
 
 type Query {
   comment(id: ID!): Comment!
-  comments(filter: CommentFilter): [Comment!]!
+  comments(filter: CommentFilter, pagination: CommentPagination): [Comment!]!
   company(id: ID!): Company!
-  companies(filter: CompanyFilter): [Company!]!
+  companies(filter: CompanyFilter, pagination: CompanyPagination): [Company!]!
   follower(id: ID!): Follower!
-  followers(filter: FollowerFilter): [Follower!]!
+  followers(
+    filter: FollowerFilter
+    pagination: FollowerPagination
+  ): [Follower!]!
   location(id: ID!): Location!
-  locations(filter: LocationFilter): [Location!]!
+  locations(
+    filter: LocationFilter
+    pagination: LocationPagination
+  ): [Location!]!
   post(id: ID!): Post!
-  posts(filter: PostFilter): [Post!]!
+  posts(filter: PostFilter, pagination: PostPagination): [Post!]!
   role(id: ID!): Role!
-  roles(filter: RoleFilter): [Role!]!
+  roles(filter: RoleFilter, pagination: RolePagination): [Role!]!
   user(id: ID!): User!
-  users(filter: UserFilter): [User!]!
+  users(filter: UserFilter, pagination: UserPagination): [User!]!
 }
 
 input CommentCreateInput {
@@ -350,17 +391,17 @@ type CommentsUpdatePayload {
 input CompanyCreateInput {
   name: String
   active: Boolean
-  createdAt: Int
-  deletedAt: Int
   updatedAt: Int
+  deletedAt: Int
+  createdAt: Int
 }
 
 input CompanyUpdateInput {
   name: String
   active: Boolean
-  createdAt: Int
-  deletedAt: Int
   updatedAt: Int
+  deletedAt: Int
+  createdAt: Int
 }
 
 input CompaniesCreateInput {
@@ -390,17 +431,17 @@ type CompaniesUpdatePayload {
 input FollowerCreateInput {
   followerId: ID!
   followeeId: ID!
-  createdAt: Int
-  updatedAt: Int
   deletedAt: Int
+  updatedAt: Int
+  createdAt: Int
 }
 
 input FollowerUpdateInput {
   followerId: ID
   followeeId: ID
-  createdAt: Int
-  updatedAt: Int
   deletedAt: Int
+  updatedAt: Int
+  createdAt: Int
 }
 
 input FollowersCreateInput {
@@ -432,9 +473,9 @@ input LocationCreateInput {
   active: Boolean
   address: String
   companyId: ID!
-  createdAt: Int
-  deletedAt: Int
   updatedAt: Int
+  deletedAt: Int
+  createdAt: Int
 }
 
 input LocationUpdateInput {
@@ -442,9 +483,9 @@ input LocationUpdateInput {
   active: Boolean
   address: String
   companyId: ID
-  createdAt: Int
-  deletedAt: Int
   updatedAt: Int
+  deletedAt: Int
+  createdAt: Int
 }
 
 input LocationsCreateInput {
@@ -517,16 +558,16 @@ input RoleCreateInput {
   accessLevel: Int!
   name: String!
   updatedAt: Int
-  createdAt: Int
   deletedAt: Int
+  createdAt: Int
 }
 
 input RoleUpdateInput {
   accessLevel: Int
   name: String
   updatedAt: Int
-  createdAt: Int
   deletedAt: Int
+  createdAt: Int
 }
 
 input RolesCreateInput {
@@ -569,8 +610,8 @@ input UserCreateInput {
   roleId: ID
   companyId: ID
   locationId: ID
-  deletedAt: Int
   createdAt: Int
+  deletedAt: Int
   updatedAt: Int
 }
 
@@ -590,8 +631,8 @@ input UserUpdateInput {
   roleId: ID
   companyId: ID
   locationId: ID
-  deletedAt: Int
   createdAt: Int
+  deletedAt: Int
   updatedAt: Int
 }
 

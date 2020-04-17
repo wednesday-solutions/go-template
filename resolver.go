@@ -4,14 +4,14 @@ package goboiler
 import (
 	"context"
 	"database/sql"
-	"github.com/volatiletech/sqlboiler/boil"
-	"github.com/wednesday-solutions/go-boiler/pkg/utl/middleware/auth"
 
+	"github.com/volatiletech/sqlboiler/boil"
 	"github.com/volatiletech/sqlboiler/queries/qm"
 	"github.com/wednesday-solutions/go-boiler/gqlgen/helper"
 	fm "github.com/wednesday-solutions/go-boiler/graphql_models"
 	. "github.com/wednesday-solutions/go-boiler/helpers"
 	dm "github.com/wednesday-solutions/go-boiler/models"
+	"github.com/wednesday-solutions/go-boiler/pkg/utl/middleware/auth"
 )
 
 type Resolver struct {
@@ -42,7 +42,7 @@ func (r *mutationResolver) CreateComment(ctx context.Context, input fm.CommentCr
 	))
 	pM, err := dm.Comments(mods...).One(context.Background(), boil.GetContextDB())
 	return &fm.CommentPayload{
-		Comment: CommentToGraphQL(pM, nil),
+		Comment: CommentToGraphQL(pM, nil, 0),
 	}, err
 }
 
@@ -69,7 +69,7 @@ func (r *mutationResolver) UpdateComment(ctx context.Context, id string, input f
 
 	pM, err := dm.Comments(mods...).One(context.Background(), boil.GetContextDB())
 	return &fm.CommentPayload{
-		Comment: CommentToGraphQL(pM, nil),
+		Comment: CommentToGraphQL(pM, nil, 0),
 	}, err
 }
 
@@ -141,7 +141,7 @@ func (r *mutationResolver) CreateCompany(ctx context.Context, input fm.CompanyCr
 	mods = append(mods, dm.CompanyWhere.ID.EQ(m.ID))
 	pM, err := dm.Companies(mods...).One(context.Background(), boil.GetContextDB())
 	return &fm.CompanyPayload{
-		Company: CompanyToGraphQL(pM, nil),
+		Company: CompanyToGraphQL(pM, nil, 0),
 	}, err
 }
 
@@ -166,7 +166,7 @@ func (r *mutationResolver) UpdateCompany(ctx context.Context, id string, input f
 
 	pM, err := dm.Companies(mods...).One(context.Background(), boil.GetContextDB())
 	return &fm.CompanyPayload{
-		Company: CompanyToGraphQL(pM, nil),
+		Company: CompanyToGraphQL(pM, nil, 0),
 	}, err
 }
 
@@ -231,7 +231,7 @@ func (r *mutationResolver) CreateFollower(ctx context.Context, input fm.Follower
 	mods = append(mods, dm.FollowerWhere.ID.EQ(m.ID))
 	pM, err := dm.Followers(mods...).One(context.Background(), boil.GetContextDB())
 	return &fm.FollowerPayload{
-		Follower: FollowerToGraphQL(pM, nil),
+		Follower: FollowerToGraphQL(pM, nil, 0),
 	}, err
 }
 
@@ -256,7 +256,7 @@ func (r *mutationResolver) UpdateFollower(ctx context.Context, id string, input 
 
 	pM, err := dm.Followers(mods...).One(context.Background(), boil.GetContextDB())
 	return &fm.FollowerPayload{
-		Follower: FollowerToGraphQL(pM, nil),
+		Follower: FollowerToGraphQL(pM, nil, 0),
 	}, err
 }
 
@@ -321,7 +321,7 @@ func (r *mutationResolver) CreateLocation(ctx context.Context, input fm.Location
 	mods = append(mods, dm.LocationWhere.ID.EQ(m.ID))
 	pM, err := dm.Locations(mods...).One(context.Background(), boil.GetContextDB())
 	return &fm.LocationPayload{
-		Location: LocationToGraphQL(pM, nil),
+		Location: LocationToGraphQL(pM, nil, 0),
 	}, err
 }
 
@@ -346,7 +346,7 @@ func (r *mutationResolver) UpdateLocation(ctx context.Context, id string, input 
 
 	pM, err := dm.Locations(mods...).One(context.Background(), boil.GetContextDB())
 	return &fm.LocationPayload{
-		Location: LocationToGraphQL(pM, nil),
+		Location: LocationToGraphQL(pM, nil, 0),
 	}, err
 }
 
@@ -401,7 +401,10 @@ func (r *mutationResolver) CreatePost(ctx context.Context, input fm.PostCreateIn
 
 	m.UserID = auth.UserIDFromContext(ctx)
 
-	whiteList := PostCreateInputToBoilerWhitelist(helper.GetInputFromContext(ctx, inputKey))
+	whiteList := PostCreateInputToBoilerWhitelist(
+		helper.GetInputFromContext(ctx, inputKey),
+		dm.PostColumns.UserID,
+	)
 	if err := m.Insert(context.Background(), boil.GetContextDB(), whiteList); err != nil {
 		return nil, err
 	}
@@ -414,7 +417,7 @@ func (r *mutationResolver) CreatePost(ctx context.Context, input fm.PostCreateIn
 	))
 	pM, err := dm.Posts(mods...).One(context.Background(), boil.GetContextDB())
 	return &fm.PostPayload{
-		Post: PostToGraphQL(pM, nil),
+		Post: PostToGraphQL(pM, nil, 0),
 	}, err
 }
 
@@ -441,7 +444,7 @@ func (r *mutationResolver) UpdatePost(ctx context.Context, id string, input fm.P
 
 	pM, err := dm.Posts(mods...).One(context.Background(), boil.GetContextDB())
 	return &fm.PostPayload{
-		Post: PostToGraphQL(pM, nil),
+		Post: PostToGraphQL(pM, nil, 0),
 	}, err
 }
 
@@ -513,7 +516,7 @@ func (r *mutationResolver) CreateRole(ctx context.Context, input fm.RoleCreateIn
 	mods = append(mods, dm.RoleWhere.ID.EQ(m.ID))
 	pM, err := dm.Roles(mods...).One(context.Background(), boil.GetContextDB())
 	return &fm.RolePayload{
-		Role: RoleToGraphQL(pM, nil),
+		Role: RoleToGraphQL(pM, nil, 0),
 	}, err
 }
 
@@ -538,7 +541,7 @@ func (r *mutationResolver) UpdateRole(ctx context.Context, id string, input fm.R
 
 	pM, err := dm.Roles(mods...).One(context.Background(), boil.GetContextDB())
 	return &fm.RolePayload{
-		Role: RoleToGraphQL(pM, nil),
+		Role: RoleToGraphQL(pM, nil, 0),
 	}, err
 }
 
@@ -603,7 +606,7 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input fm.UserCreateIn
 	mods = append(mods, dm.UserWhere.ID.EQ(m.ID))
 	pM, err := dm.Users(mods...).One(context.Background(), boil.GetContextDB())
 	return &fm.UserPayload{
-		User: UserToGraphQL(pM, nil),
+		User: UserToGraphQL(pM, nil, 0),
 	}, err
 }
 
@@ -628,7 +631,7 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input fm.U
 
 	pM, err := dm.Users(mods...).One(context.Background(), boil.GetContextDB())
 	return &fm.UserPayload{
-		User: UserToGraphQL(pM, nil),
+		User: UserToGraphQL(pM, nil, 0),
 	}, err
 }
 
@@ -685,17 +688,18 @@ func (r *queryResolver) Comment(ctx context.Context, id string) (*fm.Comment, er
 		auth.UserIDFromContext(ctx),
 	))
 	m, err := dm.Comments(mods...).One(context.Background(), boil.GetContextDB())
-	return CommentToGraphQL(m, nil), err
+	return CommentToGraphQL(m, nil, 0), err
 }
 
-func (r *queryResolver) Comments(ctx context.Context, filter *fm.CommentFilter) ([]*fm.Comment, error) {
+func (r *queryResolver) Comments(ctx context.Context, filter *fm.CommentFilter, pagination *fm.CommentPagination) ([]*fm.Comment, error) {
 	mods := helper.GetPreloadMods(ctx, CommentPreloadMap)
 	mods = append(mods, dm.CommentWhere.UserID.EQ(
 		auth.UserIDFromContext(ctx),
 	))
+	mods = append(mods, CommentPaginationToMods(pagination)...)
 	mods = append(mods, CommentFilterToMods(filter)...)
 	a, err := dm.Comments(mods...).All(context.Background(), boil.GetContextDB())
-	return CommentsToGraphQL(a, nil), err
+	return CommentsToGraphQL(a, nil, 0), err
 }
 
 func (r *queryResolver) Company(ctx context.Context, id string) (*fm.Company, error) {
@@ -703,14 +707,15 @@ func (r *queryResolver) Company(ctx context.Context, id string) (*fm.Company, er
 	mods := helper.GetPreloadMods(ctx, CompanyPreloadMap)
 	mods = append(mods, dm.CompanyWhere.ID.EQ(dbID))
 	m, err := dm.Companies(mods...).One(context.Background(), boil.GetContextDB())
-	return CompanyToGraphQL(m, nil), err
+	return CompanyToGraphQL(m, nil, 0), err
 }
 
-func (r *queryResolver) Companies(ctx context.Context, filter *fm.CompanyFilter) ([]*fm.Company, error) {
+func (r *queryResolver) Companies(ctx context.Context, filter *fm.CompanyFilter, pagination *fm.CompanyPagination) ([]*fm.Company, error) {
 	mods := helper.GetPreloadMods(ctx, CompanyPreloadMap)
+	mods = append(mods, CompanyPaginationToMods(pagination)...)
 	mods = append(mods, CompanyFilterToMods(filter)...)
 	a, err := dm.Companies(mods...).All(context.Background(), boil.GetContextDB())
-	return CompaniesToGraphQL(a, nil), err
+	return CompaniesToGraphQL(a, nil, 0), err
 }
 
 func (r *queryResolver) Follower(ctx context.Context, id string) (*fm.Follower, error) {
@@ -718,14 +723,15 @@ func (r *queryResolver) Follower(ctx context.Context, id string) (*fm.Follower, 
 	mods := helper.GetPreloadMods(ctx, FollowerPreloadMap)
 	mods = append(mods, dm.FollowerWhere.ID.EQ(dbID))
 	m, err := dm.Followers(mods...).One(context.Background(), boil.GetContextDB())
-	return FollowerToGraphQL(m, nil), err
+	return FollowerToGraphQL(m, nil, 0), err
 }
 
-func (r *queryResolver) Followers(ctx context.Context, filter *fm.FollowerFilter) ([]*fm.Follower, error) {
+func (r *queryResolver) Followers(ctx context.Context, filter *fm.FollowerFilter, pagination *fm.FollowerPagination) ([]*fm.Follower, error) {
 	mods := helper.GetPreloadMods(ctx, FollowerPreloadMap)
+	mods = append(mods, FollowerPaginationToMods(pagination)...)
 	mods = append(mods, FollowerFilterToMods(filter)...)
 	a, err := dm.Followers(mods...).All(context.Background(), boil.GetContextDB())
-	return FollowersToGraphQL(a, nil), err
+	return FollowersToGraphQL(a, nil, 0), err
 }
 
 func (r *queryResolver) Location(ctx context.Context, id string) (*fm.Location, error) {
@@ -733,14 +739,15 @@ func (r *queryResolver) Location(ctx context.Context, id string) (*fm.Location, 
 	mods := helper.GetPreloadMods(ctx, LocationPreloadMap)
 	mods = append(mods, dm.LocationWhere.ID.EQ(dbID))
 	m, err := dm.Locations(mods...).One(context.Background(), boil.GetContextDB())
-	return LocationToGraphQL(m, nil), err
+	return LocationToGraphQL(m, nil, 0), err
 }
 
-func (r *queryResolver) Locations(ctx context.Context, filter *fm.LocationFilter) ([]*fm.Location, error) {
+func (r *queryResolver) Locations(ctx context.Context, filter *fm.LocationFilter, pagination *fm.LocationPagination) ([]*fm.Location, error) {
 	mods := helper.GetPreloadMods(ctx, LocationPreloadMap)
+	mods = append(mods, LocationPaginationToMods(pagination)...)
 	mods = append(mods, LocationFilterToMods(filter)...)
 	a, err := dm.Locations(mods...).All(context.Background(), boil.GetContextDB())
-	return LocationsToGraphQL(a, nil), err
+	return LocationsToGraphQL(a, nil, 0), err
 }
 
 func (r *queryResolver) Post(ctx context.Context, id string) (*fm.Post, error) {
@@ -751,17 +758,18 @@ func (r *queryResolver) Post(ctx context.Context, id string) (*fm.Post, error) {
 		auth.UserIDFromContext(ctx),
 	))
 	m, err := dm.Posts(mods...).One(context.Background(), boil.GetContextDB())
-	return PostToGraphQL(m, nil), err
+	return PostToGraphQL(m, nil, 0), err
 }
 
-func (r *queryResolver) Posts(ctx context.Context, filter *fm.PostFilter) ([]*fm.Post, error) {
+func (r *queryResolver) Posts(ctx context.Context, filter *fm.PostFilter, pagination *fm.PostPagination) ([]*fm.Post, error) {
 	mods := helper.GetPreloadMods(ctx, PostPreloadMap)
 	mods = append(mods, dm.PostWhere.UserID.EQ(
 		auth.UserIDFromContext(ctx),
 	))
+	mods = append(mods, PostPaginationToMods(pagination)...)
 	mods = append(mods, PostFilterToMods(filter)...)
 	a, err := dm.Posts(mods...).All(context.Background(), boil.GetContextDB())
-	return PostsToGraphQL(a, nil), err
+	return PostsToGraphQL(a, nil, 0), err
 }
 
 func (r *queryResolver) Role(ctx context.Context, id string) (*fm.Role, error) {
@@ -769,14 +777,15 @@ func (r *queryResolver) Role(ctx context.Context, id string) (*fm.Role, error) {
 	mods := helper.GetPreloadMods(ctx, RolePreloadMap)
 	mods = append(mods, dm.RoleWhere.ID.EQ(dbID))
 	m, err := dm.Roles(mods...).One(context.Background(), boil.GetContextDB())
-	return RoleToGraphQL(m, nil), err
+	return RoleToGraphQL(m, nil, 0), err
 }
 
-func (r *queryResolver) Roles(ctx context.Context, filter *fm.RoleFilter) ([]*fm.Role, error) {
+func (r *queryResolver) Roles(ctx context.Context, filter *fm.RoleFilter, pagination *fm.RolePagination) ([]*fm.Role, error) {
 	mods := helper.GetPreloadMods(ctx, RolePreloadMap)
+	mods = append(mods, RolePaginationToMods(pagination)...)
 	mods = append(mods, RoleFilterToMods(filter)...)
 	a, err := dm.Roles(mods...).All(context.Background(), boil.GetContextDB())
-	return RolesToGraphQL(a, nil), err
+	return RolesToGraphQL(a, nil, 0), err
 }
 
 func (r *queryResolver) User(ctx context.Context, id string) (*fm.User, error) {
@@ -784,14 +793,15 @@ func (r *queryResolver) User(ctx context.Context, id string) (*fm.User, error) {
 	mods := helper.GetPreloadMods(ctx, UserPreloadMap)
 	mods = append(mods, dm.UserWhere.ID.EQ(dbID))
 	m, err := dm.Users(mods...).One(context.Background(), boil.GetContextDB())
-	return UserToGraphQL(m, nil), err
+	return UserToGraphQL(m, nil, 0), err
 }
 
-func (r *queryResolver) Users(ctx context.Context, filter *fm.UserFilter) ([]*fm.User, error) {
+func (r *queryResolver) Users(ctx context.Context, filter *fm.UserFilter, pagination *fm.UserPagination) ([]*fm.User, error) {
 	mods := helper.GetPreloadMods(ctx, UserPreloadMap)
+	mods = append(mods, UserPaginationToMods(pagination)...)
 	mods = append(mods, UserFilterToMods(filter)...)
 	a, err := dm.Users(mods...).All(context.Background(), boil.GetContextDB())
-	return UsersToGraphQL(a, nil), err
+	return UsersToGraphQL(a, nil, 0), err
 }
 
 func (r *Resolver) Mutation() fm.MutationResolver { return &mutationResolver{r} }

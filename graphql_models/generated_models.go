@@ -38,6 +38,11 @@ type CommentFilter struct {
 	Where  *CommentWhere `json:"where"`
 }
 
+type CommentPagination struct {
+	Limit int `json:"limit"`
+	Page  int `json:"page"`
+}
+
 type CommentPayload struct {
 	Comment *Comment `json:"comment"`
 }
@@ -101,9 +106,9 @@ type Company struct {
 	ID        string      `json:"id"`
 	Name      *string     `json:"name"`
 	Active    *bool       `json:"active"`
-	CreatedAt *int        `json:"createdAt"`
-	DeletedAt *int        `json:"deletedAt"`
 	UpdatedAt *int        `json:"updatedAt"`
+	DeletedAt *int        `json:"deletedAt"`
+	CreatedAt *int        `json:"createdAt"`
 	Locations []*Location `json:"locations"`
 	Users     []*User     `json:"users"`
 }
@@ -111,9 +116,9 @@ type Company struct {
 type CompanyCreateInput struct {
 	Name      *string `json:"name"`
 	Active    *bool   `json:"active"`
-	CreatedAt *int    `json:"createdAt"`
-	DeletedAt *int    `json:"deletedAt"`
 	UpdatedAt *int    `json:"updatedAt"`
+	DeletedAt *int    `json:"deletedAt"`
+	CreatedAt *int    `json:"createdAt"`
 }
 
 type CompanyDeletePayload struct {
@@ -125,6 +130,11 @@ type CompanyFilter struct {
 	Where  *CompanyWhere `json:"where"`
 }
 
+type CompanyPagination struct {
+	Limit int `json:"limit"`
+	Page  int `json:"page"`
+}
+
 type CompanyPayload struct {
 	Company *Company `json:"company"`
 }
@@ -132,18 +142,18 @@ type CompanyPayload struct {
 type CompanyUpdateInput struct {
 	Name      *string `json:"name"`
 	Active    *bool   `json:"active"`
-	CreatedAt *int    `json:"createdAt"`
-	DeletedAt *int    `json:"deletedAt"`
 	UpdatedAt *int    `json:"updatedAt"`
+	DeletedAt *int    `json:"deletedAt"`
+	CreatedAt *int    `json:"createdAt"`
 }
 
 type CompanyWhere struct {
 	ID        *IDFilter      `json:"id"`
 	Name      *StringFilter  `json:"name"`
 	Active    *BooleanFilter `json:"active"`
-	CreatedAt *IntFilter     `json:"createdAt"`
-	DeletedAt *IntFilter     `json:"deletedAt"`
 	UpdatedAt *IntFilter     `json:"updatedAt"`
+	DeletedAt *IntFilter     `json:"deletedAt"`
+	CreatedAt *IntFilter     `json:"createdAt"`
 	Locations *LocationWhere `json:"locations"`
 	Users     *UserWhere     `json:"users"`
 	Or        *CompanyWhere  `json:"or"`
@@ -165,17 +175,17 @@ type Follower struct {
 	ID        string `json:"id"`
 	Follower  *User  `json:"follower"`
 	Followee  *User  `json:"followee"`
-	CreatedAt *int   `json:"createdAt"`
-	UpdatedAt *int   `json:"updatedAt"`
 	DeletedAt *int   `json:"deletedAt"`
+	UpdatedAt *int   `json:"updatedAt"`
+	CreatedAt *int   `json:"createdAt"`
 }
 
 type FollowerCreateInput struct {
 	FollowerID string `json:"followerId"`
 	FolloweeID string `json:"followeeId"`
-	CreatedAt  *int   `json:"createdAt"`
-	UpdatedAt  *int   `json:"updatedAt"`
 	DeletedAt  *int   `json:"deletedAt"`
+	UpdatedAt  *int   `json:"updatedAt"`
+	CreatedAt  *int   `json:"createdAt"`
 }
 
 type FollowerDeletePayload struct {
@@ -187,6 +197,11 @@ type FollowerFilter struct {
 	Where  *FollowerWhere `json:"where"`
 }
 
+type FollowerPagination struct {
+	Limit int `json:"limit"`
+	Page  int `json:"page"`
+}
+
 type FollowerPayload struct {
 	Follower *Follower `json:"follower"`
 }
@@ -194,18 +209,18 @@ type FollowerPayload struct {
 type FollowerUpdateInput struct {
 	FollowerID *string `json:"followerId"`
 	FolloweeID *string `json:"followeeId"`
-	CreatedAt  *int    `json:"createdAt"`
-	UpdatedAt  *int    `json:"updatedAt"`
 	DeletedAt  *int    `json:"deletedAt"`
+	UpdatedAt  *int    `json:"updatedAt"`
+	CreatedAt  *int    `json:"createdAt"`
 }
 
 type FollowerWhere struct {
 	ID        *IDFilter      `json:"id"`
 	Follower  *UserWhere     `json:"follower"`
 	Followee  *UserWhere     `json:"followee"`
-	CreatedAt *IntFilter     `json:"createdAt"`
-	UpdatedAt *IntFilter     `json:"updatedAt"`
 	DeletedAt *IntFilter     `json:"deletedAt"`
+	UpdatedAt *IntFilter     `json:"updatedAt"`
+	CreatedAt *IntFilter     `json:"createdAt"`
 	Or        *FollowerWhere `json:"or"`
 	And       *FollowerWhere `json:"and"`
 }
@@ -250,9 +265,9 @@ type Location struct {
 	Active    *bool    `json:"active"`
 	Address   *string  `json:"address"`
 	Company   *Company `json:"company"`
-	CreatedAt *int     `json:"createdAt"`
-	DeletedAt *int     `json:"deletedAt"`
 	UpdatedAt *int     `json:"updatedAt"`
+	DeletedAt *int     `json:"deletedAt"`
+	CreatedAt *int     `json:"createdAt"`
 	Users     []*User  `json:"users"`
 }
 
@@ -261,9 +276,9 @@ type LocationCreateInput struct {
 	Active    *bool   `json:"active"`
 	Address   *string `json:"address"`
 	CompanyID string  `json:"companyId"`
-	CreatedAt *int    `json:"createdAt"`
-	DeletedAt *int    `json:"deletedAt"`
 	UpdatedAt *int    `json:"updatedAt"`
+	DeletedAt *int    `json:"deletedAt"`
+	CreatedAt *int    `json:"createdAt"`
 }
 
 type LocationDeletePayload struct {
@@ -275,6 +290,11 @@ type LocationFilter struct {
 	Where  *LocationWhere `json:"where"`
 }
 
+type LocationPagination struct {
+	Limit int `json:"limit"`
+	Page  int `json:"page"`
+}
+
 type LocationPayload struct {
 	Location *Location `json:"location"`
 }
@@ -284,9 +304,9 @@ type LocationUpdateInput struct {
 	Active    *bool   `json:"active"`
 	Address   *string `json:"address"`
 	CompanyID *string `json:"companyId"`
-	CreatedAt *int    `json:"createdAt"`
-	DeletedAt *int    `json:"deletedAt"`
 	UpdatedAt *int    `json:"updatedAt"`
+	DeletedAt *int    `json:"deletedAt"`
+	CreatedAt *int    `json:"createdAt"`
 }
 
 type LocationWhere struct {
@@ -295,9 +315,9 @@ type LocationWhere struct {
 	Active    *BooleanFilter `json:"active"`
 	Address   *StringFilter  `json:"address"`
 	Company   *CompanyWhere  `json:"company"`
-	CreatedAt *IntFilter     `json:"createdAt"`
-	DeletedAt *IntFilter     `json:"deletedAt"`
 	UpdatedAt *IntFilter     `json:"updatedAt"`
+	DeletedAt *IntFilter     `json:"deletedAt"`
+	CreatedAt *IntFilter     `json:"createdAt"`
 	Users     *UserWhere     `json:"users"`
 	Or        *LocationWhere `json:"or"`
 	And       *LocationWhere `json:"and"`
@@ -348,6 +368,11 @@ type PostFilter struct {
 	Where  *PostWhere `json:"where"`
 }
 
+type PostPagination struct {
+	Limit int `json:"limit"`
+	Page  int `json:"page"`
+}
+
 type PostPayload struct {
 	Post *Post `json:"post"`
 }
@@ -395,8 +420,8 @@ type Role struct {
 	AccessLevel int     `json:"accessLevel"`
 	Name        string  `json:"name"`
 	UpdatedAt   *int    `json:"updatedAt"`
-	CreatedAt   *int    `json:"createdAt"`
 	DeletedAt   *int    `json:"deletedAt"`
+	CreatedAt   *int    `json:"createdAt"`
 	Users       []*User `json:"users"`
 }
 
@@ -404,8 +429,8 @@ type RoleCreateInput struct {
 	AccessLevel int    `json:"accessLevel"`
 	Name        string `json:"name"`
 	UpdatedAt   *int   `json:"updatedAt"`
-	CreatedAt   *int   `json:"createdAt"`
 	DeletedAt   *int   `json:"deletedAt"`
+	CreatedAt   *int   `json:"createdAt"`
 }
 
 type RoleDeletePayload struct {
@@ -417,6 +442,11 @@ type RoleFilter struct {
 	Where  *RoleWhere `json:"where"`
 }
 
+type RolePagination struct {
+	Limit int `json:"limit"`
+	Page  int `json:"page"`
+}
+
 type RolePayload struct {
 	Role *Role `json:"role"`
 }
@@ -425,8 +455,8 @@ type RoleUpdateInput struct {
 	AccessLevel *int    `json:"accessLevel"`
 	Name        *string `json:"name"`
 	UpdatedAt   *int    `json:"updatedAt"`
-	CreatedAt   *int    `json:"createdAt"`
 	DeletedAt   *int    `json:"deletedAt"`
+	CreatedAt   *int    `json:"createdAt"`
 }
 
 type RoleWhere struct {
@@ -434,8 +464,8 @@ type RoleWhere struct {
 	AccessLevel *IntFilter    `json:"accessLevel"`
 	Name        *StringFilter `json:"name"`
 	UpdatedAt   *IntFilter    `json:"updatedAt"`
-	CreatedAt   *IntFilter    `json:"createdAt"`
 	DeletedAt   *IntFilter    `json:"deletedAt"`
+	CreatedAt   *IntFilter    `json:"createdAt"`
 	Users       *UserWhere    `json:"users"`
 	Or          *RoleWhere    `json:"or"`
 	And         *RoleWhere    `json:"and"`
@@ -493,8 +523,8 @@ type User struct {
 	Role               *Role       `json:"role"`
 	Company            *Company    `json:"company"`
 	Location           *Location   `json:"location"`
-	DeletedAt          *int        `json:"deletedAt"`
 	CreatedAt          *int        `json:"createdAt"`
+	DeletedAt          *int        `json:"deletedAt"`
 	UpdatedAt          *int        `json:"updatedAt"`
 	Comments           []*Comment  `json:"comments"`
 	FolloweeFollowers  []*Follower `json:"followeeFollowers"`
@@ -518,8 +548,8 @@ type UserCreateInput struct {
 	RoleID             *string `json:"roleId"`
 	CompanyID          *string `json:"companyId"`
 	LocationID         *string `json:"locationId"`
-	DeletedAt          *int    `json:"deletedAt"`
 	CreatedAt          *int    `json:"createdAt"`
+	DeletedAt          *int    `json:"deletedAt"`
 	UpdatedAt          *int    `json:"updatedAt"`
 }
 
@@ -530,6 +560,11 @@ type UserDeletePayload struct {
 type UserFilter struct {
 	Search *string    `json:"search"`
 	Where  *UserWhere `json:"where"`
+}
+
+type UserPagination struct {
+	Limit int `json:"limit"`
+	Page  int `json:"page"`
 }
 
 type UserPayload struct {
@@ -552,8 +587,8 @@ type UserUpdateInput struct {
 	RoleID             *string `json:"roleId"`
 	CompanyID          *string `json:"companyId"`
 	LocationID         *string `json:"locationId"`
-	DeletedAt          *int    `json:"deletedAt"`
 	CreatedAt          *int    `json:"createdAt"`
+	DeletedAt          *int    `json:"deletedAt"`
 	UpdatedAt          *int    `json:"updatedAt"`
 }
 
@@ -574,8 +609,8 @@ type UserWhere struct {
 	Role               *RoleWhere     `json:"role"`
 	Company            *CompanyWhere  `json:"company"`
 	Location           *LocationWhere `json:"location"`
-	DeletedAt          *IntFilter     `json:"deletedAt"`
 	CreatedAt          *IntFilter     `json:"createdAt"`
+	DeletedAt          *IntFilter     `json:"deletedAt"`
 	UpdatedAt          *IntFilter     `json:"updatedAt"`
 	Comments           *CommentWhere  `json:"comments"`
 	FolloweeFollowers  *FollowerWhere `json:"followeeFollowers"`
