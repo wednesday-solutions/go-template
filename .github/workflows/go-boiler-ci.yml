@@ -29,5 +29,7 @@ jobs:
           version: v1.27
           args: --skip-dirs ^gqlgen/convert --skip-files *swagger.go --timeout 3m0s
       - uses: pre-commit/action@v2.0.0
+      - name: Build
+        run:  go build ./...
       - name: Test
         run:  set -a && source .env.local && set +a && go test $(go list ./... | grep -v models)
