@@ -44,8 +44,8 @@ func TestGenerateToken(t *testing.T) {
 			secret:       "g0r$kt3$t1ng",
 			minSecretLen: 1,
 			req: models.User{
-				Username: null.StringFrom("johndoe"),
-				Email:    null.StringFrom("johndoe@mail.com"),
+				Username:   null.StringFrom("johndoe"),
+				Email:      null.StringFrom("johndoe@mail.com"),
 				CompanyID:  null.IntFrom(1),
 				LocationID: null.IntFrom(1),
 			},

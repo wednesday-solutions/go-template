@@ -16,7 +16,6 @@ type RBAC struct {
 	IsLowerRoleFn     func(echo.Context, goboiler.AccessRole) error
 }
 
-
 // EnforceRole mock
 func (a RBAC) EnforceRole(c echo.Context, role goboiler.AccessRole) error {
 	return a.EnforceRoleFn(c, role)

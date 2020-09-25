@@ -29,7 +29,7 @@ func (a Auth) Authenticate(c echo.Context, user, pass string) (goboiler.AuthToke
 		return goboiler.AuthToken{}, ErrInvalidCredentials
 	}
 
-	if  !u.Active.Valid || (!u.Active.Bool) {
+	if !u.Active.Valid || (!u.Active.Bool) {
 		return goboiler.AuthToken{}, goboiler.ErrUnauthorized
 	}
 

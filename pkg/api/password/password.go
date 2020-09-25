@@ -24,7 +24,7 @@ func (p Password) Change(c echo.Context, userID int, oldPass, newPass string) er
 	if err != nil {
 		return err
 	}
-	fmt.Print("\n\n\n\npass\n\n\nuserID: ",userID)
+	fmt.Print("\n\n\n\npass\n\n\nuserID: ", userID)
 	if !p.sec.HashMatchesPassword(utl.FromNullableString(u.Password), oldPass) {
 		return ErrIncorrectPassword
 	}

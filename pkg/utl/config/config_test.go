@@ -3,8 +3,8 @@ package config_test
 import (
 	"testing"
 
-	"github.com/wednesday-solutions/go-boiler/pkg/utl/config"
 	"github.com/stretchr/testify/assert"
+	"github.com/wednesday-solutions/go-boiler/pkg/utl/config"
 )
 
 func TestLoad(t *testing.T) {

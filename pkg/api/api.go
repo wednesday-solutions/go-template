@@ -92,18 +92,16 @@ func Start(cfg *config.Configuration) error {
 
 	authMiddleware := authMw.Middleware(jwt)
 
-
 	at.NewHTTP(al.New(auth.Initialize(db, jwt, sec), log), e, authMiddleware)
 
 	v1 := e.Group("/v1")
 	v1.Use(authMiddleware)
 
-
 	ut.NewHTTP(ul.New(user.Initialize(db, sec), log), v1)
 	pt.NewHTTP(pl.New(password.Initialize(db, sec), log), v1)
 
 	graphqlHandler := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: &goboiler.Resolver{}}))
-	playgroundHandler :=playground.Handler("GraphQL playground", "/graphql")
+	playgroundHandler := playground.Handler("GraphQL playground", "/graphql")
 
 	// graphql apis
 	e.POST("/graphql", func(c echo.Context) error {
@@ -128,9 +126,10 @@ func Start(cfg *config.Configuration) error {
 	})
 	return nil
 }
+
 type CustomContext struct {
 	echo.Context
-	ctx    context.Context
+	ctx context.Context
 }
 
 func (c *CustomContext) Foo() {
@@ -141,13 +140,13 @@ func (c *CustomContext) Bar() {
 	println("bar")
 }
 
-
 type key string
 
 const (
 	echoContextKey key = "EchoContextKey"
 	// ...
 )
+
 // Process is the middleware function.
 func Process(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {

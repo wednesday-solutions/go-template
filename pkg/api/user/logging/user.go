@@ -29,7 +29,7 @@ const name = "user"
 // Create logging
 func (ls *LogService) Create(c echo.Context, req models.User) (resp models.User, err error) {
 	defer func(begin time.Time) {
-		req.Password= null.StringFrom("xxx-redacted-xxx")
+		req.Password = null.StringFrom("xxx-redacted-xxx")
 		ls.logger.Log(
 			c,
 			name, "Create user request", err,
