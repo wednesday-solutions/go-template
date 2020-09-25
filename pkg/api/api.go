@@ -34,14 +34,11 @@ package api
 import (
 	"context"
 	"crypto/sha1"
-	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/labstack/echo"
-	goboiler "github.com/wednesday-solutions/go-boiler"
 	"os"
 
 	"github.com/volatiletech/sqlboiler/boil"
-	graphql "github.com/wednesday-solutions/go-boiler/graphql_models"
 	"github.com/wednesday-solutions/go-boiler/pkg/utl/postgres"
 	"github.com/wednesday-solutions/go-boiler/pkg/utl/zlog"
 
@@ -94,16 +91,7 @@ func Start(cfg *config.Configuration) error {
 	ut.NewHTTP(ul.New(user.Initialize(db, sec), log), v1)
 	pt.NewHTTP(pl.New(password.Initialize(db, sec), log), v1)
 
-	graphqlHandler := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: &goboiler.Resolver{}}))
 	playgroundHandler :=playground.Handler("GraphQL playground", "/graphql")
-
-	// graphql apis
-	e.POST("/graphql", func(c echo.Context) error {
-		req := c.Request()
-		res := c.Response()
-		graphqlHandler.ServeHTTP(res, req)
-		return nil
-	}, authMiddleware)
 
 	// graphql playground
 	e.GET("/playground", func(c echo.Context) error {
