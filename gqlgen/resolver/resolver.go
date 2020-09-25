@@ -276,14 +276,6 @@ func gqlToResolverName(base string, gqlname string) string {
 	return filepath.Join(base, strings.TrimSuffix(gqlname, ext)+".resolvers.go")
 }
 
-func hasBoilerField(boilerFields []*boiler.BoilerField, fieldName string) bool {
-	for _, boilerField := range boilerFields {
-		if boilerField.Name == fieldName {
-			return true
-		}
-	}
-	return false
-}
 
 func enhanceResolver(r *Resolver, models []*convert.Model) {
 	nameOfResolver := r.Field.GoFieldName

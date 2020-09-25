@@ -6,7 +6,7 @@ import (
 )
 
 func GetInputFromContext(ctx context.Context, key string) map[string]interface{} {
-	requestContext := graphql.GetRequestContext(ctx)
+	requestContext := graphql.GetOperationContext(ctx)
 	//return requestContext.Variables[key]
 	return requestContext.Variables
 }

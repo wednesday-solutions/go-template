@@ -304,7 +304,7 @@ func PointerIntToNullDotBool(v *int) null.Bool {
 		}
 	}
 	return null.Bool{
-		Valid: v != nil,
+		Valid: true,
 		Bool:  *v == 1,
 	}
 }

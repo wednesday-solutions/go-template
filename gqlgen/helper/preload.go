@@ -61,7 +61,7 @@ func GetPreloadModsWithLevel(ctx context.Context, preloadColumnMap map[string]Co
 
 func GetPreloadsFromContext(ctx context.Context, level string) []string {
 	return StripPreloads(GetNestedPreloads(
-		graphql.GetRequestContext(ctx),
+		graphql.GetOperationContext(ctx),
 		graphql.CollectFieldsCtx(ctx, nil),
 		"",
 	), level)
@@ -79,7 +79,7 @@ func StripPreloads(preloads []string, prefix string) []string {
 	return preloads
 }
 
-func GetNestedPreloads(ctx *graphql.RequestContext, fields []graphql.CollectedField, prefix string) (preloads []string) {
+func GetNestedPreloads(ctx *graphql.OperationContext, fields []graphql.CollectedField, prefix string) (preloads []string) {
 	for _, column := range fields {
 		prefixColumn := GetPreloadString(prefix, column.Name)
 		preloads = append(preloads, prefixColumn)

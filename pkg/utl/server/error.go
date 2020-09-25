@@ -38,7 +38,8 @@ func (ce *customErrHandler) handler(err error, c echo.Context) {
 
 	if ce.e.Debug {
 		msg = err.Error()
-		switch err.(type) {
+		t := err
+		switch t.(type) {
 		case *echo.HTTPError:
 			code = err.(*echo.HTTPError).Code
 		case validator.ValidationErrors:

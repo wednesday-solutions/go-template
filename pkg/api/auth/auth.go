@@ -42,7 +42,7 @@ func (a Auth) Authenticate(c echo.Context, user, pass string) (goboiler.AuthToke
 	u.Token = null.StringFrom(refreshToken)
 	_, err = u.Update(context.Background(), a.db, boil.Infer())
 
-	return goboiler.AuthToken{Token: token, RefreshToken: refreshToken}, nil
+	return goboiler.AuthToken{Token: token, RefreshToken: refreshToken}, err
 }
 
 // Refresh refreshes jwt token and puts new claims inside

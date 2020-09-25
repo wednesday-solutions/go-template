@@ -36,6 +36,9 @@ func Middleware(tokenParser TokenParser) echo.MiddlewareFunc {
 			username := claims["u"].(string)
 			email := claims["e"].(string)
 			user, err := models.Users(qm.Where("email=?", email)).One(context.Background(), boil.GetContextDB())
+			if err != nil {
+				return err
+			}
 
 			//ctx := context.WithValue(c.Request().Context(), userCtxKey, user)
 			ctx := context.WithValue(c.Request().Context(), userCtxKey, user)

@@ -3,7 +3,6 @@ package goboiler
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/volatiletech/sqlboiler/boil"
 	"github.com/volatiletech/sqlboiler/queries/qm"
@@ -15,7 +14,6 @@ import (
 )
 
 type Resolver struct {
-	db *sql.DB
 }
 
 const inputKey = "input"

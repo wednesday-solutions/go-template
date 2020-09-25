@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/volatiletech/sqlboiler/queries/qm"
+	seeders "github.com/wednesday-solutions/go-boiler/cmd/seeder"
 	"github.com/wednesday-solutions/go-boiler/models"
 	"github.com/wednesday-solutions/go-boiler/pkg/utl/postgres"
 	"github.com/wednesday-solutions/go-boiler/pkg/utl/secure"
@@ -23,5 +24,5 @@ func main() {
 		sec.Hash("adminuser"),
 		company.ID,
 		location.ID)
-	SeedData("users", insertQuery)
+	_ = seeders.SeedData("users", insertQuery)
 }

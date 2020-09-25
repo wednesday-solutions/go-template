@@ -140,10 +140,18 @@ func (c *CustomContext) Foo() {
 func (c *CustomContext) Bar() {
 	println("bar")
 }
+
+
+type key string
+
+const (
+	echoContextKey key = "EchoContextKey"
+	// ...
+)
 // Process is the middleware function.
 func Process(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		ctx := context.WithValue(c.Request().Context(), "EchoContextKey", c)
+		ctx := context.WithValue(c.Request().Context(), echoContextKey, c)
 		c.SetRequest(c.Request().WithContext(ctx))
 
 		cc := &CustomContext{c, ctx}

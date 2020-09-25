@@ -1,10 +1,11 @@
 package jwt_test
 
 import (
+	"github.com/volatiletech/null"
+	"github.com/wednesday-solutions/go-boiler/models"
 	"strings"
 	"testing"
 
-	"github.com/wednesday-solutions/go-boiler"
 	"github.com/wednesday-solutions/go-boiler/pkg/utl/jwt"
 
 	"github.com/stretchr/testify/assert"
@@ -15,7 +16,7 @@ func TestGenerateToken(t *testing.T) {
 		algo         string
 		secret       string
 		minSecretLen int
-		req          goboiler.User
+		req          models.User
 		wantErr      bool
 		want         string
 	}{
@@ -42,17 +43,11 @@ func TestGenerateToken(t *testing.T) {
 			algo:         "HS256",
 			secret:       "g0r$kt3$t1ng",
 			minSecretLen: 1,
-			req: goboiler.User{
-				Base: goboiler.Base{
-					ID: 1,
-				},
-				Username: "johndoe",
-				Email:    "johndoe@mail.com",
-				Role: &goboiler.Role{
-					AccessLevel: goboiler.SuperAdminRole,
-				},
-				CompanyID:  1,
-				LocationID: 1,
+			req: models.User{
+				Username: null.StringFrom("johndoe"),
+				Email:    null.StringFrom("johndoe@mail.com"),
+				CompanyID:  null.IntFrom(1),
+				LocationID: null.IntFrom(1),
 			},
 			want: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
 		},
@@ -63,7 +58,7 @@ func TestGenerateToken(t *testing.T) {
 			jwtSvc, err := jwt.New(tt.algo, tt.secret, 60, tt.minSecretLen)
 			assert.Equal(t, tt.wantErr, err != nil)
 			if err == nil && !tt.wantErr {
-				token, _ := jwtSvc.GenerateToken(tt.req)
+				token, _ := jwtSvc.GenerateToken(&tt.req)
 				assert.Equal(t, tt.want, strings.Split(token, ".")[0])
 			}
 		})

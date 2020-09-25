@@ -35,6 +35,9 @@ func init() {
 			deleted_at TIMESTAMP WITH TIME ZONE
 			);`, tableName)
 		err = createTable(db, createTableQuery, tableName)
+		if err != nil {
+			return err
+		}
 
 		tableName = "followers"
 		createTableQuery = fmt.Sprintf(`CREATE TABLE IF NOT EXISTS public.%s (

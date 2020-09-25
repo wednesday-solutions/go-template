@@ -8,7 +8,6 @@ import (
 
 // RBAC Mock
 type RBAC struct {
-	UserFn            func(echo.Context) goboiler.AuthUser
 	EnforceRoleFn     func(echo.Context, goboiler.AccessRole) error
 	EnforceUserFn     func(echo.Context, int) error
 	EnforceCompanyFn  func(echo.Context, int) error
@@ -17,10 +16,6 @@ type RBAC struct {
 	IsLowerRoleFn     func(echo.Context, goboiler.AccessRole) error
 }
 
-// User mock
-func (a RBAC) User(c echo.Context) goboiler.AuthUser {
-	return a.UserFn(c)
-}
 
 // EnforceRole mock
 func (a RBAC) EnforceRole(c echo.Context, role goboiler.AccessRole) error {
