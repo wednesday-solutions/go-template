@@ -23,5 +23,5 @@ func TestNew(t *testing.T) {
 		t.Fatalf("could not start postgres, %s", err)
 	}
 
-	assert.NotNil(t, nil)
+	assert.NotNil(t, container)
 }
