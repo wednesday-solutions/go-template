@@ -60,6 +60,7 @@ func Middleware(tokenParser TokenParser) echo.MiddlewareFunc {
 	}
 }
 
+// CustomContext ...
 type CustomContext struct {
 	echo.Context
 	ctx context.Context
@@ -73,11 +74,13 @@ type contextKey struct {
 	name string
 }
 
+// FromContextWithCheck ...
 func FromContextWithCheck(c echo.Context) (*models.User, bool) {
 	user, exists := c.Get("user").(*models.User)
 	return user, exists
 }
 
+// ExistsInContext ...
 func ExistsInContext(ctx context.Context) bool {
 	_, exist := ctx.Value(userCtxKey).(*models.User)
 	return exist
@@ -89,6 +92,7 @@ func FromContext(ctx context.Context) *models.User {
 	return user
 }
 
+// UserIDFromContext ...
 func UserIDFromContext(ctx context.Context) int {
 	user := FromContext(ctx)
 	if user != nil {

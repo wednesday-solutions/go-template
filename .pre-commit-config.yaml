@@ -12,6 +12,6 @@ repos:
       - id: validate-toml
       - id: no-go-testing
       - id: golangci-lint
-        args: [--skip-dirs, --skip-files, ^*swagger.go]
+        args: [--skip-files, ^*swagger.go]
       - id: go-mod-tidy
       - id: go-build

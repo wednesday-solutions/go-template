@@ -1,18 +1,4 @@
-// Copyright 2017 Emir Ribic. All rights reserved.
-// Use of this source code is governed by an MIT-style
-// license that can be found in the LICENSE file.
-
-// GORSK - Go(lang) restful starter kit
-//
-// API Docs for GORSK v1
-//
-// 	 Terms Of Service:  N/A
-//     Schemes: http
-//     Version: 2.0.0
-//     License: MIT http://opensource.org/licenses/MIT
-//     Contact: Emir Ribic <ribice@gmail.com> https://ribice.ba
-//     Host: localhost:8080
-//
+// Package api Docs
 //     Consumes:
 //     - application/json
 //
@@ -127,15 +113,18 @@ func Start(cfg *config.Configuration) error {
 	return nil
 }
 
+// CustomContext ...
 type CustomContext struct {
 	echo.Context
 	ctx context.Context
 }
 
+// Foo ...
 func (c *CustomContext) Foo() {
 	println("foo")
 }
 
+// Bar ...
 func (c *CustomContext) Bar() {
 	println("bar")
 }

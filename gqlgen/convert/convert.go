@@ -311,14 +311,6 @@ func getFieldType(binder *config.Binder, schema *ast.Schema, cfg *config.Config,
 	return typ, err
 }
 
-func getPlularBoilerRelationShipName(modelName string) string {
-	// sqlboiler adds Slice when multiple, we don't want that
-	// since our converts are named plular of model and not Slice
-	// e.g. UsersToGraphQL and not UserSliceToGraphQL
-	modelName = strings.TrimSuffix(modelName, "Slice")
-	return pluralizer.Plural(modelName)
-}
-
 func enhanceModelsWithFields(schema *ast.Schema, cfg *config.Config, models []*Model) {
 
 	binder := cfg.NewBinder()
@@ -447,33 +439,6 @@ func findField(fields []*Field, search string) *Field {
 	}
 	return nil
 }
-func findRelationModelForForeignKeyAndInput(currentModelName string, foreignKey string, models []*Model) *Field {
-	return findRelationModelForForeignKey(getBaseModelFromName(currentModelName), foreignKey, models)
-}
-
-func findRelationModelForForeignKey(currentModelName string, foreignKey string, models []*Model) *Field {
-
-	model := findModel(models, currentModelName)
-	if model != nil {
-		// Use case
-		// we want a foreignKey of ParentID but the foreign key resolves to Calamity
-		// We could know this based on the boilerType information
-		// withou this function the generated convert is like this
-
-		// r.Parent = ParentToGraphQL(m.R.Parent, m)
-		// but it needs to be
-		// r.Parent = CalamityToGraphQL(m.R.Parent, m)
-		foreignKey = strings.TrimSuffix(foreignKey, "Id")
-
-		field := findField(model.Fields, foreignKey)
-		if field != nil {
-			// fmt.Println("Found graph type", field.Name, "for foreign key", foreignKey)
-			return field
-		}
-	}
-
-	return nil
-}
 
 func findBoilerField(fields []*boiler.BoilerField, golangGraphQLName string, isRelation bool) boiler.BoilerField {
 	// get database friendly struct for this model
@@ -581,7 +546,7 @@ func getModelsFromSchema(schema *ast.Schema, boilerModels []*boiler.BoilerModel)
 						continue
 					}
 
-					fmt.Println(fmt.Sprintf("[WARN] Skip %v because no database model found", modelName))
+					fmt.Printf("[WARN] Skip %v because no database model found\n", modelName)
 					continue
 				}
 

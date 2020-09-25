@@ -53,12 +53,15 @@ func exitf(s string, args ...interface{}) {
 	errorf(s, args...)
 	os.Exit(1)
 }
+
+// DropTable ...
 func DropTable(db migrations.DB, tableName string) error {
 	fmt.Printf("dropping table %s ...\n", tableName)
 	_, err := db.Exec(fmt.Sprintf("DROP TABLE %s", tableName))
 	return err
 }
 
+// CreateTableAndAddTrigger ...
 func CreateTableAndAddTrigger(db migrations.DB, createTableQuery string, tableName string) error {
 	fmt.Printf("\nCreating %s\n", tableName)
 	_, err := db.Exec(createTableQuery)

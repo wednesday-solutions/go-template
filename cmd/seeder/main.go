@@ -7,6 +7,7 @@ import (
 	"strings"
 )
 
+// SeedData ...
 func SeedData(tableName string, rawQuery string) error {
 	db, _ := postgres.Connect()
 
