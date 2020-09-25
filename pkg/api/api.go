@@ -34,12 +34,14 @@ package api
 import (
 	"context"
 	"crypto/sha1"
+	"fmt"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/labstack/echo"
 	goboiler "github.com/wednesday-solutions/go-boiler"
 	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/volatiletech/sqlboiler/boil"
 	graphql "github.com/wednesday-solutions/go-boiler/graphql_models"
 	"github.com/wednesday-solutions/go-boiler/pkg/utl/postgres"
@@ -65,6 +67,12 @@ import (
 
 // Start starts the API service
 func Start(cfg *config.Configuration) error {
+
+	err := godotenv.Load(fmt.Sprintf(".env.%s", os.Getenv("ENVIRONMENT_NAME")))
+	if err != nil {
+		fmt.Print("Error loading .env file")
+		return err
+	}
 	db, err := postgres.Connect()
 	if err != nil {
 		return err

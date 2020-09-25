@@ -1,0 +1,39 @@
+name: Go-Boiler CI Develop - Test
+
+on:
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+
+  lint-test-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.14.x
+      - name: Config
+        run: |
+          git config \
+          --global \
+          url."https://praveenchand-wed:6d29581820ce431ef91b0405714ed0bda95604c8@github.com".insteadOf \
+          "https://github.com"
+      - name: Install pre-commit dependencies
+        run: |
+            go get github.com/fzipp/gocyclo
+            go get golang.org/x/tools/cmd/goimports
+            go get github.com/go-critic/go-critic/cmd/gocritic
+            go get golang.org/x/lint/golint
+            go get github.com/BurntSushi/toml/cmd/tomlv
+            curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.30.0
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+      - uses: golangci/golangci-lint-action@v1
+        with:
+          version: v1.27
+          args: --skip-dirs ^gqlgen/convert --skip-files *swagger.go --timeout 3m0s
+      - uses: pre-commit/action@v2.0.0
+      - name: Test
+        run:  set -a && source .env.local && set +a && go test $(go list ./... | grep -v models)
