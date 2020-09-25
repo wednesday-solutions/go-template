@@ -2,16 +2,15 @@
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file.
 
-// GORSK - Go(lang) restful starter kit
+// Package api Go-Boiler
 //
-// API Docs for GORSK v1
+// API Docs for GO-BOILER v1
 //
 // 	 Terms Of Service:  N/A
 //     Schemes: http
 //     Version: 2.0.0
 //     License: MIT http://opensource.org/licenses/MIT
-//     Contact: Emir Ribic <ribice@gmail.com> https://ribice.ba
-//     Host: localhost:8080
+//     Host: localhost:9000
 //
 //     Consumes:
 //     - application/json
@@ -81,17 +80,15 @@ func Start(cfg *config.Configuration) error {
 
 	authMiddleware := authMw.Middleware(jwt)
 
-
 	at.NewHTTP(al.New(auth.Initialize(db, jwt, sec), log), e, authMiddleware)
 
 	v1 := e.Group("/v1")
 	v1.Use(authMiddleware)
 
-
 	ut.NewHTTP(ul.New(user.Initialize(db, sec), log), v1)
 	pt.NewHTTP(pl.New(password.Initialize(db, sec), log), v1)
 
-	playgroundHandler :=playground.Handler("GraphQL playground", "/graphql")
+	playgroundHandler := playground.Handler("GraphQL playground", "/graphql")
 
 	// graphql playground
 	e.GET("/playground", func(c echo.Context) error {
@@ -108,22 +105,25 @@ func Start(cfg *config.Configuration) error {
 	})
 	return nil
 }
+
+// CustomContext ...
 type CustomContext struct {
 	echo.Context
-	ctx    context.Context
+	ctx context.Context
 }
 
-func (c *CustomContext) Foo() {
-	println("foo")
+// A private key for context that only this package can access. This is important
+// to prevent collisions between different context uses
+var userCtxKey = &contextKey{"user"}
+
+type contextKey struct {
+	name string
 }
 
-func (c *CustomContext) Bar() {
-	println("bar")
-}
 // Process is the middleware function.
 func Process(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		ctx := context.WithValue(c.Request().Context(), "EchoContextKey", c)
+		ctx := context.WithValue(c.Request().Context(), userCtxKey, c)
 		c.SetRequest(c.Request().WithContext(ctx))
 
 		cc := &CustomContext{c, ctx}

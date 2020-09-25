@@ -321,8 +321,6 @@ func parseBoilerFile(dir string) (map[string]string, map[string]string, map[stri
 									fieldsOrder[k] = i
 								}
 
-							} else {
-								// fmt.Println("len(field.Names) == 0", field)
 							}
 
 						case *ast.SelectorExpr:

@@ -1,4 +1,4 @@
-package main
+package seeders
 
 import (
 	"fmt"
@@ -7,10 +7,11 @@ import (
 	"strings"
 )
 
+// SeedData ...
 func SeedData(tableName string, rawQuery string) error {
 	db, _ := postgres.Connect()
 
-	fmt.Print(fmt.Sprintf("\n-------------------------------\n***Seeding %s\n", tableName))
+	fmt.Printf("\n-------------------------------\n***Seeding %s\n", tableName)
 
 	queries := strings.Split(rawQuery, ";")
 
@@ -21,6 +22,6 @@ func SeedData(tableName string, rawQuery string) error {
 			return err
 		}
 	}
-	fmt.Print(fmt.Sprintf("***Done seeding %s\n-------------------------------\n", tableName))
+	fmt.Printf("***Done seeding %s\n-------------------------------\n", tableName)
 	return nil
 }

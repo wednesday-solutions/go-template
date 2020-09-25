@@ -36,6 +36,9 @@ func Middleware(tokenParser TokenParser) echo.MiddlewareFunc {
 			username := claims["u"].(string)
 			email := claims["e"].(string)
 			user, err := models.Users(qm.Where("email=?", email)).One(context.Background(), boil.GetContextDB())
+			if err != nil {
+				return err
+			}
 
 			//ctx := context.WithValue(c.Request().Context(), userCtxKey, user)
 			ctx := context.WithValue(c.Request().Context(), userCtxKey, user)
@@ -57,6 +60,7 @@ func Middleware(tokenParser TokenParser) echo.MiddlewareFunc {
 	}
 }
 
+// CustomContext ...
 type CustomContext struct {
 	echo.Context
 	ctx context.Context
@@ -70,11 +74,13 @@ type contextKey struct {
 	name string
 }
 
+// FromContextWithCheck ...
 func FromContextWithCheck(c echo.Context) (*models.User, bool) {
 	user, exists := c.Get("user").(*models.User)
 	return user, exists
 }
 
+// ExistsInContext ...
 func ExistsInContext(ctx context.Context) bool {
 	_, exist := ctx.Value(userCtxKey).(*models.User)
 	return exist
@@ -86,6 +92,7 @@ func FromContext(ctx context.Context) *models.User {
 	return user
 }
 
+// UserIDFromContext ...
 func UserIDFromContext(ctx context.Context) int {
 	user := FromContext(ctx)
 	if user != nil {

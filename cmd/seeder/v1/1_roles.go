@@ -1,7 +1,9 @@
 package main
 
+import seeders "github.com/wednesday-solutions/go-boiler/cmd/seeder"
+
 func main() {
-	SeedData("roles", `INSERT INTO public.roles VALUES (110, 110, 'ADMIN');
+	_ = seeders.SeedData("roles", `INSERT INTO public.roles VALUES (110, 110, 'ADMIN');
 		INSERT INTO public.roles VALUES (120, 120, 'COMPANY_ADMIN');
 		INSERT INTO public.roles VALUES (130, 130, 'LOCATION_ADMIN');
 		INSERT INTO public.roles VALUES (200, 200, 'USER');

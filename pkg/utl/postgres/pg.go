@@ -10,6 +10,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
+// MigrationConnect ...
 func MigrationConnect() *pg.DB {
 	var psn = os.Getenv("DATABASE_URL")
 	u, err := pg.ParseURL(psn)
@@ -18,6 +19,8 @@ func MigrationConnect() *pg.DB {
 	}
 	return pg.Connect(u)
 }
+
+// Connect ...
 func Connect() (*sql.DB, error) {
 	psqlInfo := fmt.Sprintf("dbname=%s host=%s user=%s password=%s port=%s sslmode=%s",
 		os.Getenv("DB_NAME"),

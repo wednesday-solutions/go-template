@@ -29,7 +29,7 @@ func (a Auth) Authenticate(c echo.Context, user, pass string) (goboiler.AuthToke
 		return goboiler.AuthToken{}, ErrInvalidCredentials
 	}
 
-	if  !u.Active.Valid || (!u.Active.Bool) {
+	if !u.Active.Valid || (!u.Active.Bool) {
 		return goboiler.AuthToken{}, goboiler.ErrUnauthorized
 	}
 
@@ -42,7 +42,7 @@ func (a Auth) Authenticate(c echo.Context, user, pass string) (goboiler.AuthToke
 	u.Token = null.StringFrom(refreshToken)
 	_, err = u.Update(context.Background(), a.db, boil.Infer())
 
-	return goboiler.AuthToken{Token: token, RefreshToken: refreshToken}, nil
+	return goboiler.AuthToken{Token: token, RefreshToken: refreshToken}, err
 }
 
 // Refresh refreshes jwt token and puts new claims inside

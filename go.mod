@@ -7,7 +7,6 @@ require (
 	github.com/DATA-DOG/go-sqlmock v1.4.1 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/ericlagergren/decimal v0.0.0-20191206042408-88212e6cfca9 // indirect
 	github.com/fortytw2/dockertest v0.0.0-20181228171220-480d52efdffe
 	github.com/friendsofgo/errors v0.9.2
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
@@ -44,14 +43,11 @@ require (
 	github.com/stretchr/testify v1.5.1
 	github.com/urfave/cli/v2 v2.2.0 // indirect
 	github.com/valyala/fasttemplate v1.1.0 // indirect
-	github.com/vektah/gqlparser/v2 v2.0.1 // indirect
 	github.com/vmihailenco/bufpool v0.1.11 // indirect
 	github.com/vmihailenco/msgpack/v4 v4.3.11 // indirect
 	github.com/volatiletech/inflect v0.0.0-20170731032912-e7201282ae8d // indirect
 	github.com/volatiletech/null v8.0.0+incompatible
 	github.com/volatiletech/sqlboiler v3.7.0+incompatible
-	github.com/web-ridge/gqlgen-sqlboiler/boiler v0.0.0-20200416094100-889354b08a01 // indirect
-	github.com/web-ridge/sqlboiler-graphql-schema v0.0.0-20200417090103-18469c700a98 // indirect
 	golang.org/x/crypto v0.0.0-20200406173513-056763e48d71
 	golang.org/x/net v0.0.0-20200324143707-d3edc9973b7e // indirect
 	golang.org/x/sys v0.0.0-20200409092240-59c9f1ba88fa // indirect

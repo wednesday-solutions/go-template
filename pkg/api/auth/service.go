@@ -11,9 +11,9 @@ import (
 // New creates new iam service
 func New(db *sql.DB, j TokenGenerator, sec Securer) Auth {
 	return Auth{
-		db:   db,
-		tg:   j,
-		sec:  sec,
+		db:  db,
+		tg:  j,
+		sec: sec,
 	}
 }
 
@@ -31,9 +31,9 @@ type Service interface {
 
 // Auth represents auth application service
 type Auth struct {
-	db   *sql.DB
-	tg   TokenGenerator
-	sec  Securer
+	db  *sql.DB
+	tg  TokenGenerator
+	sec Securer
 }
 
 // TokenGenerator represents token generator (jwt) interface

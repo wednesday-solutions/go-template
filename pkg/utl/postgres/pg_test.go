@@ -6,10 +6,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/wednesday-solutions/go-boiler"
-
-	"github.com/wednesday-solutions/go-boiler/pkg/utl/postgres"
-
 	"github.com/fortytw2/dockertest"
 )
 
@@ -27,32 +23,5 @@ func TestNew(t *testing.T) {
 		t.Fatalf("could not start postgres, %s", err)
 	}
 
-	_, err = postgres.New("PSN", 1, false)
-	if err == nil {
-		t.Error("Expected error")
-	}
-
-	_, err = postgres.New("postgres://postgres:postgres@localhost:1234/postgres?sslmode=disable", 0, false)
-	if err == nil {
-		t.Error("Expected error")
-	}
-
-	dbLogTest, err := postgres.New("postgres://postgres:postgres@"+container.Addr+"/postgres?sslmode=disable", 0, true)
-	if err != nil {
-		t.Fatalf("Error establishing connection %v", err)
-	}
-	dbLogTest.Close()
-
-	db, err := postgres.New("postgres://postgres:postgres@"+container.Addr+"/postgres?sslmode=disable", 1, true)
-	if err != nil {
-		t.Fatalf("Error establishing connection %v", err)
-	}
-
-	var user goboiler.User
-	db.Select(&user)
-
-	assert.NotNil(t, db)
-
-	db.Close()
-
+	assert.NotNil(t, container)
 }

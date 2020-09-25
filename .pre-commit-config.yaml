@@ -1,0 +1,17 @@
+exclude: '^gqlgen'
+fail_fast: true
+repos:
+  - repo: git://github.com/dnephin/pre-commit-golang
+    rev: master
+    hooks:
+      - id: go-fmt
+      - id: go-vet
+      - id: go-lint
+      - id: go-imports
+        args: [-over=15]
+      - id: validate-toml
+      - id: no-go-testing
+      - id: golangci-lint
+        args: [--skip-dirs, ^gqlgen/convert, --skip-files, ^*swagger.go]
+      - id: go-mod-tidy
+      - id: go-build
