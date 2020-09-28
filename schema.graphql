@@ -328,6 +328,7 @@ type LoginResponse {
 
 type Query {
   login(username: String!, password: String!): LoginResponse!
+  me: User!
 }
 
 input CommentCreateInput {
@@ -644,4 +645,12 @@ type UsersDeletePayload {
 
 type UsersUpdatePayload {
   ok: Boolean!
+}
+
+type RefreshTokenResponse {
+  token: String!
+}
+
+type Mutation {
+  refreshToken(token: String!): RefreshTokenResponse!
 }

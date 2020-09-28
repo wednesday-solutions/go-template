@@ -420,6 +420,10 @@ type PostsUpdatePayload struct {
 	Ok bool `json:"ok"`
 }
 
+type RefreshTokenResponse struct {
+	Token string `json:"token"`
+}
+
 type Role struct {
 	ID          string  `json:"id"`
 	AccessLevel int     `json:"accessLevel"`
