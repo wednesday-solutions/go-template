@@ -20,6 +20,7 @@ require (
 	github.com/golang/protobuf v1.3.5 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/iancoleman/strcase v0.0.0-20191112232945-16388991a334
+	github.com/joho/godotenv v1.3.0
 	github.com/kat-co/vala v0.0.0-20170210184112-42e1d8b61f12
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/labstack/echo v3.3.10+incompatible
@@ -54,5 +55,4 @@ require (
 	golang.org/x/tools v0.0.0-20200410194907-79a7a3126eef // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/ini.v1 v1.55.0 // indirect
-	gopkg.in/yaml.v2 v2.2.8
 )

@@ -1,8 +1,10 @@
 package main
 
 import (
-	"flag"
+	"fmt"
+	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/wednesday-solutions/go-boiler/pkg/api"
 
 	"github.com/wednesday-solutions/go-boiler/pkg/utl/config"
@@ -10,10 +12,12 @@ import (
 
 func main() {
 
-	cfgPath := flag.String("p", "./cmd/api/conf.local.yaml", "Path to config file")
-	flag.Parse()
+	err := godotenv.Load(fmt.Sprintf(".env.%s", os.Getenv("ENVIRONMENT_NAME")))
+	if err != nil {
+		fmt.Print("Error loading .env file")
+	}
 
-	cfg, err := config.Load(*cfgPath)
+	cfg, err := config.Load()
 	checkErr(err)
 
 	checkErr(api.Start(cfg))
