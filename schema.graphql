@@ -327,27 +327,7 @@ type LoginResponse {
 }
 
 type Query {
-  comment(id: ID!): Comment!
-  comments(filter: CommentFilter, pagination: CommentPagination): [Comment!]!
-  company(id: ID!): Company!
-  companies(filter: CompanyFilter, pagination: CompanyPagination): [Company!]!
-  follower(id: ID!): Follower!
-  followers(
-    filter: FollowerFilter
-    pagination: FollowerPagination
-  ): [Follower!]!
-  location(id: ID!): Location!
-  locations(
-    filter: LocationFilter
-    pagination: LocationPagination
-  ): [Location!]!
   login(username: String!, password: String!): LoginResponse!
-  post(id: ID!): Post!
-  posts(filter: PostFilter, pagination: PostPagination): [Post!]!
-  role(id: ID!): Role!
-  roles(filter: RoleFilter, pagination: RolePagination): [Role!]!
-  user(id: ID!): User!
-  users(filter: UserFilter, pagination: UserPagination): [User!]!
 }
 
 input CommentCreateInput {
@@ -664,61 +644,4 @@ type UsersDeletePayload {
 
 type UsersUpdatePayload {
   ok: Boolean!
-}
-
-type Mutation {
-  createComment(input: CommentCreateInput!): CommentPayload!
-  createComments(input: CommentsCreateInput!): CommentsPayload!
-  updateComment(id: ID!, input: CommentUpdateInput!): CommentPayload!
-  updateComments(
-    filter: CommentFilter
-    input: CommentUpdateInput!
-  ): CommentsUpdatePayload!
-  deleteComment(id: ID!): CommentDeletePayload!
-  deleteComments(filter: CommentFilter): CommentsDeletePayload!
-  createCompany(input: CompanyCreateInput!): CompanyPayload!
-  createCompanies(input: CompaniesCreateInput!): CompaniesPayload!
-  updateCompany(id: ID!, input: CompanyUpdateInput!): CompanyPayload!
-  updateCompanies(
-    filter: CompanyFilter
-    input: CompanyUpdateInput!
-  ): CompaniesUpdatePayload!
-  deleteCompany(id: ID!): CompanyDeletePayload!
-  deleteCompanies(filter: CompanyFilter): CompaniesDeletePayload!
-  createFollower(input: FollowerCreateInput!): FollowerPayload!
-  createFollowers(input: FollowersCreateInput!): FollowersPayload!
-  updateFollower(id: ID!, input: FollowerUpdateInput!): FollowerPayload!
-  updateFollowers(
-    filter: FollowerFilter
-    input: FollowerUpdateInput!
-  ): FollowersUpdatePayload!
-  deleteFollower(id: ID!): FollowerDeletePayload!
-  deleteFollowers(filter: FollowerFilter): FollowersDeletePayload!
-  createLocation(input: LocationCreateInput!): LocationPayload!
-  createLocations(input: LocationsCreateInput!): LocationsPayload!
-  updateLocation(id: ID!, input: LocationUpdateInput!): LocationPayload!
-  updateLocations(
-    filter: LocationFilter
-    input: LocationUpdateInput!
-  ): LocationsUpdatePayload!
-  deleteLocation(id: ID!): LocationDeletePayload!
-  deleteLocations(filter: LocationFilter): LocationsDeletePayload!
-  createPost(input: PostCreateInput!): PostPayload!
-  createPosts(input: PostsCreateInput!): PostsPayload!
-  updatePost(id: ID!, input: PostUpdateInput!): PostPayload!
-  updatePosts(filter: PostFilter, input: PostUpdateInput!): PostsUpdatePayload!
-  deletePost(id: ID!): PostDeletePayload!
-  deletePosts(filter: PostFilter): PostsDeletePayload!
-  createRole(input: RoleCreateInput!): RolePayload!
-  createRoles(input: RolesCreateInput!): RolesPayload!
-  updateRole(id: ID!, input: RoleUpdateInput!): RolePayload!
-  updateRoles(filter: RoleFilter, input: RoleUpdateInput!): RolesUpdatePayload!
-  deleteRole(id: ID!): RoleDeletePayload!
-  deleteRoles(filter: RoleFilter): RolesDeletePayload!
-  createUser(input: UserCreateInput!): UserPayload!
-  createUsers(input: UsersCreateInput!): UsersPayload!
-  updateUser(id: ID!, input: UserUpdateInput!): UserPayload!
-  updateUsers(filter: UserFilter, input: UserUpdateInput!): UsersUpdatePayload!
-  deleteUser(id: ID!): UserDeletePayload!
-  deleteUsers(filter: UserFilter): UsersDeletePayload!
 }
