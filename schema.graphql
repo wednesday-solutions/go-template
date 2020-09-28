@@ -329,7 +329,7 @@ type LoginResponse {
 type Query {
   login(username: String!, password: String!): LoginResponse!
   me: User!
-  list(pagination: UserPagination): UsersPayload!
+  users(pagination: UserPagination): UsersPayload!
 }
 
 input CommentCreateInput {

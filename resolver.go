@@ -80,7 +80,7 @@ func (r queryResolver) Me(ctx context.Context) (*fm.User, error) {
 	}, err
 }
 
-func (r queryResolver) List(ctx context.Context, pagination *fm.UserPagination) (*fm.UsersPayload, error) {
+func (r queryResolver) Users(ctx context.Context, pagination *fm.UserPagination) (*fm.UsersPayload, error) {
 
 	var queryMods []qm.QueryMod
 	if pagination != nil {
