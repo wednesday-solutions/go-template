@@ -27,3 +27,16 @@ func StringToBool(v string) bool {
 func NullDotStringToPointerString(v null.String) *string {
 	return v.Ptr()
 }
+
+// PointerStringToNullDotInt ...
+func PointerStringToNullDotInt(s *string) null.Int {
+	if s == nil {
+		return null.IntFrom(0)
+	}
+	v := *s
+	i, err := strconv.Atoi(v)
+	if err != nil {
+		return null.IntFrom(0)
+	}
+	return null.IntFrom(i)
+}

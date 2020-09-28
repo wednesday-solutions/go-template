@@ -33,6 +33,14 @@ func FindUserByID(userID int) (*models.User, error) {
 	return models.FindUser(context.Background(), contextExecutor, userID)
 }
 
+// CreateUserTx ...
+func CreateUserTx(user models.User, tx *sql.Tx) (models.User, error) {
+	contextExecutor := getContextExecutor(tx)
+
+	err := user.Insert(context.Background(), contextExecutor, boil.Infer())
+	return user, err
+}
+
 // UpdateUserTx ...
 func UpdateUserTx(user models.User, tx *sql.Tx) (models.User, error) {
 	contextExecutor := getContextExecutor(tx)

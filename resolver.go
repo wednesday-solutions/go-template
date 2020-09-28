@@ -8,6 +8,7 @@ import (
 	"github.com/volatiletech/null"
 	"github.com/wednesday-solutions/go-boiler/daos"
 	fm "github.com/wednesday-solutions/go-boiler/graphql_models"
+	"github.com/wednesday-solutions/go-boiler/models"
 	"github.com/wednesday-solutions/go-boiler/pkg/utl"
 	"github.com/wednesday-solutions/go-boiler/pkg/utl/config"
 	"github.com/wednesday-solutions/go-boiler/pkg/utl/convert"
@@ -128,6 +129,41 @@ func (r mutationResolver) RefreshToken(ctx context.Context, token string) (*fm.R
 		return nil, err
 	}
 	return &fm.RefreshTokenResponse{Token: resp}, nil
+}
+
+func (r mutationResolver) CreateUser(ctx context.Context, input fm.UserCreateInput) (*fm.UserPayload, error) {
+	user := models.User{
+		Username:   null.StringFromPtr(input.Username),
+		Password:   null.StringFromPtr(input.Password),
+		Email:      null.StringFromPtr(input.Email),
+		FirstName:  null.StringFromPtr(input.FirstName),
+		LastName:   null.StringFromPtr(input.LastName),
+		CompanyID:  convert.PointerStringToNullDotInt(input.CompanyID),
+		LocationID: convert.PointerStringToNullDotInt(input.LocationID),
+		RoleID:     convert.PointerStringToNullDotInt(input.RoleID),
+	}
+	// loading configurations
+	cfg, err := config.Load()
+	if err != nil {
+		return nil, fmt.Errorf("Error in loading config ")
+	}
+	// creating new secure service
+	sec := service.Secure(cfg)
+	user.Password = null.StringFrom(sec.Hash(user.Password.String))
+	newUser, err := daos.CreateUserTx(user, nil)
+	if err != nil {
+		return nil, resultwrapper.ResolverSQLError(err, "user information")
+	}
+	return &fm.UserPayload{User: &fm.User{
+		FirstName: convert.NullDotStringToPointerString(newUser.FirstName),
+		LastName:  convert.NullDotStringToPointerString(newUser.LastName),
+		Username:  convert.NullDotStringToPointerString(newUser.Username),
+		Email:     convert.NullDotStringToPointerString(newUser.Email),
+		Mobile:    convert.NullDotStringToPointerString(newUser.Mobile),
+		Phone:     convert.NullDotStringToPointerString(newUser.Phone),
+		Address:   convert.NullDotStringToPointerString(newUser.Address),
+	},
+	}, err
 }
 
 // Mutation ...
