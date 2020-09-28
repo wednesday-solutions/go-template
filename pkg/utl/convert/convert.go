@@ -2,6 +2,8 @@ package convert
 
 import (
 	"github.com/volatiletech/null"
+	graphql "github.com/wednesday-solutions/go-boiler/graphql_models"
+	"github.com/wednesday-solutions/go-boiler/models"
 	"strconv"
 )
 
@@ -28,6 +30,16 @@ func NullDotStringToPointerString(v null.String) *string {
 	return v.Ptr()
 }
 
+// NullDotBoolToPointerBool ...
+func NullDotBoolToPointerBool(v null.Bool) *bool {
+	return v.Ptr()
+}
+
+// NullDotIntToPointerInt ...
+func NullDotIntToPointerInt(v null.Int) *int {
+	return v.Ptr()
+}
+
 // PointerStringToNullDotInt ...
 func PointerStringToNullDotInt(s *string) null.Int {
 	if s == nil {
@@ -39,4 +51,28 @@ func PointerStringToNullDotInt(s *string) null.Int {
 		return null.IntFrom(0)
 	}
 	return null.IntFrom(i)
+}
+
+// UsersToGraphQlUsers ...
+func UsersToGraphQlUsers(u models.UserSlice) []*graphql.User {
+	var r []*graphql.User
+	for _, e := range u {
+		r = append(r, UserToGraphQlUser(e))
+	}
+	return r
+}
+
+// UserToGraphQlUser ...
+func UserToGraphQlUser(u *models.User) *graphql.User {
+	return &graphql.User{
+		ID:        strconv.Itoa(u.ID),
+		FirstName: NullDotStringToPointerString(u.FirstName),
+		LastName:  NullDotStringToPointerString(u.FirstName),
+		Username:  NullDotStringToPointerString(u.FirstName),
+		Email:     NullDotStringToPointerString(u.FirstName),
+		Mobile:    NullDotStringToPointerString(u.FirstName),
+		Phone:     NullDotStringToPointerString(u.FirstName),
+		Address:   NullDotStringToPointerString(u.Address),
+		Active:    NullDotBoolToPointerBool(u.Active),
+	}
 }

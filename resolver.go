@@ -6,6 +6,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/volatiletech/null"
+	"github.com/volatiletech/sqlboiler/boil"
+	"github.com/volatiletech/sqlboiler/queries/qm"
 	"github.com/wednesday-solutions/go-boiler/daos"
 	fm "github.com/wednesday-solutions/go-boiler/graphql_models"
 	"github.com/wednesday-solutions/go-boiler/models"
@@ -76,6 +78,21 @@ func (r queryResolver) Me(ctx context.Context) (*fm.User, error) {
 		Phone:     convert.NullDotStringToPointerString(user.Phone),
 		Address:   convert.NullDotStringToPointerString(user.Address),
 	}, err
+}
+
+func (r queryResolver) Users(ctx context.Context, pagination *fm.UserPagination) (*fm.UsersPayload, error) {
+
+	var queryMods []qm.QueryMod
+	if pagination != nil {
+		if pagination.Limit != 0 {
+			queryMods = append(queryMods, qm.Limit(pagination.Limit), qm.Offset(pagination.Page*pagination.Limit))
+		}
+	}
+	users, err := models.Users(queryMods...).All(context.Background(), boil.GetContextDB())
+	if err != nil {
+		return nil, resultwrapper.ResolverSQLError(err, "data")
+	}
+	return &fm.UsersPayload{Users: convert.UsersToGraphQlUsers(users)}, nil
 }
 
 func (r mutationResolver) ChangePassword(ctx context.Context, oldPassword string, newPassword string) (*fm.ChangePasswordResponse, error) {
@@ -164,6 +181,36 @@ func (r mutationResolver) CreateUser(ctx context.Context, input fm.UserCreateInp
 		Address:   convert.NullDotStringToPointerString(newUser.Address),
 	},
 	}, err
+}
+
+func (r mutationResolver) UpdateUser(ctx context.Context, input *fm.UserUpdateInput) (*fm.UserUpdatePayload, error) {
+	userID := auth.UserIDFromContext(ctx)
+	u := models.User{
+		ID:        userID,
+		FirstName: null.StringFromPtr(input.FirstName),
+		LastName:  null.StringFromPtr(input.LastName),
+		Mobile:    null.StringFromPtr(input.Mobile),
+		Phone:     null.StringFromPtr(input.Phone),
+		Address:   null.StringFromPtr(input.Address),
+	}
+	_, err := daos.UpdateUserTx(u, nil)
+	if err != nil {
+		return nil, resultwrapper.ResolverSQLError(err, "new information")
+	}
+	return &fm.UserUpdatePayload{Ok: true}, nil
+}
+
+func (r mutationResolver) DeleteUser(ctx context.Context) (*fm.UserDeletePayload, error) {
+	userID := auth.UserIDFromContext(ctx)
+	u, err := daos.FindUserByID(userID)
+	if err != nil {
+		return nil, resultwrapper.ResolverSQLError(err, "data")
+	}
+	_, err = daos.DeleteUser(*u)
+	if err != nil {
+		return nil, resultwrapper.ResolverSQLError(err, "user")
+	}
+	return &fm.UserDeletePayload{ID: fmt.Sprint(userID)}, nil
 }
 
 // Mutation ...
