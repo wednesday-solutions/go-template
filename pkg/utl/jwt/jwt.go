@@ -10,10 +10,11 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-var minSecretLen = 128
-
 // New generates new JWT service necessary for auth middleware
 func New(algo, secret string, ttlMinutes, minSecretLength int) (Service, error) {
+
+	var minSecretLen = 128
+
 	if minSecretLength > 0 {
 		minSecretLen = minSecretLength
 	}
