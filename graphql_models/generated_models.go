@@ -339,6 +339,11 @@ type LocationsUpdatePayload struct {
 	Ok bool `json:"ok"`
 }
 
+type LoginResponse struct {
+	Token        string `json:"token"`
+	RefreshToken string `json:"refreshToken"`
+}
+
 type Post struct {
 	ID        string     `json:"id"`
 	User      *User      `json:"user"`

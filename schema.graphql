@@ -321,6 +321,11 @@ input UserWhere {
   and: UserWhere
 }
 
+type LoginResponse {
+  token: String!
+  refreshToken: String!
+}
+
 type Query {
   comment(id: ID!): Comment!
   comments(filter: CommentFilter, pagination: CommentPagination): [Comment!]!
@@ -336,6 +341,7 @@ type Query {
     filter: LocationFilter
     pagination: LocationPagination
   ): [Location!]!
+  login(username: String!, password: String!): LoginResponse!
   post(id: ID!): Post!
   posts(filter: PostFilter, pagination: PostPagination): [Post!]!
   role(id: ID!): Role!
