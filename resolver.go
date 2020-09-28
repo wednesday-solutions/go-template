@@ -167,9 +167,13 @@ func (r mutationResolver) CreateUser(ctx context.Context, input fm.UserCreateInp
 }
 
 func (r mutationResolver) UpdateUser(ctx context.Context, id string, input *fm.UserUpdateInput) (*fm.UserUpdatePayload, error) {
-	userID := convert.StringToInt(id)
+	intID := convert.StringToInt(id)
+	userID := auth.UserIDFromContext(ctx)
+	if userID != intID {
+		return nil, fmt.Errorf("Unauthorized operation ")
+	}
 	u := models.User{
-		ID:        userID,
+		ID:        intID,
 		FirstName: null.StringFromPtr(input.FirstName),
 		LastName:  null.StringFromPtr(input.LastName),
 		Mobile:    null.StringFromPtr(input.Mobile),
