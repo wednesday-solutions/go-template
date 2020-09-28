@@ -123,7 +123,7 @@ func GqlMiddleware() echo.MiddlewareFunc {
 }
 
 // WhiteListedQueries ...
-var WhiteListedQueries = []string{"__schema", "introspectionquery", "login"}
+var WhiteListedQueries = []string{"__schema", "introspectionquery", "login", "createUser"}
 
 func contains(s []string, e string) bool {
 	for _, a := range s {

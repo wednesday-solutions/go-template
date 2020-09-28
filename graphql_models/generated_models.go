@@ -546,24 +546,14 @@ type User struct {
 }
 
 type UserCreateInput struct {
-	FirstName          *string `json:"firstName"`
-	LastName           *string `json:"lastName"`
-	Username           *string `json:"username"`
-	Password           *string `json:"password"`
-	Email              *string `json:"email"`
-	Mobile             *string `json:"mobile"`
-	Phone              *string `json:"phone"`
-	Address            *string `json:"address"`
-	Active             *bool   `json:"active"`
-	LastLogin          *int    `json:"lastLogin"`
-	LastPasswordChange *int    `json:"lastPasswordChange"`
-	Token              *string `json:"token"`
-	RoleID             *string `json:"roleId"`
-	CompanyID          *string `json:"companyId"`
-	LocationID         *string `json:"locationId"`
-	CreatedAt          *int    `json:"createdAt"`
-	DeletedAt          *int    `json:"deletedAt"`
-	UpdatedAt          *int    `json:"updatedAt"`
+	FirstName  *string `json:"firstName"`
+	LastName   *string `json:"lastName"`
+	Username   *string `json:"username"`
+	Password   *string `json:"password"`
+	Email      *string `json:"email"`
+	RoleID     *string `json:"roleId"`
+	CompanyID  *string `json:"companyId"`
+	LocationID *string `json:"locationId"`
 }
 
 type UserDeletePayload struct {
