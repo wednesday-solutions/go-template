@@ -326,8 +326,14 @@ type LoginResponse {
   refreshToken: String!
 }
 
+type RefreshTokenResponse {
+  token: String!
+}
+
 type Query {
   login(username: String!, password: String!): LoginResponse!
+  refreshToken(token: String!): RefreshTokenResponse!
+  me: User!
 }
 
 input CommentCreateInput {

@@ -1,6 +1,9 @@
 package convert
 
-import "strconv"
+import (
+	"github.com/volatiletech/null"
+	"strconv"
+)
 
 // StringToInt ...
 func StringToInt(v string) int {
@@ -18,4 +21,9 @@ func StringToBool(v string) bool {
 		return false
 	}
 	return i
+}
+
+// NullDotStringToPointerString ...
+func NullDotStringToPointerString(v null.String) *string {
+	return v.Ptr()
 }
