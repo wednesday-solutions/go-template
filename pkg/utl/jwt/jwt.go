@@ -3,18 +3,18 @@ package jwt
 import (
 	"fmt"
 	"github.com/wednesday-solutions/go-boiler/models"
+	resultwrapper "github.com/wednesday-solutions/go-boiler/pkg/utl/result_wrapper"
 	"strings"
 	"time"
-
-	"github.com/wednesday-solutions/go-boiler"
 
 	"github.com/dgrijalva/jwt-go"
 )
 
-var minSecretLen = 128
-
 // New generates new JWT service necessary for auth middleware
 func New(algo, secret string, ttlMinutes, minSecretLength int) (Service, error) {
+
+	var minSecretLen = 128
+
 	if minSecretLength > 0 {
 		minSecretLen = minSecretLength
 	}
@@ -49,12 +49,12 @@ type Service struct {
 func (s Service) ParseToken(authHeader string) (*jwt.Token, error) {
 	parts := strings.SplitN(authHeader, " ", 2)
 	if !(len(parts) == 2 && strings.ToLower(parts[0]) == "bearer") {
-		return nil, goboiler.ErrGeneric
+		return nil, resultwrapper.ErrGeneric
 	}
 
 	return jwt.Parse(parts[1], func(token *jwt.Token) (interface{}, error) {
 		if s.algo != token.Method {
-			return nil, goboiler.ErrGeneric
+			return nil, resultwrapper.ErrGeneric
 		}
 		return s.key, nil
 	})

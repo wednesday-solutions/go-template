@@ -1,21 +1,34 @@
 package config
 
 import (
-	"fmt"
-	"io/ioutil"
-
-	"gopkg.in/yaml.v2"
+	"github.com/wednesday-solutions/go-boiler/pkg/utl/convert"
+	"os"
 )
 
 // Load returns Configuration struct
-func Load(path string) (*Configuration, error) {
-	bytes, err := ioutil.ReadFile(path)
-	if err != nil {
-		return nil, fmt.Errorf("error reading config file, %s", err)
-	}
-	var cfg = new(Configuration)
-	if err := yaml.Unmarshal(bytes, cfg); err != nil {
-		return nil, fmt.Errorf("unable to decode into struct, %v", err)
+func Load() (*Configuration, error) {
+	cfg := &Configuration{
+		Server: &Server{
+			Port:         os.Getenv("SERVER_PORT"),
+			Debug:        convert.StringToBool(os.Getenv("SERVER_DEBUG")),
+			ReadTimeout:  convert.StringToInt(os.Getenv("SERVER_READ_TIMEOUT")),
+			WriteTimeout: convert.StringToInt(os.Getenv("SERVER_WRITE_TIMEOUT")),
+		},
+		DB: &Database{
+			LogQueries: convert.StringToBool(os.Getenv("DB_LOG_QUERIES")),
+			Timeout:    convert.StringToInt(os.Getenv("DB_TIMEOUT_SECONDS")),
+		},
+		JWT: &JWT{
+			MinSecretLength:  convert.StringToInt(os.Getenv("JWT_MIN_SECRET_LENGTH")),
+			DurationMinutes:  convert.StringToInt(os.Getenv("JWT_DURATION_MINUTES")),
+			RefreshDuration:  convert.StringToInt(os.Getenv("JWT_REFRESH_DURATION")),
+			MaxRefresh:       convert.StringToInt(os.Getenv("JWT_MAX_REFRESH")),
+			SigningAlgorithm: os.Getenv("JWT_SIGNING_ALGORITHM"),
+		},
+		App: &Application{
+			MinPasswordStr: convert.StringToInt(os.Getenv("APP_MIN_PASSWORD_STR")),
+			SwaggerUIPath:  os.Getenv("APP_SWAGGER_UI_PATH"),
+		},
 	}
 	return cfg, nil
 }

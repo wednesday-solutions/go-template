@@ -1,6 +1,9 @@
 package config_test
 
 import (
+	"fmt"
+	"github.com/joho/godotenv"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -10,23 +13,12 @@ import (
 func TestLoad(t *testing.T) {
 	cases := []struct {
 		name     string
-		path     string
 		wantData *config.Configuration
 		wantErr  bool
 	}{
 		{
-			name:    "Fail on non-existing file",
-			path:    "notExists",
-			wantErr: true,
-		},
-		{
-			name:    "Fail on wrong file format",
-			path:    "testdata/config.invalid.yaml",
-			wantErr: true,
-		},
-		{
-			name: "Success",
-			path: "testdata/config.testdata.yaml",
+			name:    "Success",
+			wantErr: false,
 			wantData: &config.Configuration{
 				DB: &config.Database{
 					LogQueries: true,
@@ -54,8 +46,12 @@ func TestLoad(t *testing.T) {
 	}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			cfg, err := config.Load(tt.path)
-			assert.Equal(t, tt.wantData, cfg)
+			fmt.Println(os.Getenv("ENVIRONMENT_NAME"))
+			err := godotenv.Load(fmt.Sprintf("../../../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
+			if err != nil {
+				fmt.Print("Error loading .env file")
+			}
+			_, err = config.Load()
 			assert.Equal(t, tt.wantErr, err != nil)
 		})
 	}

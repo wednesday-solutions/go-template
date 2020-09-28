@@ -2,13 +2,22 @@ package auth
 
 import (
 	"context"
-	"github.com/volatiletech/sqlboiler/boil"
-	"github.com/volatiletech/sqlboiler/queries/qm"
-	"github.com/wednesday-solutions/go-boiler/models"
-	"net/http"
-
+	graphql2 "github.com/99designs/gqlgen/graphql"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
+	"github.com/volatiletech/sqlboiler/boil"
+	"github.com/volatiletech/sqlboiler/queries/qm"
+	"github.com/wednesday-solutions/go-boiler/daos"
+	"github.com/wednesday-solutions/go-boiler/models"
+	resultwrapper "github.com/wednesday-solutions/go-boiler/pkg/utl/result_wrapper"
+	"net/http"
+	"reflect"
+)
+
+type key string
+
+const (
+	authorization key = "Authorization"
 )
 
 // TokenParser represents JWT token parser
@@ -99,4 +108,68 @@ func UserIDFromContext(ctx context.Context) int {
 		return user.ID
 	}
 	return 0
+}
+
+// GqlMiddleware ...
+func GqlMiddleware() echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			ctx := context.WithValue(c.Request().Context(), authorization, c.Request().Header.Get(string(authorization)))
+			c.SetRequest(c.Request().WithContext(ctx))
+			cc := &CustomContext{c, ctx}
+			return next(cc)
+		}
+	}
+}
+
+// WhiteListedQueries ...
+var WhiteListedQueries = []string{"__schema", "introspectionquery", "login"}
+
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}
+
+// GraphQLMiddleware ...
+func GraphQLMiddleware(ctx context.Context, tokenParser TokenParser, next graphql2.OperationHandler) graphql2.ResponseHandler {
+	operationContext := graphql2.GetOperationContext(ctx)
+
+	var needsAuth = false
+	for _, selectionSet := range operationContext.Operation.SelectionSet {
+
+		selection := reflect.ValueOf(selectionSet).Elem()
+		if !contains(WhiteListedQueries, selection.FieldByName("Name").Interface().(string)) {
+			needsAuth = true
+		}
+	}
+
+	if needsAuth {
+		// strip token
+		var tokenStr = ctx.Value(authorization).(string)
+		if len(tokenStr) == 0 {
+			return resultwrapper.HandleGraphQLError("Authorization header is missing")
+		}
+
+		token, err := tokenParser.ParseToken(tokenStr)
+
+		if err != nil || !token.Valid {
+			return resultwrapper.HandleGraphQLError("Invalid authorization token")
+		}
+		claims := token.Claims.(jwt.MapClaims)
+
+		email := claims["e"].(string)
+		user, err := daos.FindUserByEmail(email)
+		if err != nil {
+			return resultwrapper.HandleGraphQLError("No user found for this email address")
+		}
+
+		ctx = context.WithValue(ctx, userCtxKey, user)
+		return next(ctx)
+	}
+
+	return next(ctx)
 }
