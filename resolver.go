@@ -166,6 +166,23 @@ func (r mutationResolver) CreateUser(ctx context.Context, input fm.UserCreateInp
 	}, err
 }
 
+func (r mutationResolver) UpdateUser(ctx context.Context, id string, input *fm.UserUpdateInput) (*fm.UserUpdatePayload, error) {
+	userID := convert.StringToInt(id)
+	u := models.User{
+		ID:        userID,
+		FirstName: null.StringFromPtr(input.FirstName),
+		LastName:  null.StringFromPtr(input.LastName),
+		Mobile:    null.StringFromPtr(input.Mobile),
+		Phone:     null.StringFromPtr(input.Phone),
+		Address:   null.StringFromPtr(input.Address),
+	}
+	_, err := daos.UpdateUserTx(u, nil)
+	if err != nil {
+		return nil, resultwrapper.ResolverSQLError(err, "new information")
+	}
+	return &fm.UserUpdatePayload{Ok: true}, nil
+}
+
 // Mutation ...
 func (r *Resolver) Mutation() fm.MutationResolver { return &mutationResolver{r} }
 

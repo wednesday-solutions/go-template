@@ -595,22 +595,9 @@ input UserCreateInput {
 input UserUpdateInput {
   firstName: String
   lastName: String
-  username: String
-  password: String
-  email: String
   mobile: String
   phone: String
   address: String
-  active: Boolean
-  lastLogin: Int
-  lastPasswordChange: Int
-  token: String
-  roleId: ID
-  companyId: ID
-  locationId: ID
-  createdAt: Int
-  deletedAt: Int
-  updatedAt: Int
 }
 
 input UsersCreateInput {
@@ -633,7 +620,7 @@ type UsersDeletePayload {
   ids: [ID!]!
 }
 
-type UsersUpdatePayload {
+type UserUpdatePayload {
   ok: Boolean!
 }
 
@@ -649,4 +636,5 @@ type Mutation {
   changePassword(oldPassword: String!, newPassword: String!): ChangePasswordResponse!
   refreshToken(token: String!): RefreshTokenResponse!
   createUser(input: UserCreateInput!): UserPayload!
+  updateUser(id: ID!, input: UserUpdateInput): UserUpdatePayload!
 }
