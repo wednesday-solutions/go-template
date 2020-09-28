@@ -636,5 +636,5 @@ type Mutation {
   changePassword(oldPassword: String!, newPassword: String!): ChangePasswordResponse!
   refreshToken(token: String!): RefreshTokenResponse!
   createUser(input: UserCreateInput!): UserPayload!
-  updateUser(id: ID!, input: UserUpdateInput): UserUpdatePayload!
+  updateUser(input: UserUpdateInput): UserUpdatePayload!
 }

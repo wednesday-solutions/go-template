@@ -178,7 +178,7 @@ type ComplexityRoot struct {
 		ChangePassword func(childComplexity int, oldPassword string, newPassword string) int
 		CreateUser     func(childComplexity int, input UserCreateInput) int
 		RefreshToken   func(childComplexity int, token string) int
-		UpdateUser     func(childComplexity int, id string, input *UserUpdateInput) int
+		UpdateUser     func(childComplexity int, input *UserUpdateInput) int
 	}
 
 	Post struct {
@@ -302,7 +302,7 @@ type MutationResolver interface {
 	ChangePassword(ctx context.Context, oldPassword string, newPassword string) (*ChangePasswordResponse, error)
 	RefreshToken(ctx context.Context, token string) (*RefreshTokenResponse, error)
 	CreateUser(ctx context.Context, input UserCreateInput) (*UserPayload, error)
-	UpdateUser(ctx context.Context, id string, input *UserUpdateInput) (*UserUpdatePayload, error)
+	UpdateUser(ctx context.Context, input *UserUpdateInput) (*UserUpdatePayload, error)
 }
 type QueryResolver interface {
 	Login(ctx context.Context, username string, password string) (*LoginResponse, error)
@@ -748,7 +748,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateUser(childComplexity, args["id"].(string), args["input"].(*UserUpdateInput)), true
+		return e.complexity.Mutation.UpdateUser(childComplexity, args["input"].(*UserUpdateInput)), true
 
 	case "Post.body":
 		if e.complexity.Post.Body == nil {
@@ -1849,7 +1849,7 @@ type Mutation {
   changePassword(oldPassword: String!, newPassword: String!): ChangePasswordResponse!
   refreshToken(token: String!): RefreshTokenResponse!
   createUser(input: UserCreateInput!): UserPayload!
-  updateUser(id: ID!, input: UserUpdateInput): UserUpdatePayload!
+  updateUser(input: UserUpdateInput): UserUpdatePayload!
 }
 `, BuiltIn: false},
 }
@@ -1916,24 +1916,15 @@ func (ec *executionContext) field_Mutation_refreshToken_args(ctx context.Context
 func (ec *executionContext) field_Mutation_updateUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["id"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["id"] = arg0
-	var arg1 *UserUpdateInput
+	var arg0 *UserUpdateInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg1, err = ec.unmarshalOUserUpdateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserUpdateInput(ctx, tmp)
+		arg0, err = ec.unmarshalOUserUpdateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserUpdateInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["input"] = arg1
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -3995,7 +3986,7 @@ func (ec *executionContext) _Mutation_updateUser(ctx context.Context, field grap
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateUser(rctx, args["id"].(string), args["input"].(*UserUpdateInput))
+		return ec.resolvers.Mutation().UpdateUser(rctx, args["input"].(*UserUpdateInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
