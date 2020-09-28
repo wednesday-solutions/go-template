@@ -8,6 +8,7 @@ import (
 	"github.com/volatiletech/null"
 	"github.com/wednesday-solutions/go-boiler/daos"
 	fm "github.com/wednesday-solutions/go-boiler/graphql_models"
+	"github.com/wednesday-solutions/go-boiler/pkg/utl"
 	"github.com/wednesday-solutions/go-boiler/pkg/utl/config"
 	"github.com/wednesday-solutions/go-boiler/pkg/utl/convert"
 	"github.com/wednesday-solutions/go-boiler/pkg/utl/middleware/auth"
@@ -19,7 +20,7 @@ import (
 type Resolver struct {
 }
 
-func (q queryResolver) Login(ctx context.Context, username string, password string) (*fm.LoginResponse, error) {
+func (r queryResolver) Login(ctx context.Context, username string, password string) (*fm.LoginResponse, error) {
 	u, err := daos.FindUserByUserName(username)
 	if err != nil {
 		return nil, err
@@ -59,7 +60,7 @@ func (q queryResolver) Login(ctx context.Context, username string, password stri
 	return &fm.LoginResponse{Token: token, RefreshToken: refreshToken}, nil
 }
 
-func (q queryResolver) Me(ctx context.Context) (*fm.User, error) {
+func (r queryResolver) Me(ctx context.Context) (*fm.User, error) {
 	userID := auth.UserIDFromContext(ctx)
 	user, err := daos.FindUserByID(userID)
 	if err != nil {
@@ -76,7 +77,38 @@ func (q queryResolver) Me(ctx context.Context) (*fm.User, error) {
 	}, err
 }
 
-func (q mutationResolver) RefreshToken(ctx context.Context, token string) (*fm.RefreshTokenResponse, error) {
+func (r mutationResolver) ChangePassword(ctx context.Context, oldPassword string, newPassword string) (*fm.ChangePasswordResponse, error) {
+
+	userID := auth.UserIDFromContext(ctx)
+	u, err := daos.FindUserByID(userID)
+	if err != nil {
+		return nil, resultwrapper.ResolverSQLError(err, "data")
+	}
+
+	// loading configurations
+	cfg, err := config.Load()
+	if err != nil {
+		return nil, fmt.Errorf("Error in loading config ")
+	}
+	// creating new secure service
+	sec := service.Secure(cfg)
+	if !sec.HashMatchesPassword(utl.FromNullableString(u.Password), oldPassword) {
+		return nil, fmt.Errorf("incorrect old password")
+	}
+
+	if !sec.Password(newPassword, utl.FromNullableString(u.FirstName), utl.FromNullableString(u.LastName), utl.FromNullableString(u.Username), utl.FromNullableString(u.Email)) {
+		return nil, fmt.Errorf("insecure password")
+	}
+
+	u.Password = null.StringFrom(sec.Hash(newPassword))
+	_, err = daos.UpdateUserTx(*u, nil)
+	if err != nil {
+		return nil, resultwrapper.ResolverSQLError(err, "new information")
+	}
+	return &fm.ChangePasswordResponse{Ok: true}, err
+}
+
+func (r mutationResolver) RefreshToken(ctx context.Context, token string) (*fm.RefreshTokenResponse, error) {
 	user, err := daos.FindUserByToken(token)
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "token")

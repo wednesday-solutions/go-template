@@ -8,6 +8,10 @@ type BooleanFilter struct {
 	IsNull  *bool `json:"isNull"`
 }
 
+type ChangePasswordResponse struct {
+	Ok bool `json:"ok"`
+}
+
 type Comment struct {
 	ID        string `json:"id"`
 	User      *User  `json:"user"`

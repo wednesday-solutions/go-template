@@ -647,10 +647,15 @@ type UsersUpdatePayload {
   ok: Boolean!
 }
 
+type ChangePasswordResponse {
+  ok: Boolean!
+}
+
 type RefreshTokenResponse {
   token: String!
 }
 
 type Mutation {
+  changePassword(oldPassword: String!, newPassword: String!): ChangePasswordResponse!
   refreshToken(token: String!): RefreshTokenResponse!
 }
