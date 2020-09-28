@@ -329,6 +329,7 @@ type LoginResponse {
 type Query {
   login(username: String!, password: String!): LoginResponse!
   me: User!
+  list(pagination: UserPagination): UsersPayload!
 }
 
 input CommentCreateInput {
@@ -637,4 +638,5 @@ type Mutation {
   refreshToken(token: String!): RefreshTokenResponse!
   createUser(input: UserCreateInput!): UserPayload!
   updateUser(input: UserUpdateInput): UserUpdatePayload!
+  deleteUser: UserDeletePayload!
 }

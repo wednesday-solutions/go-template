@@ -47,3 +47,10 @@ func UpdateUserTx(user models.User, tx *sql.Tx) (models.User, error) {
 	_, err := user.Update(context.Background(), contextExecutor, boil.Infer())
 	return user, err
 }
+
+// DeleteUser ...
+func DeleteUser(user models.User) (int64, error) {
+	contextExecutor := getContextExecutor(nil)
+	rowsAffected, err := user.Delete(context.Background(), contextExecutor)
+	return rowsAffected, err
+}
