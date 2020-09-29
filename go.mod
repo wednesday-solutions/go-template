@@ -4,7 +4,7 @@ go 1.14
 
 require (
 	github.com/99designs/gqlgen v0.13.0
-	github.com/DATA-DOG/go-sqlmock v1.4.1 // indirect
+	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fortytw2/dockertest v0.0.0-20181228171220-480d52efdffe
