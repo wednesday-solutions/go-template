@@ -7,6 +7,11 @@ import (
 	"strconv"
 )
 
+// StringToPointerString ...
+func StringToPointerString(v string) *string {
+	return &v
+}
+
 // StringToInt ...
 func StringToInt(v string) int {
 	i, err := strconv.Atoi(v)
