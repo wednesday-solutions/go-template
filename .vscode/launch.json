@@ -20,10 +20,10 @@
       "mode": "auto",
       "program": "${cwd}/cmd/api/main.go",
       "env": {
-        "DB_NAME": "go_boiler",
+        "DB_NAME": "go_template",
         "DB_HOST": "localhost",
-        "DB_PASS": "go_boiler_role456",
-        "DB_USER": "go_boiler_role",
+        "DB_PASS": "go_template_role456",
+        "DB_USER": "go_template_role",
         "DB_SSL": "disable",
         "DB_PORT": "5432",
         "ENVIRONMENT_NAME": "dev",
