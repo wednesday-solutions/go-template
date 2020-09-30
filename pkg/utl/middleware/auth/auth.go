@@ -9,7 +9,6 @@ import (
 	"github.com/wednesday-solutions/go-boiler/models"
 	resultwrapper "github.com/wednesday-solutions/go-boiler/pkg/utl/result_wrapper"
 	"reflect"
-	"strings"
 )
 
 type key string
@@ -68,7 +67,7 @@ func GqlMiddleware() echo.MiddlewareFunc {
 var WhiteListedQueries = []string{"__schema", "introspectionquery", "login", "createUser"}
 
 // AdminQueries ...
-var AdminQueries = []string{"users", "yapilyusers", "useraccounts", "cleanup"}
+var AdminQueries []string
 
 func contains(s []string, e string) bool {
 	for _, a := range s {
@@ -91,7 +90,7 @@ func GraphQLMiddleware(ctx context.Context, tokenParser TokenParser, next graphq
 		if !contains(WhiteListedQueries, selection.FieldByName("Name").Interface().(string)) {
 			needsAuth = true
 		}
-		if contains(AdminQueries, strings.ToLower(selection.FieldByName("Name").Interface().(string))) {
+		if contains(AdminQueries, selection.FieldByName("Name").Interface().(string)) {
 			requiresSuperAdmin = true
 		}
 	}
