@@ -85,7 +85,7 @@ func TestLogin(t *testing.T) {
 				WillReturnResult(result)
 
 			c := context.Background()
-			response, err := resolver.Query().Login(c, tt.req.UserName, tt.req.Password)
+			response, err := resolver.Mutation().Login(c, tt.req.UserName, tt.req.Password)
 			if tt.wantResp != nil && response != nil {
 				tt.wantResp.RefreshToken = response.RefreshToken
 				tt.wantResp.Token = response.Token

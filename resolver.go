@@ -23,46 +23,6 @@ import (
 type Resolver struct {
 }
 
-func (r queryResolver) Login(ctx context.Context, username string, password string) (*fm.LoginResponse, error) {
-	u, err := daos.FindUserByUserName(username)
-	if err != nil {
-		return nil, err
-	}
-	// loading configurations
-	cfg, err := config.Load()
-	if err != nil {
-		return nil, fmt.Errorf("Error in loading config ")
-	}
-	// creating new secure and token generation service
-	sec := service.Secure(cfg)
-	tg, err := service.JWT(cfg)
-	if err != nil {
-		return nil, fmt.Errorf("Error in creating auth service ")
-	}
-
-	if !u.Password.Valid || (!sec.HashMatchesPassword(u.Password.String, password)) {
-		return nil, fmt.Errorf("Username or password does not exist ")
-	}
-
-	if !u.Active.Valid || (!u.Active.Bool) {
-		return nil, ErrUnauthorized
-	}
-
-	token, err := tg.GenerateToken(u)
-	if err != nil {
-		return nil, ErrUnauthorized
-	}
-
-	refreshToken := sec.Token(token)
-	u.Token = null.StringFrom(refreshToken)
-	_, err = daos.UpdateUserTx(*u, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return &fm.LoginResponse{Token: token, RefreshToken: refreshToken}, nil
-}
-
 func (r queryResolver) Me(ctx context.Context) (*fm.User, error) {
 	userID := auth.UserIDFromContext(ctx)
 	user, err := daos.FindUserByID(userID)
@@ -93,6 +53,46 @@ func (r queryResolver) Users(ctx context.Context, pagination *fm.UserPagination)
 		return nil, resultwrapper.ResolverSQLError(err, "data")
 	}
 	return &fm.UsersPayload{Users: convert.UsersToGraphQlUsers(users)}, nil
+}
+
+func (r mutationResolver) Login(ctx context.Context, username string, password string) (*fm.LoginResponse, error) {
+	u, err := daos.FindUserByUserName(username)
+	if err != nil {
+		return nil, err
+	}
+	// loading configurations
+	cfg, err := config.Load()
+	if err != nil {
+		return nil, fmt.Errorf("Error in loading config ")
+	}
+	// creating new secure and token generation service
+	sec := service.Secure(cfg)
+	tg, err := service.JWT(cfg)
+	if err != nil {
+		return nil, fmt.Errorf("Error in creating auth service ")
+	}
+
+	if !u.Password.Valid || (!sec.HashMatchesPassword(u.Password.String, password)) {
+		return nil, fmt.Errorf("Username or password does not exist ")
+	}
+
+	if !u.Active.Valid || (!u.Active.Bool) {
+		return nil, resultwrapper.ErrUnauthorized
+	}
+
+	token, err := tg.GenerateToken(u)
+	if err != nil {
+		return nil, resultwrapper.ErrUnauthorized
+	}
+
+	refreshToken := sec.Token(token)
+	u.Token = null.StringFrom(refreshToken)
+	_, err = daos.UpdateUserTx(*u, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return &fm.LoginResponse{Token: token, RefreshToken: refreshToken}, nil
 }
 
 func (r mutationResolver) ChangePassword(ctx context.Context, oldPassword string, newPassword string) (*fm.ChangePasswordResponse, error) {

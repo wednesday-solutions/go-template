@@ -11,6 +11,7 @@ import (
 	"github.com/wednesday-solutions/go-boiler/pkg/utl/server"
 	"net/http"
 	"net/http/httptest"
+	"regexp"
 	"strings"
 )
 
@@ -36,6 +37,112 @@ func ErrorFormatter(err string) ErrorMsg {
 		Errors: []string{err},
 	}
 	return e
+}
+
+// ErrorMsgLabels ...
+type ErrorMsgLabels struct {
+	Label string
+}
+
+// SplitByLabel ...
+func SplitByLabel(errStr string) string {
+	labelArray := []ErrorMsgLabels{{"Error"}, {"message"}}
+
+	r := regexp.MustCompile("code=[0-9]*")
+	_ = strings.Replace(errStr, r.FindString(errStr), "", -1)
+
+	for _, ele := range labelArray {
+		if strings.Contains(errStr, ele.Label) {
+			re, _ := regexp.Compile(fmt.Sprintf("(?i)%s[:|=]*", ele.Label))
+
+			return strings.SplitAfter(errStr, re.FindString(errStr))[1]
+		}
+	}
+	return errStr
+}
+
+// ResultWrapper ...
+func ResultWrapper(errorCode int, c echo.Context, err error) error {
+	errMessage := fmt.Sprint(err)
+	return WrapperFromMessage(errorCode, c, errMessage)
+}
+
+// WrapperFromMessage ...
+func WrapperFromMessage(errorCode int, c echo.Context, err string) error {
+	errMessage := fmt.Sprint(err)
+	e := ErrorFormatter(errMessage)
+	e1 := c.JSON(errorCode, e)
+	if e1 != nil {
+		return e1
+	}
+	return fmt.Errorf(errMessage)
+}
+
+// InternalServerError ...
+func InternalServerError(c echo.Context, err error) error {
+	return WrapperFromMessage(http.StatusInternalServerError, c, SplitByLabel(fmt.Sprint(err)))
+}
+
+// InternalServerErrorFromMessage ...
+func InternalServerErrorFromMessage(c echo.Context, err string) error {
+	return WrapperFromMessage(http.StatusInternalServerError, c, err)
+}
+
+// BadRequest ...
+func BadRequest(c echo.Context, err error) error {
+	return WrapperFromMessage(http.StatusBadRequest, c, SplitByLabel(fmt.Sprint(err)))
+}
+
+// BadRequestFromMessage ...
+func BadRequestFromMessage(c echo.Context, err string) error {
+	return WrapperFromMessage(http.StatusBadRequest, c, err)
+}
+
+// Conflict ...
+func Conflict(c echo.Context, err error) error {
+	return WrapperFromMessage(http.StatusConflict, c, SplitByLabel(fmt.Sprint(err)))
+}
+
+// ConflictFromMessage ...
+func ConflictFromMessage(c echo.Context, err string) error {
+	return WrapperFromMessage(http.StatusConflict, c, err)
+}
+
+// TooManyRequests ...
+func TooManyRequests(c echo.Context, err error) error {
+	return WrapperFromMessage(http.StatusTooManyRequests, c, fmt.Sprint(err))
+}
+
+// Unauthorized ...
+func Unauthorized(c echo.Context, err error) error {
+	return WrapperFromMessage(http.StatusUnauthorized, c, SplitByLabel(fmt.Sprint(err)))
+}
+
+// UnauthorizedFromMessage ...
+func UnauthorizedFromMessage(c echo.Context, err string) error {
+	return WrapperFromMessage(http.StatusUnauthorized, c, err)
+}
+
+// NoDataFound ...
+func NoDataFound(c echo.Context, err error) error {
+	substr := "duplicate key value violates unique constraint"
+	if strings.Contains(fmt.Sprintf("%s", err), substr) {
+		return ConflictFromMessage(c, "Data already exists. "+err.Error())
+	}
+	substr = "no rows in result"
+	if strings.Contains(fmt.Sprintf("%s", err), substr) {
+		return InternalServerErrorFromMessage(c, "failed to fetch data")
+	}
+	return BadRequest(c, err)
+}
+
+// ServiceUnavailable ...
+func ServiceUnavailable(c echo.Context, err error) error {
+	substr := "Service Unavailable"
+	if strings.Contains(fmt.Sprintf("%s", err), substr) {
+		return WrapperFromMessage(http.StatusServiceUnavailable, c, "unable to complete process")
+	}
+	return NoDataFound(c, err)
 }
 
 // HandleGraphQLError ...
