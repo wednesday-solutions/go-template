@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/wednesday-solutions/go-boiler/pkg/utl/config"
+	"github.com/wednesday-solutions/go-template/pkg/utl/config"
 )
 
 func TestLoad(t *testing.T) {

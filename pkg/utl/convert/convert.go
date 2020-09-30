@@ -2,8 +2,8 @@ package convert
 
 import (
 	"github.com/volatiletech/null"
-	graphql "github.com/wednesday-solutions/go-boiler/graphql_models"
-	"github.com/wednesday-solutions/go-boiler/models"
+	graphql "github.com/wednesday-solutions/go-template/graphql_models"
+	"github.com/wednesday-solutions/go-template/models"
 	"strconv"
 )
 

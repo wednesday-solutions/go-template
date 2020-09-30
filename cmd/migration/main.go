@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/wednesday-solutions/go-boiler/pkg/utl/postgres"
+	"github.com/wednesday-solutions/go-template/pkg/utl/postgres"
 
 	"github.com/go-pg/migrations/v7"
 )

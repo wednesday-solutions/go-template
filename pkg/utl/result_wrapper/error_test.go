@@ -2,7 +2,7 @@ package resultwrapper_test
 
 import (
 	"github.com/stretchr/testify/assert"
-	resultwrapper "github.com/wednesday-solutions/go-boiler/pkg/utl/result_wrapper"
+	resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
 	"testing"
 )
 

@@ -2,11 +2,11 @@ package jwt_test
 
 import (
 	"github.com/volatiletech/null"
-	"github.com/wednesday-solutions/go-boiler/models"
+	"github.com/wednesday-solutions/go-template/models"
 	"strings"
 	"testing"
 
-	"github.com/wednesday-solutions/go-boiler/pkg/utl/jwt"
+	"github.com/wednesday-solutions/go-template/pkg/utl/jwt"
 
 	"github.com/stretchr/testify/assert"
 )

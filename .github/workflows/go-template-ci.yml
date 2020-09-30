@@ -1,4 +1,4 @@
-name: Go-Boiler CI Master - Test
+name: Go-Template CI Master - Test
 
 on:
   pull_request:

@@ -36,17 +36,17 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/labstack/echo"
-	goboiler "github.com/wednesday-solutions/go-boiler"
+	goboiler "github.com/wednesday-solutions/go-template"
 	"os"
 
 	_ "github.com/lib/pq" // here
 	"github.com/volatiletech/sqlboiler/boil"
-	graphql "github.com/wednesday-solutions/go-boiler/graphql_models"
-	"github.com/wednesday-solutions/go-boiler/pkg/utl/config"
-	"github.com/wednesday-solutions/go-boiler/pkg/utl/jwt"
-	authMw "github.com/wednesday-solutions/go-boiler/pkg/utl/middleware/auth"
-	"github.com/wednesday-solutions/go-boiler/pkg/utl/postgres"
-	"github.com/wednesday-solutions/go-boiler/pkg/utl/server"
+	graphql "github.com/wednesday-solutions/go-template/graphql_models"
+	"github.com/wednesday-solutions/go-template/pkg/utl/config"
+	"github.com/wednesday-solutions/go-template/pkg/utl/jwt"
+	authMw "github.com/wednesday-solutions/go-template/pkg/utl/middleware/auth"
+	"github.com/wednesday-solutions/go-template/pkg/utl/postgres"
+	"github.com/wednesday-solutions/go-template/pkg/utl/server"
 )
 
 // Start starts the API service

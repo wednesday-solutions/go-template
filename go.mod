@@ -1,4 +1,4 @@
-module github.com/wednesday-solutions/go-boiler
+module github.com/wednesday-solutions/go-template
 
 go 1.14
 
