@@ -64,16 +64,16 @@ go run cmd/api/main.go
 
 # graphQL
 
-generate a Go ORM tailored to your database schema
+generate your database schema
 ```
 sqlboiler psql --no-hooks
 ```
 
-generate the models
-
+generate the graphql models from the schema
 ```
 gqlgen generate
 ```
+
 ## API (for graphQL to operate)
 
 - Graphql endpoint ```POST``` request ```/graphql```
