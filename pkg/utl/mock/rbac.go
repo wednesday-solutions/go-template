@@ -3,7 +3,7 @@ package mock
 import (
 	"github.com/labstack/echo"
 
-	"github.com/wednesday-solutions/go-boiler"
+	"github.com/wednesday-solutions/go-template"
 )
 
 // RBAC Mock

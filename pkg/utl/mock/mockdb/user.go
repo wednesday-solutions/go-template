@@ -2,7 +2,7 @@ package mockdb
 
 import (
 	"github.com/go-pg/pg/v9/orm"
-	"github.com/wednesday-solutions/go-boiler/models"
+	"github.com/wednesday-solutions/go-template/models"
 )
 
 // User database mock

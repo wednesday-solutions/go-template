@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/wednesday-solutions/go-boiler/pkg/utl/middleware/secure"
+	"github.com/wednesday-solutions/go-template/pkg/utl/middleware/secure"
 
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"

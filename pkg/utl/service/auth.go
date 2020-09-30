@@ -2,9 +2,9 @@ package service
 
 import (
 	"crypto/sha1"
-	"github.com/wednesday-solutions/go-boiler/pkg/utl/config"
-	"github.com/wednesday-solutions/go-boiler/pkg/utl/jwt"
-	"github.com/wednesday-solutions/go-boiler/pkg/utl/secure"
+	"github.com/wednesday-solutions/go-template/pkg/utl/config"
+	"github.com/wednesday-solutions/go-template/pkg/utl/jwt"
+	"github.com/wednesday-solutions/go-template/pkg/utl/secure"
 	"os"
 )
 

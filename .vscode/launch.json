@@ -14,7 +14,7 @@
       "args": []
     },
     {
-      "name": "Run go-boiler locally",
+      "name": "Run go-template locally",
       "type": "go",
       "request": "launch",
       "mode": "auto",

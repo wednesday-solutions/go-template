@@ -1,7 +1,7 @@
 package mock
 
 import (
-	"github.com/wednesday-solutions/go-boiler/models"
+	"github.com/wednesday-solutions/go-template/models"
 )
 
 // JWT mock

@@ -2,7 +2,7 @@ package postgres_test
 
 import (
 	"database/sql"
-	"github.com/wednesday-solutions/go-boiler/pkg/utl/postgres"
+	"github.com/wednesday-solutions/go-template/pkg/utl/postgres"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

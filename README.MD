@@ -1,4 +1,4 @@
-<img align="left" src="https://github.com/wednesday-solutions/go-template/blob/master/go_boiler_template.png" width="480" height="540" />
+<img align="left" src="https://github.com/wednesday-solutions/go-template/blob/master/go_template.png" width="480" height="540" />
 
 
 <div>
@@ -6,11 +6,11 @@
     <img src="https://uploads-ssl.webflow.com/5ee36ce1473112550f1e1739/5f5879492fafecdb3e5b0e75_wednesday_logo.svg">
   </a>
   <p>
-    <h1 align="left">Go-Boiler Template
+    <h1 align="left">Go Template
     </h1>
   </p>
   <p>
-An enterprise go-boiler template application showcasing - Testing strategies, Global state management, middleware support, and Continuous integration.
+An enterprise go template application showcasing - Testing strategies, Global state management, middleware support, and Continuous integration.
   </p>
   
   ___
@@ -42,9 +42,9 @@ GO boiler is a starter project with support for both REST as well as graphql
 
 ## Getting started
 
-Using go-boiler requires having Go 1.7 or above. Once you download go-boiler (either using Git or go get) you need to configure the following:
+Using go-template requires having Go 1.7 or above. Once you download go-template (either using Git or go get) you need to configure the following:
 
-1. To use go-boiler as a starting point of a real project whose package name is something like `github.com/author/project`, move the directory `$GOPATH/ github.com/wednesday-solutions/go-boiler` to `$GOPATH/github.com/author/project`. We use [task](https://github.com/go-task/task) as a task runner. Run `task relocate` to rename the packages, e.g. `task relocate TARGET=github.com/author/project`
+1. To use go-template as a starting point of a real project whose package name is something like `github.com/author/project`, move the directory `$GOPATH/ github.com/wednesday-solutions/go-template` to `$GOPATH/github.com/author/project`. We use [task](https://github.com/go-task/task) as a task runner. Run `task relocate` to rename the packages, e.g. `task relocate TARGET=github.com/author/project`
 
 2. Change the configuration file according to your needs, or create a new one.
 
@@ -67,11 +67,7 @@ go run cmd/api/main.go
 
 ## License
 
-go-boiler is licensed under the MIT license. Check the [LICENSE](LICENSE) file for details.
-
-## Author
-
-[Mohammed Ali Chherawalla](https://github.com/aliChherawalla)
+go-template is licensed under the MIT license. Check the [LICENSE](LICENSE) file for details.
 
 # graphQL
 

@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/wednesday-solutions/go-boiler/pkg/utl/convert"
+	"github.com/wednesday-solutions/go-template/pkg/utl/convert"
 	"os"
 )
 

@@ -8,7 +8,7 @@ import (
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo"
 	"github.com/vektah/gqlparser/v2/gqlerror"
-	"github.com/wednesday-solutions/go-boiler/pkg/utl/server"
+	"github.com/wednesday-solutions/go-template/pkg/utl/server"
 	"net/http"
 	"net/http/httptest"
 	"regexp"
