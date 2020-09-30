@@ -13,7 +13,6 @@ require (
 	github.com/gertd/go-pluralize v0.1.4
 	github.com/go-pg/migrations/v7 v7.1.11
 	github.com/go-pg/pg/v9 v9.1.6
-	github.com/go-pg/urlstruct v0.4.0 // indirect
 	github.com/go-playground/universal-translator v0.17.0 // indirect
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/gofrs/uuid v3.2.0+incompatible // indirect
@@ -43,14 +42,9 @@ require (
 	github.com/urfave/cli/v2 v2.2.0 // indirect
 	github.com/valyala/fasttemplate v1.1.0 // indirect
 	github.com/vektah/gqlparser/v2 v2.1.0
-	github.com/vmihailenco/bufpool v0.1.11 // indirect
-	github.com/vmihailenco/msgpack/v4 v4.3.11 // indirect
+	github.com/volatiletech/inflect v0.0.1 // indirect
 	github.com/volatiletech/null v8.0.0+incompatible
-	github.com/volatiletech/null/v8 v8.1.0 // indirect
-	github.com/volatiletech/randomize v0.0.1 // indirect
 	github.com/volatiletech/sqlboiler v3.7.0+incompatible
-	github.com/volatiletech/sqlboiler/v4 v4.2.0 // indirect
-	github.com/volatiletech/strmangle v0.0.1 // indirect
 	golang.org/x/crypto v0.0.0-20200427165652-729f1e841bcc
 	golang.org/x/sys v0.0.0-20200409092240-59c9f1ba88fa // indirect
 	golang.org/x/tools v0.0.0-20200410194907-79a7a3126eef // indirect
