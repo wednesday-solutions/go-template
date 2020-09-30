@@ -5,13 +5,11 @@ import (
 	graphql2 "github.com/99designs/gqlgen/graphql"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
-	"github.com/volatiletech/sqlboiler/boil"
-	"github.com/volatiletech/sqlboiler/queries/qm"
 	"github.com/wednesday-solutions/go-boiler/daos"
 	"github.com/wednesday-solutions/go-boiler/models"
 	resultwrapper "github.com/wednesday-solutions/go-boiler/pkg/utl/result_wrapper"
-	"net/http"
 	"reflect"
+	"strings"
 )
 
 type key string
@@ -23,50 +21,6 @@ const (
 // TokenParser represents JWT token parser
 type TokenParser interface {
 	ParseToken(string) (*jwt.Token, error)
-}
-
-// Middleware makes JWT implement the Middleware interface.
-func Middleware(tokenParser TokenParser) echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			if len(c.Request().Header.Get("Authorization")) == 0 && c.Request().RequestURI == "/graphql" && (c.Request().Header.Get("Referer") == "http://localhost:9000/playground" || c.Request().Header.Get("Referer") == "http://127.0.0.1:9000/playground") {
-				return next(c)
-			}
-			token, err := tokenParser.ParseToken(c.Request().Header.Get("Authorization"))
-			if err != nil || !token.Valid {
-				return c.NoContent(http.StatusUnauthorized)
-			}
-
-			claims := token.Claims.(jwt.MapClaims)
-
-			id := int(claims["id"].(float64))
-			companyID := int(claims["c"].(float64))
-			locationID := int(claims["l"].(float64))
-			username := claims["u"].(string)
-			email := claims["e"].(string)
-			user, err := models.Users(qm.Where("email=?", email)).One(context.Background(), boil.GetContextDB())
-			if err != nil {
-				return err
-			}
-
-			//ctx := context.WithValue(c.Request().Context(), userCtxKey, user)
-			ctx := context.WithValue(c.Request().Context(), userCtxKey, user)
-			c.SetRequest(c.Request().WithContext(ctx))
-
-			//cc := &CustomContext{c, ctx}
-
-			c.Set("id", id)
-			c.Set("company_id", companyID)
-			c.Set("location_id", locationID)
-			c.Set("username", username)
-			c.Set("email", email)
-			c.Set("user", user)
-
-			//c.Request().Context().Value(user)
-			cc := &CustomContext{c, ctx}
-			return next(cc)
-		}
-	}
 }
 
 // CustomContext ...
@@ -81,18 +35,6 @@ var userCtxKey = &contextKey{"user"}
 
 type contextKey struct {
 	name string
-}
-
-// FromContextWithCheck ...
-func FromContextWithCheck(c echo.Context) (*models.User, bool) {
-	user, exists := c.Get("user").(*models.User)
-	return user, exists
-}
-
-// ExistsInContext ...
-func ExistsInContext(ctx context.Context) bool {
-	_, exist := ctx.Value(userCtxKey).(*models.User)
-	return exist
 }
 
 // FromContext finds the user from the context. REQUIRES Middleware to have run.
@@ -125,6 +67,9 @@ func GqlMiddleware() echo.MiddlewareFunc {
 // WhiteListedQueries ...
 var WhiteListedQueries = []string{"__schema", "introspectionquery", "login", "createUser"}
 
+// AdminQueries ...
+var AdminQueries = []string{"users", "yapilyusers", "useraccounts", "cleanup"}
+
 func contains(s []string, e string) bool {
 	for _, a := range s {
 		if a == e {
@@ -139,15 +84,19 @@ func GraphQLMiddleware(ctx context.Context, tokenParser TokenParser, next graphq
 	operationContext := graphql2.GetOperationContext(ctx)
 
 	var needsAuth = false
+	var requiresSuperAdmin = false
 	for _, selectionSet := range operationContext.Operation.SelectionSet {
 
 		selection := reflect.ValueOf(selectionSet).Elem()
 		if !contains(WhiteListedQueries, selection.FieldByName("Name").Interface().(string)) {
 			needsAuth = true
 		}
+		if contains(AdminQueries, strings.ToLower(selection.FieldByName("Name").Interface().(string))) {
+			requiresSuperAdmin = true
+		}
 	}
 
-	if needsAuth {
+	if needsAuth || requiresSuperAdmin {
 		// strip token
 		var tokenStr = ctx.Value(authorization).(string)
 		if len(tokenStr) == 0 {
@@ -160,6 +109,17 @@ func GraphQLMiddleware(ctx context.Context, tokenParser TokenParser, next graphq
 			return resultwrapper.HandleGraphQLError("Invalid authorization token")
 		}
 		claims := token.Claims.(jwt.MapClaims)
+
+		if requiresSuperAdmin {
+
+			isSuperAdmin := false
+			if claims["role"].(string) == "ADMIN" {
+				isSuperAdmin = true
+			}
+			if !isSuperAdmin {
+				return resultwrapper.HandleGraphQLError("Unauthorized! \n Only admins are authorized to make this request.")
+			}
+		}
 
 		email := claims["e"].(string)
 		user, err := daos.FindUserByEmail(email)
