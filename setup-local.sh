@@ -8,7 +8,7 @@ go run cmd/migrations/*.go reset
 
 # run migrations
 go run cmd/migrations/*.go init
-go run cmd/migrations/*.go up $1
+go run cmd/migrations/*.go
 
 # seed data
 

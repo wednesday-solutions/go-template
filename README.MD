@@ -1,4 +1,4 @@
-<img align="left" src="https://github.com/wednesday-solutions/go-template/blob/master/go_template.png" width="480" height="540" />
+<img align="left" src="https://github.com/wednesday-solutions/go-template/blob/master/golang.svg" width="480" height="540" />
 
 
 <div>
@@ -36,6 +36,7 @@ An enterprise go template application showcasing - Testing strategies, Global st
   <span>We’re always looking for people who value their work, so come and join us. <a href="https://www.wednesday.is/hiring">We are hiring!</a></span>
 </div>
 
+
 # Go boiler
 
 GO boiler is a starter project with support for both REST as well as graphql   
@@ -44,34 +45,26 @@ GO boiler is a starter project with support for both REST as well as graphql
 
 Using go-template requires having Go 1.7 or above. Once you download go-template (either using Git or go get) you need to configure the following:
 
-1. To use go-template as a starting point of a real project whose package name is something like `github.com/author/project`, move the directory `$GOPATH/ github.com/wednesday-solutions/go-template` to `$GOPATH/github.com/author/project`. We use [task](https://github.com/go-task/task) as a task runner. Run `task relocate` to rename the packages, e.g. `task relocate TARGET=github.com/author/project`
 
-2. Change the configuration file according to your needs, or create a new one.
+1. Set the ("ENVIRONMENT_NAME") environment variable, either using terminal or os.Setenv("ENVIRONMENT_NAME","dev").
 
-3. Set the ("ENVIRONMENT_NAME") environment variable, either using terminal or os.Setenv("ENVIRONMENT_NAME","dev").
+2. Set the JWT secret env var ("JWT_SECRET")
 
-4. Set the JWT secret env var ("JWT_SECRET")
+3. In cmd/migration/main.go set up psn variable and then run it (go run main.go). It will create all tables, and necessery data, with a new account username/password admin/admin.
 
-5. In cmd/migration/main.go set up psn variable and then run it (go run main.go). It will create all tables, and necessery data, with a new account username/password admin/admin.
+4. To run all the migrations using the script setup-local.sh as follows `./setup-local.sh`.
 
-6. To run all the migrations using the script setup-local.sh as follows `./setup-local.sh 4`, the 4 represent the version that you need to migrate to.
+5. Generate the graphql models using ./generate-models.sh
 
-7. Generate the graphql models using ./generate-models.sh
-
-8. Run the app using:
+6. Run the app using:
 
 ```bash
 go run cmd/api/main.go
 ```
 
-
-## License
-
-go-template is licensed under the MIT license. Check the [LICENSE](LICENSE) file for details.
-
 # graphQL
 
-generate all the models
+generate a Go ORM tailored to your database schema
 ```
 sqlboiler psql --no-hooks
 ```
@@ -81,4 +74,32 @@ generate the models
 ```
 gqlgen generate
 ```
+## API (for graphQL to operate)
 
+- Graphql endpoint ```POST``` request ```/graphql```
+
+- Playground endpoint for schema ```/playground```
+
+  Take a look at the following file
+
+  - [pkg/api/api.go](pkg/api/api.go)
+  
+## Schema
+
+- Schema can generated or altered manually
+
+  Take a look at the following file
+
+  - [schema.graphql](schema.graphql)
+  
+## Resolver
+
+- Queries and mutation can be implemented as per convenience
+
+  Take a look at the following file
+
+  - [resolver.go](resolver.go)
+
+## License
+
+go-template is licensed under the MIT license. Check the [LICENSE](LICENSE) file for details.
