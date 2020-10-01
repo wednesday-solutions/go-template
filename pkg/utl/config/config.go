@@ -27,7 +27,6 @@ func Load() (*Configuration, error) {
 		},
 		App: &Application{
 			MinPasswordStr: convert.StringToInt(os.Getenv("APP_MIN_PASSWORD_STR")),
-			SwaggerUIPath:  os.Getenv("APP_SWAGGER_UI_PATH"),
 		},
 	}
 	return cfg, nil
@@ -66,6 +65,5 @@ type JWT struct {
 
 // Application holds application configuration details
 type Application struct {
-	MinPasswordStr int    `yaml:"min_password_strength,omitempty"`
-	SwaggerUIPath  string `yaml:"swagger_ui_path,omitempty"`
+	MinPasswordStr int `yaml:"min_password_strength,omitempty"`
 }

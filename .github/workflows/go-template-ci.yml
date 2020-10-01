@@ -27,7 +27,6 @@ jobs:
       - uses: golangci/golangci-lint-action@v1
         with:
           version: v1.27
-          args: --skip-dirs ^gqlgen/convert --skip-files *swagger.go --timeout 3m0s
       - uses: pre-commit/action@v2.0.0
       - name: Build
         run:  go build ./...
