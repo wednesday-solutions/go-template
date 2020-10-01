@@ -37,9 +37,9 @@ An enterprise go template application showcasing - Testing strategies, Global st
 </div>
 
 
-# Go boiler
+# Go Template
 
-GO boiler is a starter project with support for both REST as well as graphql   
+GO-template is a starter project with support for both REST as well as graphql   
 
 ## Getting started
 

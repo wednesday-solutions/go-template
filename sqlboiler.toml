@@ -1,8 +1,8 @@
 [psql]
-  dbname = "go_boiler"
+  dbname = "go_template"
   host   = "localhost"
   port   = 5432
-  user   = "go_boiler_role"
-  pass   = "go_boiler_role456"
+  user   = "go_template_role"
+  pass   = "go_template_role456"
   sslmode = "disable"
   blacklist = ["gopg_migrations"]
