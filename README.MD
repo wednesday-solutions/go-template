@@ -1,3 +1,5 @@
+<img align="left" src="https://github.com/wednesday-solutions/go-template/blob/master/golang.svg" width="480" height="500" />
+
 <div>
   <a href="https://www.wednesday.is?utm_source=gthb&utm_medium=repo&utm_campaign=serverless" align="left" style="margin-left: 0;">
     <img src="https://uploads-ssl.webflow.com/5ee36ce1473112550f1e1739/5f5879492fafecdb3e5b0e75_wednesday_logo.svg">
@@ -31,6 +33,7 @@ An enterprise go template application showcasing - Testing strategies, Global st
   ___
 
   <span>We’re always looking for people who value their work, so come and join us. <a href="https://www.wednesday.is/hiring">We are hiring!</a></span>
+
 
 </div>
 
