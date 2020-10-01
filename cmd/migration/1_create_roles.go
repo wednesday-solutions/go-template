@@ -99,6 +99,14 @@ func init() {
 			}
 		}
 		return nil
+	}, func(db migrations.DB) error {
+		for i := len(tableNames) - 1; i >= 0; i-- {
+			err := DropTable(db, tableNames[i])
+			if err != nil {
+				return err
+			}
+		}
+		return nil
 	})
 }
 
