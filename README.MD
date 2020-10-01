@@ -9,7 +9,7 @@
     </h1>
   </p>
   <p>
-An enterprise go template application showcasing - Testing strategies, Global state management, middleware support, and Continuous integration.
+An enterprise go template application showcasing - Testing strategies, middleware support, and Continuous integration.
   </p>
   
   ___
@@ -36,8 +36,6 @@ An enterprise go template application showcasing - Testing strategies, Global st
 
 
 </div>
-
-# Go Template
 
 Go Template is a starter project with support for both REST as well as graphql   
 
