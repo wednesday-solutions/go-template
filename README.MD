@@ -39,7 +39,7 @@ An enterprise go template application showcasing - Testing strategies, Global st
 
 # Go Template
 
-GO-template is a starter project with support for both REST as well as graphql   
+Go Template is a starter project with support for both REST as well as graphql   
 
 ## Getting started
 
@@ -133,4 +133,4 @@ gqlgen generate
 
 ## License
 
-go-template is licensed under the MIT license. Check the [LICENSE](LICENSE) file for details.
+Go Template is licensed under the MIT license. Check the [LICENSE](LICENSE) file for details.
