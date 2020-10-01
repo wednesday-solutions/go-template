@@ -1,6 +1,6 @@
-// Package goboiler ...
+// Package gotemplate ...
 // THIS CODE IS A STARTING POINT ONLY. IT WILL NOT BE UPDATED WITH SCHEMA CHANGES.
-package goboiler
+package gotemplate
 
 import (
 	"context"
@@ -11,7 +11,6 @@ import (
 	"github.com/wednesday-solutions/go-template/daos"
 	fm "github.com/wednesday-solutions/go-template/graphql_models"
 	"github.com/wednesday-solutions/go-template/models"
-	"github.com/wednesday-solutions/go-template/pkg/utl"
 	"github.com/wednesday-solutions/go-template/pkg/utl/config"
 	"github.com/wednesday-solutions/go-template/pkg/utl/convert"
 	"github.com/wednesday-solutions/go-template/pkg/utl/middleware/auth"
@@ -110,11 +109,11 @@ func (r mutationResolver) ChangePassword(ctx context.Context, oldPassword string
 	}
 	// creating new secure service
 	sec := service.Secure(cfg)
-	if !sec.HashMatchesPassword(utl.FromNullableString(u.Password), oldPassword) {
+	if !sec.HashMatchesPassword(convert.NullDotStringToString(u.Password), oldPassword) {
 		return nil, fmt.Errorf("incorrect old password")
 	}
 
-	if !sec.Password(newPassword, utl.FromNullableString(u.FirstName), utl.FromNullableString(u.LastName), utl.FromNullableString(u.Username), utl.FromNullableString(u.Email)) {
+	if !sec.Password(newPassword, convert.NullDotStringToString(u.FirstName), convert.NullDotStringToString(u.LastName), convert.NullDotStringToString(u.Username), convert.NullDotStringToString(u.Email)) {
 		return nil, fmt.Errorf("insecure password")
 	}
 

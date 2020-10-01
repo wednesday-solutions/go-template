@@ -62,6 +62,37 @@ Using go-template requires having Go 1.7 or above. Once you download go-template
 go run cmd/api/main.go
 ```
 
+# Setting up database (postgres)
+
+- Requirement [postgresql](https://www.postgresql.org/)
+  
+Steps to setup database with ```username``` and ```role``` using terminal
+  
+  - Enter postgres terminal ```psql postgres```
+  - Create new database ```CREATE DATABASE database_name;```
+  - Create new role with password ```CREATE ROLE user_role WITH LOGIN PASSWORD 'user_role_password';```
+
+**NOTE:** Replace these credentials in ```.env``` file of the project
+
+# Running migrations
+
+Get the migration package using
+```
+go get github.com/go-pg/migrations/v7
+```
+
+Migrations are present in ```cmd/migration``` package. Run below command to run all migrations at once
+```
+go run cmd/migration/*go
+```
+To drop migration use following
+```
+go run cmd/migration/*go reset
+```
+To add migration, append table name and query to the array `<tableQueries>` in ```cmd/migration```
+
+For more information on migration package refer https://github.com/go-pg/migrations
+
 # graphQL
 
 generate your database schema

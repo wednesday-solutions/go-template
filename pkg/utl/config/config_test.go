@@ -39,7 +39,6 @@ func TestLoad(t *testing.T) {
 				},
 				App: &config.Application{
 					MinPasswordStr: 3,
-					SwaggerUIPath:  "assets/swagger",
 				},
 			},
 		},

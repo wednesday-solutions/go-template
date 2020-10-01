@@ -1,4 +1,4 @@
-package goboiler
+package gotemplate
 
 // Pagination constants
 const (

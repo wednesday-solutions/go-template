@@ -1,7 +1,3 @@
-// Copyright 2017 Emir Ribic. All rights reserved.
-// Use of this source code is governed by an MIT-style
-// license that can be found in the LICENSE file.
-
 // Package api Go-Template
 //
 // API Docs for GO-Template v1
@@ -26,8 +22,6 @@
 //          type: apiKey
 //          name: Authorization
 //          in: header
-//
-// swagger:meta
 package api
 
 import (
@@ -63,7 +57,6 @@ func Start(cfg *config.Configuration) error {
 	}
 
 	e := server.New()
-	e.Static("/swaggerui", cfg.App.SwaggerUIPath)
 
 	gqlMiddleware := authMw.GqlMiddleware()
 

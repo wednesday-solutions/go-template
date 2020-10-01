@@ -1,4 +1,4 @@
-package goboiler_test
+package gotemplate_test
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/volatiletech/null"
 	"github.com/volatiletech/sqlboiler/boil"
-	goboiler "github.com/wednesday-solutions/go-template"
+	gotemplate "github.com/wednesday-solutions/go-template"
 	fm "github.com/wednesday-solutions/go-template/graphql_models"
 	"github.com/wednesday-solutions/go-template/models"
 	"github.com/wednesday-solutions/go-template/pkg/utl/convert"
@@ -47,7 +47,7 @@ func TestLogin(t *testing.T) {
 		},
 	}
 
-	resolver := goboiler.Resolver{}
+	resolver := gotemplate.Resolver{}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			err := godotenv.Load(fmt.Sprintf(".env.%s", os.Getenv("ENVIRONMENT_NAME")))
@@ -109,7 +109,7 @@ func TestMe(t *testing.T) {
 		},
 	}
 
-	resolver := goboiler.Resolver{}
+	resolver := gotemplate.Resolver{}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			err := godotenv.Load(fmt.Sprintf(".env.%s", os.Getenv("ENVIRONMENT_NAME")))
@@ -167,7 +167,7 @@ func TestUsers(t *testing.T) {
 		},
 	}
 
-	resolver := goboiler.Resolver{}
+	resolver := gotemplate.Resolver{}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			err := godotenv.Load(fmt.Sprintf(".env.%s", os.Getenv("ENVIRONMENT_NAME")))
@@ -233,7 +233,7 @@ func TestChangePassword(t *testing.T) {
 		},
 	}
 
-	resolver := goboiler.Resolver{}
+	resolver := gotemplate.Resolver{}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			err := godotenv.Load(fmt.Sprintf(".env.%s", os.Getenv("ENVIRONMENT_NAME")))
@@ -302,7 +302,7 @@ func TestRefreshToken(t *testing.T) {
 		},
 	}
 
-	resolver := goboiler.Resolver{}
+	resolver := gotemplate.Resolver{}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			err := godotenv.Load(fmt.Sprintf(".env.%s", os.Getenv("ENVIRONMENT_NAME")))
@@ -364,7 +364,7 @@ func TestCreateUser(t *testing.T) {
 		},
 	}
 
-	resolver := goboiler.Resolver{}
+	resolver := gotemplate.Resolver{}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			err := godotenv.Load(fmt.Sprintf(".env.%s", os.Getenv("ENVIRONMENT_NAME")))
@@ -424,7 +424,7 @@ func TestUpdateUser(t *testing.T) {
 		},
 	}
 
-	resolver := goboiler.Resolver{}
+	resolver := gotemplate.Resolver{}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			err := godotenv.Load(fmt.Sprintf(".env.%s", os.Getenv("ENVIRONMENT_NAME")))
@@ -480,7 +480,7 @@ func TestDeleteUser(t *testing.T) {
 		},
 	}
 
-	resolver := goboiler.Resolver{}
+	resolver := gotemplate.Resolver{}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			err := godotenv.Load(fmt.Sprintf(".env.%s", os.Getenv("ENVIRONMENT_NAME")))
