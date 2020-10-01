@@ -87,18 +87,19 @@ func init() {
 			);`, tableNames[6]),
 	}
 
-	for i := 0; i < len(tableNames); i++ {
-		migrations.MustRegister(func(db migrations.DB) error {
+	migrations.MustRegister(func(db migrations.DB) error {
+		for i := 0; i < len(tableNames); i++ {
 			err := CreateTriggerForUpdatedAt(db)
 			if err != nil {
 				return err
 			}
 			err = createTable(db, createTableQueries[i], tableNames[i])
-			return err
-		}, func(db migrations.DB) error {
-			return DropTable(db, tableNames[i])
-		})
-	}
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 }
 
 func createTable(db migrations.DB, createTableQuery string, tableName string) error {
