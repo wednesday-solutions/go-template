@@ -37,6 +37,7 @@ An enterprise go template application showcasing - Testing strategies, middlewar
 
 </div>
 
+---
 Go Template is a starter project with support for both REST as well as graphql   
 
 ## Getting started
