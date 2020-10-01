@@ -1,4 +1,4 @@
-<img align="left" src="https://github.com/wednesday-solutions/go-template/blob/master/golang.svg" width="480" height="500" />
+<img align="left" src="https://github.com/wednesday-solutions/go-template/blob/master/golang.svg" width="440" height="480" />
 
 <div>
   <a href="https://www.wednesday.is?utm_source=gthb&utm_medium=repo&utm_campaign=serverless" align="left" style="margin-left: 0;">
