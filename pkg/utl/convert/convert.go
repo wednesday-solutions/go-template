@@ -35,13 +35,16 @@ func NullDotStringToPointerString(v null.String) *string {
 	return v.Ptr()
 }
 
-// NullDotBoolToPointerBool ...
-func NullDotBoolToPointerBool(v null.Bool) *bool {
-	return v.Ptr()
+// NullDotStringToString ...
+func NullDotStringToString(v null.String) string {
+	if v.Ptr() == nil {
+		return ""
+	}
+	return *v.Ptr()
 }
 
-// NullDotIntToPointerInt ...
-func NullDotIntToPointerInt(v null.Int) *int {
+// NullDotBoolToPointerBool ...
+func NullDotBoolToPointerBool(v null.Bool) *bool {
 	return v.Ptr()
 }
 

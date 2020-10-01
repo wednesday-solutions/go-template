@@ -1,4 +1,4 @@
-package goboiler
+package gotemplate
 
 import "github.com/labstack/echo"
 
