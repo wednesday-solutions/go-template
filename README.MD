@@ -92,14 +92,16 @@ To add migration, append table name and query to the array `<tableQueries>` in `
 
 For more information on migration package refer https://github.com/go-pg/migrations
 
-# graphQL
+# DB Schema
 
 generate your database schema
 ```
 sqlboiler psql --no-hooks
 ```
 
-generate the graphql models from the schema
+# graphQL
+
+generate the graphql models from the database schema
 ```
 gqlgen generate
 ```
