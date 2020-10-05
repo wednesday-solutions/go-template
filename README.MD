@@ -40,6 +40,14 @@ An enterprise go template application showcasing - Testing strategies, middlewar
 ---
 Go Template is a starter project with support for both REST and graphql   
 
+## Out of the box support for
+
+- Dockerization
+- Authorization middleware
+- Paginated endpoints
+- Simplified support for migrations and seeders
+- DAO layer for all database interactions
+
 ## Getting started
 
 Using go-template requires having Go 1.7 or above. Once you download go-template (either using Git or go get) you need to configure the following:
