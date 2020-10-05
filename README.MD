@@ -38,7 +38,7 @@ An enterprise go template application showcasing - Testing strategies, middlewar
 </div>
 
 ---
-Go Template is a starter project with support for both REST as well as graphql   
+Go Template is a starter project with support for both REST and graphql   
 
 ## Getting started
 
@@ -64,7 +64,7 @@ Steps to set up database with ```username``` and ```role``` using terminal
   
   - Enter postgres terminal ```psql postgres```
   - Create new database ```CREATE DATABASE database_name;```
-  - Create new role with password ```CREATE ROLE user_role WITH LOGIN PASSWORD 'user_role_password';```
+  - Create a new role with password ```CREATE ROLE user_role WITH LOGIN PASSWORD 'user_role_password';```
 
 **NOTE:** Replace these credentials in ```.env``` file of the project
 
@@ -75,7 +75,7 @@ Get the migration package using
 go get github.com/go-pg/migrations/v7
 ```
 
-Migrations are present in ```cmd/migration``` package. Run below command to run all migrations at once
+Migrations are present in ```cmd/migration``` package. Run below command to run all migrations at once:
 ```
 go run cmd/migration/*go
 ```
