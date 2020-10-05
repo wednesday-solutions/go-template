@@ -1,4 +1,4 @@
-<img align="left" src="https://github.com/wednesday-solutions/go-template/blob/master/golang.svg" width="440" height="480" />
+<img align="left" src="https://github.com/wednesday-solutions/go-template/blob/master/golang_template_github.svg" width="440" height="480" />
 
 <div>
   <a href="https://www.wednesday.is?utm_source=gthb&utm_medium=repo&utm_campaign=serverless" align="left" style="margin-left: 0;">
@@ -38,24 +38,27 @@ An enterprise go template application showcasing - Testing strategies, middlewar
 </div>
 
 ---
-Go Template is a starter project with support for both REST as well as graphql   
+Go Template is a starter project with support for both REST and graphql   
+
+## Out of the box support for
+
+- Dockerization
+- Authorization middleware
+- Paginated endpoints
+- Simplified support for migrations and seeders
+- DAO layer for all database interactions
 
 ## Getting started
 
 Using go-template requires having Go 1.7 or above. Once you download go-template (either using Git or go get) you need to configure the following:
 
-
 1. Set the ("ENVIRONMENT_NAME") environment variable, either using terminal or os.Setenv("ENVIRONMENT_NAME","dev").
 
-2. Set the JWT secret env var ("JWT_SECRET")
+2. To run all the migrations using the script setup-local.sh as follows `./setup-local.sh`.
 
-3. In cmd/migration/main.go set up psn variable and then run it (go run main.go). It will create all tables, and necessery data, with a new account username/password admin/admin.
+3. Generate the graphql models using `./generate-models.sh`
 
-4. To run all the migrations using the script setup-local.sh as follows `./setup-local.sh`.
-
-5. Generate the graphql models using ./generate-models.sh
-
-6. Run the app using:
+4. Run the app using:
 
 ```bash
 go run cmd/api/main.go
@@ -65,22 +68,17 @@ go run cmd/api/main.go
 
 - Requirement [postgresql](https://www.postgresql.org/)
   
-Steps to setup database with ```username``` and ```role``` using terminal
+Steps to set up database with ```username``` and ```role``` using terminal
   
   - Enter postgres terminal ```psql postgres```
   - Create new database ```CREATE DATABASE database_name;```
-  - Create new role with password ```CREATE ROLE user_role WITH LOGIN PASSWORD 'user_role_password';```
+  - Create a new role with password ```CREATE ROLE user_role WITH LOGIN PASSWORD 'user_role_password';```
 
 **NOTE:** Replace these credentials in ```.env``` file of the project
 
 # Running migrations
 
-Get the migration package using
-```
-go get github.com/go-pg/migrations/v7
-```
-
-Migrations are present in ```cmd/migration``` package. Run below command to run all migrations at once
+Migrations are present in ```cmd/migration``` package. Run below command to run all migrations at once:
 ```
 go run cmd/migration/*go
 ```
@@ -92,14 +90,16 @@ To add migration, append table name and query to the array `<tableQueries>` in `
 
 For more information on migration package refer https://github.com/go-pg/migrations
 
-# graphQL
+# DB Models
 
-generate your database schema
+generate your database models
 ```
 sqlboiler psql --no-hooks
 ```
 
-generate the graphql models from the schema
+# graphQL
+
+generate the graphql models from the database schema
 ```
 gqlgen generate
 ```
