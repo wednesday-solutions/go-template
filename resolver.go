@@ -4,6 +4,7 @@ package gotemplate
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/volatiletech/null"
 	"github.com/volatiletech/sqlboiler/boil"
@@ -14,6 +15,7 @@ import (
 	"github.com/wednesday-solutions/go-template/pkg/utl/config"
 	"github.com/wednesday-solutions/go-template/pkg/utl/convert"
 	"github.com/wednesday-solutions/go-template/pkg/utl/middleware/auth"
+	"github.com/wednesday-solutions/go-template/pkg/utl/redis"
 	resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
 	"github.com/wednesday-solutions/go-template/pkg/utl/service"
 )
@@ -24,9 +26,28 @@ type Resolver struct {
 
 func (r queryResolver) Me(ctx context.Context) (*fm.User, error) {
 	userID := auth.UserIDFromContext(ctx)
-	user, err := daos.FindUserByID(userID)
+	// get user cache key
+	cachedUserValue, err := redis.GetKeyValue(fmt.Sprintf("user%d", userID))
 	if err != nil {
-		return nil, resultwrapper.ResolverSQLError(err, "data")
+		return nil, fmt.Errorf("%s", err)
+	}
+	var user *models.User
+	if cachedUserValue != nil {
+		b := cachedUserValue.([]byte)
+		err = json.Unmarshal(b, &user)
+		if err != nil {
+			return nil, fmt.Errorf("%s", err)
+		}
+	} else {
+		user, err = daos.FindUserByID(userID)
+		if err != nil {
+			return nil, resultwrapper.ResolverSQLError(err, "data")
+		}
+		// setting user cache key
+		err := redis.SetKeyValue(fmt.Sprintf("user%d", userID), user)
+		if err != nil {
+			return nil, fmt.Errorf("%s", err)
+		}
 	}
 	return &fm.User{
 		FirstName: convert.NullDotStringToPointerString(user.FirstName),
@@ -170,6 +191,11 @@ func (r mutationResolver) CreateUser(ctx context.Context, input fm.UserCreateInp
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "user information")
 	}
+	// setting user cache key
+	err = redis.SetKeyValue(fmt.Sprintf("user%d", newUser.ID), newUser)
+	if err != nil {
+		return nil, fmt.Errorf("%s", err)
+	}
 	return &fm.UserPayload{User: &fm.User{
 		FirstName: convert.NullDotStringToPointerString(newUser.FirstName),
 		LastName:  convert.NullDotStringToPointerString(newUser.LastName),
@@ -192,9 +218,14 @@ func (r mutationResolver) UpdateUser(ctx context.Context, input *fm.UserUpdateIn
 		Phone:     null.StringFromPtr(input.Phone),
 		Address:   null.StringFromPtr(input.Address),
 	}
-	_, err := daos.UpdateUserTx(u, nil)
+	newUser, err := daos.UpdateUserTx(u, nil)
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "new information")
+	}
+	// setting user cache key
+	err = redis.SetKeyValue(fmt.Sprintf("user%d", userID), newUser)
+	if err != nil {
+		return nil, fmt.Errorf("%s", err)
 	}
 	return &fm.UserUpdatePayload{Ok: true}, nil
 }
