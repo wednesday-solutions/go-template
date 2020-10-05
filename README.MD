@@ -78,11 +78,6 @@ Steps to set up database with ```username``` and ```role``` using terminal
 
 # Running migrations
 
-Get the migration package using
-```
-go get github.com/go-pg/migrations/v7
-```
-
 Migrations are present in ```cmd/migration``` package. Run below command to run all migrations at once:
 ```
 go run cmd/migration/*go
