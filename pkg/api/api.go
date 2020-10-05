@@ -31,6 +31,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/labstack/echo"
 	goboiler "github.com/wednesday-solutions/go-template"
+	"github.com/wednesday-solutions/go-template/pkg/utl/ratelimiter"
 	"os"
 
 	_ "github.com/lib/pq" // here
@@ -67,7 +68,7 @@ func Start(cfg *config.Configuration) error {
 	if os.Getenv("ENVIRONMENT_NAME") == "local" {
 		boil.DebugMode = true
 	}
-
+	burstLimit := 15
 	// graphql apis
 	graphqlHandler.AroundOperations(func(ctx context.Context, next graphql2.OperationHandler) graphql2.ResponseHandler {
 		return authMw.GraphQLMiddleware(ctx, jwt, next)
@@ -78,7 +79,7 @@ func Start(cfg *config.Configuration) error {
 
 		graphqlHandler.ServeHTTP(res, req)
 		return nil
-	}, gqlMiddleware)
+	}, gqlMiddleware, ratelimiter.RateHandler(burstLimit))
 
 	// graphql playground
 	e.GET("/playground", func(c echo.Context) error {
