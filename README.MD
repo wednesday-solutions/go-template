@@ -1,5 +1,4 @@
-<img align="left" src="https://github.com/wednesday-solutions/go-template/blob/master/golang.svg" width="480" height="540" />
-
+<img align="left" src="https://github.com/wednesday-solutions/go-template/blob/master/golang.svg" width="440" height="480" />
 
 <div>
   <a href="https://www.wednesday.is?utm_source=gthb&utm_medium=repo&utm_campaign=serverless" align="left" style="margin-left: 0;">
@@ -10,7 +9,7 @@
     </h1>
   </p>
   <p>
-An enterprise go template application showcasing - Testing strategies, Global state management, middleware support, and Continuous integration.
+An enterprise go template application showcasing - Testing strategies, middleware support, and Continuous integration.
   </p>
   
   ___
@@ -34,11 +33,11 @@ An enterprise go template application showcasing - Testing strategies, Global st
   ___
 
   <span>We’re always looking for people who value their work, so come and join us. <a href="https://www.wednesday.is/hiring">We are hiring!</a></span>
+
+
 </div>
 
-
-# Go Template
-
+---
 Go Template is a starter project with support for both REST as well as graphql   
 
 ## Getting started
