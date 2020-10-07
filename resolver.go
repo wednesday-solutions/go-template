@@ -5,6 +5,7 @@ package gotemplate
 import (
 	"context"
 	"fmt"
+	"github.com/nats-io/nats.go"
 	"github.com/volatiletech/null"
 	"github.com/volatiletech/sqlboiler/boil"
 	"github.com/volatiletech/sqlboiler/queries/qm"
@@ -20,6 +21,7 @@ import (
 
 // Resolver ...
 type Resolver struct {
+	NClient *nats.EncodedConn
 }
 
 func (r queryResolver) Me(ctx context.Context) (*fm.User, error) {
@@ -170,7 +172,8 @@ func (r mutationResolver) CreateUser(ctx context.Context, input fm.UserCreateInp
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "user information")
 	}
-	return &fm.UserPayload{User: &fm.User{
+
+	graphUser := &fm.User{
 		FirstName: convert.NullDotStringToPointerString(newUser.FirstName),
 		LastName:  convert.NullDotStringToPointerString(newUser.LastName),
 		Username:  convert.NullDotStringToPointerString(newUser.Username),
@@ -178,8 +181,11 @@ func (r mutationResolver) CreateUser(ctx context.Context, input fm.UserCreateInp
 		Mobile:    convert.NullDotStringToPointerString(newUser.Mobile),
 		Phone:     convert.NullDotStringToPointerString(newUser.Phone),
 		Address:   convert.NullDotStringToPointerString(newUser.Address),
-	},
-	}, err
+	}
+
+	_ = r.NClient.Publish("newUser", graphUser)
+
+	return &fm.UserPayload{User: graphUser}, err
 }
 
 func (r mutationResolver) UpdateUser(ctx context.Context, input *fm.UserUpdateInput) (*fm.UserUpdatePayload, error) {
@@ -212,11 +218,34 @@ func (r mutationResolver) DeleteUser(ctx context.Context) (*fm.UserDeletePayload
 	return &fm.UserDeletePayload{ID: fmt.Sprint(userID)}, nil
 }
 
+func (r subscriptionResolver) NewUser(ctx context.Context) (<-chan *fm.User, error) {
+	event := make(chan *fm.User, 1)
+
+	sub, err := r.NClient.Subscribe("newUser", func(t *fm.User) {
+		event <- t
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	go func() {
+		<-ctx.Done()
+		_ = sub.Unsubscribe()
+	}()
+
+	return event, nil
+}
+
 // Mutation ...
 func (r *Resolver) Mutation() fm.MutationResolver { return &mutationResolver{r} }
 
 // Query ...
 func (r *Resolver) Query() fm.QueryResolver { return &queryResolver{r} }
 
+// Subscription ...
+func (r *Resolver) Subscription() fm.SubscriptionResolver { return &subscriptionResolver{r} }
+
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+type subscriptionResolver struct{ *Resolver }

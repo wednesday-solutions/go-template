@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"io"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -36,6 +37,7 @@ type Config struct {
 type ResolverRoot interface {
 	Mutation() MutationResolver
 	Query() QueryResolver
+	Subscription() SubscriptionResolver
 }
 
 type DirectiveRoot struct {
@@ -253,6 +255,10 @@ type ComplexityRoot struct {
 		Ok func(childComplexity int) int
 	}
 
+	Subscription struct {
+		NewUser func(childComplexity int) int
+	}
+
 	User struct {
 		Active             func(childComplexity int) int
 		Address            func(childComplexity int) int
@@ -311,6 +317,9 @@ type MutationResolver interface {
 type QueryResolver interface {
 	Me(ctx context.Context) (*User, error)
 	Users(ctx context.Context, pagination *UserPagination) (*UsersPayload, error)
+}
+type SubscriptionResolver interface {
+	NewUser(ctx context.Context) (<-chan *User, error)
 }
 
 type executableSchema struct {
@@ -974,6 +983,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.RolesUpdatePayload.Ok(childComplexity), true
 
+	case "Subscription.newUser":
+		if e.complexity.Subscription.NewUser == nil {
+			break
+		}
+
+		return e.complexity.Subscription.NewUser(childComplexity), true
+
 	case "User.active":
 		if e.complexity.User.Active == nil {
 			break
@@ -1202,6 +1218,23 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 			first = false
 			data := ec._Mutation(ctx, rc.Operation.SelectionSet)
 			var buf bytes.Buffer
+			data.MarshalGQL(&buf)
+
+			return &graphql.Response{
+				Data: buf.Bytes(),
+			}
+		}
+	case ast.Subscription:
+		next := ec._Subscription(ctx, rc.Operation.SelectionSet)
+
+		var buf bytes.Buffer
+		return func(ctx context.Context) *graphql.Response {
+			buf.Reset()
+			data := next()
+
+			if data == nil {
+				return nil
+			}
 			data.MarshalGQL(&buf)
 
 			return &graphql.Response{
@@ -1876,6 +1909,10 @@ type Mutation {
   updateUser(input: UserUpdateInput): UserUpdatePayload!
   deleteUser: UserDeletePayload!
 }
+
+type Subscription {
+  newUser: User!
+}
 `, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -1914,7 +1951,7 @@ func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, 
 	var arg0 UserCreateInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNUserCreateInput2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserCreateInput(ctx, tmp)
+		arg0, err = ec.unmarshalNUserCreateInput2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserCreateInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1968,7 +2005,7 @@ func (ec *executionContext) field_Mutation_updateUser_args(ctx context.Context, 
 	var arg0 *UserUpdateInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalOUserUpdateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserUpdateInput(ctx, tmp)
+		arg0, err = ec.unmarshalOUserUpdateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserUpdateInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1998,7 +2035,7 @@ func (ec *executionContext) field_Query_users_args(ctx context.Context, rawArgs 
 	var arg0 *UserPagination
 	if tmp, ok := rawArgs["pagination"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
-		arg0, err = ec.unmarshalOUserPagination2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserPagination(ctx, tmp)
+		arg0, err = ec.unmarshalOUserPagination2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserPagination(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -2147,7 +2184,7 @@ func (ec *executionContext) _Comment_user(ctx context.Context, field graphql.Col
 	}
 	res := resTmp.(*User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Comment_post(ctx context.Context, field graphql.CollectedField, obj *Comment) (ret graphql.Marshaler) {
@@ -2182,7 +2219,7 @@ func (ec *executionContext) _Comment_post(ctx context.Context, field graphql.Col
 	}
 	res := resTmp.(*Post)
 	fc.Result = res
-	return ec.marshalNPost2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPost(ctx, field.Selections, res)
+	return ec.marshalNPost2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐPost(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Comment_title(ctx context.Context, field graphql.CollectedField, obj *Comment) (ret graphql.Marshaler) {
@@ -2418,7 +2455,7 @@ func (ec *executionContext) _CommentPayload_comment(ctx context.Context, field g
 	}
 	res := resTmp.(*Comment)
 	fc.Result = res
-	return ec.marshalNComment2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐComment(ctx, field.Selections, res)
+	return ec.marshalNComment2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐComment(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _CommentsDeletePayload_ids(ctx context.Context, field graphql.CollectedField, obj *CommentsDeletePayload) (ret graphql.Marshaler) {
@@ -2488,7 +2525,7 @@ func (ec *executionContext) _CommentsPayload_comments(ctx context.Context, field
 	}
 	res := resTmp.([]*Comment)
 	fc.Result = res
-	return ec.marshalNComment2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCommentᚄ(ctx, field.Selections, res)
+	return ec.marshalNComment2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐCommentᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _CommentsUpdatePayload_ok(ctx context.Context, field graphql.CollectedField, obj *CommentsUpdatePayload) (ret graphql.Marshaler) {
@@ -2593,7 +2630,7 @@ func (ec *executionContext) _CompaniesPayload_companies(ctx context.Context, fie
 	}
 	res := resTmp.([]*Company)
 	fc.Result = res
-	return ec.marshalNCompany2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompanyᚄ(ctx, field.Selections, res)
+	return ec.marshalNCompany2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐCompanyᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _CompaniesUpdatePayload_ok(ctx context.Context, field graphql.CollectedField, obj *CompaniesUpdatePayload) (ret graphql.Marshaler) {
@@ -2855,7 +2892,7 @@ func (ec *executionContext) _Company_locations(ctx context.Context, field graphq
 	}
 	res := resTmp.([]*Location)
 	fc.Result = res
-	return ec.marshalOLocation2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocation(ctx, field.Selections, res)
+	return ec.marshalOLocation2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐLocation(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Company_users(ctx context.Context, field graphql.CollectedField, obj *Company) (ret graphql.Marshaler) {
@@ -2887,7 +2924,7 @@ func (ec *executionContext) _Company_users(ctx context.Context, field graphql.Co
 	}
 	res := resTmp.([]*User)
 	fc.Result = res
-	return ec.marshalOUser2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUser(ctx, field.Selections, res)
+	return ec.marshalOUser2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _CompanyDeletePayload_id(ctx context.Context, field graphql.CollectedField, obj *CompanyDeletePayload) (ret graphql.Marshaler) {
@@ -2957,7 +2994,7 @@ func (ec *executionContext) _CompanyPayload_company(ctx context.Context, field g
 	}
 	res := resTmp.(*Company)
 	fc.Result = res
-	return ec.marshalNCompany2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompany(ctx, field.Selections, res)
+	return ec.marshalNCompany2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐCompany(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Follower_id(ctx context.Context, field graphql.CollectedField, obj *Follower) (ret graphql.Marshaler) {
@@ -3027,7 +3064,7 @@ func (ec *executionContext) _Follower_follower(ctx context.Context, field graphq
 	}
 	res := resTmp.(*User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Follower_followee(ctx context.Context, field graphql.CollectedField, obj *Follower) (ret graphql.Marshaler) {
@@ -3062,7 +3099,7 @@ func (ec *executionContext) _Follower_followee(ctx context.Context, field graphq
 	}
 	res := resTmp.(*User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Follower_deletedAt(ctx context.Context, field graphql.CollectedField, obj *Follower) (ret graphql.Marshaler) {
@@ -3228,7 +3265,7 @@ func (ec *executionContext) _FollowerPayload_follower(ctx context.Context, field
 	}
 	res := resTmp.(*Follower)
 	fc.Result = res
-	return ec.marshalNFollower2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollower(ctx, field.Selections, res)
+	return ec.marshalNFollower2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐFollower(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _FollowersDeletePayload_ids(ctx context.Context, field graphql.CollectedField, obj *FollowersDeletePayload) (ret graphql.Marshaler) {
@@ -3298,7 +3335,7 @@ func (ec *executionContext) _FollowersPayload_followers(ctx context.Context, fie
 	}
 	res := resTmp.([]*Follower)
 	fc.Result = res
-	return ec.marshalNFollower2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollowerᚄ(ctx, field.Selections, res)
+	return ec.marshalNFollower2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐFollowerᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _FollowersUpdatePayload_ok(ctx context.Context, field graphql.CollectedField, obj *FollowersUpdatePayload) (ret graphql.Marshaler) {
@@ -3499,7 +3536,7 @@ func (ec *executionContext) _Location_company(ctx context.Context, field graphql
 	}
 	res := resTmp.(*Company)
 	fc.Result = res
-	return ec.marshalNCompany2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompany(ctx, field.Selections, res)
+	return ec.marshalNCompany2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐCompany(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Location_updatedAt(ctx context.Context, field graphql.CollectedField, obj *Location) (ret graphql.Marshaler) {
@@ -3627,7 +3664,7 @@ func (ec *executionContext) _Location_users(ctx context.Context, field graphql.C
 	}
 	res := resTmp.([]*User)
 	fc.Result = res
-	return ec.marshalOUser2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUser(ctx, field.Selections, res)
+	return ec.marshalOUser2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _LocationDeletePayload_id(ctx context.Context, field graphql.CollectedField, obj *LocationDeletePayload) (ret graphql.Marshaler) {
@@ -3697,7 +3734,7 @@ func (ec *executionContext) _LocationPayload_location(ctx context.Context, field
 	}
 	res := resTmp.(*Location)
 	fc.Result = res
-	return ec.marshalNLocation2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocation(ctx, field.Selections, res)
+	return ec.marshalNLocation2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐLocation(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _LocationsDeletePayload_ids(ctx context.Context, field graphql.CollectedField, obj *LocationsDeletePayload) (ret graphql.Marshaler) {
@@ -3767,7 +3804,7 @@ func (ec *executionContext) _LocationsPayload_locations(ctx context.Context, fie
 	}
 	res := resTmp.([]*Location)
 	fc.Result = res
-	return ec.marshalNLocation2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocationᚄ(ctx, field.Selections, res)
+	return ec.marshalNLocation2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐLocationᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _LocationsUpdatePayload_ok(ctx context.Context, field graphql.CollectedField, obj *LocationsUpdatePayload) (ret graphql.Marshaler) {
@@ -3914,7 +3951,7 @@ func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.C
 	}
 	res := resTmp.(*LoginResponse)
 	fc.Result = res
-	return ec.marshalNLoginResponse2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLoginResponse(ctx, field.Selections, res)
+	return ec.marshalNLoginResponse2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐLoginResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_changePassword(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -3956,7 +3993,7 @@ func (ec *executionContext) _Mutation_changePassword(ctx context.Context, field 
 	}
 	res := resTmp.(*ChangePasswordResponse)
 	fc.Result = res
-	return ec.marshalNChangePasswordResponse2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐChangePasswordResponse(ctx, field.Selections, res)
+	return ec.marshalNChangePasswordResponse2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐChangePasswordResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_refreshToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -3998,7 +4035,7 @@ func (ec *executionContext) _Mutation_refreshToken(ctx context.Context, field gr
 	}
 	res := resTmp.(*RefreshTokenResponse)
 	fc.Result = res
-	return ec.marshalNRefreshTokenResponse2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRefreshTokenResponse(ctx, field.Selections, res)
+	return ec.marshalNRefreshTokenResponse2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRefreshTokenResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_createUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -4040,7 +4077,7 @@ func (ec *executionContext) _Mutation_createUser(ctx context.Context, field grap
 	}
 	res := resTmp.(*UserPayload)
 	fc.Result = res
-	return ec.marshalNUserPayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserPayload(ctx, field.Selections, res)
+	return ec.marshalNUserPayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserPayload(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_updateUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -4082,7 +4119,7 @@ func (ec *executionContext) _Mutation_updateUser(ctx context.Context, field grap
 	}
 	res := resTmp.(*UserUpdatePayload)
 	fc.Result = res
-	return ec.marshalNUserUpdatePayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserUpdatePayload(ctx, field.Selections, res)
+	return ec.marshalNUserUpdatePayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserUpdatePayload(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_deleteUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -4117,7 +4154,7 @@ func (ec *executionContext) _Mutation_deleteUser(ctx context.Context, field grap
 	}
 	res := resTmp.(*UserDeletePayload)
 	fc.Result = res
-	return ec.marshalNUserDeletePayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserDeletePayload(ctx, field.Selections, res)
+	return ec.marshalNUserDeletePayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserDeletePayload(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Post_id(ctx context.Context, field graphql.CollectedField, obj *Post) (ret graphql.Marshaler) {
@@ -4187,7 +4224,7 @@ func (ec *executionContext) _Post_user(ctx context.Context, field graphql.Collec
 	}
 	res := resTmp.(*User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Post_title(ctx context.Context, field graphql.CollectedField, obj *Post) (ret graphql.Marshaler) {
@@ -4385,7 +4422,7 @@ func (ec *executionContext) _Post_comments(ctx context.Context, field graphql.Co
 	}
 	res := resTmp.([]*Comment)
 	fc.Result = res
-	return ec.marshalOComment2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐComment(ctx, field.Selections, res)
+	return ec.marshalOComment2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐComment(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _PostDeletePayload_id(ctx context.Context, field graphql.CollectedField, obj *PostDeletePayload) (ret graphql.Marshaler) {
@@ -4455,7 +4492,7 @@ func (ec *executionContext) _PostPayload_post(ctx context.Context, field graphql
 	}
 	res := resTmp.(*Post)
 	fc.Result = res
-	return ec.marshalNPost2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPost(ctx, field.Selections, res)
+	return ec.marshalNPost2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐPost(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _PostsDeletePayload_ids(ctx context.Context, field graphql.CollectedField, obj *PostsDeletePayload) (ret graphql.Marshaler) {
@@ -4525,7 +4562,7 @@ func (ec *executionContext) _PostsPayload_posts(ctx context.Context, field graph
 	}
 	res := resTmp.([]*Post)
 	fc.Result = res
-	return ec.marshalNPost2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPostᚄ(ctx, field.Selections, res)
+	return ec.marshalNPost2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐPostᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _PostsUpdatePayload_ok(ctx context.Context, field graphql.CollectedField, obj *PostsUpdatePayload) (ret graphql.Marshaler) {
@@ -4595,7 +4632,7 @@ func (ec *executionContext) _Query_me(ctx context.Context, field graphql.Collect
 	}
 	res := resTmp.(*User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_users(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -4637,7 +4674,7 @@ func (ec *executionContext) _Query_users(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.(*UsersPayload)
 	fc.Result = res
-	return ec.marshalNUsersPayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUsersPayload(ctx, field.Selections, res)
+	return ec.marshalNUsersPayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUsersPayload(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -4976,7 +5013,7 @@ func (ec *executionContext) _Role_users(ctx context.Context, field graphql.Colle
 	}
 	res := resTmp.([]*User)
 	fc.Result = res
-	return ec.marshalOUser2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUser(ctx, field.Selections, res)
+	return ec.marshalOUser2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _RoleDeletePayload_id(ctx context.Context, field graphql.CollectedField, obj *RoleDeletePayload) (ret graphql.Marshaler) {
@@ -5046,7 +5083,7 @@ func (ec *executionContext) _RolePayload_role(ctx context.Context, field graphql
 	}
 	res := resTmp.(*Role)
 	fc.Result = res
-	return ec.marshalNRole2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRole(ctx, field.Selections, res)
+	return ec.marshalNRole2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRole(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _RolesDeletePayload_ids(ctx context.Context, field graphql.CollectedField, obj *RolesDeletePayload) (ret graphql.Marshaler) {
@@ -5116,7 +5153,7 @@ func (ec *executionContext) _RolesPayload_roles(ctx context.Context, field graph
 	}
 	res := resTmp.([]*Role)
 	fc.Result = res
-	return ec.marshalNRole2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRoleᚄ(ctx, field.Selections, res)
+	return ec.marshalNRole2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRoleᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _RolesUpdatePayload_ok(ctx context.Context, field graphql.CollectedField, obj *RolesUpdatePayload) (ret graphql.Marshaler) {
@@ -5152,6 +5189,51 @@ func (ec *executionContext) _RolesUpdatePayload_ok(ctx context.Context, field gr
 	res := resTmp.(bool)
 	fc.Result = res
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Subscription_newUser(ctx context.Context, field graphql.CollectedField) (ret func() graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = nil
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Subscription",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Subscription().NewUser(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return nil
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return nil
+	}
+	return func() graphql.Marshaler {
+		res, ok := <-resTmp.(<-chan *User)
+		if !ok {
+			return nil
+		}
+		return graphql.WriterFunc(func(w io.Writer) {
+			w.Write([]byte{'{'})
+			graphql.MarshalString(field.Alias).MarshalGQL(w)
+			w.Write([]byte{':'})
+			ec.marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUser(ctx, field.Selections, res).MarshalGQL(w)
+			w.Write([]byte{'}'})
+		})
+	}
 }
 
 func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *User) (ret graphql.Marshaler) {
@@ -5602,7 +5684,7 @@ func (ec *executionContext) _User_role(ctx context.Context, field graphql.Collec
 	}
 	res := resTmp.(*Role)
 	fc.Result = res
-	return ec.marshalORole2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRole(ctx, field.Selections, res)
+	return ec.marshalORole2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRole(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_company(ctx context.Context, field graphql.CollectedField, obj *User) (ret graphql.Marshaler) {
@@ -5634,7 +5716,7 @@ func (ec *executionContext) _User_company(ctx context.Context, field graphql.Col
 	}
 	res := resTmp.(*Company)
 	fc.Result = res
-	return ec.marshalOCompany2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompany(ctx, field.Selections, res)
+	return ec.marshalOCompany2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐCompany(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_location(ctx context.Context, field graphql.CollectedField, obj *User) (ret graphql.Marshaler) {
@@ -5666,7 +5748,7 @@ func (ec *executionContext) _User_location(ctx context.Context, field graphql.Co
 	}
 	res := resTmp.(*Location)
 	fc.Result = res
-	return ec.marshalOLocation2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocation(ctx, field.Selections, res)
+	return ec.marshalOLocation2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐLocation(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_createdAt(ctx context.Context, field graphql.CollectedField, obj *User) (ret graphql.Marshaler) {
@@ -5794,7 +5876,7 @@ func (ec *executionContext) _User_comments(ctx context.Context, field graphql.Co
 	}
 	res := resTmp.([]*Comment)
 	fc.Result = res
-	return ec.marshalOComment2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐComment(ctx, field.Selections, res)
+	return ec.marshalOComment2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐComment(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_followeeFollowers(ctx context.Context, field graphql.CollectedField, obj *User) (ret graphql.Marshaler) {
@@ -5826,7 +5908,7 @@ func (ec *executionContext) _User_followeeFollowers(ctx context.Context, field g
 	}
 	res := resTmp.([]*Follower)
 	fc.Result = res
-	return ec.marshalOFollower2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollower(ctx, field.Selections, res)
+	return ec.marshalOFollower2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐFollower(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_followerFollowers(ctx context.Context, field graphql.CollectedField, obj *User) (ret graphql.Marshaler) {
@@ -5858,7 +5940,7 @@ func (ec *executionContext) _User_followerFollowers(ctx context.Context, field g
 	}
 	res := resTmp.([]*Follower)
 	fc.Result = res
-	return ec.marshalOFollower2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollower(ctx, field.Selections, res)
+	return ec.marshalOFollower2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐFollower(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_posts(ctx context.Context, field graphql.CollectedField, obj *User) (ret graphql.Marshaler) {
@@ -5890,7 +5972,7 @@ func (ec *executionContext) _User_posts(ctx context.Context, field graphql.Colle
 	}
 	res := resTmp.([]*Post)
 	fc.Result = res
-	return ec.marshalOPost2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPost(ctx, field.Selections, res)
+	return ec.marshalOPost2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐPost(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _UserDeletePayload_id(ctx context.Context, field graphql.CollectedField, obj *UserDeletePayload) (ret graphql.Marshaler) {
@@ -5960,7 +6042,7 @@ func (ec *executionContext) _UserPayload_user(ctx context.Context, field graphql
 	}
 	res := resTmp.(*User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _UserUpdatePayload_ok(ctx context.Context, field graphql.CollectedField, obj *UserUpdatePayload) (ret graphql.Marshaler) {
@@ -6065,7 +6147,7 @@ func (ec *executionContext) _UsersPayload_users(ctx context.Context, field graph
 	}
 	res := resTmp.([]*User)
 	fc.Result = res
-	return ec.marshalNUser2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserᚄ(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
@@ -7277,7 +7359,7 @@ func (ec *executionContext) unmarshalInputCommentFilter(ctx context.Context, obj
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("where"))
-			it.Where, err = ec.unmarshalOCommentWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCommentWhere(ctx, v)
+			it.Where, err = ec.unmarshalOCommentWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐCommentWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7393,7 +7475,7 @@ func (ec *executionContext) unmarshalInputCommentWhere(ctx context.Context, obj 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalOIDFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIDFilter(ctx, v)
+			it.ID, err = ec.unmarshalOIDFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIDFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7401,7 +7483,7 @@ func (ec *executionContext) unmarshalInputCommentWhere(ctx context.Context, obj 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("user"))
-			it.User, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserWhere(ctx, v)
+			it.User, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7409,7 +7491,7 @@ func (ec *executionContext) unmarshalInputCommentWhere(ctx context.Context, obj 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("post"))
-			it.Post, err = ec.unmarshalOPostWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPostWhere(ctx, v)
+			it.Post, err = ec.unmarshalOPostWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐPostWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7417,7 +7499,7 @@ func (ec *executionContext) unmarshalInputCommentWhere(ctx context.Context, obj 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
-			it.Title, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
+			it.Title, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐStringFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7425,7 +7507,7 @@ func (ec *executionContext) unmarshalInputCommentWhere(ctx context.Context, obj 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("body"))
-			it.Body, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
+			it.Body, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐStringFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7433,7 +7515,7 @@ func (ec *executionContext) unmarshalInputCommentWhere(ctx context.Context, obj 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
-			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
+			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7441,7 +7523,7 @@ func (ec *executionContext) unmarshalInputCommentWhere(ctx context.Context, obj 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
-			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
+			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7449,7 +7531,7 @@ func (ec *executionContext) unmarshalInputCommentWhere(ctx context.Context, obj 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
-			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
+			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7457,7 +7539,7 @@ func (ec *executionContext) unmarshalInputCommentWhere(ctx context.Context, obj 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("or"))
-			it.Or, err = ec.unmarshalOCommentWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCommentWhere(ctx, v)
+			it.Or, err = ec.unmarshalOCommentWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐCommentWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7465,7 +7547,7 @@ func (ec *executionContext) unmarshalInputCommentWhere(ctx context.Context, obj 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
-			it.And, err = ec.unmarshalOCommentWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCommentWhere(ctx, v)
+			it.And, err = ec.unmarshalOCommentWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐCommentWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7485,7 +7567,7 @@ func (ec *executionContext) unmarshalInputCommentsCreateInput(ctx context.Contex
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("comments"))
-			it.Comments, err = ec.unmarshalNCommentCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCommentCreateInputᚄ(ctx, v)
+			it.Comments, err = ec.unmarshalNCommentCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐCommentCreateInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7505,7 +7587,7 @@ func (ec *executionContext) unmarshalInputCompaniesCreateInput(ctx context.Conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("companies"))
-			it.Companies, err = ec.unmarshalNCompanyCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompanyCreateInputᚄ(ctx, v)
+			it.Companies, err = ec.unmarshalNCompanyCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐCompanyCreateInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7585,7 +7667,7 @@ func (ec *executionContext) unmarshalInputCompanyFilter(ctx context.Context, obj
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("where"))
-			it.Where, err = ec.unmarshalOCompanyWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompanyWhere(ctx, v)
+			it.Where, err = ec.unmarshalOCompanyWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐCompanyWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7685,7 +7767,7 @@ func (ec *executionContext) unmarshalInputCompanyWhere(ctx context.Context, obj 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalOIDFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIDFilter(ctx, v)
+			it.ID, err = ec.unmarshalOIDFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIDFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7693,7 +7775,7 @@ func (ec *executionContext) unmarshalInputCompanyWhere(ctx context.Context, obj 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			it.Name, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
+			it.Name, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐStringFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7701,7 +7783,7 @@ func (ec *executionContext) unmarshalInputCompanyWhere(ctx context.Context, obj 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("active"))
-			it.Active, err = ec.unmarshalOBooleanFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐBooleanFilter(ctx, v)
+			it.Active, err = ec.unmarshalOBooleanFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐBooleanFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7709,7 +7791,7 @@ func (ec *executionContext) unmarshalInputCompanyWhere(ctx context.Context, obj 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
-			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
+			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7717,7 +7799,7 @@ func (ec *executionContext) unmarshalInputCompanyWhere(ctx context.Context, obj 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
-			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
+			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7725,7 +7807,7 @@ func (ec *executionContext) unmarshalInputCompanyWhere(ctx context.Context, obj 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
-			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
+			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7733,7 +7815,7 @@ func (ec *executionContext) unmarshalInputCompanyWhere(ctx context.Context, obj 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locations"))
-			it.Locations, err = ec.unmarshalOLocationWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocationWhere(ctx, v)
+			it.Locations, err = ec.unmarshalOLocationWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐLocationWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7741,7 +7823,7 @@ func (ec *executionContext) unmarshalInputCompanyWhere(ctx context.Context, obj 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("users"))
-			it.Users, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserWhere(ctx, v)
+			it.Users, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7749,7 +7831,7 @@ func (ec *executionContext) unmarshalInputCompanyWhere(ctx context.Context, obj 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("or"))
-			it.Or, err = ec.unmarshalOCompanyWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompanyWhere(ctx, v)
+			it.Or, err = ec.unmarshalOCompanyWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐCompanyWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7757,7 +7839,7 @@ func (ec *executionContext) unmarshalInputCompanyWhere(ctx context.Context, obj 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
-			it.And, err = ec.unmarshalOCompanyWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompanyWhere(ctx, v)
+			it.And, err = ec.unmarshalOCompanyWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐCompanyWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7913,7 +7995,7 @@ func (ec *executionContext) unmarshalInputFollowerFilter(ctx context.Context, ob
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("where"))
-			it.Where, err = ec.unmarshalOFollowerWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollowerWhere(ctx, v)
+			it.Where, err = ec.unmarshalOFollowerWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐFollowerWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8013,7 +8095,7 @@ func (ec *executionContext) unmarshalInputFollowerWhere(ctx context.Context, obj
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalOIDFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIDFilter(ctx, v)
+			it.ID, err = ec.unmarshalOIDFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIDFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8021,7 +8103,7 @@ func (ec *executionContext) unmarshalInputFollowerWhere(ctx context.Context, obj
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("follower"))
-			it.Follower, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserWhere(ctx, v)
+			it.Follower, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8029,7 +8111,7 @@ func (ec *executionContext) unmarshalInputFollowerWhere(ctx context.Context, obj
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("followee"))
-			it.Followee, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserWhere(ctx, v)
+			it.Followee, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8037,7 +8119,7 @@ func (ec *executionContext) unmarshalInputFollowerWhere(ctx context.Context, obj
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
-			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
+			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8045,7 +8127,7 @@ func (ec *executionContext) unmarshalInputFollowerWhere(ctx context.Context, obj
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
-			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
+			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8053,7 +8135,7 @@ func (ec *executionContext) unmarshalInputFollowerWhere(ctx context.Context, obj
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
-			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
+			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8061,7 +8143,7 @@ func (ec *executionContext) unmarshalInputFollowerWhere(ctx context.Context, obj
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("or"))
-			it.Or, err = ec.unmarshalOFollowerWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollowerWhere(ctx, v)
+			it.Or, err = ec.unmarshalOFollowerWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐFollowerWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8069,7 +8151,7 @@ func (ec *executionContext) unmarshalInputFollowerWhere(ctx context.Context, obj
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
-			it.And, err = ec.unmarshalOFollowerWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollowerWhere(ctx, v)
+			it.And, err = ec.unmarshalOFollowerWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐFollowerWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8089,7 +8171,7 @@ func (ec *executionContext) unmarshalInputFollowersCreateInput(ctx context.Conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("followers"))
-			it.Followers, err = ec.unmarshalNFollowerCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollowerCreateInputᚄ(ctx, v)
+			it.Followers, err = ec.unmarshalNFollowerCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐFollowerCreateInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8305,7 +8387,7 @@ func (ec *executionContext) unmarshalInputLocationFilter(ctx context.Context, ob
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("where"))
-			it.Where, err = ec.unmarshalOLocationWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocationWhere(ctx, v)
+			it.Where, err = ec.unmarshalOLocationWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐLocationWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8421,7 +8503,7 @@ func (ec *executionContext) unmarshalInputLocationWhere(ctx context.Context, obj
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalOIDFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIDFilter(ctx, v)
+			it.ID, err = ec.unmarshalOIDFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIDFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8429,7 +8511,7 @@ func (ec *executionContext) unmarshalInputLocationWhere(ctx context.Context, obj
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			it.Name, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
+			it.Name, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐStringFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8437,7 +8519,7 @@ func (ec *executionContext) unmarshalInputLocationWhere(ctx context.Context, obj
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("active"))
-			it.Active, err = ec.unmarshalOBooleanFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐBooleanFilter(ctx, v)
+			it.Active, err = ec.unmarshalOBooleanFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐBooleanFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8445,7 +8527,7 @@ func (ec *executionContext) unmarshalInputLocationWhere(ctx context.Context, obj
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("address"))
-			it.Address, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
+			it.Address, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐStringFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8453,7 +8535,7 @@ func (ec *executionContext) unmarshalInputLocationWhere(ctx context.Context, obj
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("company"))
-			it.Company, err = ec.unmarshalOCompanyWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompanyWhere(ctx, v)
+			it.Company, err = ec.unmarshalOCompanyWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐCompanyWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8461,7 +8543,7 @@ func (ec *executionContext) unmarshalInputLocationWhere(ctx context.Context, obj
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
-			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
+			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8469,7 +8551,7 @@ func (ec *executionContext) unmarshalInputLocationWhere(ctx context.Context, obj
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
-			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
+			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8477,7 +8559,7 @@ func (ec *executionContext) unmarshalInputLocationWhere(ctx context.Context, obj
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
-			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
+			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8485,7 +8567,7 @@ func (ec *executionContext) unmarshalInputLocationWhere(ctx context.Context, obj
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("users"))
-			it.Users, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserWhere(ctx, v)
+			it.Users, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8493,7 +8575,7 @@ func (ec *executionContext) unmarshalInputLocationWhere(ctx context.Context, obj
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("or"))
-			it.Or, err = ec.unmarshalOLocationWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocationWhere(ctx, v)
+			it.Or, err = ec.unmarshalOLocationWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐLocationWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8501,7 +8583,7 @@ func (ec *executionContext) unmarshalInputLocationWhere(ctx context.Context, obj
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
-			it.And, err = ec.unmarshalOLocationWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocationWhere(ctx, v)
+			it.And, err = ec.unmarshalOLocationWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐLocationWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8521,7 +8603,7 @@ func (ec *executionContext) unmarshalInputLocationsCreateInput(ctx context.Conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locations"))
-			it.Locations, err = ec.unmarshalNLocationCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocationCreateInputᚄ(ctx, v)
+			it.Locations, err = ec.unmarshalNLocationCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐLocationCreateInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8609,7 +8691,7 @@ func (ec *executionContext) unmarshalInputPostFilter(ctx context.Context, obj in
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("where"))
-			it.Where, err = ec.unmarshalOPostWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPostWhere(ctx, v)
+			it.Where, err = ec.unmarshalOPostWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐPostWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8717,7 +8799,7 @@ func (ec *executionContext) unmarshalInputPostWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalOIDFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIDFilter(ctx, v)
+			it.ID, err = ec.unmarshalOIDFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIDFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8725,7 +8807,7 @@ func (ec *executionContext) unmarshalInputPostWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("user"))
-			it.User, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserWhere(ctx, v)
+			it.User, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8733,7 +8815,7 @@ func (ec *executionContext) unmarshalInputPostWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
-			it.Title, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
+			it.Title, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐStringFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8741,7 +8823,7 @@ func (ec *executionContext) unmarshalInputPostWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("body"))
-			it.Body, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
+			it.Body, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐStringFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8749,7 +8831,7 @@ func (ec *executionContext) unmarshalInputPostWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
-			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
+			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8757,7 +8839,7 @@ func (ec *executionContext) unmarshalInputPostWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
-			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
+			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8765,7 +8847,7 @@ func (ec *executionContext) unmarshalInputPostWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
-			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
+			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8773,7 +8855,7 @@ func (ec *executionContext) unmarshalInputPostWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("comments"))
-			it.Comments, err = ec.unmarshalOCommentWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCommentWhere(ctx, v)
+			it.Comments, err = ec.unmarshalOCommentWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐCommentWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8781,7 +8863,7 @@ func (ec *executionContext) unmarshalInputPostWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("or"))
-			it.Or, err = ec.unmarshalOPostWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPostWhere(ctx, v)
+			it.Or, err = ec.unmarshalOPostWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐPostWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8789,7 +8871,7 @@ func (ec *executionContext) unmarshalInputPostWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
-			it.And, err = ec.unmarshalOPostWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPostWhere(ctx, v)
+			it.And, err = ec.unmarshalOPostWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐPostWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8809,7 +8891,7 @@ func (ec *executionContext) unmarshalInputPostsCreateInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("posts"))
-			it.Posts, err = ec.unmarshalNPostCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPostCreateInputᚄ(ctx, v)
+			it.Posts, err = ec.unmarshalNPostCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐPostCreateInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8889,7 +8971,7 @@ func (ec *executionContext) unmarshalInputRoleFilter(ctx context.Context, obj in
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("where"))
-			it.Where, err = ec.unmarshalORoleWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRoleWhere(ctx, v)
+			it.Where, err = ec.unmarshalORoleWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRoleWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8989,7 +9071,7 @@ func (ec *executionContext) unmarshalInputRoleWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalOIDFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIDFilter(ctx, v)
+			it.ID, err = ec.unmarshalOIDFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIDFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8997,7 +9079,7 @@ func (ec *executionContext) unmarshalInputRoleWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accessLevel"))
-			it.AccessLevel, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
+			it.AccessLevel, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9005,7 +9087,7 @@ func (ec *executionContext) unmarshalInputRoleWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			it.Name, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
+			it.Name, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐStringFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9013,7 +9095,7 @@ func (ec *executionContext) unmarshalInputRoleWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
-			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
+			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9021,7 +9103,7 @@ func (ec *executionContext) unmarshalInputRoleWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
-			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
+			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9029,7 +9111,7 @@ func (ec *executionContext) unmarshalInputRoleWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
-			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
+			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9037,7 +9119,7 @@ func (ec *executionContext) unmarshalInputRoleWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("users"))
-			it.Users, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserWhere(ctx, v)
+			it.Users, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9045,7 +9127,7 @@ func (ec *executionContext) unmarshalInputRoleWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("or"))
-			it.Or, err = ec.unmarshalORoleWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRoleWhere(ctx, v)
+			it.Or, err = ec.unmarshalORoleWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRoleWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9053,7 +9135,7 @@ func (ec *executionContext) unmarshalInputRoleWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
-			it.And, err = ec.unmarshalORoleWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRoleWhere(ctx, v)
+			it.And, err = ec.unmarshalORoleWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRoleWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9073,7 +9155,7 @@ func (ec *executionContext) unmarshalInputRolesCreateInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("roles"))
-			it.Roles, err = ec.unmarshalNRoleCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRoleCreateInputᚄ(ctx, v)
+			it.Roles, err = ec.unmarshalNRoleCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRoleCreateInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9317,7 +9399,7 @@ func (ec *executionContext) unmarshalInputUserFilter(ctx context.Context, obj in
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("where"))
-			it.Where, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserWhere(ctx, v)
+			it.Where, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9417,7 +9499,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalOIDFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIDFilter(ctx, v)
+			it.ID, err = ec.unmarshalOIDFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIDFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9425,7 +9507,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("firstName"))
-			it.FirstName, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
+			it.FirstName, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐStringFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9433,7 +9515,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastName"))
-			it.LastName, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
+			it.LastName, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐStringFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9441,7 +9523,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username"))
-			it.Username, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
+			it.Username, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐStringFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9449,7 +9531,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
-			it.Password, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
+			it.Password, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐStringFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9457,7 +9539,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
-			it.Email, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
+			it.Email, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐStringFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9465,7 +9547,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("mobile"))
-			it.Mobile, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
+			it.Mobile, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐStringFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9473,7 +9555,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("phone"))
-			it.Phone, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
+			it.Phone, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐStringFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9481,7 +9563,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("address"))
-			it.Address, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
+			it.Address, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐStringFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9489,7 +9571,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("active"))
-			it.Active, err = ec.unmarshalOBooleanFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐBooleanFilter(ctx, v)
+			it.Active, err = ec.unmarshalOBooleanFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐBooleanFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9497,7 +9579,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastLogin"))
-			it.LastLogin, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
+			it.LastLogin, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9505,7 +9587,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastPasswordChange"))
-			it.LastPasswordChange, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
+			it.LastPasswordChange, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9513,7 +9595,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("token"))
-			it.Token, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
+			it.Token, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐStringFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9521,7 +9603,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("role"))
-			it.Role, err = ec.unmarshalORoleWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRoleWhere(ctx, v)
+			it.Role, err = ec.unmarshalORoleWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRoleWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9529,7 +9611,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("company"))
-			it.Company, err = ec.unmarshalOCompanyWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompanyWhere(ctx, v)
+			it.Company, err = ec.unmarshalOCompanyWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐCompanyWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9537,7 +9619,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("location"))
-			it.Location, err = ec.unmarshalOLocationWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocationWhere(ctx, v)
+			it.Location, err = ec.unmarshalOLocationWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐLocationWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9545,7 +9627,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
-			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
+			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9553,7 +9635,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
-			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
+			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9561,7 +9643,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
-			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
+			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9569,7 +9651,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("comments"))
-			it.Comments, err = ec.unmarshalOCommentWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCommentWhere(ctx, v)
+			it.Comments, err = ec.unmarshalOCommentWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐCommentWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9577,7 +9659,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("followeeFollowers"))
-			it.FolloweeFollowers, err = ec.unmarshalOFollowerWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollowerWhere(ctx, v)
+			it.FolloweeFollowers, err = ec.unmarshalOFollowerWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐFollowerWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9585,7 +9667,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("followerFollowers"))
-			it.FollowerFollowers, err = ec.unmarshalOFollowerWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollowerWhere(ctx, v)
+			it.FollowerFollowers, err = ec.unmarshalOFollowerWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐFollowerWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9593,7 +9675,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("posts"))
-			it.Posts, err = ec.unmarshalOPostWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPostWhere(ctx, v)
+			it.Posts, err = ec.unmarshalOPostWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐPostWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9601,7 +9683,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("or"))
-			it.Or, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserWhere(ctx, v)
+			it.Or, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9609,7 +9691,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
-			it.And, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserWhere(ctx, v)
+			it.And, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9629,7 +9711,7 @@ func (ec *executionContext) unmarshalInputUsersCreateInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("users"))
-			it.Users, err = ec.unmarshalNUserCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserCreateInputᚄ(ctx, v)
+			it.Users, err = ec.unmarshalNUserCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserCreateInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -10935,6 +11017,26 @@ func (ec *executionContext) _RolesUpdatePayload(ctx context.Context, sel ast.Sel
 	return out
 }
 
+var subscriptionImplementors = []string{"Subscription"}
+
+func (ec *executionContext) _Subscription(ctx context.Context, sel ast.SelectionSet) func() graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, subscriptionImplementors)
+	ctx = graphql.WithFieldContext(ctx, &graphql.FieldContext{
+		Object: "Subscription",
+	})
+	if len(fields) != 1 {
+		ec.Errorf(ctx, "must subscribe to exactly one stream")
+		return nil
+	}
+
+	switch fields[0].Name {
+	case "newUser":
+		return ec._Subscription_newUser(ctx, fields[0])
+	default:
+		panic("unknown field " + strconv.Quote(fields[0].Name))
+	}
+}
+
 var userImplementors = []string{"User"}
 
 func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *User) graphql.Marshaler {
@@ -11401,11 +11503,11 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalNChangePasswordResponse2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐChangePasswordResponse(ctx context.Context, sel ast.SelectionSet, v ChangePasswordResponse) graphql.Marshaler {
+func (ec *executionContext) marshalNChangePasswordResponse2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐChangePasswordResponse(ctx context.Context, sel ast.SelectionSet, v ChangePasswordResponse) graphql.Marshaler {
 	return ec._ChangePasswordResponse(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNChangePasswordResponse2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐChangePasswordResponse(ctx context.Context, sel ast.SelectionSet, v *ChangePasswordResponse) graphql.Marshaler {
+func (ec *executionContext) marshalNChangePasswordResponse2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐChangePasswordResponse(ctx context.Context, sel ast.SelectionSet, v *ChangePasswordResponse) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -11415,7 +11517,7 @@ func (ec *executionContext) marshalNChangePasswordResponse2ᚖgithubᚗcomᚋwed
 	return ec._ChangePasswordResponse(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNComment2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCommentᚄ(ctx context.Context, sel ast.SelectionSet, v []*Comment) graphql.Marshaler {
+func (ec *executionContext) marshalNComment2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐCommentᚄ(ctx context.Context, sel ast.SelectionSet, v []*Comment) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -11439,7 +11541,7 @@ func (ec *executionContext) marshalNComment2ᚕᚖgithubᚗcomᚋwednesdayᚑsol
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNComment2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐComment(ctx, sel, v[i])
+			ret[i] = ec.marshalNComment2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐComment(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -11452,7 +11554,7 @@ func (ec *executionContext) marshalNComment2ᚕᚖgithubᚗcomᚋwednesdayᚑsol
 	return ret
 }
 
-func (ec *executionContext) marshalNComment2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐComment(ctx context.Context, sel ast.SelectionSet, v *Comment) graphql.Marshaler {
+func (ec *executionContext) marshalNComment2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐComment(ctx context.Context, sel ast.SelectionSet, v *Comment) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -11462,7 +11564,7 @@ func (ec *executionContext) marshalNComment2ᚖgithubᚗcomᚋwednesdayᚑsoluti
 	return ec._Comment(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNCommentCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCommentCreateInputᚄ(ctx context.Context, v interface{}) ([]*CommentCreateInput, error) {
+func (ec *executionContext) unmarshalNCommentCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐCommentCreateInputᚄ(ctx context.Context, v interface{}) ([]*CommentCreateInput, error) {
 	var vSlice []interface{}
 	if v != nil {
 		if tmp1, ok := v.([]interface{}); ok {
@@ -11475,7 +11577,7 @@ func (ec *executionContext) unmarshalNCommentCreateInput2ᚕᚖgithubᚗcomᚋwe
 	res := make([]*CommentCreateInput, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNCommentCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCommentCreateInput(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNCommentCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐCommentCreateInput(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -11483,12 +11585,12 @@ func (ec *executionContext) unmarshalNCommentCreateInput2ᚕᚖgithubᚗcomᚋwe
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalNCommentCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCommentCreateInput(ctx context.Context, v interface{}) (*CommentCreateInput, error) {
+func (ec *executionContext) unmarshalNCommentCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐCommentCreateInput(ctx context.Context, v interface{}) (*CommentCreateInput, error) {
 	res, err := ec.unmarshalInputCommentCreateInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNCompany2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompanyᚄ(ctx context.Context, sel ast.SelectionSet, v []*Company) graphql.Marshaler {
+func (ec *executionContext) marshalNCompany2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐCompanyᚄ(ctx context.Context, sel ast.SelectionSet, v []*Company) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -11512,7 +11614,7 @@ func (ec *executionContext) marshalNCompany2ᚕᚖgithubᚗcomᚋwednesdayᚑsol
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNCompany2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompany(ctx, sel, v[i])
+			ret[i] = ec.marshalNCompany2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐCompany(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -11525,7 +11627,7 @@ func (ec *executionContext) marshalNCompany2ᚕᚖgithubᚗcomᚋwednesdayᚑsol
 	return ret
 }
 
-func (ec *executionContext) marshalNCompany2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompany(ctx context.Context, sel ast.SelectionSet, v *Company) graphql.Marshaler {
+func (ec *executionContext) marshalNCompany2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐCompany(ctx context.Context, sel ast.SelectionSet, v *Company) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -11535,7 +11637,7 @@ func (ec *executionContext) marshalNCompany2ᚖgithubᚗcomᚋwednesdayᚑsoluti
 	return ec._Company(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNCompanyCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompanyCreateInputᚄ(ctx context.Context, v interface{}) ([]*CompanyCreateInput, error) {
+func (ec *executionContext) unmarshalNCompanyCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐCompanyCreateInputᚄ(ctx context.Context, v interface{}) ([]*CompanyCreateInput, error) {
 	var vSlice []interface{}
 	if v != nil {
 		if tmp1, ok := v.([]interface{}); ok {
@@ -11548,7 +11650,7 @@ func (ec *executionContext) unmarshalNCompanyCreateInput2ᚕᚖgithubᚗcomᚋwe
 	res := make([]*CompanyCreateInput, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNCompanyCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompanyCreateInput(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNCompanyCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐCompanyCreateInput(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -11556,7 +11658,7 @@ func (ec *executionContext) unmarshalNCompanyCreateInput2ᚕᚖgithubᚗcomᚋwe
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalNCompanyCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompanyCreateInput(ctx context.Context, v interface{}) (*CompanyCreateInput, error) {
+func (ec *executionContext) unmarshalNCompanyCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐCompanyCreateInput(ctx context.Context, v interface{}) (*CompanyCreateInput, error) {
 	res, err := ec.unmarshalInputCompanyCreateInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
@@ -11576,7 +11678,7 @@ func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) marshalNFollower2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollowerᚄ(ctx context.Context, sel ast.SelectionSet, v []*Follower) graphql.Marshaler {
+func (ec *executionContext) marshalNFollower2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐFollowerᚄ(ctx context.Context, sel ast.SelectionSet, v []*Follower) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -11600,7 +11702,7 @@ func (ec *executionContext) marshalNFollower2ᚕᚖgithubᚗcomᚋwednesdayᚑso
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNFollower2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollower(ctx, sel, v[i])
+			ret[i] = ec.marshalNFollower2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐFollower(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -11613,7 +11715,7 @@ func (ec *executionContext) marshalNFollower2ᚕᚖgithubᚗcomᚋwednesdayᚑso
 	return ret
 }
 
-func (ec *executionContext) marshalNFollower2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollower(ctx context.Context, sel ast.SelectionSet, v *Follower) graphql.Marshaler {
+func (ec *executionContext) marshalNFollower2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐFollower(ctx context.Context, sel ast.SelectionSet, v *Follower) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -11623,7 +11725,7 @@ func (ec *executionContext) marshalNFollower2ᚖgithubᚗcomᚋwednesdayᚑsolut
 	return ec._Follower(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNFollowerCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollowerCreateInputᚄ(ctx context.Context, v interface{}) ([]*FollowerCreateInput, error) {
+func (ec *executionContext) unmarshalNFollowerCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐFollowerCreateInputᚄ(ctx context.Context, v interface{}) ([]*FollowerCreateInput, error) {
 	var vSlice []interface{}
 	if v != nil {
 		if tmp1, ok := v.([]interface{}); ok {
@@ -11636,7 +11738,7 @@ func (ec *executionContext) unmarshalNFollowerCreateInput2ᚕᚖgithubᚗcomᚋw
 	res := make([]*FollowerCreateInput, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNFollowerCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollowerCreateInput(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNFollowerCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐFollowerCreateInput(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -11644,7 +11746,7 @@ func (ec *executionContext) unmarshalNFollowerCreateInput2ᚕᚖgithubᚗcomᚋw
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalNFollowerCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollowerCreateInput(ctx context.Context, v interface{}) (*FollowerCreateInput, error) {
+func (ec *executionContext) unmarshalNFollowerCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐFollowerCreateInput(ctx context.Context, v interface{}) (*FollowerCreateInput, error) {
 	res, err := ec.unmarshalInputFollowerCreateInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
@@ -11709,7 +11811,7 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) marshalNLocation2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocationᚄ(ctx context.Context, sel ast.SelectionSet, v []*Location) graphql.Marshaler {
+func (ec *executionContext) marshalNLocation2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐLocationᚄ(ctx context.Context, sel ast.SelectionSet, v []*Location) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -11733,7 +11835,7 @@ func (ec *executionContext) marshalNLocation2ᚕᚖgithubᚗcomᚋwednesdayᚑso
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNLocation2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocation(ctx, sel, v[i])
+			ret[i] = ec.marshalNLocation2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐLocation(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -11746,7 +11848,7 @@ func (ec *executionContext) marshalNLocation2ᚕᚖgithubᚗcomᚋwednesdayᚑso
 	return ret
 }
 
-func (ec *executionContext) marshalNLocation2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocation(ctx context.Context, sel ast.SelectionSet, v *Location) graphql.Marshaler {
+func (ec *executionContext) marshalNLocation2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐLocation(ctx context.Context, sel ast.SelectionSet, v *Location) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -11756,7 +11858,7 @@ func (ec *executionContext) marshalNLocation2ᚖgithubᚗcomᚋwednesdayᚑsolut
 	return ec._Location(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNLocationCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocationCreateInputᚄ(ctx context.Context, v interface{}) ([]*LocationCreateInput, error) {
+func (ec *executionContext) unmarshalNLocationCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐLocationCreateInputᚄ(ctx context.Context, v interface{}) ([]*LocationCreateInput, error) {
 	var vSlice []interface{}
 	if v != nil {
 		if tmp1, ok := v.([]interface{}); ok {
@@ -11769,7 +11871,7 @@ func (ec *executionContext) unmarshalNLocationCreateInput2ᚕᚖgithubᚗcomᚋw
 	res := make([]*LocationCreateInput, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNLocationCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocationCreateInput(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNLocationCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐLocationCreateInput(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -11777,16 +11879,16 @@ func (ec *executionContext) unmarshalNLocationCreateInput2ᚕᚖgithubᚗcomᚋw
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalNLocationCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocationCreateInput(ctx context.Context, v interface{}) (*LocationCreateInput, error) {
+func (ec *executionContext) unmarshalNLocationCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐLocationCreateInput(ctx context.Context, v interface{}) (*LocationCreateInput, error) {
 	res, err := ec.unmarshalInputLocationCreateInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNLoginResponse2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLoginResponse(ctx context.Context, sel ast.SelectionSet, v LoginResponse) graphql.Marshaler {
+func (ec *executionContext) marshalNLoginResponse2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐLoginResponse(ctx context.Context, sel ast.SelectionSet, v LoginResponse) graphql.Marshaler {
 	return ec._LoginResponse(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNLoginResponse2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLoginResponse(ctx context.Context, sel ast.SelectionSet, v *LoginResponse) graphql.Marshaler {
+func (ec *executionContext) marshalNLoginResponse2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐLoginResponse(ctx context.Context, sel ast.SelectionSet, v *LoginResponse) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -11796,7 +11898,7 @@ func (ec *executionContext) marshalNLoginResponse2ᚖgithubᚗcomᚋwednesdayᚑ
 	return ec._LoginResponse(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNPost2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPostᚄ(ctx context.Context, sel ast.SelectionSet, v []*Post) graphql.Marshaler {
+func (ec *executionContext) marshalNPost2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐPostᚄ(ctx context.Context, sel ast.SelectionSet, v []*Post) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -11820,7 +11922,7 @@ func (ec *executionContext) marshalNPost2ᚕᚖgithubᚗcomᚋwednesdayᚑsoluti
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNPost2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPost(ctx, sel, v[i])
+			ret[i] = ec.marshalNPost2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐPost(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -11833,7 +11935,7 @@ func (ec *executionContext) marshalNPost2ᚕᚖgithubᚗcomᚋwednesdayᚑsoluti
 	return ret
 }
 
-func (ec *executionContext) marshalNPost2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPost(ctx context.Context, sel ast.SelectionSet, v *Post) graphql.Marshaler {
+func (ec *executionContext) marshalNPost2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐPost(ctx context.Context, sel ast.SelectionSet, v *Post) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -11843,7 +11945,7 @@ func (ec *executionContext) marshalNPost2ᚖgithubᚗcomᚋwednesdayᚑsolutions
 	return ec._Post(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNPostCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPostCreateInputᚄ(ctx context.Context, v interface{}) ([]*PostCreateInput, error) {
+func (ec *executionContext) unmarshalNPostCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐPostCreateInputᚄ(ctx context.Context, v interface{}) ([]*PostCreateInput, error) {
 	var vSlice []interface{}
 	if v != nil {
 		if tmp1, ok := v.([]interface{}); ok {
@@ -11856,7 +11958,7 @@ func (ec *executionContext) unmarshalNPostCreateInput2ᚕᚖgithubᚗcomᚋwedne
 	res := make([]*PostCreateInput, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNPostCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPostCreateInput(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNPostCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐPostCreateInput(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -11864,16 +11966,16 @@ func (ec *executionContext) unmarshalNPostCreateInput2ᚕᚖgithubᚗcomᚋwedne
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalNPostCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPostCreateInput(ctx context.Context, v interface{}) (*PostCreateInput, error) {
+func (ec *executionContext) unmarshalNPostCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐPostCreateInput(ctx context.Context, v interface{}) (*PostCreateInput, error) {
 	res, err := ec.unmarshalInputPostCreateInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNRefreshTokenResponse2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRefreshTokenResponse(ctx context.Context, sel ast.SelectionSet, v RefreshTokenResponse) graphql.Marshaler {
+func (ec *executionContext) marshalNRefreshTokenResponse2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRefreshTokenResponse(ctx context.Context, sel ast.SelectionSet, v RefreshTokenResponse) graphql.Marshaler {
 	return ec._RefreshTokenResponse(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNRefreshTokenResponse2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRefreshTokenResponse(ctx context.Context, sel ast.SelectionSet, v *RefreshTokenResponse) graphql.Marshaler {
+func (ec *executionContext) marshalNRefreshTokenResponse2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRefreshTokenResponse(ctx context.Context, sel ast.SelectionSet, v *RefreshTokenResponse) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -11883,7 +11985,7 @@ func (ec *executionContext) marshalNRefreshTokenResponse2ᚖgithubᚗcomᚋwedne
 	return ec._RefreshTokenResponse(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNRole2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRoleᚄ(ctx context.Context, sel ast.SelectionSet, v []*Role) graphql.Marshaler {
+func (ec *executionContext) marshalNRole2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRoleᚄ(ctx context.Context, sel ast.SelectionSet, v []*Role) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -11907,7 +12009,7 @@ func (ec *executionContext) marshalNRole2ᚕᚖgithubᚗcomᚋwednesdayᚑsoluti
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNRole2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRole(ctx, sel, v[i])
+			ret[i] = ec.marshalNRole2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRole(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -11920,7 +12022,7 @@ func (ec *executionContext) marshalNRole2ᚕᚖgithubᚗcomᚋwednesdayᚑsoluti
 	return ret
 }
 
-func (ec *executionContext) marshalNRole2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRole(ctx context.Context, sel ast.SelectionSet, v *Role) graphql.Marshaler {
+func (ec *executionContext) marshalNRole2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRole(ctx context.Context, sel ast.SelectionSet, v *Role) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -11930,7 +12032,7 @@ func (ec *executionContext) marshalNRole2ᚖgithubᚗcomᚋwednesdayᚑsolutions
 	return ec._Role(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNRoleCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRoleCreateInputᚄ(ctx context.Context, v interface{}) ([]*RoleCreateInput, error) {
+func (ec *executionContext) unmarshalNRoleCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRoleCreateInputᚄ(ctx context.Context, v interface{}) ([]*RoleCreateInput, error) {
 	var vSlice []interface{}
 	if v != nil {
 		if tmp1, ok := v.([]interface{}); ok {
@@ -11943,7 +12045,7 @@ func (ec *executionContext) unmarshalNRoleCreateInput2ᚕᚖgithubᚗcomᚋwedne
 	res := make([]*RoleCreateInput, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNRoleCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRoleCreateInput(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNRoleCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRoleCreateInput(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -11951,7 +12053,7 @@ func (ec *executionContext) unmarshalNRoleCreateInput2ᚕᚖgithubᚗcomᚋwedne
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalNRoleCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRoleCreateInput(ctx context.Context, v interface{}) (*RoleCreateInput, error) {
+func (ec *executionContext) unmarshalNRoleCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRoleCreateInput(ctx context.Context, v interface{}) (*RoleCreateInput, error) {
 	res, err := ec.unmarshalInputRoleCreateInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
@@ -11971,11 +12073,11 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) marshalNUser2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUser(ctx context.Context, sel ast.SelectionSet, v User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUser(ctx context.Context, sel ast.SelectionSet, v User) graphql.Marshaler {
 	return ec._User(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*User) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -11999,7 +12101,7 @@ func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋwednesdayᚑsoluti
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUser(ctx, sel, v[i])
+			ret[i] = ec.marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUser(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -12012,7 +12114,7 @@ func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋwednesdayᚑsoluti
 	return ret
 }
 
-func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUser(ctx context.Context, sel ast.SelectionSet, v *User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUser(ctx context.Context, sel ast.SelectionSet, v *User) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -12022,12 +12124,12 @@ func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutions
 	return ec._User(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNUserCreateInput2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserCreateInput(ctx context.Context, v interface{}) (UserCreateInput, error) {
+func (ec *executionContext) unmarshalNUserCreateInput2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserCreateInput(ctx context.Context, v interface{}) (UserCreateInput, error) {
 	res, err := ec.unmarshalInputUserCreateInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNUserCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserCreateInputᚄ(ctx context.Context, v interface{}) ([]*UserCreateInput, error) {
+func (ec *executionContext) unmarshalNUserCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserCreateInputᚄ(ctx context.Context, v interface{}) ([]*UserCreateInput, error) {
 	var vSlice []interface{}
 	if v != nil {
 		if tmp1, ok := v.([]interface{}); ok {
@@ -12040,7 +12142,7 @@ func (ec *executionContext) unmarshalNUserCreateInput2ᚕᚖgithubᚗcomᚋwedne
 	res := make([]*UserCreateInput, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNUserCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserCreateInput(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNUserCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserCreateInput(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -12048,16 +12150,16 @@ func (ec *executionContext) unmarshalNUserCreateInput2ᚕᚖgithubᚗcomᚋwedne
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalNUserCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserCreateInput(ctx context.Context, v interface{}) (*UserCreateInput, error) {
+func (ec *executionContext) unmarshalNUserCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserCreateInput(ctx context.Context, v interface{}) (*UserCreateInput, error) {
 	res, err := ec.unmarshalInputUserCreateInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNUserDeletePayload2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserDeletePayload(ctx context.Context, sel ast.SelectionSet, v UserDeletePayload) graphql.Marshaler {
+func (ec *executionContext) marshalNUserDeletePayload2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserDeletePayload(ctx context.Context, sel ast.SelectionSet, v UserDeletePayload) graphql.Marshaler {
 	return ec._UserDeletePayload(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUserDeletePayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserDeletePayload(ctx context.Context, sel ast.SelectionSet, v *UserDeletePayload) graphql.Marshaler {
+func (ec *executionContext) marshalNUserDeletePayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserDeletePayload(ctx context.Context, sel ast.SelectionSet, v *UserDeletePayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -12067,11 +12169,11 @@ func (ec *executionContext) marshalNUserDeletePayload2ᚖgithubᚗcomᚋwednesda
 	return ec._UserDeletePayload(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNUserPayload2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserPayload(ctx context.Context, sel ast.SelectionSet, v UserPayload) graphql.Marshaler {
+func (ec *executionContext) marshalNUserPayload2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserPayload(ctx context.Context, sel ast.SelectionSet, v UserPayload) graphql.Marshaler {
 	return ec._UserPayload(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUserPayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserPayload(ctx context.Context, sel ast.SelectionSet, v *UserPayload) graphql.Marshaler {
+func (ec *executionContext) marshalNUserPayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserPayload(ctx context.Context, sel ast.SelectionSet, v *UserPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -12081,11 +12183,11 @@ func (ec *executionContext) marshalNUserPayload2ᚖgithubᚗcomᚋwednesdayᚑso
 	return ec._UserPayload(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNUserUpdatePayload2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserUpdatePayload(ctx context.Context, sel ast.SelectionSet, v UserUpdatePayload) graphql.Marshaler {
+func (ec *executionContext) marshalNUserUpdatePayload2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserUpdatePayload(ctx context.Context, sel ast.SelectionSet, v UserUpdatePayload) graphql.Marshaler {
 	return ec._UserUpdatePayload(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUserUpdatePayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserUpdatePayload(ctx context.Context, sel ast.SelectionSet, v *UserUpdatePayload) graphql.Marshaler {
+func (ec *executionContext) marshalNUserUpdatePayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserUpdatePayload(ctx context.Context, sel ast.SelectionSet, v *UserUpdatePayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -12095,11 +12197,11 @@ func (ec *executionContext) marshalNUserUpdatePayload2ᚖgithubᚗcomᚋwednesda
 	return ec._UserUpdatePayload(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNUsersPayload2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUsersPayload(ctx context.Context, sel ast.SelectionSet, v UsersPayload) graphql.Marshaler {
+func (ec *executionContext) marshalNUsersPayload2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUsersPayload(ctx context.Context, sel ast.SelectionSet, v UsersPayload) graphql.Marshaler {
 	return ec._UsersPayload(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUsersPayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUsersPayload(ctx context.Context, sel ast.SelectionSet, v *UsersPayload) graphql.Marshaler {
+func (ec *executionContext) marshalNUsersPayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUsersPayload(ctx context.Context, sel ast.SelectionSet, v *UsersPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -12362,7 +12464,7 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return graphql.MarshalBoolean(*v)
 }
 
-func (ec *executionContext) unmarshalOBooleanFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐBooleanFilter(ctx context.Context, v interface{}) (*BooleanFilter, error) {
+func (ec *executionContext) unmarshalOBooleanFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐBooleanFilter(ctx context.Context, v interface{}) (*BooleanFilter, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -12370,7 +12472,7 @@ func (ec *executionContext) unmarshalOBooleanFilter2ᚖgithubᚗcomᚋwednesday�
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOComment2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐComment(ctx context.Context, sel ast.SelectionSet, v []*Comment) graphql.Marshaler {
+func (ec *executionContext) marshalOComment2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐComment(ctx context.Context, sel ast.SelectionSet, v []*Comment) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -12397,7 +12499,7 @@ func (ec *executionContext) marshalOComment2ᚕᚖgithubᚗcomᚋwednesdayᚑsol
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOComment2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐComment(ctx, sel, v[i])
+			ret[i] = ec.marshalOComment2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐComment(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -12410,14 +12512,14 @@ func (ec *executionContext) marshalOComment2ᚕᚖgithubᚗcomᚋwednesdayᚑsol
 	return ret
 }
 
-func (ec *executionContext) marshalOComment2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐComment(ctx context.Context, sel ast.SelectionSet, v *Comment) graphql.Marshaler {
+func (ec *executionContext) marshalOComment2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐComment(ctx context.Context, sel ast.SelectionSet, v *Comment) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Comment(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOCommentWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCommentWhere(ctx context.Context, v interface{}) (*CommentWhere, error) {
+func (ec *executionContext) unmarshalOCommentWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐCommentWhere(ctx context.Context, v interface{}) (*CommentWhere, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -12425,14 +12527,14 @@ func (ec *executionContext) unmarshalOCommentWhere2ᚖgithubᚗcomᚋwednesday�
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOCompany2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompany(ctx context.Context, sel ast.SelectionSet, v *Company) graphql.Marshaler {
+func (ec *executionContext) marshalOCompany2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐCompany(ctx context.Context, sel ast.SelectionSet, v *Company) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Company(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOCompanyWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompanyWhere(ctx context.Context, v interface{}) (*CompanyWhere, error) {
+func (ec *executionContext) unmarshalOCompanyWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐCompanyWhere(ctx context.Context, v interface{}) (*CompanyWhere, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -12491,7 +12593,7 @@ func (ec *executionContext) marshalOFloat2ᚖfloat64(ctx context.Context, sel as
 	return graphql.MarshalFloat(*v)
 }
 
-func (ec *executionContext) marshalOFollower2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollower(ctx context.Context, sel ast.SelectionSet, v []*Follower) graphql.Marshaler {
+func (ec *executionContext) marshalOFollower2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐFollower(ctx context.Context, sel ast.SelectionSet, v []*Follower) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -12518,7 +12620,7 @@ func (ec *executionContext) marshalOFollower2ᚕᚖgithubᚗcomᚋwednesdayᚑso
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOFollower2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollower(ctx, sel, v[i])
+			ret[i] = ec.marshalOFollower2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐFollower(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -12531,14 +12633,14 @@ func (ec *executionContext) marshalOFollower2ᚕᚖgithubᚗcomᚋwednesdayᚑso
 	return ret
 }
 
-func (ec *executionContext) marshalOFollower2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollower(ctx context.Context, sel ast.SelectionSet, v *Follower) graphql.Marshaler {
+func (ec *executionContext) marshalOFollower2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐFollower(ctx context.Context, sel ast.SelectionSet, v *Follower) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Follower(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOFollowerWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollowerWhere(ctx context.Context, v interface{}) (*FollowerWhere, error) {
+func (ec *executionContext) unmarshalOFollowerWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐFollowerWhere(ctx context.Context, v interface{}) (*FollowerWhere, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -12597,7 +12699,7 @@ func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.Se
 	return graphql.MarshalID(*v)
 }
 
-func (ec *executionContext) unmarshalOIDFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIDFilter(ctx context.Context, v interface{}) (*IDFilter, error) {
+func (ec *executionContext) unmarshalOIDFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIDFilter(ctx context.Context, v interface{}) (*IDFilter, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -12656,7 +12758,7 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	return graphql.MarshalInt(*v)
 }
 
-func (ec *executionContext) unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx context.Context, v interface{}) (*IntFilter, error) {
+func (ec *executionContext) unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx context.Context, v interface{}) (*IntFilter, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -12664,7 +12766,7 @@ func (ec *executionContext) unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑso
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOLocation2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocation(ctx context.Context, sel ast.SelectionSet, v []*Location) graphql.Marshaler {
+func (ec *executionContext) marshalOLocation2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐLocation(ctx context.Context, sel ast.SelectionSet, v []*Location) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -12691,7 +12793,7 @@ func (ec *executionContext) marshalOLocation2ᚕᚖgithubᚗcomᚋwednesdayᚑso
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOLocation2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocation(ctx, sel, v[i])
+			ret[i] = ec.marshalOLocation2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐLocation(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -12704,14 +12806,14 @@ func (ec *executionContext) marshalOLocation2ᚕᚖgithubᚗcomᚋwednesdayᚑso
 	return ret
 }
 
-func (ec *executionContext) marshalOLocation2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocation(ctx context.Context, sel ast.SelectionSet, v *Location) graphql.Marshaler {
+func (ec *executionContext) marshalOLocation2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐLocation(ctx context.Context, sel ast.SelectionSet, v *Location) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Location(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOLocationWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocationWhere(ctx context.Context, v interface{}) (*LocationWhere, error) {
+func (ec *executionContext) unmarshalOLocationWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐLocationWhere(ctx context.Context, v interface{}) (*LocationWhere, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -12719,7 +12821,7 @@ func (ec *executionContext) unmarshalOLocationWhere2ᚖgithubᚗcomᚋwednesday�
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOPost2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPost(ctx context.Context, sel ast.SelectionSet, v []*Post) graphql.Marshaler {
+func (ec *executionContext) marshalOPost2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐPost(ctx context.Context, sel ast.SelectionSet, v []*Post) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -12746,7 +12848,7 @@ func (ec *executionContext) marshalOPost2ᚕᚖgithubᚗcomᚋwednesdayᚑsoluti
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOPost2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPost(ctx, sel, v[i])
+			ret[i] = ec.marshalOPost2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐPost(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -12759,14 +12861,14 @@ func (ec *executionContext) marshalOPost2ᚕᚖgithubᚗcomᚋwednesdayᚑsoluti
 	return ret
 }
 
-func (ec *executionContext) marshalOPost2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPost(ctx context.Context, sel ast.SelectionSet, v *Post) graphql.Marshaler {
+func (ec *executionContext) marshalOPost2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐPost(ctx context.Context, sel ast.SelectionSet, v *Post) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Post(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOPostWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPostWhere(ctx context.Context, v interface{}) (*PostWhere, error) {
+func (ec *executionContext) unmarshalOPostWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐPostWhere(ctx context.Context, v interface{}) (*PostWhere, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -12774,14 +12876,14 @@ func (ec *executionContext) unmarshalOPostWhere2ᚖgithubᚗcomᚋwednesdayᚑso
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalORole2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRole(ctx context.Context, sel ast.SelectionSet, v *Role) graphql.Marshaler {
+func (ec *executionContext) marshalORole2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRole(ctx context.Context, sel ast.SelectionSet, v *Role) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Role(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalORoleWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRoleWhere(ctx context.Context, v interface{}) (*RoleWhere, error) {
+func (ec *executionContext) unmarshalORoleWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRoleWhere(ctx context.Context, v interface{}) (*RoleWhere, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -12849,7 +12951,7 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	return graphql.MarshalString(*v)
 }
 
-func (ec *executionContext) unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx context.Context, v interface{}) (*StringFilter, error) {
+func (ec *executionContext) unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐStringFilter(ctx context.Context, v interface{}) (*StringFilter, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -12857,7 +12959,7 @@ func (ec *executionContext) unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesday�
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOUser2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUser(ctx context.Context, sel ast.SelectionSet, v []*User) graphql.Marshaler {
+func (ec *executionContext) marshalOUser2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUser(ctx context.Context, sel ast.SelectionSet, v []*User) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -12884,7 +12986,7 @@ func (ec *executionContext) marshalOUser2ᚕᚖgithubᚗcomᚋwednesdayᚑsoluti
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUser(ctx, sel, v[i])
+			ret[i] = ec.marshalOUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUser(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -12897,14 +12999,14 @@ func (ec *executionContext) marshalOUser2ᚕᚖgithubᚗcomᚋwednesdayᚑsoluti
 	return ret
 }
 
-func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUser(ctx context.Context, sel ast.SelectionSet, v *User) graphql.Marshaler {
+func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUser(ctx context.Context, sel ast.SelectionSet, v *User) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._User(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOUserPagination2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserPagination(ctx context.Context, v interface{}) (*UserPagination, error) {
+func (ec *executionContext) unmarshalOUserPagination2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserPagination(ctx context.Context, v interface{}) (*UserPagination, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -12912,7 +13014,7 @@ func (ec *executionContext) unmarshalOUserPagination2ᚖgithubᚗcomᚋwednesday
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOUserUpdateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserUpdateInput(ctx context.Context, v interface{}) (*UserUpdateInput, error) {
+func (ec *executionContext) unmarshalOUserUpdateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserUpdateInput(ctx context.Context, v interface{}) (*UserUpdateInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -12920,7 +13022,7 @@ func (ec *executionContext) unmarshalOUserUpdateInput2ᚖgithubᚗcomᚋwednesda
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserWhere(ctx context.Context, v interface{}) (*UserWhere, error) {
+func (ec *executionContext) unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserWhere(ctx context.Context, v interface{}) (*UserWhere, error) {
 	if v == nil {
 		return nil, nil
 	}
