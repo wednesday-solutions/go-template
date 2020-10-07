@@ -33,6 +33,7 @@ require (
 	github.com/onsi/gomega v1.9.0 // indirect
 	github.com/pelletier/go-toml v1.7.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/rafaeljusto/redigomock v2.4.0+incompatible
 	github.com/rs/zerolog v1.18.0
 	github.com/spf13/afero v1.2.2 // indirect
 	github.com/spf13/cast v1.3.1 // indirect
