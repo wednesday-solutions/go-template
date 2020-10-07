@@ -56,12 +56,6 @@ func TestLogin(t *testing.T) {
 			if err != nil {
 				fmt.Print("Error loading .env file")
 			}
-			conn := redigomock.NewConn()
-			_ = &redis.Pool{
-				// Return the same connection mock for each Get() call.
-				Dial:    func() (redis.Conn, error) { return conn, nil },
-				MaxIdle: 10,
-			}
 			db, mock, err := sqlmock.New()
 			if err != nil {
 				t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
@@ -112,7 +106,7 @@ func TestMe(t *testing.T) {
 		{
 			name:     "Success",
 			wantErr:  false,
-			wantResp: &fm.User{FirstName: convert.StringToPointerString("First"), LastName: convert.StringToPointerString("Last"), Username: convert.StringToPointerString("username"), Email: convert.StringToPointerString("mac@wednesday.is"), Mobile: convert.StringToPointerString("+911234567890"), Phone: convert.StringToPointerString("05943-1123"), Address: convert.StringToPointerString("22 Jump Street")},
+			wantResp: &fm.User{},
 		},
 	}
 
@@ -122,6 +116,12 @@ func TestMe(t *testing.T) {
 			err := godotenv.Load(fmt.Sprintf(".env.%s", os.Getenv("ENVIRONMENT_NAME")))
 			if err != nil {
 				fmt.Print("Error loading .env file")
+			}
+			conn := redigomock.NewConn()
+			_ = &redis.Pool{
+				// Return the same connection mock for each Get() call.
+				Dial:    func() (redis.Conn, error) { return conn, nil },
+				MaxIdle: 10,
 			}
 			db, mock, err := sqlmock.New()
 			if err != nil {
