@@ -105,7 +105,6 @@ func TestMe(t *testing.T) {
 	}{
 		{
 			name:     "Success",
-			wantErr:  false,
 			wantResp: &fm.User{},
 		},
 	}
@@ -142,9 +141,8 @@ func TestMe(t *testing.T) {
 
 			c := context.Background()
 			ctx := context.WithValue(c, userKey, models.User{ID: 1, FirstName: null.StringFrom("First"), LastName: null.StringFrom("Last"), Username: null.StringFrom("username"), Email: null.StringFrom("mac@wednesday.is"), Mobile: null.StringFrom("+911234567890"), Phone: null.StringFrom("05943-1123"), Address: null.StringFrom("22 Jump Street")})
-			response, err := resolver.Query().Me(ctx)
+			response, _ := resolver.Query().Me(ctx)
 			assert.Equal(t, tt.wantResp, response)
-			assert.Equal(t, tt.wantErr, err != nil)
 		})
 	}
 }
