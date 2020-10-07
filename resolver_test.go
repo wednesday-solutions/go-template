@@ -136,10 +136,9 @@ func TestMe(t *testing.T) {
 			boil.SetDB(db)
 
 			// get user by id
-			rows := sqlmock.NewRows([]string{"id", "email", "first_name", "last_name", "mobile", "username", "phone", "address"}).AddRow(1, "mac@wednesday.is", "First", "Last", "+911234567890", "username", "05943-1123", "22 Jump Street")
+			//rows := sqlmock.NewRows([]string{"id", "email", "first_name", "last_name", "mobile", "username", "phone", "address"}).AddRow(1, "mac@wednesday.is", "First", "Last", "+911234567890", "username", "05943-1123", "22 Jump Street")
 			mock.ExpectQuery(regexp.QuoteMeta("select * from \"users\" where \"id\"=$1")).
-				WithArgs().
-				WillReturnRows(rows)
+				WithArgs()
 
 			c := context.Background()
 			ctx := context.WithValue(c, userKey, models.User{ID: 1, FirstName: null.StringFrom("First"), LastName: null.StringFrom("Last"), Username: null.StringFrom("username"), Email: null.StringFrom("mac@wednesday.is"), Mobile: null.StringFrom("+911234567890"), Phone: null.StringFrom("05943-1123"), Address: null.StringFrom("22 Jump Street")})
