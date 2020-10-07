@@ -16,6 +16,7 @@ require (
 	github.com/go-playground/universal-translator v0.17.0 // indirect
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/gofrs/uuid v3.2.0+incompatible // indirect
+	github.com/gomodule/redigo v1.8.2
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/iancoleman/strcase v0.0.0-20191112232945-16388991a334
 	github.com/joho/godotenv v1.3.0
@@ -32,6 +33,7 @@ require (
 	github.com/onsi/gomega v1.9.0 // indirect
 	github.com/pelletier/go-toml v1.7.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/rafaeljusto/redigomock v2.4.0+incompatible
 	github.com/rs/zerolog v1.18.0
 	github.com/spf13/afero v1.2.2 // indirect
 	github.com/spf13/cast v1.3.1 // indirect
