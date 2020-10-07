@@ -24,7 +24,7 @@ type Resolver struct {
 
 func (r queryResolver) Me(ctx context.Context) (*fm.User, error) {
 	userID := auth.UserIDFromContext(ctx)
-	user, err := daos.FindUserByID(userID)
+	user, err := GetUser(userID)
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "data")
 	}
