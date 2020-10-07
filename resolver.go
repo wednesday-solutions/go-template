@@ -26,7 +26,7 @@ func (r queryResolver) Me(ctx context.Context) (*fm.User, error) {
 	userID := auth.UserIDFromContext(ctx)
 	user, err := GetUser(userID)
 	if err != nil {
-		return nil, resultwrapper.ResolverSQLError(err, "data")
+		return &fm.User{}, resultwrapper.ResolverSQLError(err, "data")
 	}
 	return &fm.User{
 		FirstName: convert.NullDotStringToPointerString(user.FirstName),
