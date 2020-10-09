@@ -31,6 +31,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/labstack/echo"
 	goboiler "github.com/wednesday-solutions/go-template"
+	"github.com/wednesday-solutions/go-template/pkg/utl"
 	"os"
 
 	_ "github.com/lib/pq" // here
@@ -61,8 +62,11 @@ func Start(cfg *config.Configuration) error {
 	gqlMiddleware := authMw.GqlMiddleware()
 
 	playgroundHandler := playground.Handler("GraphQL playground", "/graphql")
+	playgroundHandler = playground.Handler("Subscription playground", "/subscription")
 
-	graphqlHandler := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: &goboiler.Resolver{}}))
+	//event := make(chan *graphql.User, 1)
+	var observers map[string]chan *graphql.User
+	graphqlHandler := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: &goboiler.Resolver{Observers: observers}}))
 
 	if os.Getenv("ENVIRONMENT_NAME") == "local" {
 		boil.DebugMode = true
@@ -87,6 +91,22 @@ func Start(cfg *config.Configuration) error {
 		playgroundHandler.ServeHTTP(res, req)
 		return nil
 	})
+
+	// graphql subscription
+	e.GET("/subscription", func(c echo.Context) error {
+		req := c.Request()
+		res := c.Response()
+		utl.Handler(res, req)
+		return nil
+	})
+
+	//// graphql subscription
+	//e.GET("/subscription-playground", func(c echo.Context) error {
+	//	req := c.Request()
+	//	res := c.Response()
+	//	subscriptionHandler.ServeHTTP(res, req)
+	//	return nil
+	//})
 	server.Start(e, &server.Config{
 		Port:                cfg.Server.Port,
 		ReadTimeoutSeconds:  cfg.Server.ReadTimeout,
