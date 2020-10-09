@@ -16,10 +16,14 @@ import (
 	"github.com/wednesday-solutions/go-template/pkg/utl/middleware/auth"
 	resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
 	"github.com/wednesday-solutions/go-template/pkg/utl/service"
+	"math/rand"
+	"sync"
 )
 
 // Resolver ...
 type Resolver struct {
+	Rooms map[string]*Chatroom
+	mu    sync.Mutex
 }
 
 func (r queryResolver) Me(ctx context.Context) (*fm.User, error) {
@@ -148,38 +152,63 @@ func (r mutationResolver) RefreshToken(ctx context.Context, token string) (*fm.R
 }
 
 func (r mutationResolver) CreateUser(ctx context.Context, input fm.UserCreateInput) (*fm.UserPayload, error) {
-	user := models.User{
-		Username:   null.StringFromPtr(input.Username),
-		Password:   null.StringFromPtr(input.Password),
-		Email:      null.StringFromPtr(input.Email),
-		FirstName:  null.StringFromPtr(input.FirstName),
-		LastName:   null.StringFromPtr(input.LastName),
-		CompanyID:  convert.PointerStringToNullDotInt(input.CompanyID),
-		LocationID: convert.PointerStringToNullDotInt(input.LocationID),
-		RoleID:     convert.PointerStringToNullDotInt(input.RoleID),
+	//user := models.User{
+	//	Username:   null.StringFromPtr(input.Username),
+	//	Password:   null.StringFromPtr(input.Password),
+	//	Email:      null.StringFromPtr(input.Email),
+	//	FirstName:  null.StringFromPtr(input.FirstName),
+	//	LastName:   null.StringFromPtr(input.LastName),
+	//	CompanyID:  convert.PointerStringToNullDotInt(input.CompanyID),
+	//	LocationID: convert.PointerStringToNullDotInt(input.LocationID),
+	//	RoleID:     convert.PointerStringToNullDotInt(input.RoleID),
+	//}
+	//// loading configurations
+	//cfg, err := config.Load()
+	//if err != nil {
+	//	return nil, fmt.Errorf("Error in loading config ")
+	//}
+	//// creating new secure service
+	//sec := service.Secure(cfg)
+	//user.Password = null.StringFrom(sec.Hash(user.Password.String))
+	//newUser, err := daos.CreateUserTx(user, nil)
+	//if err != nil {
+	//	return nil, resultwrapper.ResolverSQLError(err, "user information")
+	//}
+	//graphUser := &fm.User{
+	//	FirstName: convert.NullDotStringToPointerString(newUser.FirstName),
+	//	LastName:  convert.NullDotStringToPointerString(newUser.LastName),
+	//	Username:  convert.NullDotStringToPointerString(newUser.Username),
+	//	Email:     convert.NullDotStringToPointerString(newUser.Email),
+	//	Mobile:    convert.NullDotStringToPointerString(newUser.Mobile),
+	//	Phone:     convert.NullDotStringToPointerString(newUser.Phone),
+	//	Address:   convert.NullDotStringToPointerString(newUser.Address),
+	//}
+	graphUser := &fm.User{FirstName: convert.StringToPointerString("Fname"), Username: convert.StringToPointerString("username")}
+	roomName := randString(5)
+	r.mu.Lock()
+	room := r.Rooms[roomName]
+	if room == nil {
+		room = &Chatroom{
+			Name: roomName,
+			Observers: map[string]struct {
+				Username string
+				User     chan *fm.User
+			}{},
+		}
+		r.Rooms[roomName] = room
 	}
-	// loading configurations
-	cfg, err := config.Load()
-	if err != nil {
-		return nil, fmt.Errorf("Error in loading config ")
+	r.mu.Unlock()
+
+	room.Users = append(room.Users, graphUser)
+	r.mu.Lock()
+	for _, observer := range room.Observers {
+		//if observer.Username == "" || observer.Username == message.CreatedBy {
+		observer.User <- graphUser
+		//}
 	}
-	// creating new secure service
-	sec := service.Secure(cfg)
-	user.Password = null.StringFrom(sec.Hash(user.Password.String))
-	newUser, err := daos.CreateUserTx(user, nil)
-	if err != nil {
-		return nil, resultwrapper.ResolverSQLError(err, "user information")
-	}
-	return &fm.UserPayload{User: &fm.User{
-		FirstName: convert.NullDotStringToPointerString(newUser.FirstName),
-		LastName:  convert.NullDotStringToPointerString(newUser.LastName),
-		Username:  convert.NullDotStringToPointerString(newUser.Username),
-		Email:     convert.NullDotStringToPointerString(newUser.Email),
-		Mobile:    convert.NullDotStringToPointerString(newUser.Mobile),
-		Phone:     convert.NullDotStringToPointerString(newUser.Phone),
-		Address:   convert.NullDotStringToPointerString(newUser.Address),
-	},
-	}, err
+	r.mu.Unlock()
+
+	return &fm.UserPayload{User: graphUser}, nil
 }
 
 func (r mutationResolver) UpdateUser(ctx context.Context, input *fm.UserUpdateInput) (*fm.UserUpdatePayload, error) {
@@ -212,11 +241,71 @@ func (r mutationResolver) DeleteUser(ctx context.Context) (*fm.UserDeletePayload
 	return &fm.UserDeletePayload{ID: fmt.Sprint(userID)}, nil
 }
 
+func (r *subscriptionResolver) UserAdded(ctx context.Context) (<-chan *fm.User, error) {
+	roomName := "room"
+	r.mu.Lock()
+	room := r.Rooms[roomName]
+	if room == nil {
+		room = &Chatroom{
+			Name: roomName,
+			Observers: map[string]struct {
+				Username string
+				User     chan *fm.User
+			}{},
+		}
+		r.Rooms[roomName] = room
+	}
+	r.mu.Unlock()
+
+	id := randString(5)
+	events := make(chan *fm.User, 1)
+
+	go func() {
+		<-ctx.Done()
+		r.mu.Lock()
+		delete(room.Observers, id)
+		r.mu.Unlock()
+	}()
+
+	r.mu.Lock()
+	room.Observers[id] = struct {
+		Username string
+		User     chan *fm.User
+	}{Username: "username", User: events}
+	r.mu.Unlock()
+
+	return events, nil
+}
+
+// Chatroom ...
+type Chatroom struct {
+	Name      string
+	Users     []*fm.User
+	Observers map[string]struct {
+		Username string
+		User     chan *fm.User
+	}
+}
+
+var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+func randString(n int) string {
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	return string(b)
+}
+
 // Mutation ...
 func (r *Resolver) Mutation() fm.MutationResolver { return &mutationResolver{r} }
 
 // Query ...
 func (r *Resolver) Query() fm.QueryResolver { return &queryResolver{r} }
 
+// Subscription ...
+func (r *Resolver) Subscription() fm.SubscriptionResolver { return &subscriptionResolver{r} }
+
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+type subscriptionResolver struct{ *Resolver }
