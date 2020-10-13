@@ -448,13 +448,13 @@ func TestCreateUser(t *testing.T) {
 
 			if tt.name == "Fail on Create User" {
 				// insert new user
-				mock.ExpectQuery(regexp.QuoteMeta("INSERT INTO \"users\" (\"created_at\",\"updated_at\",\"deleted_at\",\"first_name\",\"last_name\",\"username\",\"password\",\"email\",\"mobile\",\"phone\",\"address\",\"active\",\"last_login\",\"last_password_change\",\"token\",\"role_id\",\"company_id\",\"location_id\") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)")).
+				mock.ExpectQuery(regexp.QuoteMeta("INSERT INTO \"users\" (\"first_name\",\"last_name\",\"username\",\"password\",\"email\",\"mobile\",\"phone\",\"address\",\"active\",\"last_login\",\"last_password_change\",\"token\",\"role_id\",\"created_at\",\"updated_at\",\"deleted_at\") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)")).
 					WithArgs().
 					WillReturnError(fmt.Errorf(""))
 			}
 			// insert new user
 			rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
-			mock.ExpectQuery(regexp.QuoteMeta("INSERT INTO \"users\" (\"created_at\",\"updated_at\",\"deleted_at\",\"first_name\",\"last_name\",\"username\",\"password\",\"email\",\"mobile\",\"phone\",\"address\",\"active\",\"last_login\",\"last_password_change\",\"token\",\"role_id\",\"company_id\",\"location_id\") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)")).
+			mock.ExpectQuery(regexp.QuoteMeta("INSERT INTO \"users\" (\"first_name\",\"last_name\",\"username\",\"password\",\"email\",\"mobile\",\"phone\",\"address\",\"active\",\"last_login\",\"last_password_change\",\"token\",\"role_id\",\"created_at\",\"updated_at\",\"deleted_at\") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)")).
 				WithArgs().
 				WillReturnRows(rows)
 
@@ -507,13 +507,13 @@ func TestUpdateUser(t *testing.T) {
 			boil.SetDB(db)
 
 			if tt.name == "Fail on finding User" {
-				mock.ExpectQuery(regexp.QuoteMeta("UPDATE \"users\" SET \"updated_at\"=$1,\"deleted_at\"=$2,\"first_name\"=$3,\"last_name\"=$4,\"username\"=$5,\"password\"=$6,\"email\"=$7,\"mobile\"=$8,\"phone\"=$9,\"address\"=$10,\"active\"=$11,\"last_login\"=$12,\"last_password_change\"=$13,\"token\"=$14,\"role_id\"=$15,\"company_id\"=$16,\"location_id\"=$17 WHERE \"id\"=$18")).
+				mock.ExpectQuery(regexp.QuoteMeta("UPDATE \"users\" SET \"first_name\"=$1,\"last_name\"=$2,\"username\"=$3,\"password\"=$4,\"email\"=$5,\"mobile\"=$6,\"phone\"=$7,\"address\"=$8,\"active\"=$9,\"last_login\"=$10,\"last_password_change\"=$11,\"token\"=$12,\"role_id\"=$13,\"updated_at\"=$14,\"deleted_at\"=$15 WHERE \"id\"=$16")).
 					WithArgs().
 					WillReturnError(fmt.Errorf(""))
 			}
 			// update users with new information
 			result := driver.Result(driver.RowsAffected(1))
-			mock.ExpectExec(regexp.QuoteMeta("UPDATE \"users\" SET \"updated_at\"=$1,\"deleted_at\"=$2,\"first_name\"=$3,\"last_name\"=$4,\"username\"=$5,\"password\"=$6,\"email\"=$7,\"mobile\"=$8,\"phone\"=$9,\"address\"=$10,\"active\"=$11,\"last_login\"=$12,\"last_password_change\"=$13,\"token\"=$14,\"role_id\"=$15,\"company_id\"=$16,\"location_id\"=$17 WHERE \"id\"=$18")).
+			mock.ExpectExec(regexp.QuoteMeta("UPDATE \"users\" SET \"first_name\"=$1,\"last_name\"=$2,\"username\"=$3,\"password\"=$4,\"email\"=$5,\"mobile\"=$6,\"phone\"=$7,\"address\"=$8,\"active\"=$9,\"last_login\"=$10,\"last_password_change\"=$11,\"token\"=$12,\"role_id\"=$13,\"updated_at\"=$14,\"deleted_at\"=$15 WHERE \"id\"=$16")).
 				WillReturnResult(result)
 
 			c := context.Background()
