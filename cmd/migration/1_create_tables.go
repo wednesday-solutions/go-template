@@ -7,8 +7,9 @@ import (
 )
 
 type tableQuery struct {
-	Name  string
-	Query string
+	Name    string
+	Query   string
+	Columns []string
 }
 
 func init() {
@@ -24,6 +25,7 @@ func init() {
 			updated_at TIMESTAMP WITH TIME ZONE,
 			deleted_at TIMESTAMP WITH TIME ZONE
 		);`, "roles"),
+			Columns: []string{},
 		}, {
 			Name: "companies",
 			Query: fmt.Sprintf(`CREATE TABLE public.%s (
@@ -34,6 +36,7 @@ func init() {
 			name text,
 			active boolean
 		);`, "companies"),
+			Columns: []string{},
 		}, {
 			Name: "locations",
 			Query: fmt.Sprintf(`CREATE TABLE public.%s (
@@ -46,6 +49,7 @@ func init() {
 			address TEXT,
 			company_id SERIAL REFERENCES companies(id)
 		);`, "locations"),
+			Columns: []string{},
 		}, {
 			Name: "users",
 			Query: fmt.Sprintf(`CREATE TABLE public.%s (
@@ -69,6 +73,7 @@ func init() {
 				company_id int REFERENCES companies(id),
 				location_id int REFERENCES locations(id)
 			);`, "users"),
+			Columns: []string{"username"},
 		}, {
 			Name: "posts",
 			Query: fmt.Sprintf(`CREATE TABLE IF NOT EXISTS public.%s (
@@ -80,6 +85,7 @@ func init() {
 			updated_at TIMESTAMP WITH TIME ZONE,
 			deleted_at TIMESTAMP WITH TIME ZONE
 			);`, "posts"),
+			Columns: []string{},
 		}, {
 			Name: "comments",
 			Query: fmt.Sprintf(`CREATE TABLE IF NOT EXISTS public.%s (	
@@ -92,6 +98,7 @@ func init() {
 			updated_at TIMESTAMP WITH TIME ZONE,	
 			deleted_at TIMESTAMP WITH TIME ZONE	
 			);`, "comments"),
+			Columns: []string{},
 		}, {
 			Name: "followers",
 			Query: fmt.Sprintf(`CREATE TABLE IF NOT EXISTS public.%s (
@@ -102,6 +109,7 @@ func init() {
 			updated_at TIMESTAMP WITH TIME ZONE,
 			deleted_at TIMESTAMP WITH TIME ZONE
 			);`, "followers"),
+			Columns: []string{},
 		},
 	}
 
@@ -111,7 +119,7 @@ func init() {
 			if err != nil {
 				return err
 			}
-			err = createTable(db, tableQueries[i].Query, tableQueries[i].Name)
+			err = CreateTableAndIndexes(db, tableQueries[i].Query, tableQueries[i].Name, tableQueries[i].Columns)
 			if err != nil {
 				return err
 			}
@@ -126,12 +134,4 @@ func init() {
 		}
 		return nil
 	})
-}
-
-func createTable(db migrations.DB, createTableQuery string, tableName string) error {
-	err := CreateTableAndAddTrigger(db, createTableQuery, tableName)
-	if err != nil {
-		return err
-	}
-	return err
 }
