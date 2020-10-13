@@ -28,20 +28,22 @@ import (
 	"context"
 	graphql2 "github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/handler/extension"
+	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
-	goboiler "github.com/wednesday-solutions/go-template"
-	"github.com/wednesday-solutions/go-template/pkg/utl"
-	"os"
-
 	_ "github.com/lib/pq" // here
 	"github.com/volatiletech/sqlboiler/boil"
+	goboiler "github.com/wednesday-solutions/go-template"
 	graphql "github.com/wednesday-solutions/go-template/graphql_models"
 	"github.com/wednesday-solutions/go-template/pkg/utl/config"
 	"github.com/wednesday-solutions/go-template/pkg/utl/jwt"
 	authMw "github.com/wednesday-solutions/go-template/pkg/utl/middleware/auth"
 	"github.com/wednesday-solutions/go-template/pkg/utl/postgres"
 	"github.com/wednesday-solutions/go-template/pkg/utl/server"
+	"net/http"
+	"os"
 )
 
 // Start starts the API service
@@ -62,11 +64,25 @@ func Start(cfg *config.Configuration) error {
 	gqlMiddleware := authMw.GqlMiddleware()
 
 	playgroundHandler := playground.Handler("GraphQL playground", "/graphql")
-	playgroundHandler = playground.Handler("Subscription playground", "/subscription")
 
-	//event := make(chan *graphql.User, 1)
-	var observers map[string]chan *graphql.User
-	graphqlHandler := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: &goboiler.Resolver{Observers: observers}}))
+	observers := map[string]chan *graphql.User{}
+	graphqlHandler := handler.New(graphql.NewExecutableSchema(graphql.Config{
+		Resolvers: &goboiler.Resolver{Observers: observers},
+	}))
+
+	//graphqlHandler.AddTransport(transport.POST{})
+	graphqlHandler.AddTransport(transport.Websocket{
+		//KeepAlivePingInterval: 10 * time.Second,
+		InitFunc: func(ctx context.Context, initPayload transport.InitPayload) (context.Context, error) {
+			return ctx, nil
+		},
+		Upgrader: websocket.Upgrader{
+			CheckOrigin: func(r *http.Request) bool {
+				return true
+			},
+		},
+	})
+	graphqlHandler.Use(extension.Introspection{})
 
 	if os.Getenv("ENVIRONMENT_NAME") == "local" {
 		boil.DebugMode = true
@@ -91,22 +107,6 @@ func Start(cfg *config.Configuration) error {
 		playgroundHandler.ServeHTTP(res, req)
 		return nil
 	})
-
-	// graphql subscription
-	e.GET("/subscription", func(c echo.Context) error {
-		req := c.Request()
-		res := c.Response()
-		utl.Handler(res, req)
-		return nil
-	})
-
-	//// graphql subscription
-	//e.GET("/subscription-playground", func(c echo.Context) error {
-	//	req := c.Request()
-	//	res := c.Response()
-	//	subscriptionHandler.ServeHTTP(res, req)
-	//	return nil
-	//})
 	server.Start(e, &server.Config{
 		Port:                cfg.Server.Port,
 		ReadTimeoutSeconds:  cfg.Server.ReadTimeout,
@@ -115,3 +115,27 @@ func Start(cfg *config.Configuration) error {
 	})
 	return nil
 }
+
+//var upgrader = websocket.Upgrader{}
+//
+//func ws(w http.ResponseWriter, r *http.Request) {
+//	c, err := upgrader.Upgrade(w, r, nil)
+//	if err != nil {
+//		log.Print("upgrade:", err)
+//		return
+//	}
+//	defer c.Close()
+//	for {
+//		mt, message, err := c.ReadMessage()
+//		if err != nil {
+//			log.Println("read:", err)
+//			break
+//		}
+//		log.Printf("recv: %s", message)
+//		err = c.WriteMessage(mt, message)
+//		if err != nil {
+//			log.Println("write:", err)
+//			break
+//		}
+//	}
+//}

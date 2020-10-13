@@ -16,6 +16,7 @@ import (
 	"github.com/wednesday-solutions/go-template/pkg/utl/middleware/auth"
 	resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
 	"github.com/wednesday-solutions/go-template/pkg/utl/service"
+	"math/rand"
 	"sync"
 )
 
@@ -188,7 +189,7 @@ func (r mutationResolver) CreateUser(ctx context.Context, input fm.UserCreateInp
 	}
 	r.Unlock()
 
-	return &fm.UserPayload{User: graphUser}, err
+	return &fm.UserPayload{User: graphUser}, nil
 }
 
 func (r mutationResolver) UpdateUser(ctx context.Context, input *fm.UserUpdateInput) (*fm.UserUpdatePayload, error) {
@@ -222,7 +223,7 @@ func (r mutationResolver) DeleteUser(ctx context.Context) (*fm.UserDeletePayload
 }
 
 func (r subscriptionResolver) NewUserCreated(ctx context.Context) (<-chan *fm.User, error) {
-	id := "abc"
+	id := randomSeq(5)
 	event := make(chan *fm.User, 1)
 
 	go func() {
@@ -239,15 +240,15 @@ func (r subscriptionResolver) NewUserCreated(ctx context.Context) (<-chan *fm.Us
 	return event, nil
 }
 
-//var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-//
-//func randomSeq(n int) string {
-//	b := make([]rune, n)
-//	for i := range b {
-//		b[i] = letters[rand.Intn(len(letters))]
-//	}
-//	return string(b)
-//}
+var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+func randomSeq(n int) string {
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letters[rand.Intn(len(letters))]
+	}
+	return string(b)
+}
 
 // Mutation ...
 func (r *Resolver) Mutation() fm.MutationResolver { return &mutationResolver{r} }
