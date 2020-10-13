@@ -1,11 +1,10 @@
-package gotemplate
+package rediscache
 
 import (
 	"encoding/json"
 	"fmt"
 	"github.com/wednesday-solutions/go-template/daos"
 	"github.com/wednesday-solutions/go-template/models"
-	"github.com/wednesday-solutions/go-template/pkg/utl"
 	resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
 )
 
@@ -17,7 +16,7 @@ type Service interface {
 // GetUser gets user from redis, if present, else from the database
 func GetUser(userID int) (*models.User, error) {
 	// get user cache key
-	cachedUserValue, err := utl.GetKeyValue(fmt.Sprintf("user%d", userID))
+	cachedUserValue, err := GetKeyValue(fmt.Sprintf("user%d", userID))
 	if err != nil {
 		return nil, err
 	}
@@ -35,7 +34,7 @@ func GetUser(userID int) (*models.User, error) {
 		return nil, resultwrapper.ResolverSQLError(err, "data")
 	}
 	// setting user cache key
-	err = utl.SetKeyValue(fmt.Sprintf("user%d", userID), user)
+	err = SetKeyValue(fmt.Sprintf("user%d", userID), user)
 	if err != nil {
 		return nil, fmt.Errorf("%s", err)
 	}

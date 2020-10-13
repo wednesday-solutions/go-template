@@ -14,6 +14,7 @@ import (
 	"github.com/wednesday-solutions/go-template/pkg/utl/config"
 	"github.com/wednesday-solutions/go-template/pkg/utl/convert"
 	"github.com/wednesday-solutions/go-template/pkg/utl/middleware/auth"
+	rediscache "github.com/wednesday-solutions/go-template/pkg/utl/redis_cache"
 	resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
 	"github.com/wednesday-solutions/go-template/pkg/utl/service"
 )
@@ -24,7 +25,7 @@ type Resolver struct {
 
 func (r queryResolver) Me(ctx context.Context) (*fm.User, error) {
 	userID := auth.UserIDFromContext(ctx)
-	user, err := GetUser(userID)
+	user, err := rediscache.GetUser(userID)
 	if err != nil {
 		return &fm.User{}, resultwrapper.ResolverSQLError(err, "data")
 	}
