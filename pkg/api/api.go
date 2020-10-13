@@ -26,6 +26,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	graphql2 "github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
@@ -44,6 +45,7 @@ import (
 	"github.com/wednesday-solutions/go-template/pkg/utl/server"
 	"net/http"
 	"os"
+	"time"
 )
 
 // Start starts the API service
@@ -70,18 +72,7 @@ func Start(cfg *config.Configuration) error {
 		Resolvers: &goboiler.Resolver{Observers: observers},
 	}))
 
-	//graphqlHandler.AddTransport(transport.POST{})
-	graphqlHandler.AddTransport(transport.Websocket{
-		//KeepAlivePingInterval: 10 * time.Second,
-		InitFunc: func(ctx context.Context, initPayload transport.InitPayload) (context.Context, error) {
-			return ctx, nil
-		},
-		Upgrader: websocket.Upgrader{
-			CheckOrigin: func(r *http.Request) bool {
-				return true
-			},
-		},
-	})
+	graphqlHandler.AddTransport(transport.POST{})
 	graphqlHandler.Use(extension.Introspection{})
 
 	if os.Getenv("ENVIRONMENT_NAME") == "local" {
@@ -97,6 +88,30 @@ func Start(cfg *config.Configuration) error {
 		res := c.Response()
 
 		graphqlHandler.ServeHTTP(res, req)
+		return nil
+	}, gqlMiddleware)
+
+	subscriptionHandler := handler.New(graphql.NewExecutableSchema(graphql.Config{
+		Resolvers: &goboiler.Resolver{Observers: observers},
+	}))
+	subscriptionHandler.AddTransport(transport.Websocket{
+		KeepAlivePingInterval: 1 * time.Second,
+		InitFunc: func(ctx context.Context, initPayload transport.InitPayload) (context.Context, error) {
+			fmt.Println("test me")
+			return ctx, nil
+		},
+		Upgrader: websocket.Upgrader{
+			CheckOrigin: func(r *http.Request) bool {
+				return true
+			},
+		},
+	})
+	subscriptionHandler.Use(extension.Introspection{})
+	e.GET("/graphql", func(c echo.Context) error {
+		req := c.Request()
+		res := c.Response()
+
+		subscriptionHandler.ServeHTTP(res, req)
 		return nil
 	}, gqlMiddleware)
 
