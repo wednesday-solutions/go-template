@@ -1,25 +1,4 @@
 // Package api Go-Template
-//
-// 	 Terms Of Service:  N/A
-//     Schemes: http
-//     Version: 2.0.0
-//     License: MIT http://opensource.org/licenses/MIT
-//     Host: localhost:9000
-//
-//     Consumes:
-//     - application/json
-//
-//     Produces:
-//     - application/json
-//
-//     Security:
-//     - bearer: []
-//
-//     SecurityDefinitions:
-//     bearer:
-//          type: apiKey
-//          name: Authorization
-//          in: header
 package api
 
 import (
