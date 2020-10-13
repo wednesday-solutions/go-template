@@ -1,14 +1,3 @@
-type Comment {
-  id: ID!
-  user: User!
-  post: Post!
-  title: String!
-  body: String!
-  createdAt: Int
-  updatedAt: Int
-  deletedAt: Int
-}
-
 type Company {
   id: ID!
   name: String
@@ -20,14 +9,6 @@ type Company {
   users: [User]
 }
 
-type Follower {
-  id: ID!
-  follower: User!
-  followee: User!
-  deletedAt: Int
-  updatedAt: Int
-  createdAt: Int
-}
 
 type Location {
   id: ID!
@@ -41,16 +22,6 @@ type Location {
   users: [User]
 }
 
-type Post {
-  id: ID!
-  user: User!
-  title: String!
-  body: String!
-  deletedAt: Int
-  createdAt: Int
-  updatedAt: Int
-  comments: [Comment]
-}
 
 type Role {
   id: ID!
@@ -82,10 +53,6 @@ type User {
   createdAt: Int
   deletedAt: Int
   updatedAt: Int
-  comments: [Comment]
-  followeeFollowers: [Follower]
-  followerFollowers: [Follower]
-  posts: [Post]
 }
 
 input IDFilter {
@@ -147,29 +114,6 @@ input BooleanFilter {
   isNull: Boolean
 }
 
-input CommentFilter {
-  search: String
-  where: CommentWhere
-}
-
-input CommentPagination {
-  limit: Int!
-  page: Int!
-}
-
-input CommentWhere {
-  id: IDFilter
-  user: UserWhere
-  post: PostWhere
-  title: StringFilter
-  body: StringFilter
-  createdAt: IntFilter
-  updatedAt: IntFilter
-  deletedAt: IntFilter
-  or: CommentWhere
-  and: CommentWhere
-}
-
 input CompanyFilter {
   search: String
   where: CompanyWhere
@@ -191,27 +135,6 @@ input CompanyWhere {
   users: UserWhere
   or: CompanyWhere
   and: CompanyWhere
-}
-
-input FollowerFilter {
-  search: String
-  where: FollowerWhere
-}
-
-input FollowerPagination {
-  limit: Int!
-  page: Int!
-}
-
-input FollowerWhere {
-  id: IDFilter
-  follower: UserWhere
-  followee: UserWhere
-  deletedAt: IntFilter
-  updatedAt: IntFilter
-  createdAt: IntFilter
-  or: FollowerWhere
-  and: FollowerWhere
 }
 
 input LocationFilter {
@@ -236,29 +159,6 @@ input LocationWhere {
   users: UserWhere
   or: LocationWhere
   and: LocationWhere
-}
-
-input PostFilter {
-  search: String
-  where: PostWhere
-}
-
-input PostPagination {
-  limit: Int!
-  page: Int!
-}
-
-input PostWhere {
-  id: IDFilter
-  user: UserWhere
-  title: StringFilter
-  body: StringFilter
-  deletedAt: IntFilter
-  createdAt: IntFilter
-  updatedAt: IntFilter
-  comments: CommentWhere
-  or: PostWhere
-  and: PostWhere
 }
 
 input RoleFilter {
@@ -313,10 +213,6 @@ input UserWhere {
   createdAt: IntFilter
   deletedAt: IntFilter
   updatedAt: IntFilter
-  comments: CommentWhere
-  followeeFollowers: FollowerWhere
-  followerFollowers: FollowerWhere
-  posts: PostWhere
   or: UserWhere
   and: UserWhere
 }
@@ -329,50 +225,6 @@ type LoginResponse {
 type Query {
   me: User!
   users(pagination: UserPagination): UsersPayload!
-}
-
-input CommentCreateInput {
-  userId: ID!
-  postId: ID!
-  title: String!
-  body: String!
-  createdAt: Int
-  updatedAt: Int
-  deletedAt: Int
-}
-
-input CommentUpdateInput {
-  userId: ID
-  postId: ID
-  title: String
-  body: String
-  createdAt: Int
-  updatedAt: Int
-  deletedAt: Int
-}
-
-input CommentsCreateInput {
-  comments: [CommentCreateInput!]!
-}
-
-type CommentPayload {
-  comment: Comment!
-}
-
-type CommentDeletePayload {
-  id: ID!
-}
-
-type CommentsPayload {
-  comments: [Comment!]!
-}
-
-type CommentsDeletePayload {
-  ids: [ID!]!
-}
-
-type CommentsUpdatePayload {
-  ok: Boolean!
 }
 
 input CompanyCreateInput {
@@ -412,46 +264,6 @@ type CompaniesDeletePayload {
 }
 
 type CompaniesUpdatePayload {
-  ok: Boolean!
-}
-
-input FollowerCreateInput {
-  followerId: ID!
-  followeeId: ID!
-  deletedAt: Int
-  updatedAt: Int
-  createdAt: Int
-}
-
-input FollowerUpdateInput {
-  followerId: ID
-  followeeId: ID
-  deletedAt: Int
-  updatedAt: Int
-  createdAt: Int
-}
-
-input FollowersCreateInput {
-  followers: [FollowerCreateInput!]!
-}
-
-type FollowerPayload {
-  follower: Follower!
-}
-
-type FollowerDeletePayload {
-  id: ID!
-}
-
-type FollowersPayload {
-  followers: [Follower!]!
-}
-
-type FollowersDeletePayload {
-  ids: [ID!]!
-}
-
-type FollowersUpdatePayload {
   ok: Boolean!
 }
 
@@ -496,48 +308,6 @@ type LocationsDeletePayload {
 }
 
 type LocationsUpdatePayload {
-  ok: Boolean!
-}
-
-input PostCreateInput {
-  userId: ID!
-  title: String!
-  body: String!
-  deletedAt: Int
-  createdAt: Int
-  updatedAt: Int
-}
-
-input PostUpdateInput {
-  userId: ID
-  title: String
-  body: String
-  deletedAt: Int
-  createdAt: Int
-  updatedAt: Int
-}
-
-input PostsCreateInput {
-  posts: [PostCreateInput!]!
-}
-
-type PostPayload {
-  post: Post!
-}
-
-type PostDeletePayload {
-  id: ID!
-}
-
-type PostsPayload {
-  posts: [Post!]!
-}
-
-type PostsDeletePayload {
-  ids: [ID!]!
-}
-
-type PostsUpdatePayload {
   ok: Boolean!
 }
 
