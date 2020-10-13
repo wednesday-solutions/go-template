@@ -49,7 +49,7 @@ func init() {
 			updated_at TIMESTAMP WITH TIME ZONE,
 			deleted_at TIMESTAMP WITH TIME ZONE
 		);`, "locations"),
-			Columns: []string{},
+			Columns: []string{"company_id"},
 		}, {
 			Name: "users",
 			Query: fmt.Sprintf(`CREATE TABLE public.%s (
@@ -85,7 +85,7 @@ func init() {
 			updated_at TIMESTAMP WITH TIME ZONE,
 			deleted_at TIMESTAMP WITH TIME ZONE
 			);`, "posts"),
-			Columns: []string{},
+			Columns: []string{"user_id"},
 		}, {
 			Name: "comments",
 			Query: fmt.Sprintf(`CREATE TABLE IF NOT EXISTS public.%s (	
@@ -98,18 +98,17 @@ func init() {
 			updated_at TIMESTAMP WITH TIME ZONE,	
 			deleted_at TIMESTAMP WITH TIME ZONE	
 			);`, "comments"),
-			Columns: []string{},
+			Columns: []string{"user_id", "post_id"},
 		}, {
 			Name: "followers",
 			Query: fmt.Sprintf(`CREATE TABLE IF NOT EXISTS public.%s (
 			id SERIAL NOT NULL PRIMARY KEY,
 			follower_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-			followee_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 			created_at TIMESTAMP WITH TIME ZONE,
 			updated_at TIMESTAMP WITH TIME ZONE,
 			deleted_at TIMESTAMP WITH TIME ZONE
 			);`, "followers"),
-			Columns: []string{},
+			Columns: []string{"follower_id"},
 		},
 	}
 
