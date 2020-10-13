@@ -10,7 +10,6 @@ require (
 	github.com/fortytw2/dockertest v0.0.0-20181228171220-480d52efdffe
 	github.com/friendsofgo/errors v0.9.2
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
-	github.com/gertd/go-pluralize v0.1.4
 	github.com/go-pg/migrations/v7 v7.1.11
 	github.com/go-pg/pg/v9 v9.1.6
 	github.com/go-playground/universal-translator v0.17.0 // indirect
@@ -18,7 +17,6 @@ require (
 	github.com/gofrs/uuid v3.2.0+incompatible // indirect
 	github.com/gomodule/redigo v1.8.2
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
-	github.com/iancoleman/strcase v0.0.0-20191112232945-16388991a334
 	github.com/joho/godotenv v1.3.0
 	github.com/kat-co/vala v0.0.0-20170210184112-42e1d8b61f12
 	github.com/kr/pretty v0.2.0 // indirect
