@@ -1,7 +1,5 @@
 // Package api Go-Template
 //
-// API Docs for GO-Template v1
-//
 // 	 Terms Of Service:  N/A
 //     Schemes: http
 //     Version: 2.0.0
