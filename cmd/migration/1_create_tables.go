@@ -73,7 +73,7 @@ func init() {
 				updated_at TIMESTAMP WITH TIME ZONE,
 				deleted_at TIMESTAMP WITH TIME ZONE
 			);`, "users"),
-			Columns: []string{"username"},
+			Columns: []string{"username", "email"},
 		}, {
 			Name: "posts",
 			Query: fmt.Sprintf(`CREATE TABLE IF NOT EXISTS public.%s (
