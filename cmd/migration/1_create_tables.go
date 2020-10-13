@@ -30,33 +30,30 @@ func init() {
 			Name: "companies",
 			Query: fmt.Sprintf(`CREATE TABLE public.%s (
 			id SERIAL UNIQUE PRIMARY KEY,
+			name text,
+			active boolean,
 			created_at TIMESTAMP WITH TIME ZONE,
 			updated_at TIMESTAMP WITH TIME ZONE,
-			deleted_at TIMESTAMP WITH TIME ZONE,
-			name text,
-			active boolean
+			deleted_at TIMESTAMP WITH TIME ZONE
 		);`, "companies"),
 			Columns: []string{},
 		}, {
 			Name: "locations",
 			Query: fmt.Sprintf(`CREATE TABLE public.%s (
 			id SERIAL UNIQUE PRIMARY KEY,
-			created_at TIMESTAMP WITH TIME ZONE,
-			updated_at TIMESTAMP WITH TIME ZONE,
-			deleted_at TIMESTAMP WITH TIME ZONE,
 			name TEXT,
 			active BOOLEAN,
 			address TEXT,
-			company_id SERIAL REFERENCES companies(id)
+			company_id SERIAL REFERENCES companies(id),
+			created_at TIMESTAMP WITH TIME ZONE,
+			updated_at TIMESTAMP WITH TIME ZONE,
+			deleted_at TIMESTAMP WITH TIME ZONE
 		);`, "locations"),
 			Columns: []string{},
 		}, {
 			Name: "users",
 			Query: fmt.Sprintf(`CREATE TABLE public.%s (
 				id SERIAL UNIQUE PRIMARY KEY,
-				created_at TIMESTAMP WITH TIME ZONE,
-				updated_at TIMESTAMP WITH TIME ZONE,
-				deleted_at TIMESTAMP WITH TIME ZONE,
 				first_name TEXT,
 				last_name TEXT,
 				username TEXT UNIQUE,
@@ -71,7 +68,10 @@ func init() {
 				token TEXT,
 				role_id int REFERENCES roles(id),
 				company_id int REFERENCES companies(id),
-				location_id int REFERENCES locations(id)
+				location_id int REFERENCES locations(id),
+				created_at TIMESTAMP WITH TIME ZONE,
+				updated_at TIMESTAMP WITH TIME ZONE,
+				deleted_at TIMESTAMP WITH TIME ZONE
 			);`, "users"),
 			Columns: []string{"username"},
 		}, {
