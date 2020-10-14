@@ -27,30 +27,6 @@ func init() {
 		);`, "roles"),
 			Columns: []string{},
 		}, {
-			Name: "companies",
-			Query: fmt.Sprintf(`CREATE TABLE public.%s (
-			id SERIAL UNIQUE PRIMARY KEY,
-			name text,
-			active boolean,
-			created_at TIMESTAMP WITH TIME ZONE,
-			updated_at TIMESTAMP WITH TIME ZONE,
-			deleted_at TIMESTAMP WITH TIME ZONE
-		);`, "companies"),
-			Columns: []string{},
-		}, {
-			Name: "locations",
-			Query: fmt.Sprintf(`CREATE TABLE public.%s (
-			id SERIAL UNIQUE PRIMARY KEY,
-			name TEXT,
-			active BOOLEAN,
-			address TEXT,
-			company_id SERIAL REFERENCES companies(id),
-			created_at TIMESTAMP WITH TIME ZONE,
-			updated_at TIMESTAMP WITH TIME ZONE,
-			deleted_at TIMESTAMP WITH TIME ZONE
-		);`, "locations"),
-			Columns: []string{"company_id"},
-		}, {
 			Name: "users",
 			Query: fmt.Sprintf(`CREATE TABLE public.%s (
 				id SERIAL UNIQUE PRIMARY KEY,
@@ -67,48 +43,11 @@ func init() {
 				last_password_change TIMESTAMP WITH TIME ZONE,
 				token TEXT,
 				role_id int REFERENCES roles(id),
-				company_id int REFERENCES companies(id),
-				location_id int REFERENCES locations(id),
 				created_at TIMESTAMP WITH TIME ZONE,
 				updated_at TIMESTAMP WITH TIME ZONE,
 				deleted_at TIMESTAMP WITH TIME ZONE
 			);`, "users"),
-			Columns: []string{"username", "email", "role_id", "company_id", "location_id"},
-		}, {
-			Name: "posts",
-			Query: fmt.Sprintf(`CREATE TABLE IF NOT EXISTS public.%s (
-			id SERIAL PRIMARY KEY,
-			user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-			title VARCHAR(200) NOT NULL,
-			body TEXT NOT NULL,
-			created_at TIMESTAMP WITH TIME ZONE,
-			updated_at TIMESTAMP WITH TIME ZONE,
-			deleted_at TIMESTAMP WITH TIME ZONE
-			);`, "posts"),
-			Columns: []string{"user_id"},
-		}, {
-			Name: "comments",
-			Query: fmt.Sprintf(`CREATE TABLE IF NOT EXISTS public.%s (	
-			id SERIAL PRIMARY KEY,	
-			user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,	
-			post_id INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,	
-			title VARCHAR(200) NOT NULL,	
-			body TEXT NOT NULL,	
-			created_at TIMESTAMP WITH TIME ZONE,	
-			updated_at TIMESTAMP WITH TIME ZONE,	
-			deleted_at TIMESTAMP WITH TIME ZONE	
-			);`, "comments"),
-			Columns: []string{"user_id", "post_id"},
-		}, {
-			Name: "followers",
-			Query: fmt.Sprintf(`CREATE TABLE IF NOT EXISTS public.%s (
-			id SERIAL NOT NULL PRIMARY KEY,
-			follower_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-			created_at TIMESTAMP WITH TIME ZONE,
-			updated_at TIMESTAMP WITH TIME ZONE,
-			deleted_at TIMESTAMP WITH TIME ZONE
-			);`, "followers"),
-			Columns: []string{"follower_id"},
+			Columns: []string{"username", "email", "role_id"},
 		},
 	}
 
