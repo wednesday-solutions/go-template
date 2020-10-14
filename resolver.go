@@ -11,13 +11,13 @@ import (
 	"github.com/wednesday-solutions/go-template/daos"
 	fm "github.com/wednesday-solutions/go-template/graphql_models"
 	"github.com/wednesday-solutions/go-template/models"
+	"github.com/wednesday-solutions/go-template/pkg/utl"
 	"github.com/wednesday-solutions/go-template/pkg/utl/config"
 	"github.com/wednesday-solutions/go-template/pkg/utl/convert"
 	"github.com/wednesday-solutions/go-template/pkg/utl/middleware/auth"
 	rediscache "github.com/wednesday-solutions/go-template/pkg/utl/redis_cache"
 	resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
 	"github.com/wednesday-solutions/go-template/pkg/utl/service"
-	"math/rand"
 	"sync"
 )
 
@@ -253,7 +253,7 @@ func (r mutationResolver) DeleteUser(ctx context.Context) (*fm.UserDeletePayload
 }
 
 func (r subscriptionResolver) Notification(ctx context.Context) (<-chan *fm.User, error) {
-	id := randomSeq(5)
+	id := utl.RandomSequence(5)
 	event := make(chan *fm.User, 1)
 
 	go func() {
@@ -268,16 +268,6 @@ func (r subscriptionResolver) Notification(ctx context.Context) (<-chan *fm.User
 	r.Unlock()
 
 	return event, nil
-}
-
-var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-
-func randomSeq(n int) string {
-	b := make([]rune, n)
-	for i := range b {
-		b[i] = letters[rand.Intn(len(letters))]
-	}
-	return string(b)
 }
 
 // Mutation ...
