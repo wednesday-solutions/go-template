@@ -44,6 +44,8 @@ Go Template is a starter project with support for both REST and graphql
 
 - Dockerization
 - Authorization middleware
+- Redis Cache
+- Graphql Subscription
 - Paginated endpoints
 - Simplified support for migrations and seeders
 - DAO layer for all database interactions
@@ -71,8 +73,8 @@ go run cmd/api/main.go
 Steps to set up database with ```username``` and ```role``` using terminal
   
   - Enter postgres terminal ```psql postgres```
-  - Create new database ```CREATE DATABASE database_name;```
-  - Create a new role with password ```CREATE ROLE user_role WITH LOGIN PASSWORD 'user_role_password';```
+  - Create new database ```CREATE DATABASE go_template;```
+  - Create a new role with password ```CREATE ROLE go_template_role WITH LOGIN PASSWORD 'go_template_role456';```
 
 **NOTE:** Replace these credentials in ```.env``` file of the project
 
