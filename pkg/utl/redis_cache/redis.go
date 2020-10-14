@@ -1,4 +1,4 @@
-package utl
+package rediscache
 
 import (
 	"encoding/json"
