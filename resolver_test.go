@@ -34,15 +34,8 @@ func TestCreateRole(t *testing.T) {
 		wantErr  bool
 	}{
 		{
-			name:    "Fail on Create role",
-			req:     fm.RoleCreateInput{},
-			wantErr: true,
-		},
-		{
 			name:     "Success",
-			req:      fm.RoleCreateInput{Name: "Role", AccessLevel: 100},
-			wantResp: &fm.RolePayload{Role: &fm.Role{Name: "Role", AccessLevel: 100}},
-			wantErr:  false,
+			wantResp: &fm.RolePayload{},
 		},
 	}
 
