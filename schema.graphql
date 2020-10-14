@@ -1,28 +1,3 @@
-type Company {
-  id: ID!
-  name: String
-  active: Boolean
-  updatedAt: Int
-  deletedAt: Int
-  createdAt: Int
-  locations: [Location]
-  users: [User]
-}
-
-
-type Location {
-  id: ID!
-  name: String
-  active: Boolean
-  address: String
-  company: Company!
-  updatedAt: Int
-  deletedAt: Int
-  createdAt: Int
-  users: [User]
-}
-
-
 type Role {
   id: ID!
   accessLevel: Int!
@@ -48,8 +23,6 @@ type User {
   lastPasswordChange: Int
   token: String
   role: Role
-  company: Company
-  location: Location
   createdAt: Int
   deletedAt: Int
   updatedAt: Int
@@ -114,53 +87,6 @@ input BooleanFilter {
   isNull: Boolean
 }
 
-input CompanyFilter {
-  search: String
-  where: CompanyWhere
-}
-
-input CompanyPagination {
-  limit: Int!
-  page: Int!
-}
-
-input CompanyWhere {
-  id: IDFilter
-  name: StringFilter
-  active: BooleanFilter
-  updatedAt: IntFilter
-  deletedAt: IntFilter
-  createdAt: IntFilter
-  locations: LocationWhere
-  users: UserWhere
-  or: CompanyWhere
-  and: CompanyWhere
-}
-
-input LocationFilter {
-  search: String
-  where: LocationWhere
-}
-
-input LocationPagination {
-  limit: Int!
-  page: Int!
-}
-
-input LocationWhere {
-  id: IDFilter
-  name: StringFilter
-  active: BooleanFilter
-  address: StringFilter
-  company: CompanyWhere
-  updatedAt: IntFilter
-  deletedAt: IntFilter
-  createdAt: IntFilter
-  users: UserWhere
-  or: LocationWhere
-  and: LocationWhere
-}
-
 input RoleFilter {
   search: String
   where: RoleWhere
@@ -208,8 +134,6 @@ input UserWhere {
   lastPasswordChange: IntFilter
   token: StringFilter
   role: RoleWhere
-  company: CompanyWhere
-  location: LocationWhere
   createdAt: IntFilter
   deletedAt: IntFilter
   updatedAt: IntFilter
@@ -227,96 +151,9 @@ type Query {
   users(pagination: UserPagination): UsersPayload!
 }
 
-input CompanyCreateInput {
-  name: String
-  active: Boolean
-  updatedAt: Int
-  deletedAt: Int
-  createdAt: Int
-}
-
-input CompanyUpdateInput {
-  name: String
-  active: Boolean
-  updatedAt: Int
-  deletedAt: Int
-  createdAt: Int
-}
-
-input CompaniesCreateInput {
-  companies: [CompanyCreateInput!]!
-}
-
-type CompanyPayload {
-  company: Company!
-}
-
-type CompanyDeletePayload {
-  id: ID!
-}
-
-type CompaniesPayload {
-  companies: [Company!]!
-}
-
-type CompaniesDeletePayload {
-  ids: [ID!]!
-}
-
-type CompaniesUpdatePayload {
-  ok: Boolean!
-}
-
-input LocationCreateInput {
-  name: String
-  active: Boolean
-  address: String
-  companyId: ID!
-  updatedAt: Int
-  deletedAt: Int
-  createdAt: Int
-}
-
-input LocationUpdateInput {
-  name: String
-  active: Boolean
-  address: String
-  companyId: ID
-  updatedAt: Int
-  deletedAt: Int
-  createdAt: Int
-}
-
-input LocationsCreateInput {
-  locations: [LocationCreateInput!]!
-}
-
-type LocationPayload {
-  location: Location!
-}
-
-type LocationDeletePayload {
-  id: ID!
-}
-
-type LocationsPayload {
-  locations: [Location!]!
-}
-
-type LocationsDeletePayload {
-  ids: [ID!]!
-}
-
-type LocationsUpdatePayload {
-  ok: Boolean!
-}
-
 input RoleCreateInput {
   accessLevel: Int!
   name: String!
-  updatedAt: Int
-  deletedAt: Int
-  createdAt: Int
 }
 
 input RoleUpdateInput {
@@ -358,8 +195,6 @@ input UserCreateInput {
   password: String
   email: String
   roleId: ID
-  companyId: ID
-  locationId: ID
 }
 
 input UserUpdateInput {
@@ -403,6 +238,7 @@ type RefreshTokenResponse {
 }
 
 type Mutation {
+  createRole(input: RoleCreateInput!): RolePayload!
   login(username: String!, password: String!): LoginResponse!
   changePassword(oldPassword: String!, newPassword: String!): ChangePasswordResponse!
   refreshToken(token: String!): RefreshTokenResponse!

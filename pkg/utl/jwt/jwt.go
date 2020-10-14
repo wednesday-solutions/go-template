@@ -67,9 +67,6 @@ func (s Service) GenerateToken(u *models.User) (string, error) {
 		"id":  u.ID,
 		"u":   u.Username,
 		"e":   u.Email,
-		"r":   u.CompanyID,
-		"c":   u.CompanyID,
-		"l":   u.LocationID,
 		"exp": time.Now().Add(s.ttl).Unix(),
 	}).SignedString(s.key)
 }

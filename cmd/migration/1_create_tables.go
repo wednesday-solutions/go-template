@@ -27,30 +27,6 @@ func init() {
 		);`, "roles"),
 			Columns: []string{},
 		}, {
-			Name: "companies",
-			Query: fmt.Sprintf(`CREATE TABLE public.%s (
-			id SERIAL UNIQUE PRIMARY KEY,
-			name text,
-			active boolean,
-			created_at TIMESTAMP WITH TIME ZONE,
-			updated_at TIMESTAMP WITH TIME ZONE,
-			deleted_at TIMESTAMP WITH TIME ZONE
-		);`, "companies"),
-			Columns: []string{},
-		}, {
-			Name: "locations",
-			Query: fmt.Sprintf(`CREATE TABLE public.%s (
-			id SERIAL UNIQUE PRIMARY KEY,
-			name TEXT,
-			active BOOLEAN,
-			address TEXT,
-			company_id SERIAL REFERENCES companies(id),
-			created_at TIMESTAMP WITH TIME ZONE,
-			updated_at TIMESTAMP WITH TIME ZONE,
-			deleted_at TIMESTAMP WITH TIME ZONE
-		);`, "locations"),
-			Columns: []string{"company_id"},
-		}, {
 			Name: "users",
 			Query: fmt.Sprintf(`CREATE TABLE public.%s (
 				id SERIAL UNIQUE PRIMARY KEY,
@@ -67,13 +43,11 @@ func init() {
 				last_password_change TIMESTAMP WITH TIME ZONE,
 				token TEXT,
 				role_id int REFERENCES roles(id),
-				company_id int REFERENCES companies(id),
-				location_id int REFERENCES locations(id),
 				created_at TIMESTAMP WITH TIME ZONE,
 				updated_at TIMESTAMP WITH TIME ZONE,
 				deleted_at TIMESTAMP WITH TIME ZONE
 			);`, "users"),
-			Columns: []string{"username", "email", "role_id", "company_id", "location_id"},
+			Columns: []string{"username", "email", "role_id"},
 		},
 	}
 
