@@ -55,6 +55,22 @@ func (r queryResolver) Users(ctx context.Context, pagination *fm.UserPagination)
 	return &fm.UsersPayload{Users: convert.UsersToGraphQlUsers(users)}, nil
 }
 
+func (r mutationResolver) CreateRole(ctx context.Context, input fm.RoleCreateInput) (*fm.RolePayload, error) {
+	role := models.Role{
+		AccessLevel: input.AccessLevel,
+		Name:        input.Name,
+	}
+	newRole, err := daos.CreateRoleTx(role, nil)
+	if err != nil {
+		return nil, resultwrapper.ResolverSQLError(err, "role")
+	}
+	return &fm.RolePayload{Role: &fm.Role{
+		AccessLevel: newRole.AccessLevel,
+		Name:        newRole.Name,
+	},
+	}, err
+}
+
 func (r mutationResolver) Login(ctx context.Context, username string, password string) (*fm.LoginResponse, error) {
 	u, err := daos.FindUserByUserName(username)
 	if err != nil {
@@ -150,14 +166,12 @@ func (r mutationResolver) RefreshToken(ctx context.Context, token string) (*fm.R
 
 func (r mutationResolver) CreateUser(ctx context.Context, input fm.UserCreateInput) (*fm.UserPayload, error) {
 	user := models.User{
-		Username:   null.StringFromPtr(input.Username),
-		Password:   null.StringFromPtr(input.Password),
-		Email:      null.StringFromPtr(input.Email),
-		FirstName:  null.StringFromPtr(input.FirstName),
-		LastName:   null.StringFromPtr(input.LastName),
-		CompanyID:  convert.PointerStringToNullDotInt(input.CompanyID),
-		LocationID: convert.PointerStringToNullDotInt(input.LocationID),
-		RoleID:     convert.PointerStringToNullDotInt(input.RoleID),
+		Username:  null.StringFromPtr(input.Username),
+		Password:  null.StringFromPtr(input.Password),
+		Email:     null.StringFromPtr(input.Email),
+		FirstName: null.StringFromPtr(input.FirstName),
+		LastName:  null.StringFromPtr(input.LastName),
+		RoleID:    convert.PointerStringToNullDotInt(input.RoleID),
 	}
 	// loading configurations
 	cfg, err := config.Load()

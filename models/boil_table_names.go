@@ -4,19 +4,9 @@
 package models
 
 var TableNames = struct {
-	Comments  string
-	Companies string
-	Followers string
-	Locations string
-	Posts     string
-	Roles     string
-	Users     string
+	Roles string
+	Users string
 }{
-	Comments:  "comments",
-	Companies: "companies",
-	Followers: "followers",
-	Locations: "locations",
-	Posts:     "posts",
-	Roles:     "roles",
-	Users:     "users",
+	Roles: "roles",
+	Users: "users",
 }

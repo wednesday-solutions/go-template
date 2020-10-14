@@ -61,23 +61,6 @@ func DropTable(db migrations.DB, tableName string) error {
 	return err
 }
 
-// CreateTableAndAddTrigger ...
-func CreateTableAndAddTrigger(db migrations.DB, createTableQuery string, tableName string) error {
-	fmt.Printf("\nCreating %s\n", tableName)
-	_, err := db.Exec(createTableQuery)
-
-	if err != nil {
-		return err
-	}
-
-	_, err = db.Exec(fmt.Sprintf(`CREATE TRIGGER update_user_modtime BEFORE UPDATE ON %s FOR EACH ROW EXECUTE PROCEDURE  update_updated_at_column();`, tableName))
-
-	if err != nil {
-		return err
-	}
-	return err
-}
-
 // CreateTriggerForUpdatedAt ...
 func CreateTriggerForUpdatedAt(db migrations.DB) error {
 	_, err := db.Exec(`CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -87,5 +70,23 @@ func CreateTriggerForUpdatedAt(db migrations.DB) error {
 			RETURN NEW;
 			END;
 			$$ language 'plpgsql';`)
+	return err
+}
+
+// CreateTableAndIndexes ...
+func CreateTableAndIndexes(db migrations.DB, createTableQuery string, tableName string, columns []string) error {
+	fmt.Printf("\nCreating %s\n", tableName)
+	_, err := db.Exec(createTableQuery)
+
+	if err != nil {
+		return err
+	}
+
+	for _, column := range columns {
+		_, err = db.Exec(fmt.Sprintf(`CREATE INDEX %s_%s_idx ON %s(%s);`, tableName, column, tableName, column))
+		if err != nil {
+			return err
+		}
+	}
 	return err
 }

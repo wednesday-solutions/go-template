@@ -25,9 +25,6 @@ import (
 // User is an object representing the database table.
 type User struct {
 	ID                 int         `boil:"id" json:"id" toml:"id" yaml:"id"`
-	CreatedAt          null.Time   `boil:"created_at" json:"created_at,omitempty" toml:"created_at" yaml:"created_at,omitempty"`
-	UpdatedAt          null.Time   `boil:"updated_at" json:"updated_at,omitempty" toml:"updated_at" yaml:"updated_at,omitempty"`
-	DeletedAt          null.Time   `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
 	FirstName          null.String `boil:"first_name" json:"first_name,omitempty" toml:"first_name" yaml:"first_name,omitempty"`
 	LastName           null.String `boil:"last_name" json:"last_name,omitempty" toml:"last_name" yaml:"last_name,omitempty"`
 	Username           null.String `boil:"username" json:"username,omitempty" toml:"username" yaml:"username,omitempty"`
@@ -41,8 +38,9 @@ type User struct {
 	LastPasswordChange null.Time   `boil:"last_password_change" json:"last_password_change,omitempty" toml:"last_password_change" yaml:"last_password_change,omitempty"`
 	Token              null.String `boil:"token" json:"token,omitempty" toml:"token" yaml:"token,omitempty"`
 	RoleID             null.Int    `boil:"role_id" json:"role_id,omitempty" toml:"role_id" yaml:"role_id,omitempty"`
-	CompanyID          null.Int    `boil:"company_id" json:"company_id,omitempty" toml:"company_id" yaml:"company_id,omitempty"`
-	LocationID         null.Int    `boil:"location_id" json:"location_id,omitempty" toml:"location_id" yaml:"location_id,omitempty"`
+	CreatedAt          null.Time   `boil:"created_at" json:"created_at,omitempty" toml:"created_at" yaml:"created_at,omitempty"`
+	UpdatedAt          null.Time   `boil:"updated_at" json:"updated_at,omitempty" toml:"updated_at" yaml:"updated_at,omitempty"`
+	DeletedAt          null.Time   `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
 
 	R *userR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L userL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -50,9 +48,6 @@ type User struct {
 
 var UserColumns = struct {
 	ID                 string
-	CreatedAt          string
-	UpdatedAt          string
-	DeletedAt          string
 	FirstName          string
 	LastName           string
 	Username           string
@@ -66,13 +61,11 @@ var UserColumns = struct {
 	LastPasswordChange string
 	Token              string
 	RoleID             string
-	CompanyID          string
-	LocationID         string
+	CreatedAt          string
+	UpdatedAt          string
+	DeletedAt          string
 }{
 	ID:                 "id",
-	CreatedAt:          "created_at",
-	UpdatedAt:          "updated_at",
-	DeletedAt:          "deleted_at",
 	FirstName:          "first_name",
 	LastName:           "last_name",
 	Username:           "username",
@@ -86,11 +79,58 @@ var UserColumns = struct {
 	LastPasswordChange: "last_password_change",
 	Token:              "token",
 	RoleID:             "role_id",
-	CompanyID:          "company_id",
-	LocationID:         "location_id",
+	CreatedAt:          "created_at",
+	UpdatedAt:          "updated_at",
+	DeletedAt:          "deleted_at",
 }
 
 // Generated where
+
+type whereHelpernull_String struct{ field string }
+
+func (w whereHelpernull_String) EQ(x null.String) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, false, x)
+}
+func (w whereHelpernull_String) NEQ(x null.String) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, true, x)
+}
+func (w whereHelpernull_String) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
+func (w whereHelpernull_String) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
+func (w whereHelpernull_String) LT(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LT, x)
+}
+func (w whereHelpernull_String) LTE(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LTE, x)
+}
+func (w whereHelpernull_String) GT(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GT, x)
+}
+func (w whereHelpernull_String) GTE(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GTE, x)
+}
+
+type whereHelpernull_Bool struct{ field string }
+
+func (w whereHelpernull_Bool) EQ(x null.Bool) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, false, x)
+}
+func (w whereHelpernull_Bool) NEQ(x null.Bool) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, true, x)
+}
+func (w whereHelpernull_Bool) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
+func (w whereHelpernull_Bool) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
+func (w whereHelpernull_Bool) LT(x null.Bool) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LT, x)
+}
+func (w whereHelpernull_Bool) LTE(x null.Bool) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LTE, x)
+}
+func (w whereHelpernull_Bool) GT(x null.Bool) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GT, x)
+}
+func (w whereHelpernull_Bool) GTE(x null.Bool) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GTE, x)
+}
 
 type whereHelpernull_Int struct{ field string }
 
@@ -117,9 +157,6 @@ func (w whereHelpernull_Int) GTE(x null.Int) qm.QueryMod {
 
 var UserWhere = struct {
 	ID                 whereHelperint
-	CreatedAt          whereHelpernull_Time
-	UpdatedAt          whereHelpernull_Time
-	DeletedAt          whereHelpernull_Time
 	FirstName          whereHelpernull_String
 	LastName           whereHelpernull_String
 	Username           whereHelpernull_String
@@ -133,13 +170,11 @@ var UserWhere = struct {
 	LastPasswordChange whereHelpernull_Time
 	Token              whereHelpernull_String
 	RoleID             whereHelpernull_Int
-	CompanyID          whereHelpernull_Int
-	LocationID         whereHelpernull_Int
+	CreatedAt          whereHelpernull_Time
+	UpdatedAt          whereHelpernull_Time
+	DeletedAt          whereHelpernull_Time
 }{
 	ID:                 whereHelperint{field: "\"users\".\"id\""},
-	CreatedAt:          whereHelpernull_Time{field: "\"users\".\"created_at\""},
-	UpdatedAt:          whereHelpernull_Time{field: "\"users\".\"updated_at\""},
-	DeletedAt:          whereHelpernull_Time{field: "\"users\".\"deleted_at\""},
 	FirstName:          whereHelpernull_String{field: "\"users\".\"first_name\""},
 	LastName:           whereHelpernull_String{field: "\"users\".\"last_name\""},
 	Username:           whereHelpernull_String{field: "\"users\".\"username\""},
@@ -153,38 +188,21 @@ var UserWhere = struct {
 	LastPasswordChange: whereHelpernull_Time{field: "\"users\".\"last_password_change\""},
 	Token:              whereHelpernull_String{field: "\"users\".\"token\""},
 	RoleID:             whereHelpernull_Int{field: "\"users\".\"role_id\""},
-	CompanyID:          whereHelpernull_Int{field: "\"users\".\"company_id\""},
-	LocationID:         whereHelpernull_Int{field: "\"users\".\"location_id\""},
+	CreatedAt:          whereHelpernull_Time{field: "\"users\".\"created_at\""},
+	UpdatedAt:          whereHelpernull_Time{field: "\"users\".\"updated_at\""},
+	DeletedAt:          whereHelpernull_Time{field: "\"users\".\"deleted_at\""},
 }
 
 // UserRels is where relationship names are stored.
 var UserRels = struct {
-	Company           string
-	Location          string
-	Role              string
-	Comments          string
-	FolloweeFollowers string
-	FollowerFollowers string
-	Posts             string
+	Role string
 }{
-	Company:           "Company",
-	Location:          "Location",
-	Role:              "Role",
-	Comments:          "Comments",
-	FolloweeFollowers: "FolloweeFollowers",
-	FollowerFollowers: "FollowerFollowers",
-	Posts:             "Posts",
+	Role: "Role",
 }
 
 // userR is where relationships are stored.
 type userR struct {
-	Company           *Company
-	Location          *Location
-	Role              *Role
-	Comments          CommentSlice
-	FolloweeFollowers FollowerSlice
-	FollowerFollowers FollowerSlice
-	Posts             PostSlice
+	Role *Role `boil:"Role" json:"Role" toml:"Role" yaml:"Role"`
 }
 
 // NewStruct creates a new relationship struct
@@ -196,8 +214,8 @@ func (*userR) NewStruct() *userR {
 type userL struct{}
 
 var (
-	userAllColumns            = []string{"id", "created_at", "updated_at", "deleted_at", "first_name", "last_name", "username", "password", "email", "mobile", "phone", "address", "active", "last_login", "last_password_change", "token", "role_id", "company_id", "location_id"}
-	userColumnsWithoutDefault = []string{"created_at", "updated_at", "deleted_at", "first_name", "last_name", "username", "password", "email", "mobile", "phone", "address", "active", "last_login", "last_password_change", "token", "role_id", "company_id", "location_id"}
+	userAllColumns            = []string{"id", "first_name", "last_name", "username", "password", "email", "mobile", "phone", "address", "active", "last_login", "last_password_change", "token", "role_id", "created_at", "updated_at", "deleted_at"}
+	userColumnsWithoutDefault = []string{"first_name", "last_name", "username", "password", "email", "mobile", "phone", "address", "active", "last_login", "last_password_change", "token", "role_id", "created_at", "updated_at", "deleted_at"}
 	userColumnsWithDefault    = []string{"id"}
 	userPrimaryKeyColumns     = []string{"id"}
 )
@@ -293,34 +311,6 @@ func (q userQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (bool,
 	return count > 0, nil
 }
 
-// Company pointed to by the foreign key.
-func (o *User) Company(mods ...qm.QueryMod) companyQuery {
-	queryMods := []qm.QueryMod{
-		qm.Where("\"id\" = ?", o.CompanyID),
-	}
-
-	queryMods = append(queryMods, mods...)
-
-	query := Companies(queryMods...)
-	queries.SetFrom(query.Query, "\"companies\"")
-
-	return query
-}
-
-// Location pointed to by the foreign key.
-func (o *User) Location(mods ...qm.QueryMod) locationQuery {
-	queryMods := []qm.QueryMod{
-		qm.Where("\"id\" = ?", o.LocationID),
-	}
-
-	queryMods = append(queryMods, mods...)
-
-	query := Locations(queryMods...)
-	queries.SetFrom(query.Query, "\"locations\"")
-
-	return query
-}
-
 // Role pointed to by the foreign key.
 func (o *User) Role(mods ...qm.QueryMod) roleQuery {
 	queryMods := []qm.QueryMod{
@@ -333,284 +323,6 @@ func (o *User) Role(mods ...qm.QueryMod) roleQuery {
 	queries.SetFrom(query.Query, "\"roles\"")
 
 	return query
-}
-
-// Comments retrieves all the comment's Comments with an executor.
-func (o *User) Comments(mods ...qm.QueryMod) commentQuery {
-	var queryMods []qm.QueryMod
-	if len(mods) != 0 {
-		queryMods = append(queryMods, mods...)
-	}
-
-	queryMods = append(queryMods,
-		qm.Where("\"comments\".\"user_id\"=?", o.ID),
-	)
-
-	query := Comments(queryMods...)
-	queries.SetFrom(query.Query, "\"comments\"")
-
-	if len(queries.GetSelect(query.Query)) == 0 {
-		queries.SetSelect(query.Query, []string{"\"comments\".*"})
-	}
-
-	return query
-}
-
-// FolloweeFollowers retrieves all the follower's Followers with an executor via followee_id column.
-func (o *User) FolloweeFollowers(mods ...qm.QueryMod) followerQuery {
-	var queryMods []qm.QueryMod
-	if len(mods) != 0 {
-		queryMods = append(queryMods, mods...)
-	}
-
-	queryMods = append(queryMods,
-		qm.Where("\"followers\".\"followee_id\"=?", o.ID),
-	)
-
-	query := Followers(queryMods...)
-	queries.SetFrom(query.Query, "\"followers\"")
-
-	if len(queries.GetSelect(query.Query)) == 0 {
-		queries.SetSelect(query.Query, []string{"\"followers\".*"})
-	}
-
-	return query
-}
-
-// FollowerFollowers retrieves all the follower's Followers with an executor via follower_id column.
-func (o *User) FollowerFollowers(mods ...qm.QueryMod) followerQuery {
-	var queryMods []qm.QueryMod
-	if len(mods) != 0 {
-		queryMods = append(queryMods, mods...)
-	}
-
-	queryMods = append(queryMods,
-		qm.Where("\"followers\".\"follower_id\"=?", o.ID),
-	)
-
-	query := Followers(queryMods...)
-	queries.SetFrom(query.Query, "\"followers\"")
-
-	if len(queries.GetSelect(query.Query)) == 0 {
-		queries.SetSelect(query.Query, []string{"\"followers\".*"})
-	}
-
-	return query
-}
-
-// Posts retrieves all the post's Posts with an executor.
-func (o *User) Posts(mods ...qm.QueryMod) postQuery {
-	var queryMods []qm.QueryMod
-	if len(mods) != 0 {
-		queryMods = append(queryMods, mods...)
-	}
-
-	queryMods = append(queryMods,
-		qm.Where("\"posts\".\"user_id\"=?", o.ID),
-	)
-
-	query := Posts(queryMods...)
-	queries.SetFrom(query.Query, "\"posts\"")
-
-	if len(queries.GetSelect(query.Query)) == 0 {
-		queries.SetSelect(query.Query, []string{"\"posts\".*"})
-	}
-
-	return query
-}
-
-// LoadCompany allows an eager lookup of values, cached into the
-// loaded structs of the objects. This is for an N-1 relationship.
-func (userL) LoadCompany(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
-	var slice []*User
-	var object *User
-
-	if singular {
-		object = maybeUser.(*User)
-	} else {
-		slice = *maybeUser.(*[]*User)
-	}
-
-	args := make([]interface{}, 0, 1)
-	if singular {
-		if object.R == nil {
-			object.R = &userR{}
-		}
-		if !queries.IsNil(object.CompanyID) {
-			args = append(args, object.CompanyID)
-		}
-
-	} else {
-	Outer:
-		for _, obj := range slice {
-			if obj.R == nil {
-				obj.R = &userR{}
-			}
-
-			for _, a := range args {
-				if queries.Equal(a, obj.CompanyID) {
-					continue Outer
-				}
-			}
-
-			if !queries.IsNil(obj.CompanyID) {
-				args = append(args, obj.CompanyID)
-			}
-
-		}
-	}
-
-	if len(args) == 0 {
-		return nil
-	}
-
-	query := NewQuery(qm.From(`companies`), qm.WhereIn(`companies.id in ?`, args...))
-	if mods != nil {
-		mods.Apply(query)
-	}
-
-	results, err := query.QueryContext(ctx, e)
-	if err != nil {
-		return errors.Wrap(err, "failed to eager load Company")
-	}
-
-	var resultSlice []*Company
-	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice Company")
-	}
-
-	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results of eager load for companies")
-	}
-	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for companies")
-	}
-
-	if len(resultSlice) == 0 {
-		return nil
-	}
-
-	if singular {
-		foreign := resultSlice[0]
-		object.R.Company = foreign
-		if foreign.R == nil {
-			foreign.R = &companyR{}
-		}
-		foreign.R.Users = append(foreign.R.Users, object)
-		return nil
-	}
-
-	for _, local := range slice {
-		for _, foreign := range resultSlice {
-			if queries.Equal(local.CompanyID, foreign.ID) {
-				local.R.Company = foreign
-				if foreign.R == nil {
-					foreign.R = &companyR{}
-				}
-				foreign.R.Users = append(foreign.R.Users, local)
-				break
-			}
-		}
-	}
-
-	return nil
-}
-
-// LoadLocation allows an eager lookup of values, cached into the
-// loaded structs of the objects. This is for an N-1 relationship.
-func (userL) LoadLocation(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
-	var slice []*User
-	var object *User
-
-	if singular {
-		object = maybeUser.(*User)
-	} else {
-		slice = *maybeUser.(*[]*User)
-	}
-
-	args := make([]interface{}, 0, 1)
-	if singular {
-		if object.R == nil {
-			object.R = &userR{}
-		}
-		if !queries.IsNil(object.LocationID) {
-			args = append(args, object.LocationID)
-		}
-
-	} else {
-	Outer:
-		for _, obj := range slice {
-			if obj.R == nil {
-				obj.R = &userR{}
-			}
-
-			for _, a := range args {
-				if queries.Equal(a, obj.LocationID) {
-					continue Outer
-				}
-			}
-
-			if !queries.IsNil(obj.LocationID) {
-				args = append(args, obj.LocationID)
-			}
-
-		}
-	}
-
-	if len(args) == 0 {
-		return nil
-	}
-
-	query := NewQuery(qm.From(`locations`), qm.WhereIn(`locations.id in ?`, args...))
-	if mods != nil {
-		mods.Apply(query)
-	}
-
-	results, err := query.QueryContext(ctx, e)
-	if err != nil {
-		return errors.Wrap(err, "failed to eager load Location")
-	}
-
-	var resultSlice []*Location
-	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice Location")
-	}
-
-	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results of eager load for locations")
-	}
-	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for locations")
-	}
-
-	if len(resultSlice) == 0 {
-		return nil
-	}
-
-	if singular {
-		foreign := resultSlice[0]
-		object.R.Location = foreign
-		if foreign.R == nil {
-			foreign.R = &locationR{}
-		}
-		foreign.R.Users = append(foreign.R.Users, object)
-		return nil
-	}
-
-	for _, local := range slice {
-		for _, foreign := range resultSlice {
-			if queries.Equal(local.LocationID, foreign.ID) {
-				local.R.Location = foreign
-				if foreign.R == nil {
-					foreign.R = &locationR{}
-				}
-				foreign.R.Users = append(foreign.R.Users, local)
-				break
-			}
-		}
-	}
-
-	return nil
 }
 
 // LoadRole allows an eager lookup of values, cached into the
@@ -710,518 +422,6 @@ func (userL) LoadRole(ctx context.Context, e boil.ContextExecutor, singular bool
 	return nil
 }
 
-// LoadComments allows an eager lookup of values, cached into the
-// loaded structs of the objects. This is for a 1-M or N-M relationship.
-func (userL) LoadComments(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
-	var slice []*User
-	var object *User
-
-	if singular {
-		object = maybeUser.(*User)
-	} else {
-		slice = *maybeUser.(*[]*User)
-	}
-
-	args := make([]interface{}, 0, 1)
-	if singular {
-		if object.R == nil {
-			object.R = &userR{}
-		}
-		args = append(args, object.ID)
-	} else {
-	Outer:
-		for _, obj := range slice {
-			if obj.R == nil {
-				obj.R = &userR{}
-			}
-
-			for _, a := range args {
-				if a == obj.ID {
-					continue Outer
-				}
-			}
-
-			args = append(args, obj.ID)
-		}
-	}
-
-	if len(args) == 0 {
-		return nil
-	}
-
-	query := NewQuery(qm.From(`comments`), qm.WhereIn(`comments.user_id in ?`, args...))
-	if mods != nil {
-		mods.Apply(query)
-	}
-
-	results, err := query.QueryContext(ctx, e)
-	if err != nil {
-		return errors.Wrap(err, "failed to eager load comments")
-	}
-
-	var resultSlice []*Comment
-	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice comments")
-	}
-
-	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results in eager load on comments")
-	}
-	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for comments")
-	}
-
-	if singular {
-		object.R.Comments = resultSlice
-		for _, foreign := range resultSlice {
-			if foreign.R == nil {
-				foreign.R = &commentR{}
-			}
-			foreign.R.User = object
-		}
-		return nil
-	}
-
-	for _, foreign := range resultSlice {
-		for _, local := range slice {
-			if local.ID == foreign.UserID {
-				local.R.Comments = append(local.R.Comments, foreign)
-				if foreign.R == nil {
-					foreign.R = &commentR{}
-				}
-				foreign.R.User = local
-				break
-			}
-		}
-	}
-
-	return nil
-}
-
-// LoadFolloweeFollowers allows an eager lookup of values, cached into the
-// loaded structs of the objects. This is for a 1-M or N-M relationship.
-func (userL) LoadFolloweeFollowers(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
-	var slice []*User
-	var object *User
-
-	if singular {
-		object = maybeUser.(*User)
-	} else {
-		slice = *maybeUser.(*[]*User)
-	}
-
-	args := make([]interface{}, 0, 1)
-	if singular {
-		if object.R == nil {
-			object.R = &userR{}
-		}
-		args = append(args, object.ID)
-	} else {
-	Outer:
-		for _, obj := range slice {
-			if obj.R == nil {
-				obj.R = &userR{}
-			}
-
-			for _, a := range args {
-				if a == obj.ID {
-					continue Outer
-				}
-			}
-
-			args = append(args, obj.ID)
-		}
-	}
-
-	if len(args) == 0 {
-		return nil
-	}
-
-	query := NewQuery(qm.From(`followers`), qm.WhereIn(`followers.followee_id in ?`, args...))
-	if mods != nil {
-		mods.Apply(query)
-	}
-
-	results, err := query.QueryContext(ctx, e)
-	if err != nil {
-		return errors.Wrap(err, "failed to eager load followers")
-	}
-
-	var resultSlice []*Follower
-	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice followers")
-	}
-
-	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results in eager load on followers")
-	}
-	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for followers")
-	}
-
-	if singular {
-		object.R.FolloweeFollowers = resultSlice
-		for _, foreign := range resultSlice {
-			if foreign.R == nil {
-				foreign.R = &followerR{}
-			}
-			foreign.R.Followee = object
-		}
-		return nil
-	}
-
-	for _, foreign := range resultSlice {
-		for _, local := range slice {
-			if local.ID == foreign.FolloweeID {
-				local.R.FolloweeFollowers = append(local.R.FolloweeFollowers, foreign)
-				if foreign.R == nil {
-					foreign.R = &followerR{}
-				}
-				foreign.R.Followee = local
-				break
-			}
-		}
-	}
-
-	return nil
-}
-
-// LoadFollowerFollowers allows an eager lookup of values, cached into the
-// loaded structs of the objects. This is for a 1-M or N-M relationship.
-func (userL) LoadFollowerFollowers(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
-	var slice []*User
-	var object *User
-
-	if singular {
-		object = maybeUser.(*User)
-	} else {
-		slice = *maybeUser.(*[]*User)
-	}
-
-	args := make([]interface{}, 0, 1)
-	if singular {
-		if object.R == nil {
-			object.R = &userR{}
-		}
-		args = append(args, object.ID)
-	} else {
-	Outer:
-		for _, obj := range slice {
-			if obj.R == nil {
-				obj.R = &userR{}
-			}
-
-			for _, a := range args {
-				if a == obj.ID {
-					continue Outer
-				}
-			}
-
-			args = append(args, obj.ID)
-		}
-	}
-
-	if len(args) == 0 {
-		return nil
-	}
-
-	query := NewQuery(qm.From(`followers`), qm.WhereIn(`followers.follower_id in ?`, args...))
-	if mods != nil {
-		mods.Apply(query)
-	}
-
-	results, err := query.QueryContext(ctx, e)
-	if err != nil {
-		return errors.Wrap(err, "failed to eager load followers")
-	}
-
-	var resultSlice []*Follower
-	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice followers")
-	}
-
-	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results in eager load on followers")
-	}
-	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for followers")
-	}
-
-	if singular {
-		object.R.FollowerFollowers = resultSlice
-		for _, foreign := range resultSlice {
-			if foreign.R == nil {
-				foreign.R = &followerR{}
-			}
-			foreign.R.Follower = object
-		}
-		return nil
-	}
-
-	for _, foreign := range resultSlice {
-		for _, local := range slice {
-			if local.ID == foreign.FollowerID {
-				local.R.FollowerFollowers = append(local.R.FollowerFollowers, foreign)
-				if foreign.R == nil {
-					foreign.R = &followerR{}
-				}
-				foreign.R.Follower = local
-				break
-			}
-		}
-	}
-
-	return nil
-}
-
-// LoadPosts allows an eager lookup of values, cached into the
-// loaded structs of the objects. This is for a 1-M or N-M relationship.
-func (userL) LoadPosts(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
-	var slice []*User
-	var object *User
-
-	if singular {
-		object = maybeUser.(*User)
-	} else {
-		slice = *maybeUser.(*[]*User)
-	}
-
-	args := make([]interface{}, 0, 1)
-	if singular {
-		if object.R == nil {
-			object.R = &userR{}
-		}
-		args = append(args, object.ID)
-	} else {
-	Outer:
-		for _, obj := range slice {
-			if obj.R == nil {
-				obj.R = &userR{}
-			}
-
-			for _, a := range args {
-				if a == obj.ID {
-					continue Outer
-				}
-			}
-
-			args = append(args, obj.ID)
-		}
-	}
-
-	if len(args) == 0 {
-		return nil
-	}
-
-	query := NewQuery(qm.From(`posts`), qm.WhereIn(`posts.user_id in ?`, args...))
-	if mods != nil {
-		mods.Apply(query)
-	}
-
-	results, err := query.QueryContext(ctx, e)
-	if err != nil {
-		return errors.Wrap(err, "failed to eager load posts")
-	}
-
-	var resultSlice []*Post
-	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice posts")
-	}
-
-	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results in eager load on posts")
-	}
-	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for posts")
-	}
-
-	if singular {
-		object.R.Posts = resultSlice
-		for _, foreign := range resultSlice {
-			if foreign.R == nil {
-				foreign.R = &postR{}
-			}
-			foreign.R.User = object
-		}
-		return nil
-	}
-
-	for _, foreign := range resultSlice {
-		for _, local := range slice {
-			if local.ID == foreign.UserID {
-				local.R.Posts = append(local.R.Posts, foreign)
-				if foreign.R == nil {
-					foreign.R = &postR{}
-				}
-				foreign.R.User = local
-				break
-			}
-		}
-	}
-
-	return nil
-}
-
-// SetCompany of the user to the related item.
-// Sets o.R.Company to related.
-// Adds o to related.R.Users.
-func (o *User) SetCompany(ctx context.Context, exec boil.ContextExecutor, insert bool, related *Company) error {
-	var err error
-	if insert {
-		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
-			return errors.Wrap(err, "failed to insert into foreign table")
-		}
-	}
-
-	updateQuery := fmt.Sprintf(
-		"UPDATE \"users\" SET %s WHERE %s",
-		strmangle.SetParamNames("\"", "\"", 1, []string{"company_id"}),
-		strmangle.WhereClause("\"", "\"", 2, userPrimaryKeyColumns),
-	)
-	values := []interface{}{related.ID, o.ID}
-
-	if boil.IsDebug(ctx) {
-		writer := boil.DebugWriterFrom(ctx)
-		fmt.Fprintln(writer, updateQuery)
-		fmt.Fprintln(writer, values)
-	}
-	if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
-		return errors.Wrap(err, "failed to update local table")
-	}
-
-	queries.Assign(&o.CompanyID, related.ID)
-	if o.R == nil {
-		o.R = &userR{
-			Company: related,
-		}
-	} else {
-		o.R.Company = related
-	}
-
-	if related.R == nil {
-		related.R = &companyR{
-			Users: UserSlice{o},
-		}
-	} else {
-		related.R.Users = append(related.R.Users, o)
-	}
-
-	return nil
-}
-
-// RemoveCompany relationship.
-// Sets o.R.Company to nil.
-// Removes o from all passed in related items' relationships struct (Optional).
-func (o *User) RemoveCompany(ctx context.Context, exec boil.ContextExecutor, related *Company) error {
-	var err error
-
-	queries.SetScanner(&o.CompanyID, nil)
-	if _, err = o.Update(ctx, exec, boil.Whitelist("company_id")); err != nil {
-		return errors.Wrap(err, "failed to update local table")
-	}
-
-	if o.R != nil {
-		o.R.Company = nil
-	}
-	if related == nil || related.R == nil {
-		return nil
-	}
-
-	for i, ri := range related.R.Users {
-		if queries.Equal(o.CompanyID, ri.CompanyID) {
-			continue
-		}
-
-		ln := len(related.R.Users)
-		if ln > 1 && i < ln-1 {
-			related.R.Users[i] = related.R.Users[ln-1]
-		}
-		related.R.Users = related.R.Users[:ln-1]
-		break
-	}
-	return nil
-}
-
-// SetLocation of the user to the related item.
-// Sets o.R.Location to related.
-// Adds o to related.R.Users.
-func (o *User) SetLocation(ctx context.Context, exec boil.ContextExecutor, insert bool, related *Location) error {
-	var err error
-	if insert {
-		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
-			return errors.Wrap(err, "failed to insert into foreign table")
-		}
-	}
-
-	updateQuery := fmt.Sprintf(
-		"UPDATE \"users\" SET %s WHERE %s",
-		strmangle.SetParamNames("\"", "\"", 1, []string{"location_id"}),
-		strmangle.WhereClause("\"", "\"", 2, userPrimaryKeyColumns),
-	)
-	values := []interface{}{related.ID, o.ID}
-
-	if boil.IsDebug(ctx) {
-		writer := boil.DebugWriterFrom(ctx)
-		fmt.Fprintln(writer, updateQuery)
-		fmt.Fprintln(writer, values)
-	}
-	if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
-		return errors.Wrap(err, "failed to update local table")
-	}
-
-	queries.Assign(&o.LocationID, related.ID)
-	if o.R == nil {
-		o.R = &userR{
-			Location: related,
-		}
-	} else {
-		o.R.Location = related
-	}
-
-	if related.R == nil {
-		related.R = &locationR{
-			Users: UserSlice{o},
-		}
-	} else {
-		related.R.Users = append(related.R.Users, o)
-	}
-
-	return nil
-}
-
-// RemoveLocation relationship.
-// Sets o.R.Location to nil.
-// Removes o from all passed in related items' relationships struct (Optional).
-func (o *User) RemoveLocation(ctx context.Context, exec boil.ContextExecutor, related *Location) error {
-	var err error
-
-	queries.SetScanner(&o.LocationID, nil)
-	if _, err = o.Update(ctx, exec, boil.Whitelist("location_id")); err != nil {
-		return errors.Wrap(err, "failed to update local table")
-	}
-
-	if o.R != nil {
-		o.R.Location = nil
-	}
-	if related == nil || related.R == nil {
-		return nil
-	}
-
-	for i, ri := range related.R.Users {
-		if queries.Equal(o.LocationID, ri.LocationID) {
-			continue
-		}
-
-		ln := len(related.R.Users)
-		if ln > 1 && i < ln-1 {
-			related.R.Users[i] = related.R.Users[ln-1]
-		}
-		related.R.Users = related.R.Users[:ln-1]
-		break
-	}
-	return nil
-}
-
 // SetRole of the user to the related item.
 // Sets o.R.Role to related.
 // Adds o to related.R.Users.
@@ -1298,218 +498,6 @@ func (o *User) RemoveRole(ctx context.Context, exec boil.ContextExecutor, relate
 		}
 		related.R.Users = related.R.Users[:ln-1]
 		break
-	}
-	return nil
-}
-
-// AddComments adds the given related objects to the existing relationships
-// of the user, optionally inserting them as new records.
-// Appends related to o.R.Comments.
-// Sets related.R.User appropriately.
-func (o *User) AddComments(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Comment) error {
-	var err error
-	for _, rel := range related {
-		if insert {
-			rel.UserID = o.ID
-			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
-				return errors.Wrap(err, "failed to insert into foreign table")
-			}
-		} else {
-			updateQuery := fmt.Sprintf(
-				"UPDATE \"comments\" SET %s WHERE %s",
-				strmangle.SetParamNames("\"", "\"", 1, []string{"user_id"}),
-				strmangle.WhereClause("\"", "\"", 2, commentPrimaryKeyColumns),
-			)
-			values := []interface{}{o.ID, rel.ID}
-
-			if boil.IsDebug(ctx) {
-				writer := boil.DebugWriterFrom(ctx)
-				fmt.Fprintln(writer, updateQuery)
-				fmt.Fprintln(writer, values)
-			}
-			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
-				return errors.Wrap(err, "failed to update foreign table")
-			}
-
-			rel.UserID = o.ID
-		}
-	}
-
-	if o.R == nil {
-		o.R = &userR{
-			Comments: related,
-		}
-	} else {
-		o.R.Comments = append(o.R.Comments, related...)
-	}
-
-	for _, rel := range related {
-		if rel.R == nil {
-			rel.R = &commentR{
-				User: o,
-			}
-		} else {
-			rel.R.User = o
-		}
-	}
-	return nil
-}
-
-// AddFolloweeFollowers adds the given related objects to the existing relationships
-// of the user, optionally inserting them as new records.
-// Appends related to o.R.FolloweeFollowers.
-// Sets related.R.Followee appropriately.
-func (o *User) AddFolloweeFollowers(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Follower) error {
-	var err error
-	for _, rel := range related {
-		if insert {
-			rel.FolloweeID = o.ID
-			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
-				return errors.Wrap(err, "failed to insert into foreign table")
-			}
-		} else {
-			updateQuery := fmt.Sprintf(
-				"UPDATE \"followers\" SET %s WHERE %s",
-				strmangle.SetParamNames("\"", "\"", 1, []string{"followee_id"}),
-				strmangle.WhereClause("\"", "\"", 2, followerPrimaryKeyColumns),
-			)
-			values := []interface{}{o.ID, rel.ID}
-
-			if boil.IsDebug(ctx) {
-				writer := boil.DebugWriterFrom(ctx)
-				fmt.Fprintln(writer, updateQuery)
-				fmt.Fprintln(writer, values)
-			}
-			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
-				return errors.Wrap(err, "failed to update foreign table")
-			}
-
-			rel.FolloweeID = o.ID
-		}
-	}
-
-	if o.R == nil {
-		o.R = &userR{
-			FolloweeFollowers: related,
-		}
-	} else {
-		o.R.FolloweeFollowers = append(o.R.FolloweeFollowers, related...)
-	}
-
-	for _, rel := range related {
-		if rel.R == nil {
-			rel.R = &followerR{
-				Followee: o,
-			}
-		} else {
-			rel.R.Followee = o
-		}
-	}
-	return nil
-}
-
-// AddFollowerFollowers adds the given related objects to the existing relationships
-// of the user, optionally inserting them as new records.
-// Appends related to o.R.FollowerFollowers.
-// Sets related.R.Follower appropriately.
-func (o *User) AddFollowerFollowers(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Follower) error {
-	var err error
-	for _, rel := range related {
-		if insert {
-			rel.FollowerID = o.ID
-			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
-				return errors.Wrap(err, "failed to insert into foreign table")
-			}
-		} else {
-			updateQuery := fmt.Sprintf(
-				"UPDATE \"followers\" SET %s WHERE %s",
-				strmangle.SetParamNames("\"", "\"", 1, []string{"follower_id"}),
-				strmangle.WhereClause("\"", "\"", 2, followerPrimaryKeyColumns),
-			)
-			values := []interface{}{o.ID, rel.ID}
-
-			if boil.IsDebug(ctx) {
-				writer := boil.DebugWriterFrom(ctx)
-				fmt.Fprintln(writer, updateQuery)
-				fmt.Fprintln(writer, values)
-			}
-			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
-				return errors.Wrap(err, "failed to update foreign table")
-			}
-
-			rel.FollowerID = o.ID
-		}
-	}
-
-	if o.R == nil {
-		o.R = &userR{
-			FollowerFollowers: related,
-		}
-	} else {
-		o.R.FollowerFollowers = append(o.R.FollowerFollowers, related...)
-	}
-
-	for _, rel := range related {
-		if rel.R == nil {
-			rel.R = &followerR{
-				Follower: o,
-			}
-		} else {
-			rel.R.Follower = o
-		}
-	}
-	return nil
-}
-
-// AddPosts adds the given related objects to the existing relationships
-// of the user, optionally inserting them as new records.
-// Appends related to o.R.Posts.
-// Sets related.R.User appropriately.
-func (o *User) AddPosts(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Post) error {
-	var err error
-	for _, rel := range related {
-		if insert {
-			rel.UserID = o.ID
-			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
-				return errors.Wrap(err, "failed to insert into foreign table")
-			}
-		} else {
-			updateQuery := fmt.Sprintf(
-				"UPDATE \"posts\" SET %s WHERE %s",
-				strmangle.SetParamNames("\"", "\"", 1, []string{"user_id"}),
-				strmangle.WhereClause("\"", "\"", 2, postPrimaryKeyColumns),
-			)
-			values := []interface{}{o.ID, rel.ID}
-
-			if boil.IsDebug(ctx) {
-				writer := boil.DebugWriterFrom(ctx)
-				fmt.Fprintln(writer, updateQuery)
-				fmt.Fprintln(writer, values)
-			}
-			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
-				return errors.Wrap(err, "failed to update foreign table")
-			}
-
-			rel.UserID = o.ID
-		}
-	}
-
-	if o.R == nil {
-		o.R = &userR{
-			Posts: related,
-		}
-	} else {
-		o.R.Posts = append(o.R.Posts, related...)
-	}
-
-	for _, rel := range related {
-		if rel.R == nil {
-			rel.R = &postR{
-				User: o,
-			}
-		} else {
-			rel.R.User = o
-		}
 	}
 	return nil
 }
