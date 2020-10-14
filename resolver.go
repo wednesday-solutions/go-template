@@ -252,7 +252,7 @@ func (r mutationResolver) DeleteUser(ctx context.Context) (*fm.UserDeletePayload
 	return &fm.UserDeletePayload{ID: fmt.Sprint(userID)}, nil
 }
 
-func (r subscriptionResolver) Notification(ctx context.Context) (<-chan *fm.User, error) {
+func (r subscriptionResolver) UserNotification(ctx context.Context) (<-chan *fm.User, error) {
 	id := utl.RandomSequence(5)
 	event := make(chan *fm.User, 1)
 

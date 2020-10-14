@@ -588,7 +588,7 @@ func TestDeleteUser(t *testing.T) {
 	}
 }
 
-func TestNotification(t *testing.T) {
+func TestUserNotification(t *testing.T) {
 	cases := []struct {
 		name     string
 		wantResp <-chan *fm.User
@@ -612,7 +612,7 @@ func TestNotification(t *testing.T) {
 
 			c := context.Background()
 			ctx := context.WithValue(c, userKey, models.User{ID: 1, FirstName: null.StringFrom("First"), LastName: null.StringFrom("Last"), Username: null.StringFrom("username"), Email: null.StringFrom("mac@wednesday.is"), Mobile: null.StringFrom("+911234567890"), Phone: null.StringFrom("05943-1123"), Address: null.StringFrom("22 Jump Street")})
-			response, err := resolver.Subscription().Notification(ctx)
+			response, err := resolver.Subscription().UserNotification(ctx)
 			if tt.wantResp != nil {
 				tt.wantResp = response
 				assert.Equal(t, tt.wantResp, response)

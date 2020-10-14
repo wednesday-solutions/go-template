@@ -103,7 +103,7 @@ type ComplexityRoot struct {
 	}
 
 	Subscription struct {
-		Notification func(childComplexity int) int
+		UserNotification func(childComplexity int) int
 	}
 
 	User struct {
@@ -161,7 +161,7 @@ type QueryResolver interface {
 	Users(ctx context.Context, pagination *UserPagination) (*UsersPayload, error)
 }
 type SubscriptionResolver interface {
-	Notification(ctx context.Context) (<-chan *User, error)
+	UserNotification(ctx context.Context) (<-chan *User, error)
 }
 
 type executableSchema struct {
@@ -389,12 +389,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.RolesUpdatePayload.Ok(childComplexity), true
 
-	case "Subscription.notification":
-		if e.complexity.Subscription.Notification == nil {
+	case "Subscription.userNotification":
+		if e.complexity.Subscription.UserNotification == nil {
 			break
 		}
 
-		return e.complexity.Subscription.Notification(childComplexity), true
+		return e.complexity.Subscription.UserNotification(childComplexity), true
 
 	case "User.active":
 		if e.complexity.User.Active == nil {
@@ -881,7 +881,7 @@ type Mutation {
 }
 
 type Subscription {
-  notification: User!
+  userNotification: User!
 }
 `, BuiltIn: false},
 }
@@ -2050,7 +2050,7 @@ func (ec *executionContext) _RolesUpdatePayload_ok(ctx context.Context, field gr
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Subscription_notification(ctx context.Context, field graphql.CollectedField) (ret func() graphql.Marshaler) {
+func (ec *executionContext) _Subscription_userNotification(ctx context.Context, field graphql.CollectedField) (ret func() graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2068,7 +2068,7 @@ func (ec *executionContext) _Subscription_notification(ctx context.Context, fiel
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Subscription().Notification(rctx)
+		return ec.resolvers.Subscription().UserNotification(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5274,8 +5274,8 @@ func (ec *executionContext) _Subscription(ctx context.Context, sel ast.Selection
 	}
 
 	switch fields[0].Name {
-	case "notification":
-		return ec._Subscription_notification(ctx, fields[0])
+	case "userNotification":
+		return ec._Subscription_userNotification(ctx, fields[0])
 	default:
 		panic("unknown field " + strconv.Quote(fields[0].Name))
 	}

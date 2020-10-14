@@ -248,5 +248,5 @@ type Mutation {
 }
 
 type Subscription {
-  notification: User!
+  userNotification: User!
 }
