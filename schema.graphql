@@ -246,3 +246,7 @@ type Mutation {
   updateUser(input: UserUpdateInput): UserUpdatePayload!
   deleteUser: UserDeletePayload!
 }
+
+type Subscription {
+  notification: User!
+}

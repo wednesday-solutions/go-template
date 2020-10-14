@@ -17,10 +17,14 @@ import (
 	rediscache "github.com/wednesday-solutions/go-template/pkg/utl/redis_cache"
 	resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
 	"github.com/wednesday-solutions/go-template/pkg/utl/service"
+	"math/rand"
+	"sync"
 )
 
 // Resolver ...
 type Resolver struct {
+	sync.Mutex
+	Observers map[string]chan *fm.User
 }
 
 func (r queryResolver) Me(ctx context.Context) (*fm.User, error) {
@@ -185,7 +189,7 @@ func (r mutationResolver) CreateUser(ctx context.Context, input fm.UserCreateInp
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "user information")
 	}
-	return &fm.UserPayload{User: &fm.User{
+	graphUser := &fm.User{
 		FirstName: convert.NullDotStringToPointerString(newUser.FirstName),
 		LastName:  convert.NullDotStringToPointerString(newUser.LastName),
 		Username:  convert.NullDotStringToPointerString(newUser.Username),
@@ -193,8 +197,15 @@ func (r mutationResolver) CreateUser(ctx context.Context, input fm.UserCreateInp
 		Mobile:    convert.NullDotStringToPointerString(newUser.Mobile),
 		Phone:     convert.NullDotStringToPointerString(newUser.Phone),
 		Address:   convert.NullDotStringToPointerString(newUser.Address),
-	},
-	}, err
+	}
+
+	r.Lock()
+	for _, observer := range r.Observers {
+		observer <- graphUser
+	}
+	r.Unlock()
+
+	return &fm.UserPayload{User: graphUser}, err
 }
 
 func (r mutationResolver) UpdateUser(ctx context.Context, input *fm.UserUpdateInput) (*fm.UserUpdatePayload, error) {
@@ -211,6 +222,20 @@ func (r mutationResolver) UpdateUser(ctx context.Context, input *fm.UserUpdateIn
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "new information")
 	}
+
+	graphUser := &fm.User{
+		FirstName: convert.NullDotStringToPointerString(u.FirstName),
+		LastName:  convert.NullDotStringToPointerString(u.LastName),
+		Mobile:    convert.NullDotStringToPointerString(u.Mobile),
+		Phone:     convert.NullDotStringToPointerString(u.Phone),
+		Address:   convert.NullDotStringToPointerString(u.Address),
+	}
+	r.Lock()
+	for _, observer := range r.Observers {
+		observer <- graphUser
+	}
+	r.Unlock()
+
 	return &fm.UserUpdatePayload{Ok: true}, nil
 }
 
@@ -227,11 +252,43 @@ func (r mutationResolver) DeleteUser(ctx context.Context) (*fm.UserDeletePayload
 	return &fm.UserDeletePayload{ID: fmt.Sprint(userID)}, nil
 }
 
+func (r subscriptionResolver) Notification(ctx context.Context) (<-chan *fm.User, error) {
+	id := randomSeq(5)
+	event := make(chan *fm.User, 1)
+
+	go func() {
+		<-ctx.Done()
+		r.Lock()
+		delete(r.Observers, id)
+		r.Unlock()
+	}()
+
+	r.Lock()
+	r.Observers[id] = event
+	r.Unlock()
+
+	return event, nil
+}
+
+var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+func randomSeq(n int) string {
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letters[rand.Intn(len(letters))]
+	}
+	return string(b)
+}
+
 // Mutation ...
 func (r *Resolver) Mutation() fm.MutationResolver { return &mutationResolver{r} }
 
 // Query ...
 func (r *Resolver) Query() fm.QueryResolver { return &queryResolver{r} }
 
+// Subscription ...
+func (r *Resolver) Subscription() fm.SubscriptionResolver { return &subscriptionResolver{r} }
+
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+type subscriptionResolver struct{ *Resolver }
