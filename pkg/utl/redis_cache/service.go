@@ -11,6 +11,7 @@ import (
 // Service ...
 type Service interface {
 	GetUser(id int) (models.User, error)
+	GetRole(id int) (models.Role, error)
 }
 
 // GetUser gets user from redis, if present, else from the database
@@ -39,4 +40,32 @@ func GetUser(userID int) (*models.User, error) {
 		return nil, fmt.Errorf("%s", err)
 	}
 	return user, nil
+}
+
+// GetRole gets role from redis, if present, else from the database
+func GetRole(roleID int) (*models.Role, error) {
+	// get role cache key
+	cachedRoleValue, err := GetKeyValue(fmt.Sprintf("role%d", roleID))
+	if err != nil {
+		return nil, err
+	}
+	var role *models.Role
+	if cachedRoleValue != nil {
+		b := cachedRoleValue.([]byte)
+		err = json.Unmarshal(b, &role)
+		if err != nil {
+			return nil, fmt.Errorf("%s", err)
+		}
+		return role, err
+	}
+	role, err = daos.FindRoleByID(roleID)
+	if err != nil {
+		return nil, resultwrapper.ResolverSQLError(err, "data")
+	}
+	// setting role cache key
+	err = SetKeyValue(fmt.Sprintf("role%d", roleID), role)
+	if err != nil {
+		return nil, fmt.Errorf("%s", err)
+	}
+	return role, nil
 }

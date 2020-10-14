@@ -43,6 +43,14 @@ func NullDotStringToString(v null.String) string {
 	return *v.Ptr()
 }
 
+// NullDotIntToInt ...
+func NullDotIntToInt(v null.Int) int {
+	if v.Ptr() == nil {
+		return 0
+	}
+	return *v.Ptr()
+}
+
 // NullDotBoolToPointerBool ...
 func NullDotBoolToPointerBool(v null.Bool) *bool {
 	return v.Ptr()
