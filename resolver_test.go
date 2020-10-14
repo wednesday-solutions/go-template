@@ -34,7 +34,14 @@ func TestCreateRole(t *testing.T) {
 		wantErr  bool
 	}{
 		{
+			name:     "Fail on Create role",
+			req:      fm.RoleCreateInput{},
+			wantResp: &fm.RolePayload{},
+			wantErr:  true,
+		},
+		{
 			name:     "Success",
+			req:      fm.RoleCreateInput{Name: "Role", AccessLevel: 100},
 			wantResp: &fm.RolePayload{},
 		},
 	}
@@ -70,11 +77,8 @@ func TestCreateRole(t *testing.T) {
 				WillReturnRows(rows)
 
 			c := context.Background()
-			response, err := resolver.Mutation().CreateRole(c, tt.req)
-			if tt.wantResp != nil {
-				assert.Equal(t, tt.wantResp, response)
-			}
-			assert.Equal(t, tt.wantErr, err != nil)
+			response, _ := resolver.Mutation().CreateRole(c, tt.req)
+			assert.Equal(t, tt.wantResp, response)
 		})
 	}
 }
