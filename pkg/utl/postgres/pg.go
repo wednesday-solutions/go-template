@@ -29,6 +29,6 @@ func Connect() (*sql.DB, error) {
 		os.Getenv("DB_PASS"),
 		os.Getenv("DB_PORT"),
 		os.Getenv("DB_SSL"))
-	fmt.Print("Connecting to DB", psqlInfo)
+	fmt.Println("Connecting to DB\n", psqlInfo)
 	return sql.Open("postgres", psqlInfo)
 }

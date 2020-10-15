@@ -52,8 +52,6 @@ github.com/go-chi/chi v3.3.2+incompatible/go.mod h1:eB3wogJHnLi3x/kFX2A+IbTBlXxm
 github.com/go-kit/kit v0.8.0/go.mod h1:xBxKIO96dXMWWy0MnWVtmwkA9/13aqxPnvrjFYMA2as=
 github.com/go-logfmt/logfmt v0.3.0/go.mod h1:Qt1PoO58o5twSAckw1HlFXLmHsOX5/0LbT9GBnD5lWE=
 github.com/go-logfmt/logfmt v0.4.0/go.mod h1:3RMwSq7FuexP4Kalkev3ejPJsZTpXXBr9+V4qmtdjCk=
-github.com/go-pg/migrations/v7 v7.1.11 h1:59sWcsENzTrY2OUvG/yfkTgz92F3AyT5/wwmgnw6MoA=
-github.com/go-pg/migrations/v7 v7.1.11/go.mod h1:v/v7SfckdB2IGmUyopKyASTzjmN30HnDucLLZcCvBWU=
 github.com/go-pg/pg/v9 v9.0.0-beta.14/go.mod h1:T2Sr6bpTCOr2lUqOUMiXLMJqZHSUBKk1LdgSqjwhZfA=
 github.com/go-pg/pg/v9 v9.0.3/go.mod h1:Tm/Q3Vt6gdQOH6TTN1H/xLlIXc+Qrka7TZ6uREtu/eA=
 github.com/go-pg/pg/v9 v9.1.6 h1:IqBayenvp9EWjHncRE7//SRmQuktq60oeO1/MkEx3dY=
