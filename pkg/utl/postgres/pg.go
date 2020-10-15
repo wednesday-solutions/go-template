@@ -3,22 +3,10 @@ package postgres
 import (
 	"database/sql"
 	"fmt"
-	"github.com/go-pg/pg/v9"
-	"log"
 	"os"
 	// DB adapter
 	_ "github.com/lib/pq"
 )
-
-// MigrationConnect ...
-func MigrationConnect() *pg.DB {
-	var psn = os.Getenv("DATABASE_URL")
-	u, err := pg.ParseURL(psn)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return pg.Connect(u)
-}
 
 // Connect ...
 func Connect() (*sql.DB, error) {
