@@ -6,6 +6,7 @@ import (
 	graphql2 "github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
+	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gorilla/websocket"
@@ -45,7 +46,7 @@ func Start(cfg *config.Configuration) error {
 	playgroundHandler := playground.Handler("GraphQL playground", "/graphql")
 
 	observers := map[string]chan *graphql.User{}
-	graphqlHandler := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{
+	graphqlHandler := handler.New(graphql.NewExecutableSchema(graphql.Config{
 		Resolvers: &goboiler.Resolver{Observers: observers},
 	}))
 
@@ -65,11 +66,8 @@ func Start(cfg *config.Configuration) error {
 		return nil
 	}, gqlMiddleware)
 
-	subscriptionHandler := handler.New(graphql.NewExecutableSchema(graphql.Config{
-		Resolvers: &goboiler.Resolver{Observers: observers},
-	}))
-	subscriptionHandler.AddTransport(transport.Websocket{
-		KeepAlivePingInterval: 1 * time.Second,
+	graphqlHandler.AddTransport(transport.Websocket{
+		KeepAlivePingInterval: 10 * time.Second,
 		InitFunc: func(ctx context.Context, initPayload transport.InitPayload) (context.Context, error) {
 			return ctx, nil
 		},
@@ -79,12 +77,16 @@ func Start(cfg *config.Configuration) error {
 			},
 		},
 	})
-	subscriptionHandler.Use(extension.Introspection{})
+	graphqlHandler.Use(extension.Introspection{})
+	graphqlHandler.Use(extension.AutomaticPersistedQuery{
+		Cache: lru.New(100),
+	})
+
 	e.GET("/graphql", func(c echo.Context) error {
 		req := c.Request()
 		res := c.Response()
 
-		subscriptionHandler.ServeHTTP(res, req)
+		graphqlHandler.ServeHTTP(res, req)
 		return nil
 	}, gqlMiddleware)
 
