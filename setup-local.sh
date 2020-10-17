@@ -27,4 +27,4 @@ do
 done
 cd  ../../
 
-#./generate-models.sh
+./generate-models.sh
