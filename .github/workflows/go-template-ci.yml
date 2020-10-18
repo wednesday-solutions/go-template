@@ -39,6 +39,8 @@ jobs:
       - name: Install golangci dependency
         run: |
           curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.30.0
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
       - uses: golangci/golangci-lint-action@v1
         with:
           version: v1.27
