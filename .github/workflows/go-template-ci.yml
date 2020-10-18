@@ -24,11 +24,18 @@ jobs:
             curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.30.0
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
-      - uses: golangci/golangci-lint-action@v1
-        with:
-          version: v1.27
       - uses: pre-commit/action@v2.0.0
       - name: Build
         run:  go build ./...
       - name: Test
         run:  set -a && source .env.local && set +a && go test $(go list ./... | grep -v models)
+  go-lint:
+    runs-on: ubuntu-latest
+      steps:
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.14.x
+      - uses: golangci/golangci-lint-action@v1
+        with:
+          version: v1.27
