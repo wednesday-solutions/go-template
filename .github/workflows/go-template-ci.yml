@@ -31,7 +31,7 @@ jobs:
         run:  set -a && source .env.local && set +a && go test $(go list ./... | grep -v models)
   go-lint:
     runs-on: ubuntu-latest
-      steps:
+    steps:
       - name: Install Go
         uses: actions/setup-go@v2
         with:
