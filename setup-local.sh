@@ -4,11 +4,11 @@ source .env.local
 set +a
 
 # drop tables
-go run cmd/migration/*.go reset
+sql-migrate down -env postgres -limit=0
 
 # run migrations
-go run cmd/migration/*.go init
-go run cmd/migration/*.go
+sql-migrate up -env postgres
+sql-migrate status -env postgres
 
 # seed data
 

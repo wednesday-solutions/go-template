@@ -5,10 +5,16 @@ import (
 	"context"
 	graphql2 "github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/handler/extension"
+	"github.com/99designs/gqlgen/graphql/handler/lru"
+	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
 	goboiler "github.com/wednesday-solutions/go-template"
+	"net/http"
 	"os"
+	"time"
 
 	_ "github.com/lib/pq" // here
 	"github.com/volatiletech/sqlboiler/boil"
@@ -39,7 +45,10 @@ func Start(cfg *config.Configuration) error {
 
 	playgroundHandler := playground.Handler("GraphQL playground", "/graphql")
 
-	graphqlHandler := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: &goboiler.Resolver{}}))
+	observers := map[string]chan *graphql.User{}
+	graphqlHandler := handler.New(graphql.NewExecutableSchema(graphql.Config{
+		Resolvers: &goboiler.Resolver{Observers: observers},
+	}))
 
 	if os.Getenv("ENVIRONMENT_NAME") == "local" {
 		boil.DebugMode = true
@@ -50,6 +59,30 @@ func Start(cfg *config.Configuration) error {
 		return authMw.GraphQLMiddleware(ctx, jwt, next)
 	})
 	e.POST("/graphql", func(c echo.Context) error {
+		req := c.Request()
+		res := c.Response()
+
+		graphqlHandler.ServeHTTP(res, req)
+		return nil
+	}, gqlMiddleware)
+
+	graphqlHandler.AddTransport(transport.Websocket{
+		KeepAlivePingInterval: 10 * time.Second,
+		InitFunc: func(ctx context.Context, initPayload transport.InitPayload) (context.Context, error) {
+			return ctx, nil
+		},
+		Upgrader: websocket.Upgrader{
+			CheckOrigin: func(r *http.Request) bool {
+				return true
+			},
+		},
+	})
+	graphqlHandler.Use(extension.Introspection{})
+	graphqlHandler.Use(extension.AutomaticPersistedQuery{
+		Cache: lru.New(100),
+	})
+
+	e.GET("/graphql", func(c echo.Context) error {
 		req := c.Request()
 		res := c.Response()
 
