@@ -21,7 +21,6 @@ jobs:
           go get github.com/go-critic/go-critic/cmd/gocritic
           go get golang.org/x/lint/golint
           go get github.com/BurntSushi/toml/cmd/tomlv
-          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.30.0
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
       - uses: pre-commit/action@v2.0.0
@@ -32,11 +31,8 @@ jobs:
   golangci-lint:
     runs-on: ubuntu-latest
     steps:
-      - name: Install golangci dependency
-        run: |
-          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.30.0
+      - name: Install golangci
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-      - uses: golangci/golangci-lint-action@v1
+      - uses: golangci/golangci-lint-action@v2
         with:
-          version: v1.27
+          version: v1.29
