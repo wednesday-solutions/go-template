@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install golangci
-      - uses: actions/checkout@v2
+        uses: actions/checkout@v2
       - uses: golangci/golangci-lint-action@v2
         with:
           version: v1.29
