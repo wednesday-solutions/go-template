@@ -78,6 +78,38 @@ Steps to set up database with ```username``` and ```role``` using terminal
 
 **NOTE:** Replace these credentials in ```.env``` file of the project
 
+# Using Docker
+
+- Requirement [Docker-Compose](https://docs.docker.com/compose/install/)
+
+You can chose to use Docker-compose for `local`, `prod` and `test` stages. This would take care of all the dependencies, i.e., No need for locally having `Golang`, `PostgreSQL`, `redis` and other `cli` tools used in the template.
+
+There will be 3 containers produced,
+
+- **`go-template_db_1`** this container is based on `postgres:13` image and is referred as `db` when connecting from the `api` source code.
+- **`go-template_redis_1`** this container is based on `redis:6-alpine` image and is referred as `redis` when connecting from the `api` source code.
+- **`go-template_api_1`** this container is where your source code lives and is based on `golang:1.15.2-buster` image (in `local` and `test` stage) or `scratch` image (in `prod` stage).
+
+To ease the development process a make file is provided with 5 commands
+
+- **`make local`**
+  Requires `.env.local` file to be present and set
+  This starts the containers in `local` stage, bind the `current directory` to `/go/src/api` inside the `go-template_api_1` container and then starts the `terminal` inside `go-template_api_1`. Once the development is over, `exit` the terminal and call `make tear env=local` to stop all the containers
+
+- **`make test`**
+  Requires `.env.test` file to be present and set
+  This starts the containers in `test` stage and runs `go test -v ./...` inside `go-template_api_1` container. This can be used for `CI/CD` pipelines too. Remember to call `make tear env=test` to stop the containers.
+
+- **`make prod`**
+  Requires `.env.prod` file to be present and set
+  This starts the containers in `prod` stage. You cannot connect to `go-template_api_1` because it has no terminal the contain is build from `scratch` image with only the `go binary` running in it. To stop the containers use `make tear env=prod` and to get live logs from the containers use `make logs env=prod`.
+
+- **`make logs env=<stage>`**
+  this command gives the logs of all the containers in the given stage, useful because the containers are started in detached mode (`-d`)
+
+- **`make tear env=<stage>`**
+  this command tears down (`docker-compose down`) all 3 running containers (`db`, `redis`, `api`).
+
 # Running migrations
 
 Migrations are present in ```cmd/migration``` package. Run below command to run all migrations at once:

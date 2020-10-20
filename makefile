@@ -34,4 +34,7 @@ test:
 	-f docker-compose.test.yml up -d
 
 logs:
-	docker-compose --env-file ./.env.prod logs -f
+	docker-compose --env-file ./.env.$(env) logs -f
+
+tear:
+	docker-compose --env-file ./.env.$(env) down
