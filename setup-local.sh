@@ -26,5 +26,3 @@ do
    go run "$file"
 done
 cd  ../../
-
-./generate-models.sh

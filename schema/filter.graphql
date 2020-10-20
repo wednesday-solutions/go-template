@@ -1,0 +1,58 @@
+input IDFilter {
+    equalTo: ID
+    notEqualTo: ID
+    in: [ID!]
+    notIn: [ID!]
+}
+
+input StringFilter {
+    equalTo: String
+    notEqualTo: String
+
+    in: [String!]
+    notIn: [String!]
+
+    startWith: String
+    notStartWith: String
+
+    endWith: String
+    notEndWith: String
+
+    contain: String
+    notContain: String
+
+    startWithStrict: String # Camel sensitive
+    notStartWithStrict: String # Camel sensitive
+    endWithStrict: String # Camel sensitive
+    notEndWithStrict: String # Camel sensitive
+    containStrict: String # Camel sensitive
+    notContainStrict: String # Camel sensitive
+}
+
+input IntFilter {
+    equalTo: Int
+    notEqualTo: Int
+    lessThan: Int
+    lessThanOrEqualTo: Int
+    moreThan: Int
+    moreThanOrEqualTo: Int
+    in: [Int!]
+    notIn: [Int!]
+}
+
+input FloatFilter {
+    equalTo: Float
+    notEqualTo: Float
+    lessThan: Float
+    lessThanOrEqualTo: Float
+    moreThan: Float
+    moreThanOrEqualTo: Float
+    in: [Float!]
+    notIn: [Float!]
+}
+
+input BooleanFilter {
+    isTrue: Boolean
+    isFalse: Boolean
+    isNull: Boolean
+}
