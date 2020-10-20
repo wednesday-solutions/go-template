@@ -1,7 +1,7 @@
 <img align="left" src="https://github.com/wednesday-solutions/go-template/blob/master/golang_template_github.svg" width="440" height="480" />
 
 <div>
-  <a href="https://www.wednesday.is?utm_source=gthb&utm_medium=repo&utm_campaign=serverless" align="left" style="margin-left: 0;">
+  <a href="https://www.wednesday.is?utm_source=gthb&utm_medium=repo&utm_campaign=gotemplate" align="left" style="margin-left: 0;">
     <img src="https://uploads-ssl.webflow.com/5ee36ce1473112550f1e1739/5f5879492fafecdb3e5b0e75_wednesday_logo.svg">
   </a>
   <p>
