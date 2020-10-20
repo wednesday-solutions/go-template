@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  api:
+    stdin_open: true
+    tty: true
+    build:
+      target: local
+    env_file:
+      - .env.local
+    volumes:
+      - type: bind
+        source: .
+        target: /go/src/api

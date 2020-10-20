@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      target: test
+    env_file:
+      - .env.test

@@ -1,15 +1,16 @@
 package config
 
 import (
-	"github.com/wednesday-solutions/go-template/pkg/utl/convert"
 	"os"
+
+	"github.com/wednesday-solutions/go-template/pkg/utl/convert"
 )
 
 // Load returns Configuration struct
 func Load() (*Configuration, error) {
 	cfg := &Configuration{
 		Server: &Server{
-			Port:         os.Getenv("SERVER_PORT"),
+			Port:         ":" + os.Getenv("SERVER_PORT"),
 			Debug:        convert.StringToBool(os.Getenv("SERVER_DEBUG")),
 			ReadTimeout:  convert.StringToInt(os.Getenv("SERVER_READ_TIMEOUT")),
 			WriteTimeout: convert.StringToInt(os.Getenv("SERVER_WRITE_TIMEOUT")),

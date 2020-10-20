@@ -3,6 +3,10 @@ package api
 
 import (
 	"context"
+	"net/http"
+	"os"
+	"time"
+
 	graphql2 "github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
@@ -11,13 +15,9 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
-	goboiler "github.com/wednesday-solutions/go-template"
-	"net/http"
-	"os"
-	"time"
-
 	_ "github.com/lib/pq" // here
 	"github.com/volatiletech/sqlboiler/boil"
+	goboiler "github.com/wednesday-solutions/go-template"
 	graphql "github.com/wednesday-solutions/go-template/graphql_models"
 	"github.com/wednesday-solutions/go-template/pkg/utl/config"
 	"github.com/wednesday-solutions/go-template/pkg/utl/jwt"
@@ -77,7 +77,15 @@ func Start(cfg *config.Configuration) error {
 			},
 		},
 	})
+	
+	graphqlHandler.AddTransport(transport.Options{})
+	graphqlHandler.AddTransport(transport.GET{})
+	graphqlHandler.AddTransport(transport.POST{})
+	graphqlHandler.AddTransport(transport.MultipartForm{})
 	graphqlHandler.Use(extension.Introspection{})
+
+	graphqlHandler.SetQueryCache(lru.New(1000))
+
 	graphqlHandler.Use(extension.AutomaticPersistedQuery{
 		Cache: lru.New(100),
 	})
