@@ -60,3 +60,49 @@ func TestCreateRoleTx(t *testing.T) {
 		})
 	}
 }
+
+func TestFindRoleByID(t *testing.T) {
+
+	cases := []struct {
+		name string
+		req  int
+		err  error
+	}{
+		{
+			name: "Passing a user_id",
+			req:  1,
+			err:  nil,
+		},
+	}
+
+	for _, tt := range cases {
+		err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
+		if err != nil {
+			fmt.Print("Error loading .env file")
+		}
+
+		db, mock, err := sqlmock.New()
+		if err != nil {
+			t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+		}
+		// Inject mock instance into boil.
+		oldDB := boil.GetDB()
+		defer func() {
+			db.Close()
+			boil.SetDB(oldDB)
+		}()
+		boil.SetDB(db)
+
+		rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
+
+		mock.ExpectQuery(regexp.QuoteMeta("select * from \"roles\" where \"id\"=$1")).
+			WithArgs().
+			WillReturnRows(rows)
+
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := daos.FindRoleByID(tt.req)
+			assert.Equal(t, err, tt.err)
+
+		})
+	}
+}

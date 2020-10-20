@@ -14,3 +14,9 @@ func CreateRoleTx(role models.Role, tx *sql.Tx) (models.Role, error) {
 	err := role.Insert(context.Background(), contextExecutor, boil.Infer())
 	return role, err
 }
+
+// FindRoleByID ...
+func FindRoleByID(roleID int) (*models.Role, error) {
+	contextExecutor := getContextExecutor(nil)
+	return models.FindRole(context.Background(), contextExecutor, roleID)
+}

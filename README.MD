@@ -63,7 +63,7 @@ Using go-template requires having Go 1.7 or above. Once you download go-template
 4. Run the app using:
 
 ```bash
-go run cmd/api/main.go
+go run cmd/server/main.go
 ```
 
 # Setting up database (postgres)
@@ -112,17 +112,26 @@ To ease the development process a make file is provided with 5 commands
 
 # Running migrations
 
-Migrations are present in ```cmd/migration``` package. Run below command to run all migrations at once:
+Migrations are present in ```internal/migrations``` package. Run below command to run all migrations at once:
 ```
-go run cmd/migration/*go
+sql-migrate up -env postgres
 ```
 To drop migration use following
 ```
-go run cmd/migration/*go reset
+sql-migrate down -env postgres -limit=0
 ```
-To add migration, append table name and query to the array `<tableQueries>` in ```cmd/migration```
+To check status of migration use following
+```
+sql-migrate new -env postgres <name>
+```
+To add new migration use following, it creates a new empty migration template with pattern `<current time>-<name>.sql`
+```
+sql-migrate new -env postgres <name>
+```
+append query to above file
 
-For more information on migration package refer https://github.com/go-pg/migrations
+
+For more information on migration package refer [here](https://github.com/rubenv/sql-migrate)
 
 # DB Models
 
