@@ -43,6 +43,14 @@ func NullDotStringToString(v null.String) string {
 	return *v.Ptr()
 }
 
+// NullDotIntToInt converts nullable int to its value
+func NullDotIntToInt(v null.Int) int {
+	if v.Ptr() == nil {
+		return 0
+	}
+	return *v.Ptr()
+}
+
 // NullDotBoolToPointerBool converts nullable boolean to its pointer value
 func NullDotBoolToPointerBool(v null.Bool) *bool {
 	return v.Ptr()
