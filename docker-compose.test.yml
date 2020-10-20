@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  api:
+  server:
     build:
       target: test
     env_file:

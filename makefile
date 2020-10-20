@@ -9,7 +9,7 @@ local:
 	-f docker-compose.yml \
 	-f docker-compose.local.yml up -d
 
-	docker exec -it go-template_api_1 /bin/bash
+	docker exec -it go-template_server_1 /bin/bash
 
 prod:
 	docker-compose --env-file ./.env.prod down

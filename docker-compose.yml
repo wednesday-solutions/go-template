@@ -14,7 +14,7 @@ services:
     image: redis:6-alpine
     restart: always
 
-  api:
+  server:
     build:
       context: .
       dockerfile: Dockerfile

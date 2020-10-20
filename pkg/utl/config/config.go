@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/wednesday-solutions/go-template/pkg/utl/convert"
@@ -10,7 +11,7 @@ import (
 func Load() (*Configuration, error) {
 	cfg := &Configuration{
 		Server: &Server{
-			Port:         ":" + os.Getenv("SERVER_PORT"),
+			Port:         fmt.Sprintf(":%d", convert.StringToInt(os.Getenv("SERVER_PORT"))),
 			Debug:        convert.StringToBool(os.Getenv("SERVER_DEBUG")),
 			ReadTimeout:  convert.StringToInt(os.Getenv("SERVER_READ_TIMEOUT")),
 			WriteTimeout: convert.StringToInt(os.Getenv("SERVER_WRITE_TIMEOUT")),
