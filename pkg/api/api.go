@@ -77,7 +77,7 @@ func Start(cfg *config.Configuration) error {
 			},
 		},
 	})
-	
+
 	graphqlHandler.AddTransport(transport.Options{})
 	graphqlHandler.AddTransport(transport.GET{})
 	graphqlHandler.AddTransport(transport.POST{})
