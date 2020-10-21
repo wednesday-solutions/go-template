@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  server:
+    restart: always
+    build:
+      target: prod
+    env_file:
+      - .env.prod

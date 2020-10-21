@@ -1,25 +1,27 @@
-version: '3.6'
+version: '3.8'
 
 services:
-  db_postgres:
-    image: postgres
-    ports:
-      - "5432:5432"
-    expose:
-      - '5432'
+  db:
+    image: postgres:13
     restart: always
-    env_file:
-      - .env.local
-  paycore_api:
+    environment:
+    - POSTGRES_USER=${DB_USER}
+    - POSTGRES_PASSWORD=${DB_PASS}
+    - POSTGRES_PORT=${DB_PORT}
+    - POSTGRES_DB=${DB_NAME}
+
+  redis:
+    image: redis:6-alpine
     restart: always
+
+  server:
     build:
       context: .
       dockerfile: Dockerfile
     depends_on:
-      - db_postgres
+      - db
+      - redis
     ports:
-      - "9000:9000"
+      - ${SERVER_PORT}:${SERVER_PORT}
     expose:
-      - "9000"
-    env_file:
-      - .env.local
+      - ${SERVER_PORT}
