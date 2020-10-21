@@ -6,10 +6,13 @@ package resolver
 import (
 	"context"
 	"fmt"
+
 	"github.com/volatiletech/null"
 	"github.com/volatiletech/sqlboiler/boil"
 	"github.com/volatiletech/sqlboiler/queries/qm"
+	gotemplate "github.com/wednesday-solutions/go-template"
 	"github.com/wednesday-solutions/go-template/daos"
+	"github.com/wednesday-solutions/go-template/graphql_models"
 	"github.com/wednesday-solutions/go-template/models"
 	"github.com/wednesday-solutions/go-template/pkg/utl"
 	"github.com/wednesday-solutions/go-template/pkg/utl/config"
@@ -18,24 +21,34 @@ import (
 	rediscache "github.com/wednesday-solutions/go-template/pkg/utl/redis_cache"
 	resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
 	"github.com/wednesday-solutions/go-template/pkg/utl/service"
-
-	"github.com/wednesday-solutions/go-template/graphql_models"
 )
 
 func (r *mutationResolver) CreateRole(ctx context.Context, input graphql_models.RoleCreateInput) (*graphql_models.RolePayload, error) {
+	userID := auth.UserIDFromContext(ctx)
+	user, err := rediscache.GetUser(userID)
+	if err != nil {
+		return &graphql_models.RolePayload{}, resultwrapper.ResolverSQLError(err, "data")
+	}
+	userRole, err := rediscache.GetRole(convert.NullDotIntToInt(user.RoleID))
+	if err != nil {
+		return &graphql_models.RolePayload{}, resultwrapper.ResolverSQLError(err, "data")
+	}
 	role := models.Role{
 		AccessLevel: input.AccessLevel,
 		Name:        input.Name,
 	}
+	if userRole.AccessLevel != int(gotemplate.SuperAdminRole) {
+		return &graphql_models.RolePayload{}, fmt.Errorf("You don't appear to have enough access level for this request ")
+	}
+
 	newRole, err := daos.CreateRoleTx(role, nil)
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "role")
 	}
-	return &graphql_models.RolePayload{
-		Role: &graphql_models.Role{
-			AccessLevel: newRole.AccessLevel,
-			Name:        newRole.Name,
-		},
+	return &graphql_models.RolePayload{Role: &graphql_models.Role{
+		AccessLevel: newRole.AccessLevel,
+		Name:        newRole.Name,
+	},
 	}, err
 }
 
@@ -80,7 +93,6 @@ func (r *mutationResolver) Login(ctx context.Context, username string, password 
 }
 
 func (r *mutationResolver) ChangePassword(ctx context.Context, oldPassword string, newPassword string) (*graphql_models.ChangePasswordResponse, error) {
-
 	userID := auth.UserIDFromContext(ctx)
 	u, err := daos.FindUserByID(userID)
 	if err != nil {

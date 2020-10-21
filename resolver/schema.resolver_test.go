@@ -602,7 +602,7 @@ func TestUserNotification(t *testing.T) {
 	}
 
 	observers := map[string]chan *fm.User{}
-	resolver1 := gotemplate.Resolver{Observers: observers}
+	resolver1 := resolver.Resolver{Observers: observers}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
