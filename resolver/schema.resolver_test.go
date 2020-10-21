@@ -77,7 +77,7 @@ func TestCreateRole(t *testing.T) {
 				WillReturnRows(rows)
 
 			c := context.Background()
-			response, err := resolver1.Mutation().CreateRole(c, tt.req)
+			response, _ := resolver1.Mutation().CreateRole(c, tt.req)
 			assert.Equal(t, tt.wantResp, response)
 		})
 	}
