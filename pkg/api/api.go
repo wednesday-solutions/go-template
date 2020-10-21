@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/wednesday-solutions/go-template/pkg/utl/rate_throttle"
 	graphql2 "github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
@@ -23,7 +24,6 @@ import (
 	"github.com/wednesday-solutions/go-template/pkg/utl/jwt"
 	authMw "github.com/wednesday-solutions/go-template/pkg/utl/middleware/auth"
 	"github.com/wednesday-solutions/go-template/pkg/utl/postgres"
-	"github.com/wednesday-solutions/go-template/pkg/utl/ratelimiter"
 	"github.com/wednesday-solutions/go-template/pkg/utl/server"
 )
 
@@ -43,6 +43,8 @@ func Start(cfg *config.Configuration) error {
 	e := server.New()
 
 	gqlMiddleware := authMw.GqlMiddleware()
+	// throttlerMiddleware puts the current user's IP address into context of gqlgen
+	throttlerMiddleware := throttle.GqlMiddleware()
 
 	playgroundHandler := playground.Handler("GraphQL playground", "/graphql")
 
@@ -54,7 +56,6 @@ func Start(cfg *config.Configuration) error {
 	if os.Getenv("ENVIRONMENT_NAME") == "local" {
 		boil.DebugMode = true
 	}
-	burstLimit := 15
 	// graphql apis
 	graphqlHandler.AroundOperations(func(ctx context.Context, next graphql2.OperationHandler) graphql2.ResponseHandler {
 		return authMw.GraphQLMiddleware(ctx, jwt, next)
@@ -65,7 +66,7 @@ func Start(cfg *config.Configuration) error {
 
 		graphqlHandler.ServeHTTP(res, req)
 		return nil
-	}, gqlMiddleware, ratelimiter.RateHandler(burstLimit))
+	}, gqlMiddleware, throttlerMiddleware)
 
 	graphqlHandler.AddTransport(transport.Websocket{
 		KeepAlivePingInterval: 10 * time.Second,
@@ -78,7 +79,15 @@ func Start(cfg *config.Configuration) error {
 			},
 		},
 	})
+
+	graphqlHandler.AddTransport(transport.Options{})
+	graphqlHandler.AddTransport(transport.GET{})
+	graphqlHandler.AddTransport(transport.POST{})
+	graphqlHandler.AddTransport(transport.MultipartForm{})
 	graphqlHandler.Use(extension.Introspection{})
+
+	graphqlHandler.SetQueryCache(lru.New(1000))
+
 	graphqlHandler.Use(extension.AutomaticPersistedQuery{
 		Cache: lru.New(100),
 	})
@@ -89,7 +98,7 @@ func Start(cfg *config.Configuration) error {
 
 		graphqlHandler.ServeHTTP(res, req)
 		return nil
-	}, gqlMiddleware)
+	}, gqlMiddleware, throttlerMiddleware)
 
 	// graphql playground
 	e.GET("/playground", func(c echo.Context) error {
