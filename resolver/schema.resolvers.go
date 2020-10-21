@@ -1,6 +1,7 @@
-// Package gotemplate ...
-// THIS CODE IS A STARTING POINT ONLY. IT WILL NOT BE UPDATED WITH SCHEMA CHANGES.
-package gotemplate
+package resolver
+
+// This file will be automatically regenerated based on the schema, any resolver implementations
+// will be copied through when generating and any unknown code will be moved to the end.
 
 import (
 	"context"
@@ -9,7 +10,6 @@ import (
 	"github.com/volatiletech/sqlboiler/boil"
 	"github.com/volatiletech/sqlboiler/queries/qm"
 	"github.com/wednesday-solutions/go-template/daos"
-	fm "github.com/wednesday-solutions/go-template/graphql_models"
 	"github.com/wednesday-solutions/go-template/models"
 	"github.com/wednesday-solutions/go-template/pkg/utl"
 	"github.com/wednesday-solutions/go-template/pkg/utl/config"
@@ -18,48 +18,11 @@ import (
 	rediscache "github.com/wednesday-solutions/go-template/pkg/utl/redis_cache"
 	resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
 	"github.com/wednesday-solutions/go-template/pkg/utl/service"
-	"sync"
+
+	"github.com/wednesday-solutions/go-template/graphql_models"
 )
 
-// Resolver ...
-type Resolver struct {
-	sync.Mutex
-	Observers map[string]chan *fm.User
-}
-
-func (r queryResolver) Me(ctx context.Context) (*fm.User, error) {
-	userID := auth.UserIDFromContext(ctx)
-	user, err := rediscache.GetUser(userID)
-	if err != nil {
-		return &fm.User{}, resultwrapper.ResolverSQLError(err, "data")
-	}
-	return &fm.User{
-		FirstName: convert.NullDotStringToPointerString(user.FirstName),
-		LastName:  convert.NullDotStringToPointerString(user.LastName),
-		Username:  convert.NullDotStringToPointerString(user.Username),
-		Email:     convert.NullDotStringToPointerString(user.Email),
-		Mobile:    convert.NullDotStringToPointerString(user.Mobile),
-		Phone:     convert.NullDotStringToPointerString(user.Phone),
-		Address:   convert.NullDotStringToPointerString(user.Address),
-	}, err
-}
-
-func (r queryResolver) Users(ctx context.Context, pagination *fm.UserPagination) (*fm.UsersPayload, error) {
-
-	var queryMods []qm.QueryMod
-	if pagination != nil {
-		if pagination.Limit != 0 {
-			queryMods = append(queryMods, qm.Limit(pagination.Limit), qm.Offset(pagination.Page*pagination.Limit))
-		}
-	}
-	users, err := models.Users(queryMods...).All(context.Background(), boil.GetContextDB())
-	if err != nil {
-		return nil, resultwrapper.ResolverSQLError(err, "data")
-	}
-	return &fm.UsersPayload{Users: convert.UsersToGraphQlUsers(users)}, nil
-}
-
-func (r mutationResolver) CreateRole(ctx context.Context, input fm.RoleCreateInput) (*fm.RolePayload, error) {
+func (r *mutationResolver) CreateRole(ctx context.Context, input graphql_models.RoleCreateInput) (*graphql_models.RolePayload, error) {
 	role := models.Role{
 		AccessLevel: input.AccessLevel,
 		Name:        input.Name,
@@ -68,14 +31,15 @@ func (r mutationResolver) CreateRole(ctx context.Context, input fm.RoleCreateInp
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "role")
 	}
-	return &fm.RolePayload{Role: &fm.Role{
-		AccessLevel: newRole.AccessLevel,
-		Name:        newRole.Name,
-	},
+	return &graphql_models.RolePayload{
+		Role: &graphql_models.Role{
+			AccessLevel: newRole.AccessLevel,
+			Name:        newRole.Name,
+		},
 	}, err
 }
 
-func (r mutationResolver) Login(ctx context.Context, username string, password string) (*fm.LoginResponse, error) {
+func (r *mutationResolver) Login(ctx context.Context, username string, password string) (*graphql_models.LoginResponse, error) {
 	u, err := daos.FindUserByUserName(username)
 	if err != nil {
 		return nil, err
@@ -112,10 +76,10 @@ func (r mutationResolver) Login(ctx context.Context, username string, password s
 		return nil, err
 	}
 
-	return &fm.LoginResponse{Token: token, RefreshToken: refreshToken}, nil
+	return &graphql_models.LoginResponse{Token: token, RefreshToken: refreshToken}, nil
 }
 
-func (r mutationResolver) ChangePassword(ctx context.Context, oldPassword string, newPassword string) (*fm.ChangePasswordResponse, error) {
+func (r *mutationResolver) ChangePassword(ctx context.Context, oldPassword string, newPassword string) (*graphql_models.ChangePasswordResponse, error) {
 
 	userID := auth.UserIDFromContext(ctx)
 	u, err := daos.FindUserByID(userID)
@@ -143,10 +107,10 @@ func (r mutationResolver) ChangePassword(ctx context.Context, oldPassword string
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "new information")
 	}
-	return &fm.ChangePasswordResponse{Ok: true}, err
+	return &graphql_models.ChangePasswordResponse{Ok: true}, err
 }
 
-func (r mutationResolver) RefreshToken(ctx context.Context, token string) (*fm.RefreshTokenResponse, error) {
+func (r *mutationResolver) RefreshToken(ctx context.Context, token string) (*graphql_models.RefreshTokenResponse, error) {
 	user, err := daos.FindUserByToken(token)
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "token")
@@ -165,10 +129,10 @@ func (r mutationResolver) RefreshToken(ctx context.Context, token string) (*fm.R
 	if err != nil {
 		return nil, err
 	}
-	return &fm.RefreshTokenResponse{Token: resp}, nil
+	return &graphql_models.RefreshTokenResponse{Token: resp}, nil
 }
 
-func (r mutationResolver) CreateUser(ctx context.Context, input fm.UserCreateInput) (*fm.UserPayload, error) {
+func (r *mutationResolver) CreateUser(ctx context.Context, input graphql_models.UserCreateInput) (*graphql_models.UserPayload, error) {
 	user := models.User{
 		Username:  null.StringFromPtr(input.Username),
 		Password:  null.StringFromPtr(input.Password),
@@ -189,7 +153,7 @@ func (r mutationResolver) CreateUser(ctx context.Context, input fm.UserCreateInp
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "user information")
 	}
-	graphUser := &fm.User{
+	graphUser := &graphql_models.User{
 		FirstName: convert.NullDotStringToPointerString(newUser.FirstName),
 		LastName:  convert.NullDotStringToPointerString(newUser.LastName),
 		Username:  convert.NullDotStringToPointerString(newUser.Username),
@@ -205,10 +169,10 @@ func (r mutationResolver) CreateUser(ctx context.Context, input fm.UserCreateInp
 	}
 	r.Unlock()
 
-	return &fm.UserPayload{User: graphUser}, err
+	return &graphql_models.UserPayload{User: graphUser}, err
 }
 
-func (r mutationResolver) UpdateUser(ctx context.Context, input *fm.UserUpdateInput) (*fm.UserUpdatePayload, error) {
+func (r *mutationResolver) UpdateUser(ctx context.Context, input *graphql_models.UserUpdateInput) (*graphql_models.UserUpdatePayload, error) {
 	userID := auth.UserIDFromContext(ctx)
 	u := models.User{
 		ID:        userID,
@@ -223,7 +187,7 @@ func (r mutationResolver) UpdateUser(ctx context.Context, input *fm.UserUpdateIn
 		return nil, resultwrapper.ResolverSQLError(err, "new information")
 	}
 
-	graphUser := &fm.User{
+	graphUser := &graphql_models.User{
 		FirstName: convert.NullDotStringToPointerString(u.FirstName),
 		LastName:  convert.NullDotStringToPointerString(u.LastName),
 		Mobile:    convert.NullDotStringToPointerString(u.Mobile),
@@ -236,10 +200,10 @@ func (r mutationResolver) UpdateUser(ctx context.Context, input *fm.UserUpdateIn
 	}
 	r.Unlock()
 
-	return &fm.UserUpdatePayload{Ok: true}, nil
+	return &graphql_models.UserUpdatePayload{Ok: true}, nil
 }
 
-func (r mutationResolver) DeleteUser(ctx context.Context) (*fm.UserDeletePayload, error) {
+func (r *mutationResolver) DeleteUser(ctx context.Context) (*graphql_models.UserDeletePayload, error) {
 	userID := auth.UserIDFromContext(ctx)
 	u, err := daos.FindUserByID(userID)
 	if err != nil {
@@ -249,12 +213,43 @@ func (r mutationResolver) DeleteUser(ctx context.Context) (*fm.UserDeletePayload
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "user")
 	}
-	return &fm.UserDeletePayload{ID: fmt.Sprint(userID)}, nil
+	return &graphql_models.UserDeletePayload{ID: fmt.Sprint(userID)}, nil
 }
 
-func (r subscriptionResolver) UserNotification(ctx context.Context) (<-chan *fm.User, error) {
+func (r *queryResolver) Me(ctx context.Context) (*graphql_models.User, error) {
+	userID := auth.UserIDFromContext(ctx)
+	user, err := rediscache.GetUser(userID)
+	if err != nil {
+		return &graphql_models.User{}, resultwrapper.ResolverSQLError(err, "data")
+	}
+	return &graphql_models.User{
+		FirstName: convert.NullDotStringToPointerString(user.FirstName),
+		LastName:  convert.NullDotStringToPointerString(user.LastName),
+		Username:  convert.NullDotStringToPointerString(user.Username),
+		Email:     convert.NullDotStringToPointerString(user.Email),
+		Mobile:    convert.NullDotStringToPointerString(user.Mobile),
+		Phone:     convert.NullDotStringToPointerString(user.Phone),
+		Address:   convert.NullDotStringToPointerString(user.Address),
+	}, err
+}
+
+func (r *queryResolver) Users(ctx context.Context, pagination *graphql_models.UserPagination) (*graphql_models.UsersPayload, error) {
+	var queryMods []qm.QueryMod
+	if pagination != nil {
+		if pagination.Limit != 0 {
+			queryMods = append(queryMods, qm.Limit(pagination.Limit), qm.Offset(pagination.Page*pagination.Limit))
+		}
+	}
+	users, err := models.Users(queryMods...).All(context.Background(), boil.GetContextDB())
+	if err != nil {
+		return nil, resultwrapper.ResolverSQLError(err, "data")
+	}
+	return &graphql_models.UsersPayload{Users: convert.UsersToGraphQlUsers(users)}, nil
+}
+
+func (r *subscriptionResolver) UserNotification(ctx context.Context) (<-chan *graphql_models.User, error) {
 	id := utl.RandomSequence(5)
-	event := make(chan *fm.User, 1)
+	event := make(chan *graphql_models.User, 1)
 
 	go func() {
 		<-ctx.Done()
@@ -270,14 +265,16 @@ func (r subscriptionResolver) UserNotification(ctx context.Context) (<-chan *fm.
 	return event, nil
 }
 
-// Mutation ...
-func (r *Resolver) Mutation() fm.MutationResolver { return &mutationResolver{r} }
+// Mutation returns graphql_models.MutationResolver implementation.
+func (r *Resolver) Mutation() graphql_models.MutationResolver { return &mutationResolver{r} }
 
-// Query ...
-func (r *Resolver) Query() fm.QueryResolver { return &queryResolver{r} }
+// Query returns graphql_models.QueryResolver implementation.
+func (r *Resolver) Query() graphql_models.QueryResolver { return &queryResolver{r} }
 
-// Subscription ...
-func (r *Resolver) Subscription() fm.SubscriptionResolver { return &subscriptionResolver{r} }
+// Subscription returns graphql_models.SubscriptionResolver implementation.
+func (r *Resolver) Subscription() graphql_models.SubscriptionResolver {
+	return &subscriptionResolver{r}
+}
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }

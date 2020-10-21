@@ -11,7 +11,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
-	goboiler "github.com/wednesday-solutions/go-template"
+	"github.com/wednesday-solutions/go-template/resolver"
 	"net/http"
 	"os"
 	"time"
@@ -47,7 +47,7 @@ func Start(cfg *config.Configuration) error {
 
 	observers := map[string]chan *graphql.User{}
 	graphqlHandler := handler.New(graphql.NewExecutableSchema(graphql.Config{
-		Resolvers: &goboiler.Resolver{Observers: observers},
+		Resolvers: &resolver.Resolver{Observers: observers},
 	}))
 
 	if os.Getenv("ENVIRONMENT_NAME") == "local" {
@@ -77,7 +77,13 @@ func Start(cfg *config.Configuration) error {
 			},
 		},
 	})
+
+	graphqlHandler.AddTransport(transport.Options{})
+	graphqlHandler.AddTransport(transport.GET{})
+	graphqlHandler.AddTransport(transport.POST{})
+	graphqlHandler.AddTransport(transport.MultipartForm{})
 	graphqlHandler.Use(extension.Introspection{})
+	graphqlHandler.SetQueryCache(lru.New(1000))
 	graphqlHandler.Use(extension.AutomaticPersistedQuery{
 		Cache: lru.New(100),
 	})

@@ -1,4 +1,4 @@
-package gotemplate_test
+package resolver_test
 
 import (
 	"context"
@@ -11,10 +11,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/volatiletech/null"
 	"github.com/volatiletech/sqlboiler/boil"
-	gotemplate "github.com/wednesday-solutions/go-template"
 	fm "github.com/wednesday-solutions/go-template/graphql_models"
 	"github.com/wednesday-solutions/go-template/models"
 	"github.com/wednesday-solutions/go-template/pkg/utl/convert"
+	"github.com/wednesday-solutions/go-template/resolver"
 	"os"
 	"regexp"
 	"testing"
@@ -46,10 +46,10 @@ func TestCreateRole(t *testing.T) {
 		},
 	}
 
-	resolver := gotemplate.Resolver{}
+	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			err := godotenv.Load(fmt.Sprintf(".env.%s", os.Getenv("ENVIRONMENT_NAME")))
+			err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
 			if err != nil {
 				fmt.Print("Error loading .env file")
 			}
@@ -77,7 +77,7 @@ func TestCreateRole(t *testing.T) {
 				WillReturnRows(rows)
 
 			c := context.Background()
-			response, err := resolver.Mutation().CreateRole(c, tt.req)
+			response, err := resolver1.Mutation().CreateRole(c, tt.req)
 			if tt.wantResp != nil {
 				assert.Equal(t, tt.wantResp, response)
 			}
@@ -109,10 +109,10 @@ func TestLogin(t *testing.T) {
 		},
 	}
 
-	resolver := gotemplate.Resolver{}
+	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			err := godotenv.Load(fmt.Sprintf(".env.%s", os.Getenv("ENVIRONMENT_NAME")))
+			err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
 			if err != nil {
 				fmt.Print("Error loading .env file")
 			}
@@ -146,7 +146,7 @@ func TestLogin(t *testing.T) {
 				WillReturnResult(result)
 
 			c := context.Background()
-			response, err := resolver.Mutation().Login(c, tt.req.UserName, tt.req.Password)
+			response, err := resolver1.Mutation().Login(c, tt.req.UserName, tt.req.Password)
 			if tt.wantResp != nil && response != nil {
 				tt.wantResp.RefreshToken = response.RefreshToken
 				tt.wantResp.Token = response.Token
@@ -169,10 +169,10 @@ func TestMe(t *testing.T) {
 		},
 	}
 
-	resolver := gotemplate.Resolver{}
+	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			err := godotenv.Load(fmt.Sprintf(".env.%s", os.Getenv("ENVIRONMENT_NAME")))
+			err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
 			if err != nil {
 				fmt.Print("Error loading .env file")
 			}
@@ -201,7 +201,7 @@ func TestMe(t *testing.T) {
 
 			c := context.Background()
 			ctx := context.WithValue(c, userKey, models.User{ID: 1, FirstName: null.StringFrom("First"), LastName: null.StringFrom("Last"), Username: null.StringFrom("username"), Email: null.StringFrom("mac@wednesday.is"), Mobile: null.StringFrom("+911234567890"), Phone: null.StringFrom("05943-1123"), Address: null.StringFrom("22 Jump Street")})
-			response, _ := resolver.Query().Me(ctx)
+			response, _ := resolver1.Query().Me(ctx)
 			assert.Equal(t, tt.wantResp, response)
 		})
 	}
@@ -231,10 +231,10 @@ func TestUsers(t *testing.T) {
 		},
 	}
 
-	resolver := gotemplate.Resolver{}
+	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			err := godotenv.Load(fmt.Sprintf(".env.%s", os.Getenv("ENVIRONMENT_NAME")))
+			err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
 			if err != nil {
 				fmt.Print("Error loading .env file")
 			}
@@ -258,7 +258,7 @@ func TestUsers(t *testing.T) {
 
 			c := context.Background()
 			ctx := context.WithValue(c, userKey, models.User{ID: 1, FirstName: null.StringFrom("First"), LastName: null.StringFrom("Last"), Username: null.StringFrom("username"), Email: null.StringFrom("mac@wednesday.is"), Mobile: null.StringFrom("+911234567890"), Phone: null.StringFrom("05943-1123"), Address: null.StringFrom("22 Jump Street")})
-			response, err := resolver.Query().Users(ctx, tt.pagination)
+			response, err := resolver1.Query().Users(ctx, tt.pagination)
 			if tt.wantResp != nil && response != nil {
 				assert.Equal(t, len(tt.wantResp), len(response.Users))
 			}
@@ -297,10 +297,10 @@ func TestChangePassword(t *testing.T) {
 		},
 	}
 
-	resolver := gotemplate.Resolver{}
+	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			err := godotenv.Load(fmt.Sprintf(".env.%s", os.Getenv("ENVIRONMENT_NAME")))
+			err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
 			if err != nil {
 				fmt.Print("Error loading .env file")
 			}
@@ -337,7 +337,7 @@ func TestChangePassword(t *testing.T) {
 
 			c := context.Background()
 			ctx := context.WithValue(c, userKey, models.User{ID: 1, FirstName: null.StringFrom("First"), LastName: null.StringFrom("Last"), Username: null.StringFrom("username"), Email: null.StringFrom("mac@wednesday.is"), Mobile: null.StringFrom("+911234567890"), Phone: null.StringFrom("05943-1123"), Address: null.StringFrom("22 Jump Street")})
-			response, err := resolver.Mutation().ChangePassword(ctx, tt.req.OldPassword, tt.req.NewPassword)
+			response, err := resolver1.Mutation().ChangePassword(ctx, tt.req.OldPassword, tt.req.NewPassword)
 			if tt.wantResp != nil {
 				assert.Equal(t, tt.wantResp, response)
 			}
@@ -366,10 +366,10 @@ func TestRefreshToken(t *testing.T) {
 		},
 	}
 
-	resolver := gotemplate.Resolver{}
+	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			err := godotenv.Load(fmt.Sprintf(".env.%s", os.Getenv("ENVIRONMENT_NAME")))
+			err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
 			if err != nil {
 				fmt.Print("Error loading .env file")
 			}
@@ -398,7 +398,7 @@ func TestRefreshToken(t *testing.T) {
 
 			c := context.Background()
 			ctx := context.WithValue(c, userKey, models.User{ID: 1, FirstName: null.StringFrom("First"), LastName: null.StringFrom("Last"), Username: null.StringFrom("username"), Email: null.StringFrom("mac@wednesday.is"), Mobile: null.StringFrom("+911234567890"), Phone: null.StringFrom("05943-1123"), Address: null.StringFrom("22 Jump Street")})
-			response, err := resolver.Mutation().RefreshToken(ctx, tt.req)
+			response, err := resolver1.Mutation().RefreshToken(ctx, tt.req)
 			if tt.wantResp != nil && response != nil {
 				tt.wantResp.Token = response.Token
 				assert.Equal(t, tt.wantResp, response)
@@ -428,10 +428,10 @@ func TestCreateUser(t *testing.T) {
 		},
 	}
 
-	resolver := gotemplate.Resolver{}
+	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			err := godotenv.Load(fmt.Sprintf(".env.%s", os.Getenv("ENVIRONMENT_NAME")))
+			err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
 			if err != nil {
 				fmt.Print("Error loading .env file")
 			}
@@ -459,7 +459,7 @@ func TestCreateUser(t *testing.T) {
 				WillReturnRows(rows)
 
 			c := context.Background()
-			response, err := resolver.Mutation().CreateUser(c, tt.req)
+			response, err := resolver1.Mutation().CreateUser(c, tt.req)
 			if tt.wantResp != nil {
 				assert.Equal(t, tt.wantResp, response)
 			}
@@ -488,10 +488,10 @@ func TestUpdateUser(t *testing.T) {
 		},
 	}
 
-	resolver := gotemplate.Resolver{}
+	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			err := godotenv.Load(fmt.Sprintf(".env.%s", os.Getenv("ENVIRONMENT_NAME")))
+			err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
 			if err != nil {
 				fmt.Print("Error loading .env file")
 			}
@@ -518,7 +518,7 @@ func TestUpdateUser(t *testing.T) {
 
 			c := context.Background()
 			ctx := context.WithValue(c, userKey, models.User{ID: 1, FirstName: null.StringFrom("First"), LastName: null.StringFrom("Last"), Username: null.StringFrom("username"), Email: null.StringFrom("mac@wednesday.is"), Mobile: null.StringFrom("+911234567890"), Phone: null.StringFrom("05943-1123"), Address: null.StringFrom("22 Jump Street")})
-			response, err := resolver.Mutation().UpdateUser(ctx, tt.req)
+			response, err := resolver1.Mutation().UpdateUser(ctx, tt.req)
 			if tt.wantResp != nil && response != nil {
 				assert.Equal(t, tt.wantResp.Ok, response.Ok)
 			}
@@ -544,10 +544,10 @@ func TestDeleteUser(t *testing.T) {
 		},
 	}
 
-	resolver := gotemplate.Resolver{}
+	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			err := godotenv.Load(fmt.Sprintf(".env.%s", os.Getenv("ENVIRONMENT_NAME")))
+			err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
 			if err != nil {
 				fmt.Print("Error loading .env file")
 			}
@@ -579,7 +579,7 @@ func TestDeleteUser(t *testing.T) {
 
 			c := context.Background()
 			ctx := context.WithValue(c, userKey, models.User{ID: 1, FirstName: null.StringFrom("First"), LastName: null.StringFrom("Last"), Username: null.StringFrom("username"), Email: null.StringFrom("mac@wednesday.is"), Mobile: null.StringFrom("+911234567890"), Phone: null.StringFrom("05943-1123"), Address: null.StringFrom("22 Jump Street")})
-			response, err := resolver.Mutation().DeleteUser(ctx)
+			response, err := resolver1.Mutation().DeleteUser(ctx)
 			if tt.wantResp != nil {
 				assert.Equal(t, tt.wantResp, response)
 			}
@@ -602,17 +602,17 @@ func TestUserNotification(t *testing.T) {
 	}
 
 	observers := map[string]chan *fm.User{}
-	resolver := gotemplate.Resolver{Observers: observers}
+	resolver1 := gotemplate.Resolver{Observers: observers}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			err := godotenv.Load(fmt.Sprintf(".env.%s", os.Getenv("ENVIRONMENT_NAME")))
+			err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
 			if err != nil {
 				fmt.Print("Error loading .env file")
 			}
 
 			c := context.Background()
 			ctx := context.WithValue(c, userKey, models.User{ID: 1, FirstName: null.StringFrom("First"), LastName: null.StringFrom("Last"), Username: null.StringFrom("username"), Email: null.StringFrom("mac@wednesday.is"), Mobile: null.StringFrom("+911234567890"), Phone: null.StringFrom("05943-1123"), Address: null.StringFrom("22 Jump Street")})
-			response, err := resolver.Subscription().UserNotification(ctx)
+			response, err := resolver1.Subscription().UserNotification(ctx)
 			if tt.wantResp != nil {
 				tt.wantResp = response
 				assert.Equal(t, tt.wantResp, response)
