@@ -3,6 +3,10 @@ package api
 
 import (
 	"context"
+	"net/http"
+	"os"
+	"time"
+
 	graphql2 "github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
@@ -11,11 +15,6 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
-	"github.com/wednesday-solutions/go-template/resolver"
-	"net/http"
-	"os"
-	"time"
-
 	_ "github.com/lib/pq" // here
 	"github.com/volatiletech/sqlboiler/boil"
 	graphql "github.com/wednesday-solutions/go-template/graphql_models"
@@ -24,6 +23,7 @@ import (
 	authMw "github.com/wednesday-solutions/go-template/pkg/utl/middleware/auth"
 	"github.com/wednesday-solutions/go-template/pkg/utl/postgres"
 	"github.com/wednesday-solutions/go-template/pkg/utl/server"
+	"github.com/wednesday-solutions/go-template/resolver"
 )
 
 // Start starts the API service
