@@ -7,7 +7,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/wednesday-solutions/go-template/pkg/utl/rate_throttle"
 	graphql2 "github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
@@ -24,6 +23,7 @@ import (
 	"github.com/wednesday-solutions/go-template/pkg/utl/jwt"
 	authMw "github.com/wednesday-solutions/go-template/pkg/utl/middleware/auth"
 	"github.com/wednesday-solutions/go-template/pkg/utl/postgres"
+	"github.com/wednesday-solutions/go-template/pkg/utl/rate_throttle"
 	"github.com/wednesday-solutions/go-template/pkg/utl/server"
 )
 

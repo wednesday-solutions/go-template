@@ -7,7 +7,6 @@ require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/didip/tollbooth v4.0.2+incompatible
 	github.com/fortytw2/dockertest v0.0.0-20181228171220-480d52efdffe
 	github.com/friendsofgo/errors v0.9.2
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
@@ -27,7 +26,6 @@ require (
 	github.com/mattn/go-colorable v0.1.6 // indirect
 	github.com/mitchellh/mapstructure v1.2.2 // indirect
 	github.com/nbutton23/zxcvbn-go v0.0.0-20180912185939-ae427f1e4c1d
-	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/pelletier/go-toml v1.7.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rafaeljusto/redigomock v2.4.0+incompatible
