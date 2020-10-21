@@ -7,12 +7,12 @@ import (
 	"strconv"
 )
 
-// StringToPointerString ...
+// StringToPointerString returns pointer string value
 func StringToPointerString(v string) *string {
 	return &v
 }
 
-// StringToInt ...
+// StringToInt converts string to integer
 func StringToInt(v string) int {
 	i, err := strconv.Atoi(v)
 	if err != nil {
@@ -21,7 +21,7 @@ func StringToInt(v string) int {
 	return i
 }
 
-// StringToBool ...
+// StringToBool converts string to boolean
 func StringToBool(v string) bool {
 	i, err := strconv.ParseBool(v)
 	if err != nil {
@@ -30,12 +30,12 @@ func StringToBool(v string) bool {
 	return i
 }
 
-// NullDotStringToPointerString ...
+// NullDotStringToPointerString converts nullable string to its pointer value
 func NullDotStringToPointerString(v null.String) *string {
 	return v.Ptr()
 }
 
-// NullDotStringToString ...
+// NullDotStringToString converts nullable string to its value
 func NullDotStringToString(v null.String) string {
 	if v.Ptr() == nil {
 		return ""
@@ -43,12 +43,20 @@ func NullDotStringToString(v null.String) string {
 	return *v.Ptr()
 }
 
-// NullDotBoolToPointerBool ...
+// NullDotIntToInt converts nullable int to its value
+func NullDotIntToInt(v null.Int) int {
+	if v.Ptr() == nil {
+		return 0
+	}
+	return *v.Ptr()
+}
+
+// NullDotBoolToPointerBool converts nullable boolean to its pointer value
 func NullDotBoolToPointerBool(v null.Bool) *bool {
 	return v.Ptr()
 }
 
-// PointerStringToNullDotInt ...
+// PointerStringToNullDotInt converts pointer string to nullable integer if present else returns default nullable value
 func PointerStringToNullDotInt(s *string) null.Int {
 	if s == nil {
 		return null.IntFrom(0)
@@ -61,7 +69,7 @@ func PointerStringToNullDotInt(s *string) null.Int {
 	return null.IntFrom(i)
 }
 
-// UsersToGraphQlUsers ...
+// UsersToGraphQlUsers converts array of type models.User into array of pointer type graphql.User
 func UsersToGraphQlUsers(u models.UserSlice) []*graphql.User {
 	var r []*graphql.User
 	for _, e := range u {
@@ -70,7 +78,7 @@ func UsersToGraphQlUsers(u models.UserSlice) []*graphql.User {
 	return r
 }
 
-// UserToGraphQlUser ...
+// UserToGraphQlUser converts type models.User into pointer type graphql.User
 func UserToGraphQlUser(u *models.User) *graphql.User {
 	return &graphql.User{
 		ID:        strconv.Itoa(u.ID),

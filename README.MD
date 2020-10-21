@@ -1,7 +1,7 @@
 <img align="left" src="https://github.com/wednesday-solutions/go-template/blob/master/golang_template_github.svg" width="440" height="480" />
 
 <div>
-  <a href="https://www.wednesday.is?utm_source=gthb&utm_medium=repo&utm_campaign=serverless" align="left" style="margin-left: 0;">
+  <a href="https://www.wednesday.is?utm_source=gthb&utm_medium=repo&utm_campaign=gotemplate" align="left" style="margin-left: 0;">
     <img src="https://uploads-ssl.webflow.com/5ee36ce1473112550f1e1739/5f5879492fafecdb3e5b0e75_wednesday_logo.svg">
   </a>
   <p>
@@ -38,10 +38,18 @@ An enterprise go template application showcasing - Testing strategies, middlewar
 </div>
 
 ---
-Go Template is a starter project with support for both REST and graphql   
+
+<br/>
+
+
+
+
+
+The Go Template is a template/starter go project.
 
 ## Out of the box support for
 
+- GraphQL
 - Dockerization
 - Authorization middleware
 - Redis Cache
@@ -63,7 +71,7 @@ Using go-template requires having Go 1.7 or above. Once you download go-template
 4. Run the app using:
 
 ```bash
-go run cmd/api/main.go
+go run cmd/server/main.go
 ```
 
 # Setting up database (postgres)
@@ -80,17 +88,26 @@ Steps to set up database with ```username``` and ```role``` using terminal
 
 # Running migrations
 
-Migrations are present in ```cmd/migration``` package. Run below command to run all migrations at once:
+Migrations are present in ```internal/migrations``` package. Run below command to run all migrations at once:
 ```
-go run cmd/migration/*go
+sql-migrate up -env postgres
 ```
 To drop migration use following
 ```
-go run cmd/migration/*go reset
+sql-migrate down -env postgres -limit=0
 ```
-To add migration, append table name and query to the array `<tableQueries>` in ```cmd/migration```
+To check status of migration use following
+```
+sql-migrate new -env postgres <name>
+```
+To add new migration use following, it creates a new empty migration template with pattern `<current time>-<name>.sql`
+```
+sql-migrate new -env postgres <name>
+```
+append query to above file
 
-For more information on migration package refer https://github.com/go-pg/migrations
+
+For more information on migration package refer [here](https://github.com/rubenv/sql-migrate)
 
 # DB Models
 

@@ -60,10 +60,23 @@ func (r queryResolver) Users(ctx context.Context, pagination *fm.UserPagination)
 }
 
 func (r mutationResolver) CreateRole(ctx context.Context, input fm.RoleCreateInput) (*fm.RolePayload, error) {
+	userID := auth.UserIDFromContext(ctx)
+	user, err := rediscache.GetUser(userID)
+	if err != nil {
+		return &fm.RolePayload{}, resultwrapper.ResolverSQLError(err, "data")
+	}
+	userRole, err := rediscache.GetRole(convert.NullDotIntToInt(user.RoleID))
+	if err != nil {
+		return &fm.RolePayload{}, resultwrapper.ResolverSQLError(err, "data")
+	}
 	role := models.Role{
 		AccessLevel: input.AccessLevel,
 		Name:        input.Name,
 	}
+	if userRole.AccessLevel != int(SuperAdminRole) {
+		return &fm.RolePayload{}, fmt.Errorf("You don't appear to have enough access level for this request ")
+	}
+
 	newRole, err := daos.CreateRoleTx(role, nil)
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "role")

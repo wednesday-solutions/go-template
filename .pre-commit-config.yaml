@@ -11,7 +11,5 @@ repos:
         args: [-over=15]
       - id: validate-toml
       - id: no-go-testing
-      - id: golangci-lint
-        args: [--skip-dirs, ^gqlgen/convert]
       - id: go-mod-tidy
       - id: go-build
