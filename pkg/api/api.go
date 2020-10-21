@@ -15,16 +15,16 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
-	goboiler "github.com/wednesday-solutions/go-template"
 	_ "github.com/lib/pq" // here
 	"github.com/volatiletech/sqlboiler/boil"
+	goboiler "github.com/wednesday-solutions/go-template"
 	graphql "github.com/wednesday-solutions/go-template/graphql_models"
 	"github.com/wednesday-solutions/go-template/pkg/utl/config"
 	"github.com/wednesday-solutions/go-template/pkg/utl/jwt"
 	authMw "github.com/wednesday-solutions/go-template/pkg/utl/middleware/auth"
 	"github.com/wednesday-solutions/go-template/pkg/utl/postgres"
-	"github.com/wednesday-solutions/go-template/pkg/utl/server"
 	"github.com/wednesday-solutions/go-template/pkg/utl/ratelimiter"
+	"github.com/wednesday-solutions/go-template/pkg/utl/server"
 )
 
 // Start starts the API service
