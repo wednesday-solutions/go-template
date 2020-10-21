@@ -12,116 +12,56 @@ import "testing"
 // It does NOT run each operation group in parallel.
 // Separating the tests thusly grants avoidance of Postgres deadlocks.
 func TestParent(t *testing.T) {
-	t.Run("Comments", testComments)
-	t.Run("Companies", testCompanies)
-	t.Run("Followers", testFollowers)
-	t.Run("Locations", testLocations)
-	t.Run("Posts", testPosts)
 	t.Run("Roles", testRoles)
 	t.Run("Users", testUsers)
 }
 
 func TestDelete(t *testing.T) {
-	t.Run("Comments", testCommentsDelete)
-	t.Run("Companies", testCompaniesDelete)
-	t.Run("Followers", testFollowersDelete)
-	t.Run("Locations", testLocationsDelete)
-	t.Run("Posts", testPostsDelete)
 	t.Run("Roles", testRolesDelete)
 	t.Run("Users", testUsersDelete)
 }
 
 func TestQueryDeleteAll(t *testing.T) {
-	t.Run("Comments", testCommentsQueryDeleteAll)
-	t.Run("Companies", testCompaniesQueryDeleteAll)
-	t.Run("Followers", testFollowersQueryDeleteAll)
-	t.Run("Locations", testLocationsQueryDeleteAll)
-	t.Run("Posts", testPostsQueryDeleteAll)
 	t.Run("Roles", testRolesQueryDeleteAll)
 	t.Run("Users", testUsersQueryDeleteAll)
 }
 
 func TestSliceDeleteAll(t *testing.T) {
-	t.Run("Comments", testCommentsSliceDeleteAll)
-	t.Run("Companies", testCompaniesSliceDeleteAll)
-	t.Run("Followers", testFollowersSliceDeleteAll)
-	t.Run("Locations", testLocationsSliceDeleteAll)
-	t.Run("Posts", testPostsSliceDeleteAll)
 	t.Run("Roles", testRolesSliceDeleteAll)
 	t.Run("Users", testUsersSliceDeleteAll)
 }
 
 func TestExists(t *testing.T) {
-	t.Run("Comments", testCommentsExists)
-	t.Run("Companies", testCompaniesExists)
-	t.Run("Followers", testFollowersExists)
-	t.Run("Locations", testLocationsExists)
-	t.Run("Posts", testPostsExists)
 	t.Run("Roles", testRolesExists)
 	t.Run("Users", testUsersExists)
 }
 
 func TestFind(t *testing.T) {
-	t.Run("Comments", testCommentsFind)
-	t.Run("Companies", testCompaniesFind)
-	t.Run("Followers", testFollowersFind)
-	t.Run("Locations", testLocationsFind)
-	t.Run("Posts", testPostsFind)
 	t.Run("Roles", testRolesFind)
 	t.Run("Users", testUsersFind)
 }
 
 func TestBind(t *testing.T) {
-	t.Run("Comments", testCommentsBind)
-	t.Run("Companies", testCompaniesBind)
-	t.Run("Followers", testFollowersBind)
-	t.Run("Locations", testLocationsBind)
-	t.Run("Posts", testPostsBind)
 	t.Run("Roles", testRolesBind)
 	t.Run("Users", testUsersBind)
 }
 
 func TestOne(t *testing.T) {
-	t.Run("Comments", testCommentsOne)
-	t.Run("Companies", testCompaniesOne)
-	t.Run("Followers", testFollowersOne)
-	t.Run("Locations", testLocationsOne)
-	t.Run("Posts", testPostsOne)
 	t.Run("Roles", testRolesOne)
 	t.Run("Users", testUsersOne)
 }
 
 func TestAll(t *testing.T) {
-	t.Run("Comments", testCommentsAll)
-	t.Run("Companies", testCompaniesAll)
-	t.Run("Followers", testFollowersAll)
-	t.Run("Locations", testLocationsAll)
-	t.Run("Posts", testPostsAll)
 	t.Run("Roles", testRolesAll)
 	t.Run("Users", testUsersAll)
 }
 
 func TestCount(t *testing.T) {
-	t.Run("Comments", testCommentsCount)
-	t.Run("Companies", testCompaniesCount)
-	t.Run("Followers", testFollowersCount)
-	t.Run("Locations", testLocationsCount)
-	t.Run("Posts", testPostsCount)
 	t.Run("Roles", testRolesCount)
 	t.Run("Users", testUsersCount)
 }
 
 func TestInsert(t *testing.T) {
-	t.Run("Comments", testCommentsInsert)
-	t.Run("Comments", testCommentsInsertWhitelist)
-	t.Run("Companies", testCompaniesInsert)
-	t.Run("Companies", testCompaniesInsertWhitelist)
-	t.Run("Followers", testFollowersInsert)
-	t.Run("Followers", testFollowersInsertWhitelist)
-	t.Run("Locations", testLocationsInsert)
-	t.Run("Locations", testLocationsInsertWhitelist)
-	t.Run("Posts", testPostsInsert)
-	t.Run("Posts", testPostsInsertWhitelist)
 	t.Run("Roles", testRolesInsert)
 	t.Run("Roles", testRolesInsertWhitelist)
 	t.Run("Users", testUsersInsert)
@@ -131,14 +71,6 @@ func TestInsert(t *testing.T) {
 // TestToOne tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToOne(t *testing.T) {
-	t.Run("CommentToPostUsingPost", testCommentToOnePostUsingPost)
-	t.Run("CommentToUserUsingUser", testCommentToOneUserUsingUser)
-	t.Run("FollowerToUserUsingFollowee", testFollowerToOneUserUsingFollowee)
-	t.Run("FollowerToUserUsingFollower", testFollowerToOneUserUsingFollower)
-	t.Run("LocationToCompanyUsingCompany", testLocationToOneCompanyUsingCompany)
-	t.Run("PostToUserUsingUser", testPostToOneUserUsingUser)
-	t.Run("UserToCompanyUsingCompany", testUserToOneCompanyUsingCompany)
-	t.Run("UserToLocationUsingLocation", testUserToOneLocationUsingLocation)
 	t.Run("UserToRoleUsingRole", testUserToOneRoleUsingRole)
 }
 
@@ -149,36 +81,18 @@ func TestOneToOne(t *testing.T) {}
 // TestToMany tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToMany(t *testing.T) {
-	t.Run("CompanyToLocations", testCompanyToManyLocations)
-	t.Run("CompanyToUsers", testCompanyToManyUsers)
-	t.Run("LocationToUsers", testLocationToManyUsers)
-	t.Run("PostToComments", testPostToManyComments)
 	t.Run("RoleToUsers", testRoleToManyUsers)
-	t.Run("UserToComments", testUserToManyComments)
-	t.Run("UserToFolloweeFollowers", testUserToManyFolloweeFollowers)
-	t.Run("UserToFollowerFollowers", testUserToManyFollowerFollowers)
-	t.Run("UserToPosts", testUserToManyPosts)
 }
 
 // TestToOneSet tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToOneSet(t *testing.T) {
-	t.Run("CommentToPostUsingComments", testCommentToOneSetOpPostUsingPost)
-	t.Run("CommentToUserUsingComments", testCommentToOneSetOpUserUsingUser)
-	t.Run("FollowerToUserUsingFolloweeFollowers", testFollowerToOneSetOpUserUsingFollowee)
-	t.Run("FollowerToUserUsingFollowerFollowers", testFollowerToOneSetOpUserUsingFollower)
-	t.Run("LocationToCompanyUsingLocations", testLocationToOneSetOpCompanyUsingCompany)
-	t.Run("PostToUserUsingPosts", testPostToOneSetOpUserUsingUser)
-	t.Run("UserToCompanyUsingUsers", testUserToOneSetOpCompanyUsingCompany)
-	t.Run("UserToLocationUsingUsers", testUserToOneSetOpLocationUsingLocation)
 	t.Run("UserToRoleUsingUsers", testUserToOneSetOpRoleUsingRole)
 }
 
 // TestToOneRemove tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToOneRemove(t *testing.T) {
-	t.Run("UserToCompanyUsingUsers", testUserToOneRemoveOpCompanyUsingCompany)
-	t.Run("UserToLocationUsingUsers", testUserToOneRemoveOpLocationUsingLocation)
 	t.Run("UserToRoleUsingUsers", testUserToOneRemoveOpRoleUsingRole)
 }
 
@@ -193,79 +107,42 @@ func TestOneToOneRemove(t *testing.T) {}
 // TestToManyAdd tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToManyAdd(t *testing.T) {
-	t.Run("CompanyToLocations", testCompanyToManyAddOpLocations)
-	t.Run("CompanyToUsers", testCompanyToManyAddOpUsers)
-	t.Run("LocationToUsers", testLocationToManyAddOpUsers)
-	t.Run("PostToComments", testPostToManyAddOpComments)
 	t.Run("RoleToUsers", testRoleToManyAddOpUsers)
-	t.Run("UserToComments", testUserToManyAddOpComments)
-	t.Run("UserToFolloweeFollowers", testUserToManyAddOpFolloweeFollowers)
-	t.Run("UserToFollowerFollowers", testUserToManyAddOpFollowerFollowers)
-	t.Run("UserToPosts", testUserToManyAddOpPosts)
 }
 
 // TestToManySet tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToManySet(t *testing.T) {
-	t.Run("CompanyToUsers", testCompanyToManySetOpUsers)
-	t.Run("LocationToUsers", testLocationToManySetOpUsers)
 	t.Run("RoleToUsers", testRoleToManySetOpUsers)
 }
 
 // TestToManyRemove tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToManyRemove(t *testing.T) {
-	t.Run("CompanyToUsers", testCompanyToManyRemoveOpUsers)
-	t.Run("LocationToUsers", testLocationToManyRemoveOpUsers)
 	t.Run("RoleToUsers", testRoleToManyRemoveOpUsers)
 }
 
 func TestReload(t *testing.T) {
-	t.Run("Comments", testCommentsReload)
-	t.Run("Companies", testCompaniesReload)
-	t.Run("Followers", testFollowersReload)
-	t.Run("Locations", testLocationsReload)
-	t.Run("Posts", testPostsReload)
 	t.Run("Roles", testRolesReload)
 	t.Run("Users", testUsersReload)
 }
 
 func TestReloadAll(t *testing.T) {
-	t.Run("Comments", testCommentsReloadAll)
-	t.Run("Companies", testCompaniesReloadAll)
-	t.Run("Followers", testFollowersReloadAll)
-	t.Run("Locations", testLocationsReloadAll)
-	t.Run("Posts", testPostsReloadAll)
 	t.Run("Roles", testRolesReloadAll)
 	t.Run("Users", testUsersReloadAll)
 }
 
 func TestSelect(t *testing.T) {
-	t.Run("Comments", testCommentsSelect)
-	t.Run("Companies", testCompaniesSelect)
-	t.Run("Followers", testFollowersSelect)
-	t.Run("Locations", testLocationsSelect)
-	t.Run("Posts", testPostsSelect)
 	t.Run("Roles", testRolesSelect)
 	t.Run("Users", testUsersSelect)
 }
 
 func TestUpdate(t *testing.T) {
-	t.Run("Comments", testCommentsUpdate)
-	t.Run("Companies", testCompaniesUpdate)
-	t.Run("Followers", testFollowersUpdate)
-	t.Run("Locations", testLocationsUpdate)
-	t.Run("Posts", testPostsUpdate)
 	t.Run("Roles", testRolesUpdate)
 	t.Run("Users", testUsersUpdate)
 }
 
 func TestSliceUpdateAll(t *testing.T) {
-	t.Run("Comments", testCommentsSliceUpdateAll)
-	t.Run("Companies", testCompaniesSliceUpdateAll)
-	t.Run("Followers", testFollowersSliceUpdateAll)
-	t.Run("Locations", testLocationsSliceUpdateAll)
-	t.Run("Posts", testPostsSliceUpdateAll)
 	t.Run("Roles", testRolesSliceUpdateAll)
 	t.Run("Users", testUsersSliceUpdateAll)
 }

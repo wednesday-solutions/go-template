@@ -27,20 +27,6 @@ func TestNew(t *testing.T) {
 	assert.NotNil(t, container)
 }
 
-func TestMigrationConnect(t *testing.T) {
-	container, err := dockertest.RunContainer("postgres:alpine", "5432", func(addr string) error {
-		db := postgres.MigrationConnect()
-
-		return db.Close()
-	}, "-e", "POSTGRES_PASSWORD=postgres", "-e", "POSTGRES_USER=postgres")
-	defer container.Shutdown()
-	if err != nil {
-		t.Fatalf("could not start postgres, %s", err)
-	}
-
-	assert.NotNil(t, container)
-}
-
 func TestConnect(t *testing.T) {
 	db, err := postgres.Connect()
 	if err != nil {

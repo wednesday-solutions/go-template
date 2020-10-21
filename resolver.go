@@ -11,22 +11,27 @@ import (
 	"github.com/wednesday-solutions/go-template/daos"
 	fm "github.com/wednesday-solutions/go-template/graphql_models"
 	"github.com/wednesday-solutions/go-template/models"
+	"github.com/wednesday-solutions/go-template/pkg/utl"
 	"github.com/wednesday-solutions/go-template/pkg/utl/config"
 	"github.com/wednesday-solutions/go-template/pkg/utl/convert"
 	"github.com/wednesday-solutions/go-template/pkg/utl/middleware/auth"
+	rediscache "github.com/wednesday-solutions/go-template/pkg/utl/redis_cache"
 	resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
 	"github.com/wednesday-solutions/go-template/pkg/utl/service"
+	"sync"
 )
 
 // Resolver ...
 type Resolver struct {
+	sync.Mutex
+	Observers map[string]chan *fm.User
 }
 
 func (r queryResolver) Me(ctx context.Context) (*fm.User, error) {
 	userID := auth.UserIDFromContext(ctx)
-	user, err := daos.FindUserByID(userID)
+	user, err := rediscache.GetUser(userID)
 	if err != nil {
-		return nil, resultwrapper.ResolverSQLError(err, "data")
+		return &fm.User{}, resultwrapper.ResolverSQLError(err, "data")
 	}
 	return &fm.User{
 		FirstName: convert.NullDotStringToPointerString(user.FirstName),
@@ -52,6 +57,35 @@ func (r queryResolver) Users(ctx context.Context, pagination *fm.UserPagination)
 		return nil, resultwrapper.ResolverSQLError(err, "data")
 	}
 	return &fm.UsersPayload{Users: convert.UsersToGraphQlUsers(users)}, nil
+}
+
+func (r mutationResolver) CreateRole(ctx context.Context, input fm.RoleCreateInput) (*fm.RolePayload, error) {
+	userID := auth.UserIDFromContext(ctx)
+	user, err := rediscache.GetUser(userID)
+	if err != nil {
+		return &fm.RolePayload{}, resultwrapper.ResolverSQLError(err, "data")
+	}
+	userRole, err := rediscache.GetRole(convert.NullDotIntToInt(user.RoleID))
+	if err != nil {
+		return &fm.RolePayload{}, resultwrapper.ResolverSQLError(err, "data")
+	}
+	role := models.Role{
+		AccessLevel: input.AccessLevel,
+		Name:        input.Name,
+	}
+	if userRole.AccessLevel != int(SuperAdminRole) {
+		return &fm.RolePayload{}, fmt.Errorf("You don't appear to have enough access level for this request ")
+	}
+
+	newRole, err := daos.CreateRoleTx(role, nil)
+	if err != nil {
+		return nil, resultwrapper.ResolverSQLError(err, "role")
+	}
+	return &fm.RolePayload{Role: &fm.Role{
+		AccessLevel: newRole.AccessLevel,
+		Name:        newRole.Name,
+	},
+	}, err
 }
 
 func (r mutationResolver) Login(ctx context.Context, username string, password string) (*fm.LoginResponse, error) {
@@ -149,14 +183,12 @@ func (r mutationResolver) RefreshToken(ctx context.Context, token string) (*fm.R
 
 func (r mutationResolver) CreateUser(ctx context.Context, input fm.UserCreateInput) (*fm.UserPayload, error) {
 	user := models.User{
-		Username:   null.StringFromPtr(input.Username),
-		Password:   null.StringFromPtr(input.Password),
-		Email:      null.StringFromPtr(input.Email),
-		FirstName:  null.StringFromPtr(input.FirstName),
-		LastName:   null.StringFromPtr(input.LastName),
-		CompanyID:  convert.PointerStringToNullDotInt(input.CompanyID),
-		LocationID: convert.PointerStringToNullDotInt(input.LocationID),
-		RoleID:     convert.PointerStringToNullDotInt(input.RoleID),
+		Username:  null.StringFromPtr(input.Username),
+		Password:  null.StringFromPtr(input.Password),
+		Email:     null.StringFromPtr(input.Email),
+		FirstName: null.StringFromPtr(input.FirstName),
+		LastName:  null.StringFromPtr(input.LastName),
+		RoleID:    convert.PointerStringToNullDotInt(input.RoleID),
 	}
 	// loading configurations
 	cfg, err := config.Load()
@@ -170,7 +202,7 @@ func (r mutationResolver) CreateUser(ctx context.Context, input fm.UserCreateInp
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "user information")
 	}
-	return &fm.UserPayload{User: &fm.User{
+	graphUser := &fm.User{
 		FirstName: convert.NullDotStringToPointerString(newUser.FirstName),
 		LastName:  convert.NullDotStringToPointerString(newUser.LastName),
 		Username:  convert.NullDotStringToPointerString(newUser.Username),
@@ -178,8 +210,15 @@ func (r mutationResolver) CreateUser(ctx context.Context, input fm.UserCreateInp
 		Mobile:    convert.NullDotStringToPointerString(newUser.Mobile),
 		Phone:     convert.NullDotStringToPointerString(newUser.Phone),
 		Address:   convert.NullDotStringToPointerString(newUser.Address),
-	},
-	}, err
+	}
+
+	r.Lock()
+	for _, observer := range r.Observers {
+		observer <- graphUser
+	}
+	r.Unlock()
+
+	return &fm.UserPayload{User: graphUser}, err
 }
 
 func (r mutationResolver) UpdateUser(ctx context.Context, input *fm.UserUpdateInput) (*fm.UserUpdatePayload, error) {
@@ -196,6 +235,20 @@ func (r mutationResolver) UpdateUser(ctx context.Context, input *fm.UserUpdateIn
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "new information")
 	}
+
+	graphUser := &fm.User{
+		FirstName: convert.NullDotStringToPointerString(u.FirstName),
+		LastName:  convert.NullDotStringToPointerString(u.LastName),
+		Mobile:    convert.NullDotStringToPointerString(u.Mobile),
+		Phone:     convert.NullDotStringToPointerString(u.Phone),
+		Address:   convert.NullDotStringToPointerString(u.Address),
+	}
+	r.Lock()
+	for _, observer := range r.Observers {
+		observer <- graphUser
+	}
+	r.Unlock()
+
 	return &fm.UserUpdatePayload{Ok: true}, nil
 }
 
@@ -212,11 +265,33 @@ func (r mutationResolver) DeleteUser(ctx context.Context) (*fm.UserDeletePayload
 	return &fm.UserDeletePayload{ID: fmt.Sprint(userID)}, nil
 }
 
+func (r subscriptionResolver) UserNotification(ctx context.Context) (<-chan *fm.User, error) {
+	id := utl.RandomSequence(5)
+	event := make(chan *fm.User, 1)
+
+	go func() {
+		<-ctx.Done()
+		r.Lock()
+		delete(r.Observers, id)
+		r.Unlock()
+	}()
+
+	r.Lock()
+	r.Observers[id] = event
+	r.Unlock()
+
+	return event, nil
+}
+
 // Mutation ...
 func (r *Resolver) Mutation() fm.MutationResolver { return &mutationResolver{r} }
 
 // Query ...
 func (r *Resolver) Query() fm.QueryResolver { return &queryResolver{r} }
 
+// Subscription ...
+func (r *Resolver) Subscription() fm.SubscriptionResolver { return &subscriptionResolver{r} }
+
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+type subscriptionResolver struct{ *Resolver }

@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"io"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -36,6 +37,7 @@ type Config struct {
 type ResolverRoot interface {
 	Mutation() MutationResolver
 	Query() QueryResolver
+	Subscription() SubscriptionResolver
 }
 
 type DirectiveRoot struct {
@@ -46,129 +48,6 @@ type ComplexityRoot struct {
 		Ok func(childComplexity int) int
 	}
 
-	Comment struct {
-		Body      func(childComplexity int) int
-		CreatedAt func(childComplexity int) int
-		DeletedAt func(childComplexity int) int
-		ID        func(childComplexity int) int
-		Post      func(childComplexity int) int
-		Title     func(childComplexity int) int
-		UpdatedAt func(childComplexity int) int
-		User      func(childComplexity int) int
-	}
-
-	CommentDeletePayload struct {
-		ID func(childComplexity int) int
-	}
-
-	CommentPayload struct {
-		Comment func(childComplexity int) int
-	}
-
-	CommentsDeletePayload struct {
-		Ids func(childComplexity int) int
-	}
-
-	CommentsPayload struct {
-		Comments func(childComplexity int) int
-	}
-
-	CommentsUpdatePayload struct {
-		Ok func(childComplexity int) int
-	}
-
-	CompaniesDeletePayload struct {
-		Ids func(childComplexity int) int
-	}
-
-	CompaniesPayload struct {
-		Companies func(childComplexity int) int
-	}
-
-	CompaniesUpdatePayload struct {
-		Ok func(childComplexity int) int
-	}
-
-	Company struct {
-		Active    func(childComplexity int) int
-		CreatedAt func(childComplexity int) int
-		DeletedAt func(childComplexity int) int
-		ID        func(childComplexity int) int
-		Locations func(childComplexity int) int
-		Name      func(childComplexity int) int
-		UpdatedAt func(childComplexity int) int
-		Users     func(childComplexity int) int
-	}
-
-	CompanyDeletePayload struct {
-		ID func(childComplexity int) int
-	}
-
-	CompanyPayload struct {
-		Company func(childComplexity int) int
-	}
-
-	Follower struct {
-		CreatedAt func(childComplexity int) int
-		DeletedAt func(childComplexity int) int
-		Followee  func(childComplexity int) int
-		Follower  func(childComplexity int) int
-		ID        func(childComplexity int) int
-		UpdatedAt func(childComplexity int) int
-	}
-
-	FollowerDeletePayload struct {
-		ID func(childComplexity int) int
-	}
-
-	FollowerPayload struct {
-		Follower func(childComplexity int) int
-	}
-
-	FollowersDeletePayload struct {
-		Ids func(childComplexity int) int
-	}
-
-	FollowersPayload struct {
-		Followers func(childComplexity int) int
-	}
-
-	FollowersUpdatePayload struct {
-		Ok func(childComplexity int) int
-	}
-
-	Location struct {
-		Active    func(childComplexity int) int
-		Address   func(childComplexity int) int
-		Company   func(childComplexity int) int
-		CreatedAt func(childComplexity int) int
-		DeletedAt func(childComplexity int) int
-		ID        func(childComplexity int) int
-		Name      func(childComplexity int) int
-		UpdatedAt func(childComplexity int) int
-		Users     func(childComplexity int) int
-	}
-
-	LocationDeletePayload struct {
-		ID func(childComplexity int) int
-	}
-
-	LocationPayload struct {
-		Location func(childComplexity int) int
-	}
-
-	LocationsDeletePayload struct {
-		Ids func(childComplexity int) int
-	}
-
-	LocationsPayload struct {
-		Locations func(childComplexity int) int
-	}
-
-	LocationsUpdatePayload struct {
-		Ok func(childComplexity int) int
-	}
-
 	LoginResponse struct {
 		RefreshToken func(childComplexity int) int
 		Token        func(childComplexity int) int
@@ -176,42 +55,12 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		ChangePassword func(childComplexity int, oldPassword string, newPassword string) int
+		CreateRole     func(childComplexity int, input RoleCreateInput) int
 		CreateUser     func(childComplexity int, input UserCreateInput) int
 		DeleteUser     func(childComplexity int) int
 		Login          func(childComplexity int, username string, password string) int
 		RefreshToken   func(childComplexity int, token string) int
 		UpdateUser     func(childComplexity int, input *UserUpdateInput) int
-	}
-
-	Post struct {
-		Body      func(childComplexity int) int
-		Comments  func(childComplexity int) int
-		CreatedAt func(childComplexity int) int
-		DeletedAt func(childComplexity int) int
-		ID        func(childComplexity int) int
-		Title     func(childComplexity int) int
-		UpdatedAt func(childComplexity int) int
-		User      func(childComplexity int) int
-	}
-
-	PostDeletePayload struct {
-		ID func(childComplexity int) int
-	}
-
-	PostPayload struct {
-		Post func(childComplexity int) int
-	}
-
-	PostsDeletePayload struct {
-		Ids func(childComplexity int) int
-	}
-
-	PostsPayload struct {
-		Posts func(childComplexity int) int
-	}
-
-	PostsUpdatePayload struct {
-		Ok func(childComplexity int) int
 	}
 
 	Query struct {
@@ -253,26 +102,24 @@ type ComplexityRoot struct {
 		Ok func(childComplexity int) int
 	}
 
+	Subscription struct {
+		UserNotification func(childComplexity int) int
+	}
+
 	User struct {
 		Active             func(childComplexity int) int
 		Address            func(childComplexity int) int
-		Comments           func(childComplexity int) int
-		Company            func(childComplexity int) int
 		CreatedAt          func(childComplexity int) int
 		DeletedAt          func(childComplexity int) int
 		Email              func(childComplexity int) int
 		FirstName          func(childComplexity int) int
-		FolloweeFollowers  func(childComplexity int) int
-		FollowerFollowers  func(childComplexity int) int
 		ID                 func(childComplexity int) int
 		LastLogin          func(childComplexity int) int
 		LastName           func(childComplexity int) int
 		LastPasswordChange func(childComplexity int) int
-		Location           func(childComplexity int) int
 		Mobile             func(childComplexity int) int
 		Password           func(childComplexity int) int
 		Phone              func(childComplexity int) int
-		Posts              func(childComplexity int) int
 		Role               func(childComplexity int) int
 		Token              func(childComplexity int) int
 		UpdatedAt          func(childComplexity int) int
@@ -301,6 +148,7 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
+	CreateRole(ctx context.Context, input RoleCreateInput) (*RolePayload, error)
 	Login(ctx context.Context, username string, password string) (*LoginResponse, error)
 	ChangePassword(ctx context.Context, oldPassword string, newPassword string) (*ChangePasswordResponse, error)
 	RefreshToken(ctx context.Context, token string) (*RefreshTokenResponse, error)
@@ -311,6 +159,9 @@ type MutationResolver interface {
 type QueryResolver interface {
 	Me(ctx context.Context) (*User, error)
 	Users(ctx context.Context, pagination *UserPagination) (*UsersPayload, error)
+}
+type SubscriptionResolver interface {
+	UserNotification(ctx context.Context) (<-chan *User, error)
 }
 
 type executableSchema struct {
@@ -334,363 +185,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ChangePasswordResponse.Ok(childComplexity), true
-
-	case "Comment.body":
-		if e.complexity.Comment.Body == nil {
-			break
-		}
-
-		return e.complexity.Comment.Body(childComplexity), true
-
-	case "Comment.createdAt":
-		if e.complexity.Comment.CreatedAt == nil {
-			break
-		}
-
-		return e.complexity.Comment.CreatedAt(childComplexity), true
-
-	case "Comment.deletedAt":
-		if e.complexity.Comment.DeletedAt == nil {
-			break
-		}
-
-		return e.complexity.Comment.DeletedAt(childComplexity), true
-
-	case "Comment.id":
-		if e.complexity.Comment.ID == nil {
-			break
-		}
-
-		return e.complexity.Comment.ID(childComplexity), true
-
-	case "Comment.post":
-		if e.complexity.Comment.Post == nil {
-			break
-		}
-
-		return e.complexity.Comment.Post(childComplexity), true
-
-	case "Comment.title":
-		if e.complexity.Comment.Title == nil {
-			break
-		}
-
-		return e.complexity.Comment.Title(childComplexity), true
-
-	case "Comment.updatedAt":
-		if e.complexity.Comment.UpdatedAt == nil {
-			break
-		}
-
-		return e.complexity.Comment.UpdatedAt(childComplexity), true
-
-	case "Comment.user":
-		if e.complexity.Comment.User == nil {
-			break
-		}
-
-		return e.complexity.Comment.User(childComplexity), true
-
-	case "CommentDeletePayload.id":
-		if e.complexity.CommentDeletePayload.ID == nil {
-			break
-		}
-
-		return e.complexity.CommentDeletePayload.ID(childComplexity), true
-
-	case "CommentPayload.comment":
-		if e.complexity.CommentPayload.Comment == nil {
-			break
-		}
-
-		return e.complexity.CommentPayload.Comment(childComplexity), true
-
-	case "CommentsDeletePayload.ids":
-		if e.complexity.CommentsDeletePayload.Ids == nil {
-			break
-		}
-
-		return e.complexity.CommentsDeletePayload.Ids(childComplexity), true
-
-	case "CommentsPayload.comments":
-		if e.complexity.CommentsPayload.Comments == nil {
-			break
-		}
-
-		return e.complexity.CommentsPayload.Comments(childComplexity), true
-
-	case "CommentsUpdatePayload.ok":
-		if e.complexity.CommentsUpdatePayload.Ok == nil {
-			break
-		}
-
-		return e.complexity.CommentsUpdatePayload.Ok(childComplexity), true
-
-	case "CompaniesDeletePayload.ids":
-		if e.complexity.CompaniesDeletePayload.Ids == nil {
-			break
-		}
-
-		return e.complexity.CompaniesDeletePayload.Ids(childComplexity), true
-
-	case "CompaniesPayload.companies":
-		if e.complexity.CompaniesPayload.Companies == nil {
-			break
-		}
-
-		return e.complexity.CompaniesPayload.Companies(childComplexity), true
-
-	case "CompaniesUpdatePayload.ok":
-		if e.complexity.CompaniesUpdatePayload.Ok == nil {
-			break
-		}
-
-		return e.complexity.CompaniesUpdatePayload.Ok(childComplexity), true
-
-	case "Company.active":
-		if e.complexity.Company.Active == nil {
-			break
-		}
-
-		return e.complexity.Company.Active(childComplexity), true
-
-	case "Company.createdAt":
-		if e.complexity.Company.CreatedAt == nil {
-			break
-		}
-
-		return e.complexity.Company.CreatedAt(childComplexity), true
-
-	case "Company.deletedAt":
-		if e.complexity.Company.DeletedAt == nil {
-			break
-		}
-
-		return e.complexity.Company.DeletedAt(childComplexity), true
-
-	case "Company.id":
-		if e.complexity.Company.ID == nil {
-			break
-		}
-
-		return e.complexity.Company.ID(childComplexity), true
-
-	case "Company.locations":
-		if e.complexity.Company.Locations == nil {
-			break
-		}
-
-		return e.complexity.Company.Locations(childComplexity), true
-
-	case "Company.name":
-		if e.complexity.Company.Name == nil {
-			break
-		}
-
-		return e.complexity.Company.Name(childComplexity), true
-
-	case "Company.updatedAt":
-		if e.complexity.Company.UpdatedAt == nil {
-			break
-		}
-
-		return e.complexity.Company.UpdatedAt(childComplexity), true
-
-	case "Company.users":
-		if e.complexity.Company.Users == nil {
-			break
-		}
-
-		return e.complexity.Company.Users(childComplexity), true
-
-	case "CompanyDeletePayload.id":
-		if e.complexity.CompanyDeletePayload.ID == nil {
-			break
-		}
-
-		return e.complexity.CompanyDeletePayload.ID(childComplexity), true
-
-	case "CompanyPayload.company":
-		if e.complexity.CompanyPayload.Company == nil {
-			break
-		}
-
-		return e.complexity.CompanyPayload.Company(childComplexity), true
-
-	case "Follower.createdAt":
-		if e.complexity.Follower.CreatedAt == nil {
-			break
-		}
-
-		return e.complexity.Follower.CreatedAt(childComplexity), true
-
-	case "Follower.deletedAt":
-		if e.complexity.Follower.DeletedAt == nil {
-			break
-		}
-
-		return e.complexity.Follower.DeletedAt(childComplexity), true
-
-	case "Follower.followee":
-		if e.complexity.Follower.Followee == nil {
-			break
-		}
-
-		return e.complexity.Follower.Followee(childComplexity), true
-
-	case "Follower.follower":
-		if e.complexity.Follower.Follower == nil {
-			break
-		}
-
-		return e.complexity.Follower.Follower(childComplexity), true
-
-	case "Follower.id":
-		if e.complexity.Follower.ID == nil {
-			break
-		}
-
-		return e.complexity.Follower.ID(childComplexity), true
-
-	case "Follower.updatedAt":
-		if e.complexity.Follower.UpdatedAt == nil {
-			break
-		}
-
-		return e.complexity.Follower.UpdatedAt(childComplexity), true
-
-	case "FollowerDeletePayload.id":
-		if e.complexity.FollowerDeletePayload.ID == nil {
-			break
-		}
-
-		return e.complexity.FollowerDeletePayload.ID(childComplexity), true
-
-	case "FollowerPayload.follower":
-		if e.complexity.FollowerPayload.Follower == nil {
-			break
-		}
-
-		return e.complexity.FollowerPayload.Follower(childComplexity), true
-
-	case "FollowersDeletePayload.ids":
-		if e.complexity.FollowersDeletePayload.Ids == nil {
-			break
-		}
-
-		return e.complexity.FollowersDeletePayload.Ids(childComplexity), true
-
-	case "FollowersPayload.followers":
-		if e.complexity.FollowersPayload.Followers == nil {
-			break
-		}
-
-		return e.complexity.FollowersPayload.Followers(childComplexity), true
-
-	case "FollowersUpdatePayload.ok":
-		if e.complexity.FollowersUpdatePayload.Ok == nil {
-			break
-		}
-
-		return e.complexity.FollowersUpdatePayload.Ok(childComplexity), true
-
-	case "Location.active":
-		if e.complexity.Location.Active == nil {
-			break
-		}
-
-		return e.complexity.Location.Active(childComplexity), true
-
-	case "Location.address":
-		if e.complexity.Location.Address == nil {
-			break
-		}
-
-		return e.complexity.Location.Address(childComplexity), true
-
-	case "Location.company":
-		if e.complexity.Location.Company == nil {
-			break
-		}
-
-		return e.complexity.Location.Company(childComplexity), true
-
-	case "Location.createdAt":
-		if e.complexity.Location.CreatedAt == nil {
-			break
-		}
-
-		return e.complexity.Location.CreatedAt(childComplexity), true
-
-	case "Location.deletedAt":
-		if e.complexity.Location.DeletedAt == nil {
-			break
-		}
-
-		return e.complexity.Location.DeletedAt(childComplexity), true
-
-	case "Location.id":
-		if e.complexity.Location.ID == nil {
-			break
-		}
-
-		return e.complexity.Location.ID(childComplexity), true
-
-	case "Location.name":
-		if e.complexity.Location.Name == nil {
-			break
-		}
-
-		return e.complexity.Location.Name(childComplexity), true
-
-	case "Location.updatedAt":
-		if e.complexity.Location.UpdatedAt == nil {
-			break
-		}
-
-		return e.complexity.Location.UpdatedAt(childComplexity), true
-
-	case "Location.users":
-		if e.complexity.Location.Users == nil {
-			break
-		}
-
-		return e.complexity.Location.Users(childComplexity), true
-
-	case "LocationDeletePayload.id":
-		if e.complexity.LocationDeletePayload.ID == nil {
-			break
-		}
-
-		return e.complexity.LocationDeletePayload.ID(childComplexity), true
-
-	case "LocationPayload.location":
-		if e.complexity.LocationPayload.Location == nil {
-			break
-		}
-
-		return e.complexity.LocationPayload.Location(childComplexity), true
-
-	case "LocationsDeletePayload.ids":
-		if e.complexity.LocationsDeletePayload.Ids == nil {
-			break
-		}
-
-		return e.complexity.LocationsDeletePayload.Ids(childComplexity), true
-
-	case "LocationsPayload.locations":
-		if e.complexity.LocationsPayload.Locations == nil {
-			break
-		}
-
-		return e.complexity.LocationsPayload.Locations(childComplexity), true
-
-	case "LocationsUpdatePayload.ok":
-		if e.complexity.LocationsUpdatePayload.Ok == nil {
-			break
-		}
-
-		return e.complexity.LocationsUpdatePayload.Ok(childComplexity), true
 
 	case "LoginResponse.refreshToken":
 		if e.complexity.LoginResponse.RefreshToken == nil {
@@ -717,6 +211,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.ChangePassword(childComplexity, args["oldPassword"].(string), args["newPassword"].(string)), true
+
+	case "Mutation.createRole":
+		if e.complexity.Mutation.CreateRole == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createRole_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateRole(childComplexity, args["input"].(RoleCreateInput)), true
 
 	case "Mutation.createUser":
 		if e.complexity.Mutation.CreateUser == nil {
@@ -772,97 +278,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdateUser(childComplexity, args["input"].(*UserUpdateInput)), true
-
-	case "Post.body":
-		if e.complexity.Post.Body == nil {
-			break
-		}
-
-		return e.complexity.Post.Body(childComplexity), true
-
-	case "Post.comments":
-		if e.complexity.Post.Comments == nil {
-			break
-		}
-
-		return e.complexity.Post.Comments(childComplexity), true
-
-	case "Post.createdAt":
-		if e.complexity.Post.CreatedAt == nil {
-			break
-		}
-
-		return e.complexity.Post.CreatedAt(childComplexity), true
-
-	case "Post.deletedAt":
-		if e.complexity.Post.DeletedAt == nil {
-			break
-		}
-
-		return e.complexity.Post.DeletedAt(childComplexity), true
-
-	case "Post.id":
-		if e.complexity.Post.ID == nil {
-			break
-		}
-
-		return e.complexity.Post.ID(childComplexity), true
-
-	case "Post.title":
-		if e.complexity.Post.Title == nil {
-			break
-		}
-
-		return e.complexity.Post.Title(childComplexity), true
-
-	case "Post.updatedAt":
-		if e.complexity.Post.UpdatedAt == nil {
-			break
-		}
-
-		return e.complexity.Post.UpdatedAt(childComplexity), true
-
-	case "Post.user":
-		if e.complexity.Post.User == nil {
-			break
-		}
-
-		return e.complexity.Post.User(childComplexity), true
-
-	case "PostDeletePayload.id":
-		if e.complexity.PostDeletePayload.ID == nil {
-			break
-		}
-
-		return e.complexity.PostDeletePayload.ID(childComplexity), true
-
-	case "PostPayload.post":
-		if e.complexity.PostPayload.Post == nil {
-			break
-		}
-
-		return e.complexity.PostPayload.Post(childComplexity), true
-
-	case "PostsDeletePayload.ids":
-		if e.complexity.PostsDeletePayload.Ids == nil {
-			break
-		}
-
-		return e.complexity.PostsDeletePayload.Ids(childComplexity), true
-
-	case "PostsPayload.posts":
-		if e.complexity.PostsPayload.Posts == nil {
-			break
-		}
-
-		return e.complexity.PostsPayload.Posts(childComplexity), true
-
-	case "PostsUpdatePayload.ok":
-		if e.complexity.PostsUpdatePayload.Ok == nil {
-			break
-		}
-
-		return e.complexity.PostsUpdatePayload.Ok(childComplexity), true
 
 	case "Query.me":
 		if e.complexity.Query.Me == nil {
@@ -974,6 +389,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.RolesUpdatePayload.Ok(childComplexity), true
 
+	case "Subscription.userNotification":
+		if e.complexity.Subscription.UserNotification == nil {
+			break
+		}
+
+		return e.complexity.Subscription.UserNotification(childComplexity), true
+
 	case "User.active":
 		if e.complexity.User.Active == nil {
 			break
@@ -987,20 +409,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.User.Address(childComplexity), true
-
-	case "User.comments":
-		if e.complexity.User.Comments == nil {
-			break
-		}
-
-		return e.complexity.User.Comments(childComplexity), true
-
-	case "User.company":
-		if e.complexity.User.Company == nil {
-			break
-		}
-
-		return e.complexity.User.Company(childComplexity), true
 
 	case "User.createdAt":
 		if e.complexity.User.CreatedAt == nil {
@@ -1030,20 +438,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.FirstName(childComplexity), true
 
-	case "User.followeeFollowers":
-		if e.complexity.User.FolloweeFollowers == nil {
-			break
-		}
-
-		return e.complexity.User.FolloweeFollowers(childComplexity), true
-
-	case "User.followerFollowers":
-		if e.complexity.User.FollowerFollowers == nil {
-			break
-		}
-
-		return e.complexity.User.FollowerFollowers(childComplexity), true
-
 	case "User.id":
 		if e.complexity.User.ID == nil {
 			break
@@ -1072,13 +466,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.LastPasswordChange(childComplexity), true
 
-	case "User.location":
-		if e.complexity.User.Location == nil {
-			break
-		}
-
-		return e.complexity.User.Location(childComplexity), true
-
 	case "User.mobile":
 		if e.complexity.User.Mobile == nil {
 			break
@@ -1099,13 +486,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.User.Phone(childComplexity), true
-
-	case "User.posts":
-		if e.complexity.User.Posts == nil {
-			break
-		}
-
-		return e.complexity.User.Posts(childComplexity), true
 
 	case "User.role":
 		if e.complexity.User.Role == nil {
@@ -1208,6 +588,23 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 				Data: buf.Bytes(),
 			}
 		}
+	case ast.Subscription:
+		next := ec._Subscription(ctx, rc.Operation.SelectionSet)
+
+		var buf bytes.Buffer
+		return func(ctx context.Context) *graphql.Response {
+			buf.Reset()
+			data := next()
+
+			if data == nil {
+				return nil
+			}
+			data.MarshalGQL(&buf)
+
+			return &graphql.Response{
+				Data: buf.Bytes(),
+			}
+		}
 
 	default:
 		return graphql.OneShot(graphql.ErrorResponse(ctx, "unsupported GraphQL operation"))
@@ -1234,61 +631,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "schema.graphql", Input: `type Comment {
-  id: ID!
-  user: User!
-  post: Post!
-  title: String!
-  body: String!
-  createdAt: Int
-  updatedAt: Int
-  deletedAt: Int
-}
-
-type Company {
-  id: ID!
-  name: String
-  active: Boolean
-  updatedAt: Int
-  deletedAt: Int
-  createdAt: Int
-  locations: [Location]
-  users: [User]
-}
-
-type Follower {
-  id: ID!
-  follower: User!
-  followee: User!
-  deletedAt: Int
-  updatedAt: Int
-  createdAt: Int
-}
-
-type Location {
-  id: ID!
-  name: String
-  active: Boolean
-  address: String
-  company: Company!
-  updatedAt: Int
-  deletedAt: Int
-  createdAt: Int
-  users: [User]
-}
-
-type Post {
-  id: ID!
-  user: User!
-  title: String!
-  body: String!
-  deletedAt: Int
-  createdAt: Int
-  updatedAt: Int
-  comments: [Comment]
-}
-
-type Role {
+	{Name: "schema.graphql", Input: `type Role {
   id: ID!
   accessLevel: Int!
   name: String!
@@ -1313,15 +656,9 @@ type User {
   lastPasswordChange: Int
   token: String
   role: Role
-  company: Company
-  location: Location
   createdAt: Int
   deletedAt: Int
   updatedAt: Int
-  comments: [Comment]
-  followeeFollowers: [Follower]
-  followerFollowers: [Follower]
-  posts: [Post]
 }
 
 input IDFilter {
@@ -1383,120 +720,6 @@ input BooleanFilter {
   isNull: Boolean
 }
 
-input CommentFilter {
-  search: String
-  where: CommentWhere
-}
-
-input CommentPagination {
-  limit: Int!
-  page: Int!
-}
-
-input CommentWhere {
-  id: IDFilter
-  user: UserWhere
-  post: PostWhere
-  title: StringFilter
-  body: StringFilter
-  createdAt: IntFilter
-  updatedAt: IntFilter
-  deletedAt: IntFilter
-  or: CommentWhere
-  and: CommentWhere
-}
-
-input CompanyFilter {
-  search: String
-  where: CompanyWhere
-}
-
-input CompanyPagination {
-  limit: Int!
-  page: Int!
-}
-
-input CompanyWhere {
-  id: IDFilter
-  name: StringFilter
-  active: BooleanFilter
-  updatedAt: IntFilter
-  deletedAt: IntFilter
-  createdAt: IntFilter
-  locations: LocationWhere
-  users: UserWhere
-  or: CompanyWhere
-  and: CompanyWhere
-}
-
-input FollowerFilter {
-  search: String
-  where: FollowerWhere
-}
-
-input FollowerPagination {
-  limit: Int!
-  page: Int!
-}
-
-input FollowerWhere {
-  id: IDFilter
-  follower: UserWhere
-  followee: UserWhere
-  deletedAt: IntFilter
-  updatedAt: IntFilter
-  createdAt: IntFilter
-  or: FollowerWhere
-  and: FollowerWhere
-}
-
-input LocationFilter {
-  search: String
-  where: LocationWhere
-}
-
-input LocationPagination {
-  limit: Int!
-  page: Int!
-}
-
-input LocationWhere {
-  id: IDFilter
-  name: StringFilter
-  active: BooleanFilter
-  address: StringFilter
-  company: CompanyWhere
-  updatedAt: IntFilter
-  deletedAt: IntFilter
-  createdAt: IntFilter
-  users: UserWhere
-  or: LocationWhere
-  and: LocationWhere
-}
-
-input PostFilter {
-  search: String
-  where: PostWhere
-}
-
-input PostPagination {
-  limit: Int!
-  page: Int!
-}
-
-input PostWhere {
-  id: IDFilter
-  user: UserWhere
-  title: StringFilter
-  body: StringFilter
-  deletedAt: IntFilter
-  createdAt: IntFilter
-  updatedAt: IntFilter
-  comments: CommentWhere
-  or: PostWhere
-  and: PostWhere
-}
-
 input RoleFilter {
   search: String
   where: RoleWhere
@@ -1544,15 +767,9 @@ input UserWhere {
   lastPasswordChange: IntFilter
   token: StringFilter
   role: RoleWhere
-  company: CompanyWhere
-  location: LocationWhere
   createdAt: IntFilter
   deletedAt: IntFilter
   updatedAt: IntFilter
-  comments: CommentWhere
-  followeeFollowers: FollowerWhere
-  followerFollowers: FollowerWhere
-  posts: PostWhere
   or: UserWhere
   and: UserWhere
 }
@@ -1567,222 +784,9 @@ type Query {
   users(pagination: UserPagination): UsersPayload!
 }
 
-input CommentCreateInput {
-  userId: ID!
-  postId: ID!
-  title: String!
-  body: String!
-  createdAt: Int
-  updatedAt: Int
-  deletedAt: Int
-}
-
-input CommentUpdateInput {
-  userId: ID
-  postId: ID
-  title: String
-  body: String
-  createdAt: Int
-  updatedAt: Int
-  deletedAt: Int
-}
-
-input CommentsCreateInput {
-  comments: [CommentCreateInput!]!
-}
-
-type CommentPayload {
-  comment: Comment!
-}
-
-type CommentDeletePayload {
-  id: ID!
-}
-
-type CommentsPayload {
-  comments: [Comment!]!
-}
-
-type CommentsDeletePayload {
-  ids: [ID!]!
-}
-
-type CommentsUpdatePayload {
-  ok: Boolean!
-}
-
-input CompanyCreateInput {
-  name: String
-  active: Boolean
-  updatedAt: Int
-  deletedAt: Int
-  createdAt: Int
-}
-
-input CompanyUpdateInput {
-  name: String
-  active: Boolean
-  updatedAt: Int
-  deletedAt: Int
-  createdAt: Int
-}
-
-input CompaniesCreateInput {
-  companies: [CompanyCreateInput!]!
-}
-
-type CompanyPayload {
-  company: Company!
-}
-
-type CompanyDeletePayload {
-  id: ID!
-}
-
-type CompaniesPayload {
-  companies: [Company!]!
-}
-
-type CompaniesDeletePayload {
-  ids: [ID!]!
-}
-
-type CompaniesUpdatePayload {
-  ok: Boolean!
-}
-
-input FollowerCreateInput {
-  followerId: ID!
-  followeeId: ID!
-  deletedAt: Int
-  updatedAt: Int
-  createdAt: Int
-}
-
-input FollowerUpdateInput {
-  followerId: ID
-  followeeId: ID
-  deletedAt: Int
-  updatedAt: Int
-  createdAt: Int
-}
-
-input FollowersCreateInput {
-  followers: [FollowerCreateInput!]!
-}
-
-type FollowerPayload {
-  follower: Follower!
-}
-
-type FollowerDeletePayload {
-  id: ID!
-}
-
-type FollowersPayload {
-  followers: [Follower!]!
-}
-
-type FollowersDeletePayload {
-  ids: [ID!]!
-}
-
-type FollowersUpdatePayload {
-  ok: Boolean!
-}
-
-input LocationCreateInput {
-  name: String
-  active: Boolean
-  address: String
-  companyId: ID!
-  updatedAt: Int
-  deletedAt: Int
-  createdAt: Int
-}
-
-input LocationUpdateInput {
-  name: String
-  active: Boolean
-  address: String
-  companyId: ID
-  updatedAt: Int
-  deletedAt: Int
-  createdAt: Int
-}
-
-input LocationsCreateInput {
-  locations: [LocationCreateInput!]!
-}
-
-type LocationPayload {
-  location: Location!
-}
-
-type LocationDeletePayload {
-  id: ID!
-}
-
-type LocationsPayload {
-  locations: [Location!]!
-}
-
-type LocationsDeletePayload {
-  ids: [ID!]!
-}
-
-type LocationsUpdatePayload {
-  ok: Boolean!
-}
-
-input PostCreateInput {
-  userId: ID!
-  title: String!
-  body: String!
-  deletedAt: Int
-  createdAt: Int
-  updatedAt: Int
-}
-
-input PostUpdateInput {
-  userId: ID
-  title: String
-  body: String
-  deletedAt: Int
-  createdAt: Int
-  updatedAt: Int
-}
-
-input PostsCreateInput {
-  posts: [PostCreateInput!]!
-}
-
-type PostPayload {
-  post: Post!
-}
-
-type PostDeletePayload {
-  id: ID!
-}
-
-type PostsPayload {
-  posts: [Post!]!
-}
-
-type PostsDeletePayload {
-  ids: [ID!]!
-}
-
-type PostsUpdatePayload {
-  ok: Boolean!
-}
-
 input RoleCreateInput {
   accessLevel: Int!
   name: String!
-  updatedAt: Int
-  deletedAt: Int
-  createdAt: Int
 }
 
 input RoleUpdateInput {
@@ -1824,8 +828,6 @@ input UserCreateInput {
   password: String
   email: String
   roleId: ID
-  companyId: ID
-  locationId: ID
 }
 
 input UserUpdateInput {
@@ -1869,12 +871,17 @@ type RefreshTokenResponse {
 }
 
 type Mutation {
+  createRole(input: RoleCreateInput!): RolePayload!
   login(username: String!, password: String!): LoginResponse!
   changePassword(oldPassword: String!, newPassword: String!): ChangePasswordResponse!
   refreshToken(token: String!): RefreshTokenResponse!
   createUser(input: UserCreateInput!): UserPayload!
   updateUser(input: UserUpdateInput): UserUpdatePayload!
   deleteUser: UserDeletePayload!
+}
+
+type Subscription {
+  userNotification: User!
 }
 `, BuiltIn: false},
 }
@@ -1908,13 +915,28 @@ func (ec *executionContext) field_Mutation_changePassword_args(ctx context.Conte
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_createRole_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 RoleCreateInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNRoleCreateInput2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRoleCreateInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 UserCreateInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNUserCreateInput2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserCreateInput(ctx, tmp)
+		arg0, err = ec.unmarshalNUserCreateInput2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserCreateInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1968,7 +990,7 @@ func (ec *executionContext) field_Mutation_updateUser_args(ctx context.Context, 
 	var arg0 *UserUpdateInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalOUserUpdateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserUpdateInput(ctx, tmp)
+		arg0, err = ec.unmarshalOUserUpdateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserUpdateInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1998,7 +1020,7 @@ func (ec *executionContext) field_Query_users_args(ctx context.Context, rawArgs 
 	var arg0 *UserPagination
 	if tmp, ok := rawArgs["pagination"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
-		arg0, err = ec.unmarshalOUserPagination2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserPagination(ctx, tmp)
+		arg0, err = ec.unmarshalOUserPagination2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserPagination(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -2054,1731 +1076,6 @@ func (ec *executionContext) _ChangePasswordResponse_ok(ctx context.Context, fiel
 	}()
 	fc := &graphql.FieldContext{
 		Object:     "ChangePasswordResponse",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Ok, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Comment_id(ctx context.Context, field graphql.CollectedField, obj *Comment) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Comment",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Comment_user(ctx context.Context, field graphql.CollectedField, obj *Comment) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Comment",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.User, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*User)
-	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUser(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Comment_post(ctx context.Context, field graphql.CollectedField, obj *Comment) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Comment",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Post, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*Post)
-	fc.Result = res
-	return ec.marshalNPost2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPost(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Comment_title(ctx context.Context, field graphql.CollectedField, obj *Comment) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Comment",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Title, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Comment_body(ctx context.Context, field graphql.CollectedField, obj *Comment) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Comment",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Body, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Comment_createdAt(ctx context.Context, field graphql.CollectedField, obj *Comment) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Comment",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Comment_updatedAt(ctx context.Context, field graphql.CollectedField, obj *Comment) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Comment",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Comment_deletedAt(ctx context.Context, field graphql.CollectedField, obj *Comment) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Comment",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.DeletedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _CommentDeletePayload_id(ctx context.Context, field graphql.CollectedField, obj *CommentDeletePayload) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "CommentDeletePayload",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _CommentPayload_comment(ctx context.Context, field graphql.CollectedField, obj *CommentPayload) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "CommentPayload",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Comment, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*Comment)
-	fc.Result = res
-	return ec.marshalNComment2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐComment(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _CommentsDeletePayload_ids(ctx context.Context, field graphql.CollectedField, obj *CommentsDeletePayload) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "CommentsDeletePayload",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Ids, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]string)
-	fc.Result = res
-	return ec.marshalNID2ᚕstringᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _CommentsPayload_comments(ctx context.Context, field graphql.CollectedField, obj *CommentsPayload) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "CommentsPayload",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Comments, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*Comment)
-	fc.Result = res
-	return ec.marshalNComment2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCommentᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _CommentsUpdatePayload_ok(ctx context.Context, field graphql.CollectedField, obj *CommentsUpdatePayload) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "CommentsUpdatePayload",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Ok, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _CompaniesDeletePayload_ids(ctx context.Context, field graphql.CollectedField, obj *CompaniesDeletePayload) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "CompaniesDeletePayload",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Ids, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]string)
-	fc.Result = res
-	return ec.marshalNID2ᚕstringᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _CompaniesPayload_companies(ctx context.Context, field graphql.CollectedField, obj *CompaniesPayload) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "CompaniesPayload",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Companies, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*Company)
-	fc.Result = res
-	return ec.marshalNCompany2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompanyᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _CompaniesUpdatePayload_ok(ctx context.Context, field graphql.CollectedField, obj *CompaniesUpdatePayload) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "CompaniesUpdatePayload",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Ok, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Company_id(ctx context.Context, field graphql.CollectedField, obj *Company) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Company",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Company_name(ctx context.Context, field graphql.CollectedField, obj *Company) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Company",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Company_active(ctx context.Context, field graphql.CollectedField, obj *Company) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Company",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Active, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*bool)
-	fc.Result = res
-	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Company_updatedAt(ctx context.Context, field graphql.CollectedField, obj *Company) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Company",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Company_deletedAt(ctx context.Context, field graphql.CollectedField, obj *Company) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Company",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.DeletedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Company_createdAt(ctx context.Context, field graphql.CollectedField, obj *Company) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Company",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Company_locations(ctx context.Context, field graphql.CollectedField, obj *Company) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Company",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Locations, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*Location)
-	fc.Result = res
-	return ec.marshalOLocation2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocation(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Company_users(ctx context.Context, field graphql.CollectedField, obj *Company) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Company",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Users, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*User)
-	fc.Result = res
-	return ec.marshalOUser2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUser(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _CompanyDeletePayload_id(ctx context.Context, field graphql.CollectedField, obj *CompanyDeletePayload) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "CompanyDeletePayload",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _CompanyPayload_company(ctx context.Context, field graphql.CollectedField, obj *CompanyPayload) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "CompanyPayload",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Company, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*Company)
-	fc.Result = res
-	return ec.marshalNCompany2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompany(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Follower_id(ctx context.Context, field graphql.CollectedField, obj *Follower) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Follower",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Follower_follower(ctx context.Context, field graphql.CollectedField, obj *Follower) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Follower",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Follower, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*User)
-	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUser(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Follower_followee(ctx context.Context, field graphql.CollectedField, obj *Follower) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Follower",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Followee, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*User)
-	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUser(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Follower_deletedAt(ctx context.Context, field graphql.CollectedField, obj *Follower) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Follower",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.DeletedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Follower_updatedAt(ctx context.Context, field graphql.CollectedField, obj *Follower) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Follower",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Follower_createdAt(ctx context.Context, field graphql.CollectedField, obj *Follower) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Follower",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _FollowerDeletePayload_id(ctx context.Context, field graphql.CollectedField, obj *FollowerDeletePayload) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "FollowerDeletePayload",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _FollowerPayload_follower(ctx context.Context, field graphql.CollectedField, obj *FollowerPayload) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "FollowerPayload",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Follower, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*Follower)
-	fc.Result = res
-	return ec.marshalNFollower2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollower(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _FollowersDeletePayload_ids(ctx context.Context, field graphql.CollectedField, obj *FollowersDeletePayload) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "FollowersDeletePayload",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Ids, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]string)
-	fc.Result = res
-	return ec.marshalNID2ᚕstringᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _FollowersPayload_followers(ctx context.Context, field graphql.CollectedField, obj *FollowersPayload) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "FollowersPayload",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Followers, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*Follower)
-	fc.Result = res
-	return ec.marshalNFollower2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollowerᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _FollowersUpdatePayload_ok(ctx context.Context, field graphql.CollectedField, obj *FollowersUpdatePayload) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "FollowersUpdatePayload",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Ok, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Location_id(ctx context.Context, field graphql.CollectedField, obj *Location) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Location",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Location_name(ctx context.Context, field graphql.CollectedField, obj *Location) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Location",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Location_active(ctx context.Context, field graphql.CollectedField, obj *Location) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Location",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Active, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*bool)
-	fc.Result = res
-	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Location_address(ctx context.Context, field graphql.CollectedField, obj *Location) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Location",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Address, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Location_company(ctx context.Context, field graphql.CollectedField, obj *Location) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Location",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Company, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*Company)
-	fc.Result = res
-	return ec.marshalNCompany2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompany(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Location_updatedAt(ctx context.Context, field graphql.CollectedField, obj *Location) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Location",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Location_deletedAt(ctx context.Context, field graphql.CollectedField, obj *Location) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Location",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.DeletedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Location_createdAt(ctx context.Context, field graphql.CollectedField, obj *Location) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Location",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Location_users(ctx context.Context, field graphql.CollectedField, obj *Location) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Location",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Users, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*User)
-	fc.Result = res
-	return ec.marshalOUser2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUser(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _LocationDeletePayload_id(ctx context.Context, field graphql.CollectedField, obj *LocationDeletePayload) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "LocationDeletePayload",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _LocationPayload_location(ctx context.Context, field graphql.CollectedField, obj *LocationPayload) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "LocationPayload",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Location, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*Location)
-	fc.Result = res
-	return ec.marshalNLocation2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocation(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _LocationsDeletePayload_ids(ctx context.Context, field graphql.CollectedField, obj *LocationsDeletePayload) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "LocationsDeletePayload",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Ids, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]string)
-	fc.Result = res
-	return ec.marshalNID2ᚕstringᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _LocationsPayload_locations(ctx context.Context, field graphql.CollectedField, obj *LocationsPayload) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "LocationsPayload",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Locations, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*Location)
-	fc.Result = res
-	return ec.marshalNLocation2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocationᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _LocationsUpdatePayload_ok(ctx context.Context, field graphql.CollectedField, obj *LocationsUpdatePayload) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "LocationsUpdatePayload",
 		Field:      field,
 		Args:       nil,
 		IsMethod:   false,
@@ -3875,6 +1172,48 @@ func (ec *executionContext) _LoginResponse_refreshToken(ctx context.Context, fie
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Mutation_createRole(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_createRole_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateRole(rctx, args["input"].(RoleCreateInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*RolePayload)
+	fc.Result = res
+	return ec.marshalNRolePayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRolePayload(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -3914,7 +1253,7 @@ func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.C
 	}
 	res := resTmp.(*LoginResponse)
 	fc.Result = res
-	return ec.marshalNLoginResponse2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLoginResponse(ctx, field.Selections, res)
+	return ec.marshalNLoginResponse2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐLoginResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_changePassword(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -3956,7 +1295,7 @@ func (ec *executionContext) _Mutation_changePassword(ctx context.Context, field 
 	}
 	res := resTmp.(*ChangePasswordResponse)
 	fc.Result = res
-	return ec.marshalNChangePasswordResponse2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐChangePasswordResponse(ctx, field.Selections, res)
+	return ec.marshalNChangePasswordResponse2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐChangePasswordResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_refreshToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -3998,7 +1337,7 @@ func (ec *executionContext) _Mutation_refreshToken(ctx context.Context, field gr
 	}
 	res := resTmp.(*RefreshTokenResponse)
 	fc.Result = res
-	return ec.marshalNRefreshTokenResponse2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRefreshTokenResponse(ctx, field.Selections, res)
+	return ec.marshalNRefreshTokenResponse2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRefreshTokenResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_createUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -4040,7 +1379,7 @@ func (ec *executionContext) _Mutation_createUser(ctx context.Context, field grap
 	}
 	res := resTmp.(*UserPayload)
 	fc.Result = res
-	return ec.marshalNUserPayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserPayload(ctx, field.Selections, res)
+	return ec.marshalNUserPayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserPayload(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_updateUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -4082,7 +1421,7 @@ func (ec *executionContext) _Mutation_updateUser(ctx context.Context, field grap
 	}
 	res := resTmp.(*UserUpdatePayload)
 	fc.Result = res
-	return ec.marshalNUserUpdatePayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserUpdatePayload(ctx, field.Selections, res)
+	return ec.marshalNUserUpdatePayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserUpdatePayload(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_deleteUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -4117,450 +1456,7 @@ func (ec *executionContext) _Mutation_deleteUser(ctx context.Context, field grap
 	}
 	res := resTmp.(*UserDeletePayload)
 	fc.Result = res
-	return ec.marshalNUserDeletePayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserDeletePayload(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Post_id(ctx context.Context, field graphql.CollectedField, obj *Post) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Post",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Post_user(ctx context.Context, field graphql.CollectedField, obj *Post) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Post",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.User, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*User)
-	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUser(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Post_title(ctx context.Context, field graphql.CollectedField, obj *Post) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Post",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Title, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Post_body(ctx context.Context, field graphql.CollectedField, obj *Post) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Post",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Body, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Post_deletedAt(ctx context.Context, field graphql.CollectedField, obj *Post) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Post",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.DeletedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Post_createdAt(ctx context.Context, field graphql.CollectedField, obj *Post) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Post",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Post_updatedAt(ctx context.Context, field graphql.CollectedField, obj *Post) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Post",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Post_comments(ctx context.Context, field graphql.CollectedField, obj *Post) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Post",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Comments, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*Comment)
-	fc.Result = res
-	return ec.marshalOComment2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐComment(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _PostDeletePayload_id(ctx context.Context, field graphql.CollectedField, obj *PostDeletePayload) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "PostDeletePayload",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _PostPayload_post(ctx context.Context, field graphql.CollectedField, obj *PostPayload) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "PostPayload",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Post, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*Post)
-	fc.Result = res
-	return ec.marshalNPost2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPost(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _PostsDeletePayload_ids(ctx context.Context, field graphql.CollectedField, obj *PostsDeletePayload) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "PostsDeletePayload",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Ids, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]string)
-	fc.Result = res
-	return ec.marshalNID2ᚕstringᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _PostsPayload_posts(ctx context.Context, field graphql.CollectedField, obj *PostsPayload) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "PostsPayload",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Posts, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*Post)
-	fc.Result = res
-	return ec.marshalNPost2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPostᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _PostsUpdatePayload_ok(ctx context.Context, field graphql.CollectedField, obj *PostsUpdatePayload) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "PostsUpdatePayload",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Ok, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+	return ec.marshalNUserDeletePayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserDeletePayload(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_me(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -4595,7 +1491,7 @@ func (ec *executionContext) _Query_me(ctx context.Context, field graphql.Collect
 	}
 	res := resTmp.(*User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_users(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -4637,7 +1533,7 @@ func (ec *executionContext) _Query_users(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.(*UsersPayload)
 	fc.Result = res
-	return ec.marshalNUsersPayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUsersPayload(ctx, field.Selections, res)
+	return ec.marshalNUsersPayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUsersPayload(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -4976,7 +1872,7 @@ func (ec *executionContext) _Role_users(ctx context.Context, field graphql.Colle
 	}
 	res := resTmp.([]*User)
 	fc.Result = res
-	return ec.marshalOUser2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUser(ctx, field.Selections, res)
+	return ec.marshalOUser2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _RoleDeletePayload_id(ctx context.Context, field graphql.CollectedField, obj *RoleDeletePayload) (ret graphql.Marshaler) {
@@ -5046,7 +1942,7 @@ func (ec *executionContext) _RolePayload_role(ctx context.Context, field graphql
 	}
 	res := resTmp.(*Role)
 	fc.Result = res
-	return ec.marshalNRole2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRole(ctx, field.Selections, res)
+	return ec.marshalNRole2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRole(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _RolesDeletePayload_ids(ctx context.Context, field graphql.CollectedField, obj *RolesDeletePayload) (ret graphql.Marshaler) {
@@ -5116,7 +2012,7 @@ func (ec *executionContext) _RolesPayload_roles(ctx context.Context, field graph
 	}
 	res := resTmp.([]*Role)
 	fc.Result = res
-	return ec.marshalNRole2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRoleᚄ(ctx, field.Selections, res)
+	return ec.marshalNRole2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRoleᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _RolesUpdatePayload_ok(ctx context.Context, field graphql.CollectedField, obj *RolesUpdatePayload) (ret graphql.Marshaler) {
@@ -5152,6 +2048,51 @@ func (ec *executionContext) _RolesUpdatePayload_ok(ctx context.Context, field gr
 	res := resTmp.(bool)
 	fc.Result = res
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Subscription_userNotification(ctx context.Context, field graphql.CollectedField) (ret func() graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = nil
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Subscription",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Subscription().UserNotification(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return nil
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return nil
+	}
+	return func() graphql.Marshaler {
+		res, ok := <-resTmp.(<-chan *User)
+		if !ok {
+			return nil
+		}
+		return graphql.WriterFunc(func(w io.Writer) {
+			w.Write([]byte{'{'})
+			graphql.MarshalString(field.Alias).MarshalGQL(w)
+			w.Write([]byte{':'})
+			ec.marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUser(ctx, field.Selections, res).MarshalGQL(w)
+			w.Write([]byte{'}'})
+		})
+	}
 }
 
 func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *User) (ret graphql.Marshaler) {
@@ -5602,71 +2543,7 @@ func (ec *executionContext) _User_role(ctx context.Context, field graphql.Collec
 	}
 	res := resTmp.(*Role)
 	fc.Result = res
-	return ec.marshalORole2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRole(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _User_company(ctx context.Context, field graphql.CollectedField, obj *User) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "User",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Company, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*Company)
-	fc.Result = res
-	return ec.marshalOCompany2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompany(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _User_location(ctx context.Context, field graphql.CollectedField, obj *User) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "User",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Location, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*Location)
-	fc.Result = res
-	return ec.marshalOLocation2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocation(ctx, field.Selections, res)
+	return ec.marshalORole2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRole(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_createdAt(ctx context.Context, field graphql.CollectedField, obj *User) (ret graphql.Marshaler) {
@@ -5765,134 +2642,6 @@ func (ec *executionContext) _User_updatedAt(ctx context.Context, field graphql.C
 	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _User_comments(ctx context.Context, field graphql.CollectedField, obj *User) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "User",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Comments, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*Comment)
-	fc.Result = res
-	return ec.marshalOComment2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐComment(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _User_followeeFollowers(ctx context.Context, field graphql.CollectedField, obj *User) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "User",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.FolloweeFollowers, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*Follower)
-	fc.Result = res
-	return ec.marshalOFollower2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollower(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _User_followerFollowers(ctx context.Context, field graphql.CollectedField, obj *User) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "User",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.FollowerFollowers, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*Follower)
-	fc.Result = res
-	return ec.marshalOFollower2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollower(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _User_posts(ctx context.Context, field graphql.CollectedField, obj *User) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "User",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Posts, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*Post)
-	fc.Result = res
-	return ec.marshalOPost2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPost(ctx, field.Selections, res)
-}
-
 func (ec *executionContext) _UserDeletePayload_id(ctx context.Context, field graphql.CollectedField, obj *UserDeletePayload) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -5960,7 +2709,7 @@ func (ec *executionContext) _UserPayload_user(ctx context.Context, field graphql
 	}
 	res := resTmp.(*User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _UserUpdatePayload_ok(ctx context.Context, field graphql.CollectedField, obj *UserUpdatePayload) (ret graphql.Marshaler) {
@@ -6065,7 +2814,7 @@ func (ec *executionContext) _UsersPayload_users(ctx context.Context, field graph
 	}
 	res := resTmp.([]*User)
 	fc.Result = res
-	return ec.marshalNUser2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserᚄ(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
@@ -7191,582 +3940,6 @@ func (ec *executionContext) unmarshalInputBooleanFilter(ctx context.Context, obj
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCommentCreateInput(ctx context.Context, obj interface{}) (CommentCreateInput, error) {
-	var it CommentCreateInput
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "userId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			it.UserID, err = ec.unmarshalNID2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "postId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("postId"))
-			it.PostID, err = ec.unmarshalNID2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "title":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
-			it.Title, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "body":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("body"))
-			it.Body, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
-			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
-			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
-			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputCommentFilter(ctx context.Context, obj interface{}) (CommentFilter, error) {
-	var it CommentFilter
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "search":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("search"))
-			it.Search, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "where":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("where"))
-			it.Where, err = ec.unmarshalOCommentWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCommentWhere(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputCommentPagination(ctx context.Context, obj interface{}) (CommentPagination, error) {
-	var it CommentPagination
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "limit":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
-			it.Limit, err = ec.unmarshalNInt2int(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "page":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
-			it.Page, err = ec.unmarshalNInt2int(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputCommentUpdateInput(ctx context.Context, obj interface{}) (CommentUpdateInput, error) {
-	var it CommentUpdateInput
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "userId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			it.UserID, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "postId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("postId"))
-			it.PostID, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "title":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
-			it.Title, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "body":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("body"))
-			it.Body, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
-			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
-			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
-			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputCommentWhere(ctx context.Context, obj interface{}) (CommentWhere, error) {
-	var it CommentWhere
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "id":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalOIDFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIDFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "user":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("user"))
-			it.User, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserWhere(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "post":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("post"))
-			it.Post, err = ec.unmarshalOPostWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPostWhere(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "title":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
-			it.Title, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "body":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("body"))
-			it.Body, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
-			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
-			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
-			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "or":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("or"))
-			it.Or, err = ec.unmarshalOCommentWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCommentWhere(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "and":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
-			it.And, err = ec.unmarshalOCommentWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCommentWhere(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputCommentsCreateInput(ctx context.Context, obj interface{}) (CommentsCreateInput, error) {
-	var it CommentsCreateInput
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "comments":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("comments"))
-			it.Comments, err = ec.unmarshalNCommentCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCommentCreateInputᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputCompaniesCreateInput(ctx context.Context, obj interface{}) (CompaniesCreateInput, error) {
-	var it CompaniesCreateInput
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "companies":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("companies"))
-			it.Companies, err = ec.unmarshalNCompanyCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompanyCreateInputᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputCompanyCreateInput(ctx context.Context, obj interface{}) (CompanyCreateInput, error) {
-	var it CompanyCreateInput
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "name":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			it.Name, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "active":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("active"))
-			it.Active, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
-			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
-			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
-			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputCompanyFilter(ctx context.Context, obj interface{}) (CompanyFilter, error) {
-	var it CompanyFilter
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "search":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("search"))
-			it.Search, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "where":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("where"))
-			it.Where, err = ec.unmarshalOCompanyWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompanyWhere(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputCompanyPagination(ctx context.Context, obj interface{}) (CompanyPagination, error) {
-	var it CompanyPagination
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "limit":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
-			it.Limit, err = ec.unmarshalNInt2int(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "page":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
-			it.Page, err = ec.unmarshalNInt2int(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputCompanyUpdateInput(ctx context.Context, obj interface{}) (CompanyUpdateInput, error) {
-	var it CompanyUpdateInput
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "name":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			it.Name, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "active":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("active"))
-			it.Active, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
-			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
-			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
-			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputCompanyWhere(ctx context.Context, obj interface{}) (CompanyWhere, error) {
-	var it CompanyWhere
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "id":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalOIDFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIDFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "name":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			it.Name, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "active":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("active"))
-			it.Active, err = ec.unmarshalOBooleanFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐBooleanFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
-			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
-			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
-			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "locations":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locations"))
-			it.Locations, err = ec.unmarshalOLocationWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocationWhere(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "users":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("users"))
-			it.Users, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserWhere(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "or":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("or"))
-			it.Or, err = ec.unmarshalOCompanyWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompanyWhere(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "and":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
-			it.And, err = ec.unmarshalOCompanyWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompanyWhere(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputFloatFilter(ctx context.Context, obj interface{}) (FloatFilter, error) {
 	var it FloatFilter
 	var asMap = obj.(map[string]interface{})
@@ -7834,262 +4007,6 @@ func (ec *executionContext) unmarshalInputFloatFilter(ctx context.Context, obj i
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("notIn"))
 			it.NotIn, err = ec.unmarshalOFloat2ᚕfloat64ᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputFollowerCreateInput(ctx context.Context, obj interface{}) (FollowerCreateInput, error) {
-	var it FollowerCreateInput
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "followerId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("followerId"))
-			it.FollowerID, err = ec.unmarshalNID2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "followeeId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("followeeId"))
-			it.FolloweeID, err = ec.unmarshalNID2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
-			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
-			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
-			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputFollowerFilter(ctx context.Context, obj interface{}) (FollowerFilter, error) {
-	var it FollowerFilter
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "search":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("search"))
-			it.Search, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "where":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("where"))
-			it.Where, err = ec.unmarshalOFollowerWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollowerWhere(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputFollowerPagination(ctx context.Context, obj interface{}) (FollowerPagination, error) {
-	var it FollowerPagination
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "limit":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
-			it.Limit, err = ec.unmarshalNInt2int(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "page":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
-			it.Page, err = ec.unmarshalNInt2int(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputFollowerUpdateInput(ctx context.Context, obj interface{}) (FollowerUpdateInput, error) {
-	var it FollowerUpdateInput
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "followerId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("followerId"))
-			it.FollowerID, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "followeeId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("followeeId"))
-			it.FolloweeID, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
-			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
-			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
-			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputFollowerWhere(ctx context.Context, obj interface{}) (FollowerWhere, error) {
-	var it FollowerWhere
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "id":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalOIDFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIDFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "follower":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("follower"))
-			it.Follower, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserWhere(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "followee":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("followee"))
-			it.Followee, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserWhere(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
-			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
-			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
-			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "or":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("or"))
-			it.Or, err = ec.unmarshalOFollowerWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollowerWhere(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "and":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
-			it.And, err = ec.unmarshalOFollowerWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollowerWhere(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputFollowersCreateInput(ctx context.Context, obj interface{}) (FollowersCreateInput, error) {
-	var it FollowersCreateInput
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "followers":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("followers"))
-			it.Followers, err = ec.unmarshalNFollowerCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollowerCreateInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8219,606 +4136,6 @@ func (ec *executionContext) unmarshalInputIntFilter(ctx context.Context, obj int
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputLocationCreateInput(ctx context.Context, obj interface{}) (LocationCreateInput, error) {
-	var it LocationCreateInput
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "name":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			it.Name, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "active":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("active"))
-			it.Active, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "address":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("address"))
-			it.Address, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "companyId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("companyId"))
-			it.CompanyID, err = ec.unmarshalNID2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
-			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
-			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
-			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputLocationFilter(ctx context.Context, obj interface{}) (LocationFilter, error) {
-	var it LocationFilter
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "search":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("search"))
-			it.Search, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "where":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("where"))
-			it.Where, err = ec.unmarshalOLocationWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocationWhere(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputLocationPagination(ctx context.Context, obj interface{}) (LocationPagination, error) {
-	var it LocationPagination
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "limit":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
-			it.Limit, err = ec.unmarshalNInt2int(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "page":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
-			it.Page, err = ec.unmarshalNInt2int(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputLocationUpdateInput(ctx context.Context, obj interface{}) (LocationUpdateInput, error) {
-	var it LocationUpdateInput
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "name":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			it.Name, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "active":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("active"))
-			it.Active, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "address":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("address"))
-			it.Address, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "companyId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("companyId"))
-			it.CompanyID, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
-			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
-			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
-			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputLocationWhere(ctx context.Context, obj interface{}) (LocationWhere, error) {
-	var it LocationWhere
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "id":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalOIDFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIDFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "name":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			it.Name, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "active":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("active"))
-			it.Active, err = ec.unmarshalOBooleanFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐBooleanFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "address":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("address"))
-			it.Address, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "company":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("company"))
-			it.Company, err = ec.unmarshalOCompanyWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompanyWhere(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
-			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
-			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
-			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "users":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("users"))
-			it.Users, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserWhere(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "or":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("or"))
-			it.Or, err = ec.unmarshalOLocationWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocationWhere(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "and":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
-			it.And, err = ec.unmarshalOLocationWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocationWhere(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputLocationsCreateInput(ctx context.Context, obj interface{}) (LocationsCreateInput, error) {
-	var it LocationsCreateInput
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "locations":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locations"))
-			it.Locations, err = ec.unmarshalNLocationCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocationCreateInputᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputPostCreateInput(ctx context.Context, obj interface{}) (PostCreateInput, error) {
-	var it PostCreateInput
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "userId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			it.UserID, err = ec.unmarshalNID2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "title":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
-			it.Title, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "body":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("body"))
-			it.Body, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
-			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
-			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
-			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputPostFilter(ctx context.Context, obj interface{}) (PostFilter, error) {
-	var it PostFilter
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "search":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("search"))
-			it.Search, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "where":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("where"))
-			it.Where, err = ec.unmarshalOPostWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPostWhere(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputPostPagination(ctx context.Context, obj interface{}) (PostPagination, error) {
-	var it PostPagination
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "limit":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
-			it.Limit, err = ec.unmarshalNInt2int(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "page":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
-			it.Page, err = ec.unmarshalNInt2int(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputPostUpdateInput(ctx context.Context, obj interface{}) (PostUpdateInput, error) {
-	var it PostUpdateInput
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "userId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			it.UserID, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "title":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
-			it.Title, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "body":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("body"))
-			it.Body, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
-			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
-			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
-			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputPostWhere(ctx context.Context, obj interface{}) (PostWhere, error) {
-	var it PostWhere
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "id":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalOIDFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIDFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "user":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("user"))
-			it.User, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserWhere(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "title":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
-			it.Title, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "body":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("body"))
-			it.Body, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
-			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
-			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
-			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "comments":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("comments"))
-			it.Comments, err = ec.unmarshalOCommentWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCommentWhere(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "or":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("or"))
-			it.Or, err = ec.unmarshalOPostWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPostWhere(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "and":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
-			it.And, err = ec.unmarshalOPostWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPostWhere(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputPostsCreateInput(ctx context.Context, obj interface{}) (PostsCreateInput, error) {
-	var it PostsCreateInput
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "posts":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("posts"))
-			it.Posts, err = ec.unmarshalNPostCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPostCreateInputᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputRoleCreateInput(ctx context.Context, obj interface{}) (RoleCreateInput, error) {
 	var it RoleCreateInput
 	var asMap = obj.(map[string]interface{})
@@ -8838,30 +4155,6 @@ func (ec *executionContext) unmarshalInputRoleCreateInput(ctx context.Context, o
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			it.Name, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
-			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
-			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
-			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8889,7 +4182,7 @@ func (ec *executionContext) unmarshalInputRoleFilter(ctx context.Context, obj in
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("where"))
-			it.Where, err = ec.unmarshalORoleWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRoleWhere(ctx, v)
+			it.Where, err = ec.unmarshalORoleWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRoleWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8989,7 +4282,7 @@ func (ec *executionContext) unmarshalInputRoleWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalOIDFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIDFilter(ctx, v)
+			it.ID, err = ec.unmarshalOIDFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIDFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8997,7 +4290,7 @@ func (ec *executionContext) unmarshalInputRoleWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accessLevel"))
-			it.AccessLevel, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
+			it.AccessLevel, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9005,7 +4298,7 @@ func (ec *executionContext) unmarshalInputRoleWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			it.Name, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
+			it.Name, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐStringFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9013,7 +4306,7 @@ func (ec *executionContext) unmarshalInputRoleWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
-			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
+			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9021,7 +4314,7 @@ func (ec *executionContext) unmarshalInputRoleWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
-			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
+			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9029,7 +4322,7 @@ func (ec *executionContext) unmarshalInputRoleWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
-			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
+			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9037,7 +4330,7 @@ func (ec *executionContext) unmarshalInputRoleWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("users"))
-			it.Users, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserWhere(ctx, v)
+			it.Users, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9045,7 +4338,7 @@ func (ec *executionContext) unmarshalInputRoleWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("or"))
-			it.Or, err = ec.unmarshalORoleWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRoleWhere(ctx, v)
+			it.Or, err = ec.unmarshalORoleWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRoleWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9053,7 +4346,7 @@ func (ec *executionContext) unmarshalInputRoleWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
-			it.And, err = ec.unmarshalORoleWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRoleWhere(ctx, v)
+			it.And, err = ec.unmarshalORoleWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRoleWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9073,7 +4366,7 @@ func (ec *executionContext) unmarshalInputRolesCreateInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("roles"))
-			it.Roles, err = ec.unmarshalNRoleCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRoleCreateInputᚄ(ctx, v)
+			it.Roles, err = ec.unmarshalNRoleCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRoleCreateInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9277,22 +4570,6 @@ func (ec *executionContext) unmarshalInputUserCreateInput(ctx context.Context, o
 			if err != nil {
 				return it, err
 			}
-		case "companyId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("companyId"))
-			it.CompanyID, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "locationId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locationId"))
-			it.LocationID, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		}
 	}
 
@@ -9317,7 +4594,7 @@ func (ec *executionContext) unmarshalInputUserFilter(ctx context.Context, obj in
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("where"))
-			it.Where, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserWhere(ctx, v)
+			it.Where, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9417,7 +4694,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalOIDFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIDFilter(ctx, v)
+			it.ID, err = ec.unmarshalOIDFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIDFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9425,7 +4702,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("firstName"))
-			it.FirstName, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
+			it.FirstName, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐStringFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9433,7 +4710,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastName"))
-			it.LastName, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
+			it.LastName, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐStringFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9441,7 +4718,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username"))
-			it.Username, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
+			it.Username, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐStringFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9449,7 +4726,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
-			it.Password, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
+			it.Password, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐStringFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9457,7 +4734,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
-			it.Email, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
+			it.Email, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐStringFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9465,7 +4742,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("mobile"))
-			it.Mobile, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
+			it.Mobile, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐStringFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9473,7 +4750,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("phone"))
-			it.Phone, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
+			it.Phone, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐStringFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9481,7 +4758,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("address"))
-			it.Address, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
+			it.Address, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐStringFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9489,7 +4766,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("active"))
-			it.Active, err = ec.unmarshalOBooleanFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐBooleanFilter(ctx, v)
+			it.Active, err = ec.unmarshalOBooleanFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐBooleanFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9497,7 +4774,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastLogin"))
-			it.LastLogin, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
+			it.LastLogin, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9505,7 +4782,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastPasswordChange"))
-			it.LastPasswordChange, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
+			it.LastPasswordChange, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9513,7 +4790,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("token"))
-			it.Token, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx, v)
+			it.Token, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐStringFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9521,23 +4798,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("role"))
-			it.Role, err = ec.unmarshalORoleWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRoleWhere(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "company":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("company"))
-			it.Company, err = ec.unmarshalOCompanyWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompanyWhere(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "location":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("location"))
-			it.Location, err = ec.unmarshalOLocationWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocationWhere(ctx, v)
+			it.Role, err = ec.unmarshalORoleWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRoleWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9545,7 +4806,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
-			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
+			it.CreatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9553,7 +4814,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
-			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
+			it.DeletedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9561,39 +4822,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
-			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "comments":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("comments"))
-			it.Comments, err = ec.unmarshalOCommentWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCommentWhere(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "followeeFollowers":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("followeeFollowers"))
-			it.FolloweeFollowers, err = ec.unmarshalOFollowerWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollowerWhere(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "followerFollowers":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("followerFollowers"))
-			it.FollowerFollowers, err = ec.unmarshalOFollowerWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollowerWhere(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "posts":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("posts"))
-			it.Posts, err = ec.unmarshalOPostWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPostWhere(ctx, v)
+			it.UpdatedAt, err = ec.unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9601,7 +4830,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("or"))
-			it.Or, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserWhere(ctx, v)
+			it.Or, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9609,7 +4838,7 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("and"))
-			it.And, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserWhere(ctx, v)
+			it.And, err = ec.unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserWhere(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9629,7 +4858,7 @@ func (ec *executionContext) unmarshalInputUsersCreateInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("users"))
-			it.Users, err = ec.unmarshalNUserCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserCreateInputᚄ(ctx, v)
+			it.Users, err = ec.unmarshalNUserCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserCreateInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -9660,729 +4889,6 @@ func (ec *executionContext) _ChangePasswordResponse(ctx context.Context, sel ast
 			out.Values[i] = graphql.MarshalString("ChangePasswordResponse")
 		case "ok":
 			out.Values[i] = ec._ChangePasswordResponse_ok(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var commentImplementors = []string{"Comment"}
-
-func (ec *executionContext) _Comment(ctx context.Context, sel ast.SelectionSet, obj *Comment) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, commentImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Comment")
-		case "id":
-			out.Values[i] = ec._Comment_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "user":
-			out.Values[i] = ec._Comment_user(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "post":
-			out.Values[i] = ec._Comment_post(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "title":
-			out.Values[i] = ec._Comment_title(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "body":
-			out.Values[i] = ec._Comment_body(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "createdAt":
-			out.Values[i] = ec._Comment_createdAt(ctx, field, obj)
-		case "updatedAt":
-			out.Values[i] = ec._Comment_updatedAt(ctx, field, obj)
-		case "deletedAt":
-			out.Values[i] = ec._Comment_deletedAt(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var commentDeletePayloadImplementors = []string{"CommentDeletePayload"}
-
-func (ec *executionContext) _CommentDeletePayload(ctx context.Context, sel ast.SelectionSet, obj *CommentDeletePayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, commentDeletePayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("CommentDeletePayload")
-		case "id":
-			out.Values[i] = ec._CommentDeletePayload_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var commentPayloadImplementors = []string{"CommentPayload"}
-
-func (ec *executionContext) _CommentPayload(ctx context.Context, sel ast.SelectionSet, obj *CommentPayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, commentPayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("CommentPayload")
-		case "comment":
-			out.Values[i] = ec._CommentPayload_comment(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var commentsDeletePayloadImplementors = []string{"CommentsDeletePayload"}
-
-func (ec *executionContext) _CommentsDeletePayload(ctx context.Context, sel ast.SelectionSet, obj *CommentsDeletePayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, commentsDeletePayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("CommentsDeletePayload")
-		case "ids":
-			out.Values[i] = ec._CommentsDeletePayload_ids(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var commentsPayloadImplementors = []string{"CommentsPayload"}
-
-func (ec *executionContext) _CommentsPayload(ctx context.Context, sel ast.SelectionSet, obj *CommentsPayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, commentsPayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("CommentsPayload")
-		case "comments":
-			out.Values[i] = ec._CommentsPayload_comments(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var commentsUpdatePayloadImplementors = []string{"CommentsUpdatePayload"}
-
-func (ec *executionContext) _CommentsUpdatePayload(ctx context.Context, sel ast.SelectionSet, obj *CommentsUpdatePayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, commentsUpdatePayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("CommentsUpdatePayload")
-		case "ok":
-			out.Values[i] = ec._CommentsUpdatePayload_ok(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var companiesDeletePayloadImplementors = []string{"CompaniesDeletePayload"}
-
-func (ec *executionContext) _CompaniesDeletePayload(ctx context.Context, sel ast.SelectionSet, obj *CompaniesDeletePayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, companiesDeletePayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("CompaniesDeletePayload")
-		case "ids":
-			out.Values[i] = ec._CompaniesDeletePayload_ids(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var companiesPayloadImplementors = []string{"CompaniesPayload"}
-
-func (ec *executionContext) _CompaniesPayload(ctx context.Context, sel ast.SelectionSet, obj *CompaniesPayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, companiesPayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("CompaniesPayload")
-		case "companies":
-			out.Values[i] = ec._CompaniesPayload_companies(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var companiesUpdatePayloadImplementors = []string{"CompaniesUpdatePayload"}
-
-func (ec *executionContext) _CompaniesUpdatePayload(ctx context.Context, sel ast.SelectionSet, obj *CompaniesUpdatePayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, companiesUpdatePayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("CompaniesUpdatePayload")
-		case "ok":
-			out.Values[i] = ec._CompaniesUpdatePayload_ok(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var companyImplementors = []string{"Company"}
-
-func (ec *executionContext) _Company(ctx context.Context, sel ast.SelectionSet, obj *Company) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, companyImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Company")
-		case "id":
-			out.Values[i] = ec._Company_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "name":
-			out.Values[i] = ec._Company_name(ctx, field, obj)
-		case "active":
-			out.Values[i] = ec._Company_active(ctx, field, obj)
-		case "updatedAt":
-			out.Values[i] = ec._Company_updatedAt(ctx, field, obj)
-		case "deletedAt":
-			out.Values[i] = ec._Company_deletedAt(ctx, field, obj)
-		case "createdAt":
-			out.Values[i] = ec._Company_createdAt(ctx, field, obj)
-		case "locations":
-			out.Values[i] = ec._Company_locations(ctx, field, obj)
-		case "users":
-			out.Values[i] = ec._Company_users(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var companyDeletePayloadImplementors = []string{"CompanyDeletePayload"}
-
-func (ec *executionContext) _CompanyDeletePayload(ctx context.Context, sel ast.SelectionSet, obj *CompanyDeletePayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, companyDeletePayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("CompanyDeletePayload")
-		case "id":
-			out.Values[i] = ec._CompanyDeletePayload_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var companyPayloadImplementors = []string{"CompanyPayload"}
-
-func (ec *executionContext) _CompanyPayload(ctx context.Context, sel ast.SelectionSet, obj *CompanyPayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, companyPayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("CompanyPayload")
-		case "company":
-			out.Values[i] = ec._CompanyPayload_company(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var followerImplementors = []string{"Follower"}
-
-func (ec *executionContext) _Follower(ctx context.Context, sel ast.SelectionSet, obj *Follower) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, followerImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Follower")
-		case "id":
-			out.Values[i] = ec._Follower_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "follower":
-			out.Values[i] = ec._Follower_follower(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "followee":
-			out.Values[i] = ec._Follower_followee(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "deletedAt":
-			out.Values[i] = ec._Follower_deletedAt(ctx, field, obj)
-		case "updatedAt":
-			out.Values[i] = ec._Follower_updatedAt(ctx, field, obj)
-		case "createdAt":
-			out.Values[i] = ec._Follower_createdAt(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var followerDeletePayloadImplementors = []string{"FollowerDeletePayload"}
-
-func (ec *executionContext) _FollowerDeletePayload(ctx context.Context, sel ast.SelectionSet, obj *FollowerDeletePayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, followerDeletePayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("FollowerDeletePayload")
-		case "id":
-			out.Values[i] = ec._FollowerDeletePayload_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var followerPayloadImplementors = []string{"FollowerPayload"}
-
-func (ec *executionContext) _FollowerPayload(ctx context.Context, sel ast.SelectionSet, obj *FollowerPayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, followerPayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("FollowerPayload")
-		case "follower":
-			out.Values[i] = ec._FollowerPayload_follower(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var followersDeletePayloadImplementors = []string{"FollowersDeletePayload"}
-
-func (ec *executionContext) _FollowersDeletePayload(ctx context.Context, sel ast.SelectionSet, obj *FollowersDeletePayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, followersDeletePayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("FollowersDeletePayload")
-		case "ids":
-			out.Values[i] = ec._FollowersDeletePayload_ids(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var followersPayloadImplementors = []string{"FollowersPayload"}
-
-func (ec *executionContext) _FollowersPayload(ctx context.Context, sel ast.SelectionSet, obj *FollowersPayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, followersPayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("FollowersPayload")
-		case "followers":
-			out.Values[i] = ec._FollowersPayload_followers(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var followersUpdatePayloadImplementors = []string{"FollowersUpdatePayload"}
-
-func (ec *executionContext) _FollowersUpdatePayload(ctx context.Context, sel ast.SelectionSet, obj *FollowersUpdatePayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, followersUpdatePayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("FollowersUpdatePayload")
-		case "ok":
-			out.Values[i] = ec._FollowersUpdatePayload_ok(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var locationImplementors = []string{"Location"}
-
-func (ec *executionContext) _Location(ctx context.Context, sel ast.SelectionSet, obj *Location) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, locationImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Location")
-		case "id":
-			out.Values[i] = ec._Location_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "name":
-			out.Values[i] = ec._Location_name(ctx, field, obj)
-		case "active":
-			out.Values[i] = ec._Location_active(ctx, field, obj)
-		case "address":
-			out.Values[i] = ec._Location_address(ctx, field, obj)
-		case "company":
-			out.Values[i] = ec._Location_company(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "updatedAt":
-			out.Values[i] = ec._Location_updatedAt(ctx, field, obj)
-		case "deletedAt":
-			out.Values[i] = ec._Location_deletedAt(ctx, field, obj)
-		case "createdAt":
-			out.Values[i] = ec._Location_createdAt(ctx, field, obj)
-		case "users":
-			out.Values[i] = ec._Location_users(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var locationDeletePayloadImplementors = []string{"LocationDeletePayload"}
-
-func (ec *executionContext) _LocationDeletePayload(ctx context.Context, sel ast.SelectionSet, obj *LocationDeletePayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, locationDeletePayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("LocationDeletePayload")
-		case "id":
-			out.Values[i] = ec._LocationDeletePayload_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var locationPayloadImplementors = []string{"LocationPayload"}
-
-func (ec *executionContext) _LocationPayload(ctx context.Context, sel ast.SelectionSet, obj *LocationPayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, locationPayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("LocationPayload")
-		case "location":
-			out.Values[i] = ec._LocationPayload_location(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var locationsDeletePayloadImplementors = []string{"LocationsDeletePayload"}
-
-func (ec *executionContext) _LocationsDeletePayload(ctx context.Context, sel ast.SelectionSet, obj *LocationsDeletePayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, locationsDeletePayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("LocationsDeletePayload")
-		case "ids":
-			out.Values[i] = ec._LocationsDeletePayload_ids(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var locationsPayloadImplementors = []string{"LocationsPayload"}
-
-func (ec *executionContext) _LocationsPayload(ctx context.Context, sel ast.SelectionSet, obj *LocationsPayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, locationsPayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("LocationsPayload")
-		case "locations":
-			out.Values[i] = ec._LocationsPayload_locations(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var locationsUpdatePayloadImplementors = []string{"LocationsUpdatePayload"}
-
-func (ec *executionContext) _LocationsUpdatePayload(ctx context.Context, sel ast.SelectionSet, obj *LocationsUpdatePayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, locationsUpdatePayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("LocationsUpdatePayload")
-		case "ok":
-			out.Values[i] = ec._LocationsUpdatePayload_ok(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -10444,6 +4950,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
+		case "createRole":
+			out.Values[i] = ec._Mutation_createRole(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "login":
 			out.Values[i] = ec._Mutation_login(ctx, field)
 			if out.Values[i] == graphql.Null {
@@ -10471,191 +4982,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "deleteUser":
 			out.Values[i] = ec._Mutation_deleteUser(ctx, field)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var postImplementors = []string{"Post"}
-
-func (ec *executionContext) _Post(ctx context.Context, sel ast.SelectionSet, obj *Post) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, postImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Post")
-		case "id":
-			out.Values[i] = ec._Post_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "user":
-			out.Values[i] = ec._Post_user(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "title":
-			out.Values[i] = ec._Post_title(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "body":
-			out.Values[i] = ec._Post_body(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "deletedAt":
-			out.Values[i] = ec._Post_deletedAt(ctx, field, obj)
-		case "createdAt":
-			out.Values[i] = ec._Post_createdAt(ctx, field, obj)
-		case "updatedAt":
-			out.Values[i] = ec._Post_updatedAt(ctx, field, obj)
-		case "comments":
-			out.Values[i] = ec._Post_comments(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var postDeletePayloadImplementors = []string{"PostDeletePayload"}
-
-func (ec *executionContext) _PostDeletePayload(ctx context.Context, sel ast.SelectionSet, obj *PostDeletePayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, postDeletePayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("PostDeletePayload")
-		case "id":
-			out.Values[i] = ec._PostDeletePayload_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var postPayloadImplementors = []string{"PostPayload"}
-
-func (ec *executionContext) _PostPayload(ctx context.Context, sel ast.SelectionSet, obj *PostPayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, postPayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("PostPayload")
-		case "post":
-			out.Values[i] = ec._PostPayload_post(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var postsDeletePayloadImplementors = []string{"PostsDeletePayload"}
-
-func (ec *executionContext) _PostsDeletePayload(ctx context.Context, sel ast.SelectionSet, obj *PostsDeletePayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, postsDeletePayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("PostsDeletePayload")
-		case "ids":
-			out.Values[i] = ec._PostsDeletePayload_ids(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var postsPayloadImplementors = []string{"PostsPayload"}
-
-func (ec *executionContext) _PostsPayload(ctx context.Context, sel ast.SelectionSet, obj *PostsPayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, postsPayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("PostsPayload")
-		case "posts":
-			out.Values[i] = ec._PostsPayload_posts(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var postsUpdatePayloadImplementors = []string{"PostsUpdatePayload"}
-
-func (ec *executionContext) _PostsUpdatePayload(ctx context.Context, sel ast.SelectionSet, obj *PostsUpdatePayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, postsUpdatePayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("PostsUpdatePayload")
-		case "ok":
-			out.Values[i] = ec._PostsUpdatePayload_ok(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -10935,6 +5261,26 @@ func (ec *executionContext) _RolesUpdatePayload(ctx context.Context, sel ast.Sel
 	return out
 }
 
+var subscriptionImplementors = []string{"Subscription"}
+
+func (ec *executionContext) _Subscription(ctx context.Context, sel ast.SelectionSet) func() graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, subscriptionImplementors)
+	ctx = graphql.WithFieldContext(ctx, &graphql.FieldContext{
+		Object: "Subscription",
+	})
+	if len(fields) != 1 {
+		ec.Errorf(ctx, "must subscribe to exactly one stream")
+		return nil
+	}
+
+	switch fields[0].Name {
+	case "userNotification":
+		return ec._Subscription_userNotification(ctx, fields[0])
+	default:
+		panic("unknown field " + strconv.Quote(fields[0].Name))
+	}
+}
+
 var userImplementors = []string{"User"}
 
 func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *User) graphql.Marshaler {
@@ -10977,24 +5323,12 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._User_token(ctx, field, obj)
 		case "role":
 			out.Values[i] = ec._User_role(ctx, field, obj)
-		case "company":
-			out.Values[i] = ec._User_company(ctx, field, obj)
-		case "location":
-			out.Values[i] = ec._User_location(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._User_createdAt(ctx, field, obj)
 		case "deletedAt":
 			out.Values[i] = ec._User_deletedAt(ctx, field, obj)
 		case "updatedAt":
 			out.Values[i] = ec._User_updatedAt(ctx, field, obj)
-		case "comments":
-			out.Values[i] = ec._User_comments(ctx, field, obj)
-		case "followeeFollowers":
-			out.Values[i] = ec._User_followeeFollowers(ctx, field, obj)
-		case "followerFollowers":
-			out.Values[i] = ec._User_followerFollowers(ctx, field, obj)
-		case "posts":
-			out.Values[i] = ec._User_posts(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -11401,11 +5735,11 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalNChangePasswordResponse2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐChangePasswordResponse(ctx context.Context, sel ast.SelectionSet, v ChangePasswordResponse) graphql.Marshaler {
+func (ec *executionContext) marshalNChangePasswordResponse2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐChangePasswordResponse(ctx context.Context, sel ast.SelectionSet, v ChangePasswordResponse) graphql.Marshaler {
 	return ec._ChangePasswordResponse(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNChangePasswordResponse2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐChangePasswordResponse(ctx context.Context, sel ast.SelectionSet, v *ChangePasswordResponse) graphql.Marshaler {
+func (ec *executionContext) marshalNChangePasswordResponse2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐChangePasswordResponse(ctx context.Context, sel ast.SelectionSet, v *ChangePasswordResponse) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -11413,152 +5747,6 @@ func (ec *executionContext) marshalNChangePasswordResponse2ᚖgithubᚗcomᚋwed
 		return graphql.Null
 	}
 	return ec._ChangePasswordResponse(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNComment2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCommentᚄ(ctx context.Context, sel ast.SelectionSet, v []*Comment) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNComment2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐComment(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-	return ret
-}
-
-func (ec *executionContext) marshalNComment2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐComment(ctx context.Context, sel ast.SelectionSet, v *Comment) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	return ec._Comment(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNCommentCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCommentCreateInputᚄ(ctx context.Context, v interface{}) ([]*CommentCreateInput, error) {
-	var vSlice []interface{}
-	if v != nil {
-		if tmp1, ok := v.([]interface{}); ok {
-			vSlice = tmp1
-		} else {
-			vSlice = []interface{}{v}
-		}
-	}
-	var err error
-	res := make([]*CommentCreateInput, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNCommentCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCommentCreateInput(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) unmarshalNCommentCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCommentCreateInput(ctx context.Context, v interface{}) (*CommentCreateInput, error) {
-	res, err := ec.unmarshalInputCommentCreateInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNCompany2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompanyᚄ(ctx context.Context, sel ast.SelectionSet, v []*Company) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNCompany2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompany(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-	return ret
-}
-
-func (ec *executionContext) marshalNCompany2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompany(ctx context.Context, sel ast.SelectionSet, v *Company) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	return ec._Company(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNCompanyCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompanyCreateInputᚄ(ctx context.Context, v interface{}) ([]*CompanyCreateInput, error) {
-	var vSlice []interface{}
-	if v != nil {
-		if tmp1, ok := v.([]interface{}); ok {
-			vSlice = tmp1
-		} else {
-			vSlice = []interface{}{v}
-		}
-	}
-	var err error
-	res := make([]*CompanyCreateInput, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNCompanyCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompanyCreateInput(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) unmarshalNCompanyCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompanyCreateInput(ctx context.Context, v interface{}) (*CompanyCreateInput, error) {
-	res, err := ec.unmarshalInputCompanyCreateInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNFloat2float64(ctx context.Context, v interface{}) (float64, error) {
@@ -11574,79 +5762,6 @@ func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.S
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) marshalNFollower2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollowerᚄ(ctx context.Context, sel ast.SelectionSet, v []*Follower) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNFollower2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollower(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-	return ret
-}
-
-func (ec *executionContext) marshalNFollower2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollower(ctx context.Context, sel ast.SelectionSet, v *Follower) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	return ec._Follower(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNFollowerCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollowerCreateInputᚄ(ctx context.Context, v interface{}) ([]*FollowerCreateInput, error) {
-	var vSlice []interface{}
-	if v != nil {
-		if tmp1, ok := v.([]interface{}); ok {
-			vSlice = tmp1
-		} else {
-			vSlice = []interface{}{v}
-		}
-	}
-	var err error
-	res := make([]*FollowerCreateInput, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNFollowerCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollowerCreateInput(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) unmarshalNFollowerCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollowerCreateInput(ctx context.Context, v interface{}) (*FollowerCreateInput, error) {
-	res, err := ec.unmarshalInputFollowerCreateInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
@@ -11709,84 +5824,11 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) marshalNLocation2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocationᚄ(ctx context.Context, sel ast.SelectionSet, v []*Location) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNLocation2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocation(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-	return ret
-}
-
-func (ec *executionContext) marshalNLocation2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocation(ctx context.Context, sel ast.SelectionSet, v *Location) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	return ec._Location(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNLocationCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocationCreateInputᚄ(ctx context.Context, v interface{}) ([]*LocationCreateInput, error) {
-	var vSlice []interface{}
-	if v != nil {
-		if tmp1, ok := v.([]interface{}); ok {
-			vSlice = tmp1
-		} else {
-			vSlice = []interface{}{v}
-		}
-	}
-	var err error
-	res := make([]*LocationCreateInput, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNLocationCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocationCreateInput(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) unmarshalNLocationCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocationCreateInput(ctx context.Context, v interface{}) (*LocationCreateInput, error) {
-	res, err := ec.unmarshalInputLocationCreateInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNLoginResponse2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLoginResponse(ctx context.Context, sel ast.SelectionSet, v LoginResponse) graphql.Marshaler {
+func (ec *executionContext) marshalNLoginResponse2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐLoginResponse(ctx context.Context, sel ast.SelectionSet, v LoginResponse) graphql.Marshaler {
 	return ec._LoginResponse(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNLoginResponse2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLoginResponse(ctx context.Context, sel ast.SelectionSet, v *LoginResponse) graphql.Marshaler {
+func (ec *executionContext) marshalNLoginResponse2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐLoginResponse(ctx context.Context, sel ast.SelectionSet, v *LoginResponse) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -11796,84 +5838,11 @@ func (ec *executionContext) marshalNLoginResponse2ᚖgithubᚗcomᚋwednesdayᚑ
 	return ec._LoginResponse(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNPost2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPostᚄ(ctx context.Context, sel ast.SelectionSet, v []*Post) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNPost2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPost(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-	return ret
-}
-
-func (ec *executionContext) marshalNPost2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPost(ctx context.Context, sel ast.SelectionSet, v *Post) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	return ec._Post(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNPostCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPostCreateInputᚄ(ctx context.Context, v interface{}) ([]*PostCreateInput, error) {
-	var vSlice []interface{}
-	if v != nil {
-		if tmp1, ok := v.([]interface{}); ok {
-			vSlice = tmp1
-		} else {
-			vSlice = []interface{}{v}
-		}
-	}
-	var err error
-	res := make([]*PostCreateInput, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNPostCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPostCreateInput(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) unmarshalNPostCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPostCreateInput(ctx context.Context, v interface{}) (*PostCreateInput, error) {
-	res, err := ec.unmarshalInputPostCreateInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNRefreshTokenResponse2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRefreshTokenResponse(ctx context.Context, sel ast.SelectionSet, v RefreshTokenResponse) graphql.Marshaler {
+func (ec *executionContext) marshalNRefreshTokenResponse2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRefreshTokenResponse(ctx context.Context, sel ast.SelectionSet, v RefreshTokenResponse) graphql.Marshaler {
 	return ec._RefreshTokenResponse(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNRefreshTokenResponse2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRefreshTokenResponse(ctx context.Context, sel ast.SelectionSet, v *RefreshTokenResponse) graphql.Marshaler {
+func (ec *executionContext) marshalNRefreshTokenResponse2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRefreshTokenResponse(ctx context.Context, sel ast.SelectionSet, v *RefreshTokenResponse) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -11883,7 +5852,7 @@ func (ec *executionContext) marshalNRefreshTokenResponse2ᚖgithubᚗcomᚋwedne
 	return ec._RefreshTokenResponse(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNRole2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRoleᚄ(ctx context.Context, sel ast.SelectionSet, v []*Role) graphql.Marshaler {
+func (ec *executionContext) marshalNRole2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRoleᚄ(ctx context.Context, sel ast.SelectionSet, v []*Role) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -11907,7 +5876,7 @@ func (ec *executionContext) marshalNRole2ᚕᚖgithubᚗcomᚋwednesdayᚑsoluti
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNRole2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRole(ctx, sel, v[i])
+			ret[i] = ec.marshalNRole2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRole(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -11920,7 +5889,7 @@ func (ec *executionContext) marshalNRole2ᚕᚖgithubᚗcomᚋwednesdayᚑsoluti
 	return ret
 }
 
-func (ec *executionContext) marshalNRole2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRole(ctx context.Context, sel ast.SelectionSet, v *Role) graphql.Marshaler {
+func (ec *executionContext) marshalNRole2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRole(ctx context.Context, sel ast.SelectionSet, v *Role) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -11930,7 +5899,12 @@ func (ec *executionContext) marshalNRole2ᚖgithubᚗcomᚋwednesdayᚑsolutions
 	return ec._Role(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNRoleCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRoleCreateInputᚄ(ctx context.Context, v interface{}) ([]*RoleCreateInput, error) {
+func (ec *executionContext) unmarshalNRoleCreateInput2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRoleCreateInput(ctx context.Context, v interface{}) (RoleCreateInput, error) {
+	res, err := ec.unmarshalInputRoleCreateInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNRoleCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRoleCreateInputᚄ(ctx context.Context, v interface{}) ([]*RoleCreateInput, error) {
 	var vSlice []interface{}
 	if v != nil {
 		if tmp1, ok := v.([]interface{}); ok {
@@ -11943,7 +5917,7 @@ func (ec *executionContext) unmarshalNRoleCreateInput2ᚕᚖgithubᚗcomᚋwedne
 	res := make([]*RoleCreateInput, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNRoleCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRoleCreateInput(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNRoleCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRoleCreateInput(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -11951,9 +5925,23 @@ func (ec *executionContext) unmarshalNRoleCreateInput2ᚕᚖgithubᚗcomᚋwedne
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalNRoleCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRoleCreateInput(ctx context.Context, v interface{}) (*RoleCreateInput, error) {
+func (ec *executionContext) unmarshalNRoleCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRoleCreateInput(ctx context.Context, v interface{}) (*RoleCreateInput, error) {
 	res, err := ec.unmarshalInputRoleCreateInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNRolePayload2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRolePayload(ctx context.Context, sel ast.SelectionSet, v RolePayload) graphql.Marshaler {
+	return ec._RolePayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRolePayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRolePayload(ctx context.Context, sel ast.SelectionSet, v *RolePayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._RolePayload(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
@@ -11971,11 +5959,11 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) marshalNUser2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUser(ctx context.Context, sel ast.SelectionSet, v User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUser(ctx context.Context, sel ast.SelectionSet, v User) graphql.Marshaler {
 	return ec._User(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*User) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -11999,7 +5987,7 @@ func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋwednesdayᚑsoluti
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUser(ctx, sel, v[i])
+			ret[i] = ec.marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUser(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -12012,7 +6000,7 @@ func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋwednesdayᚑsoluti
 	return ret
 }
 
-func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUser(ctx context.Context, sel ast.SelectionSet, v *User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUser(ctx context.Context, sel ast.SelectionSet, v *User) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -12022,12 +6010,12 @@ func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutions
 	return ec._User(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNUserCreateInput2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserCreateInput(ctx context.Context, v interface{}) (UserCreateInput, error) {
+func (ec *executionContext) unmarshalNUserCreateInput2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserCreateInput(ctx context.Context, v interface{}) (UserCreateInput, error) {
 	res, err := ec.unmarshalInputUserCreateInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNUserCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserCreateInputᚄ(ctx context.Context, v interface{}) ([]*UserCreateInput, error) {
+func (ec *executionContext) unmarshalNUserCreateInput2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserCreateInputᚄ(ctx context.Context, v interface{}) ([]*UserCreateInput, error) {
 	var vSlice []interface{}
 	if v != nil {
 		if tmp1, ok := v.([]interface{}); ok {
@@ -12040,7 +6028,7 @@ func (ec *executionContext) unmarshalNUserCreateInput2ᚕᚖgithubᚗcomᚋwedne
 	res := make([]*UserCreateInput, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNUserCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserCreateInput(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNUserCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserCreateInput(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -12048,16 +6036,16 @@ func (ec *executionContext) unmarshalNUserCreateInput2ᚕᚖgithubᚗcomᚋwedne
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalNUserCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserCreateInput(ctx context.Context, v interface{}) (*UserCreateInput, error) {
+func (ec *executionContext) unmarshalNUserCreateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserCreateInput(ctx context.Context, v interface{}) (*UserCreateInput, error) {
 	res, err := ec.unmarshalInputUserCreateInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNUserDeletePayload2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserDeletePayload(ctx context.Context, sel ast.SelectionSet, v UserDeletePayload) graphql.Marshaler {
+func (ec *executionContext) marshalNUserDeletePayload2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserDeletePayload(ctx context.Context, sel ast.SelectionSet, v UserDeletePayload) graphql.Marshaler {
 	return ec._UserDeletePayload(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUserDeletePayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserDeletePayload(ctx context.Context, sel ast.SelectionSet, v *UserDeletePayload) graphql.Marshaler {
+func (ec *executionContext) marshalNUserDeletePayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserDeletePayload(ctx context.Context, sel ast.SelectionSet, v *UserDeletePayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -12067,11 +6055,11 @@ func (ec *executionContext) marshalNUserDeletePayload2ᚖgithubᚗcomᚋwednesda
 	return ec._UserDeletePayload(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNUserPayload2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserPayload(ctx context.Context, sel ast.SelectionSet, v UserPayload) graphql.Marshaler {
+func (ec *executionContext) marshalNUserPayload2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserPayload(ctx context.Context, sel ast.SelectionSet, v UserPayload) graphql.Marshaler {
 	return ec._UserPayload(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUserPayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserPayload(ctx context.Context, sel ast.SelectionSet, v *UserPayload) graphql.Marshaler {
+func (ec *executionContext) marshalNUserPayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserPayload(ctx context.Context, sel ast.SelectionSet, v *UserPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -12081,11 +6069,11 @@ func (ec *executionContext) marshalNUserPayload2ᚖgithubᚗcomᚋwednesdayᚑso
 	return ec._UserPayload(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNUserUpdatePayload2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserUpdatePayload(ctx context.Context, sel ast.SelectionSet, v UserUpdatePayload) graphql.Marshaler {
+func (ec *executionContext) marshalNUserUpdatePayload2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserUpdatePayload(ctx context.Context, sel ast.SelectionSet, v UserUpdatePayload) graphql.Marshaler {
 	return ec._UserUpdatePayload(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUserUpdatePayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserUpdatePayload(ctx context.Context, sel ast.SelectionSet, v *UserUpdatePayload) graphql.Marshaler {
+func (ec *executionContext) marshalNUserUpdatePayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserUpdatePayload(ctx context.Context, sel ast.SelectionSet, v *UserUpdatePayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -12095,11 +6083,11 @@ func (ec *executionContext) marshalNUserUpdatePayload2ᚖgithubᚗcomᚋwednesda
 	return ec._UserUpdatePayload(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNUsersPayload2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUsersPayload(ctx context.Context, sel ast.SelectionSet, v UsersPayload) graphql.Marshaler {
+func (ec *executionContext) marshalNUsersPayload2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUsersPayload(ctx context.Context, sel ast.SelectionSet, v UsersPayload) graphql.Marshaler {
 	return ec._UsersPayload(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUsersPayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUsersPayload(ctx context.Context, sel ast.SelectionSet, v *UsersPayload) graphql.Marshaler {
+func (ec *executionContext) marshalNUsersPayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUsersPayload(ctx context.Context, sel ast.SelectionSet, v *UsersPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -12362,81 +6350,11 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return graphql.MarshalBoolean(*v)
 }
 
-func (ec *executionContext) unmarshalOBooleanFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐBooleanFilter(ctx context.Context, v interface{}) (*BooleanFilter, error) {
+func (ec *executionContext) unmarshalOBooleanFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐBooleanFilter(ctx context.Context, v interface{}) (*BooleanFilter, error) {
 	if v == nil {
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputBooleanFilter(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOComment2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐComment(ctx context.Context, sel ast.SelectionSet, v []*Comment) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOComment2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐComment(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-	return ret
-}
-
-func (ec *executionContext) marshalOComment2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐComment(ctx context.Context, sel ast.SelectionSet, v *Comment) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Comment(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOCommentWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCommentWhere(ctx context.Context, v interface{}) (*CommentWhere, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputCommentWhere(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOCompany2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompany(ctx context.Context, sel ast.SelectionSet, v *Company) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Company(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOCompanyWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐCompanyWhere(ctx context.Context, v interface{}) (*CompanyWhere, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputCompanyWhere(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -12491,61 +6409,6 @@ func (ec *executionContext) marshalOFloat2ᚖfloat64(ctx context.Context, sel as
 	return graphql.MarshalFloat(*v)
 }
 
-func (ec *executionContext) marshalOFollower2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollower(ctx context.Context, sel ast.SelectionSet, v []*Follower) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOFollower2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollower(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-	return ret
-}
-
-func (ec *executionContext) marshalOFollower2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollower(ctx context.Context, sel ast.SelectionSet, v *Follower) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Follower(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOFollowerWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐFollowerWhere(ctx context.Context, v interface{}) (*FollowerWhere, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputFollowerWhere(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) unmarshalOID2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
 	if v == nil {
 		return nil, nil
@@ -12597,7 +6460,7 @@ func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.Se
 	return graphql.MarshalID(*v)
 }
 
-func (ec *executionContext) unmarshalOIDFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIDFilter(ctx context.Context, v interface{}) (*IDFilter, error) {
+func (ec *executionContext) unmarshalOIDFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIDFilter(ctx context.Context, v interface{}) (*IDFilter, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -12656,7 +6519,7 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	return graphql.MarshalInt(*v)
 }
 
-func (ec *executionContext) unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐIntFilter(ctx context.Context, v interface{}) (*IntFilter, error) {
+func (ec *executionContext) unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐIntFilter(ctx context.Context, v interface{}) (*IntFilter, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -12664,124 +6527,14 @@ func (ec *executionContext) unmarshalOIntFilter2ᚖgithubᚗcomᚋwednesdayᚑso
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOLocation2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocation(ctx context.Context, sel ast.SelectionSet, v []*Location) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOLocation2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocation(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-	return ret
-}
-
-func (ec *executionContext) marshalOLocation2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocation(ctx context.Context, sel ast.SelectionSet, v *Location) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Location(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOLocationWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐLocationWhere(ctx context.Context, v interface{}) (*LocationWhere, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputLocationWhere(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOPost2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPost(ctx context.Context, sel ast.SelectionSet, v []*Post) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOPost2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPost(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-	return ret
-}
-
-func (ec *executionContext) marshalOPost2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPost(ctx context.Context, sel ast.SelectionSet, v *Post) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Post(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOPostWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐPostWhere(ctx context.Context, v interface{}) (*PostWhere, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputPostWhere(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalORole2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRole(ctx context.Context, sel ast.SelectionSet, v *Role) graphql.Marshaler {
+func (ec *executionContext) marshalORole2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRole(ctx context.Context, sel ast.SelectionSet, v *Role) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Role(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalORoleWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐRoleWhere(ctx context.Context, v interface{}) (*RoleWhere, error) {
+func (ec *executionContext) unmarshalORoleWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRoleWhere(ctx context.Context, v interface{}) (*RoleWhere, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -12849,7 +6602,7 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	return graphql.MarshalString(*v)
 }
 
-func (ec *executionContext) unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐStringFilter(ctx context.Context, v interface{}) (*StringFilter, error) {
+func (ec *executionContext) unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐStringFilter(ctx context.Context, v interface{}) (*StringFilter, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -12857,7 +6610,7 @@ func (ec *executionContext) unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesday�
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOUser2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUser(ctx context.Context, sel ast.SelectionSet, v []*User) graphql.Marshaler {
+func (ec *executionContext) marshalOUser2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUser(ctx context.Context, sel ast.SelectionSet, v []*User) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -12884,7 +6637,7 @@ func (ec *executionContext) marshalOUser2ᚕᚖgithubᚗcomᚋwednesdayᚑsoluti
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUser(ctx, sel, v[i])
+			ret[i] = ec.marshalOUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUser(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -12897,14 +6650,14 @@ func (ec *executionContext) marshalOUser2ᚕᚖgithubᚗcomᚋwednesdayᚑsoluti
 	return ret
 }
 
-func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUser(ctx context.Context, sel ast.SelectionSet, v *User) graphql.Marshaler {
+func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUser(ctx context.Context, sel ast.SelectionSet, v *User) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._User(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOUserPagination2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserPagination(ctx context.Context, v interface{}) (*UserPagination, error) {
+func (ec *executionContext) unmarshalOUserPagination2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserPagination(ctx context.Context, v interface{}) (*UserPagination, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -12912,7 +6665,7 @@ func (ec *executionContext) unmarshalOUserPagination2ᚖgithubᚗcomᚋwednesday
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOUserUpdateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserUpdateInput(ctx context.Context, v interface{}) (*UserUpdateInput, error) {
+func (ec *executionContext) unmarshalOUserUpdateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserUpdateInput(ctx context.Context, v interface{}) (*UserUpdateInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -12920,7 +6673,7 @@ func (ec *executionContext) unmarshalOUserUpdateInput2ᚖgithubᚗcomᚋwednesda
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑboilerᚋgraphql_modelsᚐUserWhere(ctx context.Context, v interface{}) (*UserWhere, error) {
+func (ec *executionContext) unmarshalOUserWhere2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserWhere(ctx context.Context, v interface{}) (*UserWhere, error) {
 	if v == nil {
 		return nil, nil
 	}

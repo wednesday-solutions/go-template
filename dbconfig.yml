@@ -1,0 +1,4 @@
+postgres:
+  dialect: postgres
+  datasource: host=${DB_HOST} dbname=${DB_NAME} user=${DB_USER} password=${DB_PASS} sslmode=${DB_SSL}
+  dir: internal/migrations

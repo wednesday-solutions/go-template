@@ -1,57 +1,3 @@
-type Comment {
-  id: ID!
-  user: User!
-  post: Post!
-  title: String!
-  body: String!
-  createdAt: Int
-  updatedAt: Int
-  deletedAt: Int
-}
-
-type Company {
-  id: ID!
-  name: String
-  active: Boolean
-  updatedAt: Int
-  deletedAt: Int
-  createdAt: Int
-  locations: [Location]
-  users: [User]
-}
-
-type Follower {
-  id: ID!
-  follower: User!
-  followee: User!
-  deletedAt: Int
-  updatedAt: Int
-  createdAt: Int
-}
-
-type Location {
-  id: ID!
-  name: String
-  active: Boolean
-  address: String
-  company: Company!
-  updatedAt: Int
-  deletedAt: Int
-  createdAt: Int
-  users: [User]
-}
-
-type Post {
-  id: ID!
-  user: User!
-  title: String!
-  body: String!
-  deletedAt: Int
-  createdAt: Int
-  updatedAt: Int
-  comments: [Comment]
-}
-
 type Role {
   id: ID!
   accessLevel: Int!
@@ -77,15 +23,9 @@ type User {
   lastPasswordChange: Int
   token: String
   role: Role
-  company: Company
-  location: Location
   createdAt: Int
   deletedAt: Int
   updatedAt: Int
-  comments: [Comment]
-  followeeFollowers: [Follower]
-  followerFollowers: [Follower]
-  posts: [Post]
 }
 
 input IDFilter {
@@ -147,120 +87,6 @@ input BooleanFilter {
   isNull: Boolean
 }
 
-input CommentFilter {
-  search: String
-  where: CommentWhere
-}
-
-input CommentPagination {
-  limit: Int!
-  page: Int!
-}
-
-input CommentWhere {
-  id: IDFilter
-  user: UserWhere
-  post: PostWhere
-  title: StringFilter
-  body: StringFilter
-  createdAt: IntFilter
-  updatedAt: IntFilter
-  deletedAt: IntFilter
-  or: CommentWhere
-  and: CommentWhere
-}
-
-input CompanyFilter {
-  search: String
-  where: CompanyWhere
-}
-
-input CompanyPagination {
-  limit: Int!
-  page: Int!
-}
-
-input CompanyWhere {
-  id: IDFilter
-  name: StringFilter
-  active: BooleanFilter
-  updatedAt: IntFilter
-  deletedAt: IntFilter
-  createdAt: IntFilter
-  locations: LocationWhere
-  users: UserWhere
-  or: CompanyWhere
-  and: CompanyWhere
-}
-
-input FollowerFilter {
-  search: String
-  where: FollowerWhere
-}
-
-input FollowerPagination {
-  limit: Int!
-  page: Int!
-}
-
-input FollowerWhere {
-  id: IDFilter
-  follower: UserWhere
-  followee: UserWhere
-  deletedAt: IntFilter
-  updatedAt: IntFilter
-  createdAt: IntFilter
-  or: FollowerWhere
-  and: FollowerWhere
-}
-
-input LocationFilter {
-  search: String
-  where: LocationWhere
-}
-
-input LocationPagination {
-  limit: Int!
-  page: Int!
-}
-
-input LocationWhere {
-  id: IDFilter
-  name: StringFilter
-  active: BooleanFilter
-  address: StringFilter
-  company: CompanyWhere
-  updatedAt: IntFilter
-  deletedAt: IntFilter
-  createdAt: IntFilter
-  users: UserWhere
-  or: LocationWhere
-  and: LocationWhere
-}
-
-input PostFilter {
-  search: String
-  where: PostWhere
-}
-
-input PostPagination {
-  limit: Int!
-  page: Int!
-}
-
-input PostWhere {
-  id: IDFilter
-  user: UserWhere
-  title: StringFilter
-  body: StringFilter
-  deletedAt: IntFilter
-  createdAt: IntFilter
-  updatedAt: IntFilter
-  comments: CommentWhere
-  or: PostWhere
-  and: PostWhere
-}
-
 input RoleFilter {
   search: String
   where: RoleWhere
@@ -308,15 +134,9 @@ input UserWhere {
   lastPasswordChange: IntFilter
   token: StringFilter
   role: RoleWhere
-  company: CompanyWhere
-  location: LocationWhere
   createdAt: IntFilter
   deletedAt: IntFilter
   updatedAt: IntFilter
-  comments: CommentWhere
-  followeeFollowers: FollowerWhere
-  followerFollowers: FollowerWhere
-  posts: PostWhere
   or: UserWhere
   and: UserWhere
 }
@@ -331,222 +151,9 @@ type Query {
   users(pagination: UserPagination): UsersPayload!
 }
 
-input CommentCreateInput {
-  userId: ID!
-  postId: ID!
-  title: String!
-  body: String!
-  createdAt: Int
-  updatedAt: Int
-  deletedAt: Int
-}
-
-input CommentUpdateInput {
-  userId: ID
-  postId: ID
-  title: String
-  body: String
-  createdAt: Int
-  updatedAt: Int
-  deletedAt: Int
-}
-
-input CommentsCreateInput {
-  comments: [CommentCreateInput!]!
-}
-
-type CommentPayload {
-  comment: Comment!
-}
-
-type CommentDeletePayload {
-  id: ID!
-}
-
-type CommentsPayload {
-  comments: [Comment!]!
-}
-
-type CommentsDeletePayload {
-  ids: [ID!]!
-}
-
-type CommentsUpdatePayload {
-  ok: Boolean!
-}
-
-input CompanyCreateInput {
-  name: String
-  active: Boolean
-  updatedAt: Int
-  deletedAt: Int
-  createdAt: Int
-}
-
-input CompanyUpdateInput {
-  name: String
-  active: Boolean
-  updatedAt: Int
-  deletedAt: Int
-  createdAt: Int
-}
-
-input CompaniesCreateInput {
-  companies: [CompanyCreateInput!]!
-}
-
-type CompanyPayload {
-  company: Company!
-}
-
-type CompanyDeletePayload {
-  id: ID!
-}
-
-type CompaniesPayload {
-  companies: [Company!]!
-}
-
-type CompaniesDeletePayload {
-  ids: [ID!]!
-}
-
-type CompaniesUpdatePayload {
-  ok: Boolean!
-}
-
-input FollowerCreateInput {
-  followerId: ID!
-  followeeId: ID!
-  deletedAt: Int
-  updatedAt: Int
-  createdAt: Int
-}
-
-input FollowerUpdateInput {
-  followerId: ID
-  followeeId: ID
-  deletedAt: Int
-  updatedAt: Int
-  createdAt: Int
-}
-
-input FollowersCreateInput {
-  followers: [FollowerCreateInput!]!
-}
-
-type FollowerPayload {
-  follower: Follower!
-}
-
-type FollowerDeletePayload {
-  id: ID!
-}
-
-type FollowersPayload {
-  followers: [Follower!]!
-}
-
-type FollowersDeletePayload {
-  ids: [ID!]!
-}
-
-type FollowersUpdatePayload {
-  ok: Boolean!
-}
-
-input LocationCreateInput {
-  name: String
-  active: Boolean
-  address: String
-  companyId: ID!
-  updatedAt: Int
-  deletedAt: Int
-  createdAt: Int
-}
-
-input LocationUpdateInput {
-  name: String
-  active: Boolean
-  address: String
-  companyId: ID
-  updatedAt: Int
-  deletedAt: Int
-  createdAt: Int
-}
-
-input LocationsCreateInput {
-  locations: [LocationCreateInput!]!
-}
-
-type LocationPayload {
-  location: Location!
-}
-
-type LocationDeletePayload {
-  id: ID!
-}
-
-type LocationsPayload {
-  locations: [Location!]!
-}
-
-type LocationsDeletePayload {
-  ids: [ID!]!
-}
-
-type LocationsUpdatePayload {
-  ok: Boolean!
-}
-
-input PostCreateInput {
-  userId: ID!
-  title: String!
-  body: String!
-  deletedAt: Int
-  createdAt: Int
-  updatedAt: Int
-}
-
-input PostUpdateInput {
-  userId: ID
-  title: String
-  body: String
-  deletedAt: Int
-  createdAt: Int
-  updatedAt: Int
-}
-
-input PostsCreateInput {
-  posts: [PostCreateInput!]!
-}
-
-type PostPayload {
-  post: Post!
-}
-
-type PostDeletePayload {
-  id: ID!
-}
-
-type PostsPayload {
-  posts: [Post!]!
-}
-
-type PostsDeletePayload {
-  ids: [ID!]!
-}
-
-type PostsUpdatePayload {
-  ok: Boolean!
-}
-
 input RoleCreateInput {
   accessLevel: Int!
   name: String!
-  updatedAt: Int
-  deletedAt: Int
-  createdAt: Int
 }
 
 input RoleUpdateInput {
@@ -588,8 +195,6 @@ input UserCreateInput {
   password: String
   email: String
   roleId: ID
-  companyId: ID
-  locationId: ID
 }
 
 input UserUpdateInput {
@@ -633,10 +238,15 @@ type RefreshTokenResponse {
 }
 
 type Mutation {
+  createRole(input: RoleCreateInput!): RolePayload!
   login(username: String!, password: String!): LoginResponse!
   changePassword(oldPassword: String!, newPassword: String!): ChangePasswordResponse!
   refreshToken(token: String!): RefreshTokenResponse!
   createUser(input: UserCreateInput!): UserPayload!
   updateUser(input: UserUpdateInput): UserUpdatePayload!
   deleteUser: UserDeletePayload!
+}
+
+type Subscription {
+  userNotification: User!
 }
