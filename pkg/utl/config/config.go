@@ -2,8 +2,9 @@ package config
 
 import (
 	"fmt"
-	"github.com/wednesday-solutions/go-template/pkg/utl/convert"
 	"os"
+
+	"github.com/wednesday-solutions/go-template/pkg/utl/convert"
 )
 
 // Load returns Configuration struct

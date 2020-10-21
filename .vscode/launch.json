@@ -18,7 +18,7 @@
       "type": "go",
       "request": "launch",
       "mode": "auto",
-      "program": "${cwd}/cmd/api/main.go",
+      "program": "${cwd}/cmd/server/main.go",
       "env": {
         "DB_NAME": "go_template",
         "DB_HOST": "localhost",
