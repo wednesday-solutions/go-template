@@ -31,41 +31,56 @@ func Load() (*Configuration, error) {
 			MinPasswordStr: convert.StringToInt(os.Getenv("APP_MIN_PASSWORD_STR")),
 		},
 	}
+	if len(os.Getenv("SERVER_PORT")) == 0 {
+		return nil, fmt.Errorf("Error loading port from .env ")
+	}
+	if len(os.Getenv("DB_TIMEOUT_SECONDS")) == 0 {
+		return nil, fmt.Errorf("Error loading db timeout from .env ")
+	}
+	if len(os.Getenv("JWT_MIN_SECRET_LENGTH")) == 0 {
+		return nil, fmt.Errorf("Error loading jwt min secret length from .env ")
+	}
+	if len(os.Getenv("APP_MIN_PASSWORD_STR")) == 0 {
+		return nil, fmt.Errorf("Error loading application password string from .env ")
+	}
+	if len(os.Getenv("SERVER_READ_TIMEOUT")) == 0 || len(os.Getenv("SERVER_WRITE_TIMEOUT")) == 0 {
+		return nil, fmt.Errorf("Error loading server timeout from .env ")
+	}
 	return cfg, nil
 }
 
 // Configuration holds data necessary for configuring application
 type Configuration struct {
-	Server *Server      `yaml:"server,omitempty"`
-	DB     *Database    `yaml:"database,omitempty"`
-	JWT    *JWT         `yaml:"jwt,omitempty"`
-	App    *Application `yaml:"application,omitempty"`
+	Server *Server      `json:"server,omitempty"`
+	DB     *Database    `json:"database,omitempty"`
+	JWT    *JWT         `json:"jwt,omitempty"`
+	App    *Application `json:"application,omitempty"`
 }
 
 // Database holds data necessary for database configuration
 type Database struct {
-	LogQueries bool `yaml:"log_queries,omitempty"`
-	Timeout    int  `yaml:"timeout_seconds,omitempty"`
+	LogQueries bool `json:"log_queries,omitempty"`
+	Timeout    int  `json:"timeout_seconds,omitempty"`
 }
 
 // Server holds data necessary for server configuration
 type Server struct {
-	Port         string `yaml:"port,omitempty"`
-	Debug        bool   `yaml:"debug,omitempty"`
-	ReadTimeout  int    `yaml:"read_timeout_seconds,omitempty"`
-	WriteTimeout int    `yaml:"write_timeout_seconds,omitempty"`
+	Port         string `json:"port" validate:"required"`
+	Debug        bool   `json:"debug" validate:"required"`
+	ReadTimeout  int    `json:"read_timeout_seconds" validate:"required"`
+	WriteTimeout int    `json:"write_timeout_seconds" validate:"required"`
 }
 
 // JWT holds data necessary for JWT configuration
 type JWT struct {
-	MinSecretLength  int    `yaml:"min_secret_length,omitempty"`
-	DurationMinutes  int    `yaml:"duration_minutes,omitempty"`
-	RefreshDuration  int    `yaml:"refresh_duration_minutes,omitempty"`
-	MaxRefresh       int    `yaml:"max_refresh_minutes,omitempty"`
-	SigningAlgorithm string `yaml:"signing_algorithm,omitempty"`
+	MinSecretLength  int    `json:"min_secret_length" validate:"required"`
+	DurationMinutes  int    `json:"duration_minutes,omitempty"`
+	RefreshDuration  int    `json:"refresh_duration_minutes,omitempty"`
+	MaxRefresh       int    `json:"max_refresh_minutes,omitempty"`
+	SigningAlgorithm string `json:"signing_algorithm" validate:"required"`
 }
 
 // Application holds application configuration details
 type Application struct {
-	MinPasswordStr int `yaml:"min_password_strength,omitempty"`
+	MinPasswordStr int `json:"min_password_strength" validate:"required"`
 }
