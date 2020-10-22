@@ -8,10 +8,10 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
-	goboiler "github.com/wednesday-solutions/go-template"
 	graphql "github.com/wednesday-solutions/go-template/graphql_models"
 	"github.com/wednesday-solutions/go-template/pkg/utl/jwt"
 	"github.com/wednesday-solutions/go-template/pkg/utl/middleware/auth"
+	"github.com/wednesday-solutions/go-template/resolver"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -57,7 +57,7 @@ func TestGraphQLMiddleware(t *testing.T) {
 	for name, tt := range cases {
 		t.Run(name, func(t *testing.T) {
 
-			graphqlHandler := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: &goboiler.Resolver{}}))
+			graphqlHandler := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: &resolver.Resolver{}}))
 			graphqlHandler.AroundOperations(func(ctx context.Context, next graphql2.OperationHandler) graphql2.ResponseHandler {
 				res := auth.GraphQLMiddleware(ctx, jWT, next)
 				assert.Equal(t, nil, res)

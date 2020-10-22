@@ -17,7 +17,6 @@ import (
 	"github.com/labstack/echo"
 	_ "github.com/lib/pq" // here
 	"github.com/volatiletech/sqlboiler/boil"
-	goboiler "github.com/wednesday-solutions/go-template"
 	graphql "github.com/wednesday-solutions/go-template/graphql_models"
 	"github.com/wednesday-solutions/go-template/pkg/utl/config"
 	"github.com/wednesday-solutions/go-template/pkg/utl/jwt"
@@ -25,6 +24,7 @@ import (
 	"github.com/wednesday-solutions/go-template/pkg/utl/postgres"
 	"github.com/wednesday-solutions/go-template/pkg/utl/rate_throttle"
 	"github.com/wednesday-solutions/go-template/pkg/utl/server"
+	"github.com/wednesday-solutions/go-template/resolver"
 )
 
 // Start starts the API service
@@ -50,7 +50,7 @@ func Start(cfg *config.Configuration) error {
 
 	observers := map[string]chan *graphql.User{}
 	graphqlHandler := handler.New(graphql.NewExecutableSchema(graphql.Config{
-		Resolvers: &goboiler.Resolver{Observers: observers},
+		Resolvers: &resolver.Resolver{Observers: observers},
 	}))
 
 	if os.Getenv("ENVIRONMENT_NAME") == "local" {
@@ -85,9 +85,7 @@ func Start(cfg *config.Configuration) error {
 	graphqlHandler.AddTransport(transport.POST{})
 	graphqlHandler.AddTransport(transport.MultipartForm{})
 	graphqlHandler.Use(extension.Introspection{})
-
 	graphqlHandler.SetQueryCache(lru.New(1000))
-
 	graphqlHandler.Use(extension.AutomaticPersistedQuery{
 		Cache: lru.New(100),
 	})

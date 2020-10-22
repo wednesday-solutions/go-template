@@ -631,259 +631,253 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "schema.graphql", Input: `type Role {
-  id: ID!
-  accessLevel: Int!
-  name: String!
-  updatedAt: Int
-  deletedAt: Int
-  createdAt: Int
-  users: [User]
-}
-
-type User {
-  id: ID!
-  firstName: String
-  lastName: String
-  username: String
-  password: String
-  email: String
-  mobile: String
-  phone: String
-  address: String
-  active: Boolean
-  lastLogin: Int
-  lastPasswordChange: Int
-  token: String
-  role: Role
-  createdAt: Int
-  deletedAt: Int
-  updatedAt: Int
-}
-
-input IDFilter {
-  equalTo: ID
-  notEqualTo: ID
-  in: [ID!]
-  notIn: [ID!]
+	{Name: "schema/filter.graphql", Input: `input IDFilter {
+    equalTo: ID
+    notEqualTo: ID
+    in: [ID!]
+    notIn: [ID!]
 }
 
 input StringFilter {
-  equalTo: String
-  notEqualTo: String
+    equalTo: String
+    notEqualTo: String
 
-  in: [String!]
-  notIn: [String!]
+    in: [String!]
+    notIn: [String!]
 
-  startWith: String
-  notStartWith: String
+    startWith: String
+    notStartWith: String
 
-  endWith: String
-  notEndWith: String
+    endWith: String
+    notEndWith: String
 
-  contain: String
-  notContain: String
+    contain: String
+    notContain: String
 
-  startWithStrict: String # Camel sensitive
-  notStartWithStrict: String # Camel sensitive
-  endWithStrict: String # Camel sensitive
-  notEndWithStrict: String # Camel sensitive
-  containStrict: String # Camel sensitive
-  notContainStrict: String # Camel sensitive
+    startWithStrict: String # Camel sensitive
+    notStartWithStrict: String # Camel sensitive
+    endWithStrict: String # Camel sensitive
+    notEndWithStrict: String # Camel sensitive
+    containStrict: String # Camel sensitive
+    notContainStrict: String # Camel sensitive
 }
 
 input IntFilter {
-  equalTo: Int
-  notEqualTo: Int
-  lessThan: Int
-  lessThanOrEqualTo: Int
-  moreThan: Int
-  moreThanOrEqualTo: Int
-  in: [Int!]
-  notIn: [Int!]
+    equalTo: Int
+    notEqualTo: Int
+    lessThan: Int
+    lessThanOrEqualTo: Int
+    moreThan: Int
+    moreThanOrEqualTo: Int
+    in: [Int!]
+    notIn: [Int!]
 }
 
 input FloatFilter {
-  equalTo: Float
-  notEqualTo: Float
-  lessThan: Float
-  lessThanOrEqualTo: Float
-  moreThan: Float
-  moreThanOrEqualTo: Float
-  in: [Float!]
-  notIn: [Float!]
+    equalTo: Float
+    notEqualTo: Float
+    lessThan: Float
+    lessThanOrEqualTo: Float
+    moreThan: Float
+    moreThanOrEqualTo: Float
+    in: [Float!]
+    notIn: [Float!]
 }
 
 input BooleanFilter {
-  isTrue: Boolean
-  isFalse: Boolean
-  isNull: Boolean
+    isTrue: Boolean
+    isFalse: Boolean
+    isNull: Boolean
+}`, BuiltIn: false},
+	{Name: "schema/role.graphql", Input: `type Role {
+    id: ID!
+    accessLevel: Int!
+    name: String!
+    updatedAt: Int
+    deletedAt: Int
+    createdAt: Int
+    users: [User]
 }
 
 input RoleFilter {
-  search: String
-  where: RoleWhere
+    search: String
+    where: RoleWhere
 }
 
 input RolePagination {
-  limit: Int!
-  page: Int!
+    limit: Int!
+    page: Int!
 }
 
 input RoleWhere {
-  id: IDFilter
-  accessLevel: IntFilter
-  name: StringFilter
-  updatedAt: IntFilter
-  deletedAt: IntFilter
-  createdAt: IntFilter
-  users: UserWhere
-  or: RoleWhere
-  and: RoleWhere
+    id: IDFilter
+    accessLevel: IntFilter
+    name: StringFilter
+    updatedAt: IntFilter
+    deletedAt: IntFilter
+    createdAt: IntFilter
+    users: UserWhere
+    or: RoleWhere
+    and: RoleWhere
 }
-
-input UserFilter {
-  search: String
-  where: UserWhere
-}
-
-input UserPagination {
-  limit: Int!
-  page: Int!
-}
-
-input UserWhere {
-  id: IDFilter
-  firstName: StringFilter
-  lastName: StringFilter
-  username: StringFilter
-  password: StringFilter
-  email: StringFilter
-  mobile: StringFilter
-  phone: StringFilter
-  address: StringFilter
-  active: BooleanFilter
-  lastLogin: IntFilter
-  lastPasswordChange: IntFilter
-  token: StringFilter
-  role: RoleWhere
-  createdAt: IntFilter
-  deletedAt: IntFilter
-  updatedAt: IntFilter
-  or: UserWhere
-  and: UserWhere
-}
-
-type LoginResponse {
-  token: String!
-  refreshToken: String!
-}
-
-type Query {
-  me: User!
-  users(pagination: UserPagination): UsersPayload!
-}
-
 input RoleCreateInput {
-  accessLevel: Int!
-  name: String!
+    accessLevel: Int!
+    name: String!
 }
 
 input RoleUpdateInput {
-  accessLevel: Int
-  name: String
-  updatedAt: Int
-  deletedAt: Int
-  createdAt: Int
+    accessLevel: Int
+    name: String
+    updatedAt: Int
+    deletedAt: Int
+    createdAt: Int
 }
 
 input RolesCreateInput {
-  roles: [RoleCreateInput!]!
+    roles: [RoleCreateInput!]!
 }
 
 type RolePayload {
-  role: Role!
+    role: Role!
 }
 
 type RoleDeletePayload {
-  id: ID!
+    id: ID!
 }
 
 type RolesPayload {
-  roles: [Role!]!
+    roles: [Role!]!
 }
 
 type RolesDeletePayload {
-  ids: [ID!]!
+    ids: [ID!]!
 }
 
 type RolesUpdatePayload {
-  ok: Boolean!
+    ok: Boolean!
+}`, BuiltIn: false},
+	{Name: "schema/schema.graphql", Input: `type Mutation {
+    createRole(input: RoleCreateInput!): RolePayload!
+    login(username: String!, password: String!): LoginResponse!
+    changePassword(oldPassword: String!, newPassword: String!): ChangePasswordResponse!
+    refreshToken(token: String!): RefreshTokenResponse!
+    createUser(input: UserCreateInput!): UserPayload!
+    updateUser(input: UserUpdateInput): UserUpdatePayload!
+    deleteUser: UserDeletePayload!
 }
 
-input UserCreateInput {
-  firstName: String
-  lastName: String
-  username: String
-  password: String
-  email: String
-  roleId: ID
-}
-
-input UserUpdateInput {
-  firstName: String
-  lastName: String
-  mobile: String
-  phone: String
-  address: String
-}
-
-input UsersCreateInput {
-  users: [UserCreateInput!]!
-}
-
-type UserPayload {
-  user: User!
-}
-
-type UserDeletePayload {
-  id: ID!
-}
-
-type UsersPayload {
-  users: [User!]!
-}
-
-type UsersDeletePayload {
-  ids: [ID!]!
-}
-
-type UserUpdatePayload {
-  ok: Boolean!
-}
-
-type ChangePasswordResponse {
-  ok: Boolean!
-}
-
-type RefreshTokenResponse {
-  token: String!
-}
-
-type Mutation {
-  createRole(input: RoleCreateInput!): RolePayload!
-  login(username: String!, password: String!): LoginResponse!
-  changePassword(oldPassword: String!, newPassword: String!): ChangePasswordResponse!
-  refreshToken(token: String!): RefreshTokenResponse!
-  createUser(input: UserCreateInput!): UserPayload!
-  updateUser(input: UserUpdateInput): UserUpdatePayload!
-  deleteUser: UserDeletePayload!
+type Query {
+    me: User!
+    users(pagination: UserPagination): UsersPayload!
 }
 
 type Subscription {
-  userNotification: User!
+    userNotification: User!
+}`, BuiltIn: false},
+	{Name: "schema/user.graphql", Input: `type User {
+    id: ID!
+    firstName: String
+    lastName: String
+    username: String
+    password: String
+    email: String
+    mobile: String
+    phone: String
+    address: String
+    active: Boolean
+    lastLogin: Int
+    lastPasswordChange: Int
+    token: String
+    role: Role
+    createdAt: Int
+    deletedAt: Int
+    updatedAt: Int
 }
-`, BuiltIn: false},
+
+input UserFilter {
+    search: String
+    where: UserWhere
+}
+
+input UserPagination {
+    limit: Int!
+    page: Int!
+}
+
+input UserWhere {
+    id: IDFilter
+    firstName: StringFilter
+    lastName: StringFilter
+    username: StringFilter
+    password: StringFilter
+    email: StringFilter
+    mobile: StringFilter
+    phone: StringFilter
+    address: StringFilter
+    active: BooleanFilter
+    lastLogin: IntFilter
+    lastPasswordChange: IntFilter
+    token: StringFilter
+    role: RoleWhere
+    createdAt: IntFilter
+    deletedAt: IntFilter
+    updatedAt: IntFilter
+    or: UserWhere
+    and: UserWhere
+}
+input UserCreateInput {
+    firstName: String
+    lastName: String
+    username: String
+    password: String
+    email: String
+    roleId: ID
+}
+
+input UserUpdateInput {
+    firstName: String
+    lastName: String
+    mobile: String
+    phone: String
+    address: String
+}
+
+input UsersCreateInput {
+    users: [UserCreateInput!]!
+}
+
+type UserPayload {
+    user: User!
+}
+
+type UserDeletePayload {
+    id: ID!
+}
+
+type UsersPayload {
+    users: [User!]!
+}
+
+type UsersDeletePayload {
+    ids: [ID!]!
+}
+
+type UserUpdatePayload {
+    ok: Boolean!
+}
+
+type LoginResponse {
+    token: String!
+    refreshToken: String!
+}
+
+type ChangePasswordResponse {
+    ok: Boolean!
+}
+
+type RefreshTokenResponse {
+    token: String!
+}`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
