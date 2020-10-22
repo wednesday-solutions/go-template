@@ -1,14 +1,13 @@
 package jwt_test
 
 import (
-	"github.com/volatiletech/null"
-	"github.com/wednesday-solutions/go-template/models"
 	"strings"
 	"testing"
 
-	"github.com/wednesday-solutions/go-template/pkg/utl/jwt"
-
 	"github.com/stretchr/testify/assert"
+	"github.com/volatiletech/null"
+	"github.com/wednesday-solutions/go-template/internal/jwt"
+	"github.com/wednesday-solutions/go-template/models"
 )
 
 func TestNew(t *testing.T) {
