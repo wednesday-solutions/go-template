@@ -3,8 +3,9 @@ package rediscache
 import (
 	"encoding/json"
 	"fmt"
-	redigo "github.com/gomodule/redigo/redis"
 	"os"
+
+	redigo "github.com/gomodule/redigo/redis"
 )
 
 func redisDial() (redigo.Conn, error) {
