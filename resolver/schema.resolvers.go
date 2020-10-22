@@ -6,7 +6,6 @@ package resolver
 import (
 	"context"
 	"fmt"
-
 	"github.com/volatiletech/null"
 	"github.com/volatiletech/sqlboiler/boil"
 	"github.com/volatiletech/sqlboiler/queries/qm"
@@ -18,9 +17,11 @@ import (
 	"github.com/wednesday-solutions/go-template/pkg/utl/config"
 	"github.com/wednesday-solutions/go-template/pkg/utl/convert"
 	"github.com/wednesday-solutions/go-template/pkg/utl/middleware/auth"
+	throttle "github.com/wednesday-solutions/go-template/pkg/utl/rate_throttle"
 	rediscache "github.com/wednesday-solutions/go-template/pkg/utl/redis_cache"
 	resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
 	"github.com/wednesday-solutions/go-template/pkg/utl/service"
+	"time"
 )
 
 func (r *mutationResolver) CreateRole(ctx context.Context, input graphql_models.RoleCreateInput) (*graphql_models.RolePayload, error) {
@@ -145,6 +146,12 @@ func (r *mutationResolver) RefreshToken(ctx context.Context, token string) (*gra
 }
 
 func (r *mutationResolver) CreateUser(ctx context.Context, input graphql_models.UserCreateInput) (*graphql_models.UserPayload, error) {
+
+	err := throttle.Check(ctx, 5, 10*time.Second)
+	if err != nil {
+		return nil, err
+	}
+
 	user := models.User{
 		Username:  null.StringFromPtr(input.Username),
 		Password:  null.StringFromPtr(input.Password),
