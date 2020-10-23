@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/rs/zerolog"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -27,6 +28,7 @@ func main() {
 
 func checkErr(err error) {
 	if err != nil {
-		panic(err.Error())
+		logger := zerolog.New(os.Stdout).With().Timestamp().Logger()
+		logger.Panic().Msg(err.Error())
 	}
 }
