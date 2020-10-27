@@ -79,7 +79,7 @@ go run cmd/server/main.go
 - Requirement [postgresql](https://www.postgresql.org/)
   
 Steps to set up database with ```username``` and ```role``` using terminal
-  
+
   - Enter postgres terminal ```psql postgres```
   - Create new database ```CREATE DATABASE go_template;```
   - Create a new role with password ```CREATE ROLE go_template_role WITH LOGIN PASSWORD 'go_template_role456';```
@@ -97,6 +97,10 @@ There will be 3 containers produced,
 - **`go-template_db_1`** this container is based on `postgres:13` image and is referred as `db` when connecting from the `server` source code.
 - **`go-template_redis_1`** this container is based on `redis:6-alpine` image and is referred as `redis` when connecting from the `server` source code.
 - **`go-template_server_1`** this container is where your source code lives and is based on `golang:1.15.2-buster` image (in `local` and `test` stage) or `scratch` image (in `prod` stage).
+
+When in `local` stage there will be 1 more container,
+
+- **`go-template_pgAdmin_1`** this container is based on `dpage/pgadmin4:4` and requires `PGADMIN_PORT`, `PGADMIN_EMAIL` and `PGADMIN_PASS` env variables to work. To connect to `go-template_db_1` from `pgadmin` put `db` as **Host name/ Address**
 
 To ease the development process a make file is provided with 5 commands
 
