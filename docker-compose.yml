@@ -25,3 +25,53 @@ services:
       - ${SERVER_PORT}:${SERVER_PORT}
     expose:
       - ${SERVER_PORT}
+
+  prometheus:
+      image: prom/prometheus:v2.22.0
+      restart: always
+      volumes:
+        - type: bind
+          source: ./prometheus
+          target: /etc/prometheus
+        - type: volume
+          source: prometheus_data
+          target: /prometheus
+      command:
+        - '--config.file=/etc/prometheus/prometheus.yml'
+        - '--storage.tsdb.path=/prometheus'
+        - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+        - '--web.console.templates=/usr/share/prometheus/consoles'
+      ports:
+        - 9090:9090
+      depends_on:
+        - cadvisor
+
+  cadvisor:
+    image: gcr.io/google_containers/cadvisor:v0.36.0
+    restart: always
+    volumes:
+      - type: bind
+        source: /
+        target: /rootfs
+        read_only: true
+      - type: bind
+        source: /var/run
+        target: /var/run
+      - type: bind
+        source: /sys
+        target: /sys
+        read_only: true
+      - type: bind
+        source: /var/lib/docker
+        target: /var/lib/docker
+        read_only: true
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+      - redis
+      - server
+
+volumes:
+    prometheus_data:
+    # grafana_data:
