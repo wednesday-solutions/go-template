@@ -98,10 +98,6 @@ There will be 3 containers produced,
 - **`go-template_redis_1`** this container is based on `redis:6-alpine` image and is referred as `redis` when connecting from the `server` source code.
 - **`go-template_server_1`** this container is where your source code lives and is based on `golang:1.15.2-buster` image (in `local` and `test` stage) or `scratch` image (in `prod` stage).
 
-When in `local` stage there will be 1 more container,
-
-- **`go-template_pgAdmin_1`** this container is based on `dpage/pgadmin4:4` and requires `PGADMIN_PORT`, `PGADMIN_EMAIL` and `PGADMIN_PASS` env variables to work. To connect to `go-template_db_1` from `pgadmin` put `db` as **Host name/ Address**
-
 To ease the development process a make file is provided with 5 commands
 
 - **`make local`**
