@@ -5,10 +5,10 @@ services:
     image: postgres:13
     restart: always
     environment:
-    - POSTGRES_USER=${DB_USER}
-    - POSTGRES_PASSWORD=${DB_PASS}
-    - POSTGRES_PORT=${DB_PORT}
-    - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+      - POSTGRES_PORT=${DB_PORT}
+      - POSTGRES_DB=${DB_NAME}
 
   redis:
     image: redis:6-alpine
@@ -45,6 +45,8 @@ services:
         - ${PROMETHEUS_PORT}:9090
       depends_on:
         - cadvisor
+      labels:
+        org.label-schema.group: "monitoring"
 
   cadvisor:
     image: gcr.io/google_containers/cadvisor:v0.36.0
@@ -71,6 +73,8 @@ services:
       - db
       - redis
       - server
+    labels:
+      org.label-schema.group: "monitoring"
 
   grafana:
     image: grafana/grafana:7.2.2
@@ -88,10 +92,39 @@ services:
         source: ./grafana/provisioning/
         target: /etc/grafana/provisioning/
     environment:
-    - GF_SECURITY_ADMIN_USER=${GRAFANA_USER}
-    - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASS}
-    - GF_USERS_ALLOW_SIGN_UP=false
-    - PROMETHEUS_PORT=${PROMETHEUS_PORT}
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASS}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - PROMETHEUS_PORT=${PROMETHEUS_PORT}
+    labels:
+      org.label-schema.group: "monitoring"
+
+  node-exporter:
+    image: prom/node-exporter:v1.0.1
+    restart: always
+    volumes:
+      - type: bind
+        source: /
+        target: /rootfs
+        read_only: true
+      - type: bind
+        source: /sys
+        target: /host/sys
+        read_only: true
+      - type: bind
+        source: /proc
+        target: /host/proc
+        read_only: true
+      - /proc:/host/proc:ro
+    command: 
+      - '--path.procfs=/host/proc' 
+      - '--path.sysfs=/host/sys'
+      - --collector.filesystem.ignored-mount-points
+      - "^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)"
+    ports:
+      - ${PROMETHEUS_NODE_EXPORTER_PORT}:9100
+    labels:
+      org.label-schema.group: "monitoring"
 
 volumes:
     prometheus_data:
