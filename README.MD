@@ -94,9 +94,23 @@ You can chose to use Docker-compose for `local`, `prod` and `test` stages. This 
 
 There will be 3 containers produced,
 
-- **`go-template_db_1`** this container is based on `postgres:13` image and is referred as `db` when connecting from the `server` source code.
-- **`go-template_redis_1`** this container is based on `redis:6-alpine` image and is referred as `redis` when connecting from the `server` source code.
+- **`go-template_db_1`** this container is based on `postgres:13` image and is referred as `db` when connecting from the `server` source code.  
+
+- **`go-template_redis_1`** this container is based on `redis:6-alpine` image and is referred as `redis` when connecting from the `server` source code.  
+
 - **`go-template_server_1`** this container is where your source code lives and is based on `golang:1.15.2-buster` image (in `local` and `test` stage) or `scratch` image (in `prod` stage).
+
+Also, there will be 5 monitoring containers produced for Prometheus set-up
+
+- **`go-template_prometheus_1`** this container is based on `prom/prometheus:v2.22.0` image and needs `PROMETHEUS_PORT` env variable to be set. When set correctly prometheus could be accessed at `http://<host-ip>:<PROMETHEUS_PORT>` and Prometheus expression browser would be running at `http://<host-ip>:<PROMETHEUS_PORT>/graph/`  
+
+- **`go-template_cadvisor_1`** this container is based on `gcr.io/google_containers/cadvisor:v0.36.0` image and needs `PROMETHEUS_CADVISOR_PORT` env variable to be set. When set correctly cAdvisor could be accessed at `http://<host-ip>:<PROMETHEUS_CADVISOR_PORT>` and matrics for all the running containers (8) can be found at `http://<host-ip>:<PROMETHEUS_CADVISOR_PORT>/docker/`  
+
+- **`go-template_grafana_1`** this container is based on `grafana/grafana:7.2.2` image and needs `GRAFANA_PORT`, `GRAFANA_USER`, `GRAFANA_PASS` and `PROMETHEUS_PORT` env variables to be set. When set correctly Grafana Dashboards could be accessed at `http://<host-ip>:<GRAFANA_PORT>`. It already has 3 pre-configured Dashboards (inspired by [stefanprodan/dockprom](https://github.com/stefanprodan/dockprom)). It is recommended to use grafana for viewing/monitoring the matrixes  
+
+- **`go-template_node-exporter_1`** this container is based on `prom/node-exporter:v1.0.1` image and needs `PROMETHEUS_NODE_EXPORTER_PORT` env variable to be set. When set correctly node-exporter could be accessed at `http://<host-ip>:<PROMETHEUS_NODE_EXPORTER_PORT>` and matrics for host machine can be found at `http://<host-ip>:<PROMETHEUS_NODE_EXPORTER_PORT>/metrics/`  
+
+- **`go-template_alertmanager_1`** this container is based on `prom/alertmanager:v0.21.0` image and needs `PROMETHEUS_ALERTMANAGER_PORT` env variable to be set. When set correctly Prometheus Alert Manager could be accessed at `http://<host-ip>:<PROMETHEUS_ALERTMANAGER_PORT>`. Any alert created by Prometheus would be visible here, you can set custom alert receivers (like Slack alert) in `/alertmanager/config.yml`.
 
 To ease the development process a make file is provided with 5 commands
 
