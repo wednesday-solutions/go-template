@@ -68,7 +68,7 @@ services:
         target: /var/lib/docker
         read_only: true
     ports:
-      - ${CADVISOR_PORT}:8080
+      - ${PROMETHEUS_CADVISOR_PORT}:8080
     depends_on:
       - db
       - redis
@@ -115,14 +115,28 @@ services:
         source: /proc
         target: /host/proc
         read_only: true
-      - /proc:/host/proc:ro
     command: 
-      - '--path.procfs=/host/proc' 
+      - '--path.procfs=/host/proc'
       - '--path.sysfs=/host/sys'
       - --collector.filesystem.ignored-mount-points
       - "^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)"
     ports:
       - ${PROMETHEUS_NODE_EXPORTER_PORT}:9100
+    labels:
+      org.label-schema.group: "monitoring"
+
+  alertmanager:
+    image: prom/alertmanager:v0.21.0
+    restart: always
+    volumes:
+      - type: bind
+        source: ./alertmanager/
+        target: /etc/alertmanager/
+    command:
+      - '--config.file=/etc/alertmanager/config.yml'
+      - '--storage.path=/alertmanager'
+    ports:
+      - ${PROMETHEUS_ALERTMANAGER_PORT}:9093
     labels:
       org.label-schema.group: "monitoring"
 

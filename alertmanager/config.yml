@@ -1,0 +1,7 @@
+# Add routes and services for the alerts defined at ../prometheus/alert.rules
+# See the link to add a slack receiver https://prometheus.io/docs/alerting/latest/notification_examples/#customizing-slack-notifications
+route:
+    receiver: 'black_hole'
+
+receivers:
+  - name: 'black_hole'
