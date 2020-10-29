@@ -94,9 +94,23 @@ You can chose to use Docker-compose for `local`, `prod` and `test` stages. This 
 
 There will be 3 containers produced,
 
-- **`go-template_db_1`** this container is based on `postgres:13` image and is referred as `db` when connecting from the `server` source code.
-- **`go-template_redis_1`** this container is based on `redis:6-alpine` image and is referred as `redis` when connecting from the `server` source code.
+- **`go-template_db_1`** this container is based on `postgres:13` image and is referred as `db` when connecting from the `server` source code.  
+
+- **`go-template_redis_1`** this container is based on `redis:6-alpine` image and is referred as `redis` when connecting from the `server` source code.  
+
 - **`go-template_server_1`** this container is where your source code lives and is based on `golang:1.15.2-buster` image (in `local` and `test` stage) or `scratch` image (in `prod` stage).
+
+Also, there will be 5 monitoring containers produced for Prometheus set-up
+
+- **`go-template_prometheus_1`** this container is based on `prom/prometheus:v2.22.0` image and needs `PROMETHEUS_PORT` env variable to be set. When set correctly prometheus could be accessed at `http://<host-ip>:<PROMETHEUS_PORT>` and Prometheus expression browser would be running at `http://<host-ip>:<PROMETHEUS_PORT>/graph/`  
+
+- **`go-template_cadvisor_1`** this container is based on `gcr.io/google_containers/cadvisor:v0.36.0` image and needs `PROMETHEUS_CADVISOR_PORT` env variable to be set. When set correctly cAdvisor could be accessed at `http://<host-ip>:<PROMETHEUS_CADVISOR_PORT>` and matrics for all the running containers (8) can be found at `http://<host-ip>:<PROMETHEUS_CADVISOR_PORT>/docker/`  
+
+- **`go-template_grafana_1`** this container is based on `grafana/grafana:7.2.2` image and needs `GRAFANA_PORT`, `GRAFANA_USER`, `GRAFANA_PASS` and `PROMETHEUS_PORT` env variables to be set. When set correctly Grafana Dashboards could be accessed at `http://<host-ip>:<GRAFANA_PORT>`. It already has 3 pre-configured Dashboards (inspired by [stefanprodan/dockprom](https://github.com/stefanprodan/dockprom)). It is recommended to use grafana for viewing/monitoring the matrixes  
+
+- **`go-template_node-exporter_1`** this container is based on `prom/node-exporter:v1.0.1` image and needs `PROMETHEUS_NODE_EXPORTER_PORT` env variable to be set. When set correctly node-exporter could be accessed at `http://<host-ip>:<PROMETHEUS_NODE_EXPORTER_PORT>` and matrics for host machine can be found at `http://<host-ip>:<PROMETHEUS_NODE_EXPORTER_PORT>/metrics/`  
+
+- **`go-template_alertmanager_1`** this container is based on `prom/alertmanager:v0.21.0` image and needs `PROMETHEUS_ALERTMANAGER_PORT` env variable to be set. When set correctly Prometheus Alert Manager could be accessed at `http://<host-ip>:<PROMETHEUS_ALERTMANAGER_PORT>`. Any alert created by Prometheus would be visible here, you can set custom alert receivers (like Slack alert) in `/alertmanager/config.yml`.
 
 When in `local` stage there will be 1 more container,
 
@@ -150,12 +164,14 @@ For more information on migration package refer [here](https://github.com/rubenv
 go-template/
 └──.github/
 │  └──workflow/go-template-ci.yml   # this file contains the config of github action
+└──alertmanager/                    # this directory will be mounted at /etc/alertmanager/ inside the alertmanager service. It contains config.yml that configs various notification receivers for prometheus
 └──cmd/
 │  └──seeder/
 │  │  └──v1/1_roles.go              # seed file to load roles into DB
 │  │  └──v2/2_users.go              # seed file to load users into DB
 │  └──server/main.go                # this is the starting point of the go server
 └──daos/                            # this directory will hold info about the DB transactions
+└──grafana/provisioning/            # this directory will be mounted at /etc/grafana/provisioning/ inside the grafana service
 └──graphql_models/                  # this directory contain modules for gqlgen and is mostly auto-generated
 └──internal/
 │  └──config/                       # this package loads env variables into a config object
@@ -178,6 +194,7 @@ go-template/
 │     └──result_wrapper/            # this package exports the custom errors produced by application
 │     └──secure/                    # this package has password related functionalities
 │     └──zlog/                      # this package has setup for zerolog logger
+└──prometheus/                      # this directory will be mounted at /etc/prometheus inside the prometheus service and contains prometheus.yml for the service
 └──resolver/                        # this directory will contain resolvers to populate info for graphQL queries, mutations and subscriptions
 └──schema/                          # this directory will have all the .graphql files which make the graphql api
 └──.env.local                       # a sample .env file for reference
