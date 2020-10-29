@@ -112,6 +112,10 @@ Also, there will be 5 monitoring containers produced for Prometheus set-up
 
 - **`go-template_alertmanager_1`** this container is based on `prom/alertmanager:v0.21.0` image and needs `PROMETHEUS_ALERTMANAGER_PORT` env variable to be set. When set correctly Prometheus Alert Manager could be accessed at `http://<host-ip>:<PROMETHEUS_ALERTMANAGER_PORT>`. Any alert created by Prometheus would be visible here, you can set custom alert receivers (like Slack alert) in `/alertmanager/config.yml`.
 
+When in `local` stage there will be 1 more container,
+
+- **`go-template_pgAdmin_1`** this container is based on `dpage/pgadmin4:4` and requires `PGADMIN_PORT`, `PGADMIN_EMAIL` and `PGADMIN_PASS` env variables to work. To connect to `go-template_db_1` from `pgadmin` put `db` as **Host name/ Address**
+
 To ease the development process a make file is provided with 5 commands
 
 - **`make local`**  
