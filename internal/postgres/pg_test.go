@@ -2,12 +2,11 @@ package postgres_test
 
 import (
 	"database/sql"
-	"github.com/wednesday-solutions/go-template/pkg/utl/postgres"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-
 	"github.com/fortytw2/dockertest"
+	"github.com/stretchr/testify/assert"
+	"github.com/wednesday-solutions/go-template/internal/postgres"
 )
 
 func TestNew(t *testing.T) {

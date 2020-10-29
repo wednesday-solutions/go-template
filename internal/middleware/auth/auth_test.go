@@ -3,19 +3,20 @@ package auth_test
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"testing"
+
 	graphql2 "github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
 	graphql "github.com/wednesday-solutions/go-template/graphql_models"
-	"github.com/wednesday-solutions/go-template/pkg/utl/jwt"
-	"github.com/wednesday-solutions/go-template/pkg/utl/middleware/auth"
+	"github.com/wednesday-solutions/go-template/internal/jwt"
+	"github.com/wednesday-solutions/go-template/internal/middleware/auth"
 	"github.com/wednesday-solutions/go-template/resolver"
-	"net/http"
-	"net/http/httptest"
-	"os"
-	"testing"
 )
 
 func echoHandler(mw ...echo.MiddlewareFunc) *echo.Echo {

@@ -6,22 +6,23 @@ package resolver
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/volatiletech/null"
 	"github.com/volatiletech/sqlboiler/boil"
 	"github.com/volatiletech/sqlboiler/queries/qm"
 	gotemplate "github.com/wednesday-solutions/go-template"
 	"github.com/wednesday-solutions/go-template/daos"
 	"github.com/wednesday-solutions/go-template/graphql_models"
+	"github.com/wednesday-solutions/go-template/internal/config"
+	"github.com/wednesday-solutions/go-template/internal/middleware/auth"
+	"github.com/wednesday-solutions/go-template/internal/service"
 	"github.com/wednesday-solutions/go-template/models"
 	"github.com/wednesday-solutions/go-template/pkg/utl"
-	"github.com/wednesday-solutions/go-template/pkg/utl/config"
 	"github.com/wednesday-solutions/go-template/pkg/utl/convert"
-	"github.com/wednesday-solutions/go-template/pkg/utl/middleware/auth"
 	throttle "github.com/wednesday-solutions/go-template/pkg/utl/rate_throttle"
 	rediscache "github.com/wednesday-solutions/go-template/pkg/utl/redis_cache"
 	resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
-	"github.com/wednesday-solutions/go-template/pkg/utl/service"
-	"time"
 )
 
 func (r *mutationResolver) CreateRole(ctx context.Context, input graphql_models.RoleCreateInput) (*graphql_models.RolePayload, error) {
