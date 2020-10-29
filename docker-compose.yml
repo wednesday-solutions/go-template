@@ -13,6 +13,7 @@ services:
   redis:
     image: redis:6-alpine
     restart: always
+    command: --port ${REDIS_PORT}
 
   server:
     build:
@@ -23,8 +24,6 @@ services:
       - redis
     ports:
       - ${SERVER_PORT}:${SERVER_PORT}
-    expose:
-      - ${SERVER_PORT}
 
   prometheus:
       image: prom/prometheus:v2.22.0
