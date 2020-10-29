@@ -2,3 +2,7 @@
 vendor
 .history/
 .DS_Store
+
+# test coverage
+coverage.txt
+profile.out

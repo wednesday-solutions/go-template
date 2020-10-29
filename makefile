@@ -28,21 +28,25 @@ prod:
 
 test:
 	docker-compose --env-file ./.env.test \
-	-f docker-compose.yml \
 	-f docker-compose.test.yml down
 
 	docker-compose --env-file ./.env.test \
-	-f docker-compose.yml \
 	-f docker-compose.test.yml build
 
 	docker-compose --env-file ./.env.test \
-	-f docker-compose.yml \
 	-f docker-compose.test.yml up -d
+
+	docker exec -it go-template_server_1 ./test.sh
 
 logs:
 	docker-compose --env-file ./.env.$(env) logs -f
 
 tear:
-	docker-compose --env-file ./.env.$(env) \
-	-f docker-compose.yml \
-	-f docker-compose.$(env).yml down
+	if [ $(env) = "test" ]; then \
+		docker-compose --env-file ./.env.$(env) \
+		-f docker-compose.$(env).yml down; \
+	else \
+		docker-compose --env-file ./.env.$(env) \
+		-f docker-compose.yml \
+		-f docker-compose.$(env).yml down; \
+	fi

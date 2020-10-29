@@ -1,8 +1,31 @@
 version: '3.8'
 
 services:
+  db:
+    image: postgres:13
+    restart: always
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+      - POSTGRES_PORT=${DB_PORT}
+      - POSTGRES_DB=${DB_NAME}
+
+  redis:
+    image: redis:6-alpine
+    restart: always
+    command: --port ${REDIS_PORT}
+
   server:
     build:
+      context: .
+      dockerfile: Dockerfile
       target: test
+    depends_on:
+      - db
+      - redis
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
     env_file:
       - .env.test
+    stdin_open: true
+    tty: true

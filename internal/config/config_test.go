@@ -45,8 +45,7 @@ func TestLoad(t *testing.T) {
 	}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			fmt.Println(os.Getenv("ENVIRONMENT_NAME"))
-			err := godotenv.Load(fmt.Sprintf("../../../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
+			err := godotenv.Load(fmt.Sprintf("../../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
 			if err != nil {
 				fmt.Print("Error loading .env file")
 			}

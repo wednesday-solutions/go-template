@@ -201,7 +201,7 @@ go-template/
 └──.pre-commit-config.yaml          # config to run pre-commit utility
 └──dbconfig.yml
 └──docker-compose.*.yml             # docker-compose file corresponding to the state of project (local, prod, test)
-└──docker-compose.yml               # docker-compose file which serves as a base to other docker-compose files
+└──docker-compose.yml               # docker-compose file which serves as a base to other docker-compose files (local and prod)
 └──generate-modules.sh              # script to generate modules
 └──gqlgen.yml                       # file to configure gqlgen
 └──makefile
