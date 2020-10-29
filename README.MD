@@ -147,7 +147,7 @@ go-template/
 └──.github/
 │  └──workflow/go-template-ci.yml   # this file contains the config of github action
 └──cmd/
-│  └──seeds/
+│  └──seeder/
 │  │  └──v1/1_roles.go              # seed file to load roles into DB
 │  │  └──v2/2_users.go              # seed file to load users into DB
 │  └──server/main.go                # this is the starting point of the go server
@@ -160,7 +160,7 @@ go-template/
 │     └──auth/
 │     └──secure/
 │  └──migrations/                   # these are the migrations to be applied
-│  └──postgre/                      # this takes care of connecting to postgre
+│  └──postgres/                      # this takes care of connecting to postgre
 │  └──server/                       # this package have functionality to start a echo server
 │  └──services/                     # this will have services used in the server
 └──models/
