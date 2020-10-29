@@ -2,10 +2,11 @@ package service
 
 import (
 	"crypto/sha1"
-	"github.com/wednesday-solutions/go-template/pkg/utl/config"
-	"github.com/wednesday-solutions/go-template/pkg/utl/jwt"
-	"github.com/wednesday-solutions/go-template/pkg/utl/secure"
 	"os"
+
+	"github.com/wednesday-solutions/go-template/internal/config"
+	"github.com/wednesday-solutions/go-template/internal/jwt"
+	"github.com/wednesday-solutions/go-template/pkg/utl/secure"
 )
 
 // Secure returns new secure service

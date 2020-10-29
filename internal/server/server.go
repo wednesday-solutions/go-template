@@ -8,10 +8,9 @@ import (
 	"time"
 
 	"github.com/go-playground/validator"
-	"github.com/labstack/echo/middleware"
-	"github.com/wednesday-solutions/go-template/pkg/utl/middleware/secure"
-
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
+	"github.com/wednesday-solutions/go-template/internal/middleware/secure"
 )
 
 // New instantates new Echo server

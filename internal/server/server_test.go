@@ -3,7 +3,7 @@ package server_test
 import (
 	"testing"
 
-	"github.com/wednesday-solutions/go-template/pkg/utl/server"
+	"github.com/wednesday-solutions/go-template/internal/server"
 )
 
 // Improve tests

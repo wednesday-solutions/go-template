@@ -6,9 +6,8 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/wednesday-solutions/go-template/internal/config"
 	"github.com/wednesday-solutions/go-template/pkg/api"
-
-	"github.com/wednesday-solutions/go-template/pkg/utl/config"
 )
 
 func main() {

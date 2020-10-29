@@ -4,15 +4,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	graphql2 "github.com/99designs/gqlgen/graphql"
-	"github.com/go-playground/validator"
-	"github.com/labstack/echo"
-	"github.com/vektah/gqlparser/v2/gqlerror"
-	"github.com/wednesday-solutions/go-template/pkg/utl/server"
 	"net/http"
 	"net/http/httptest"
 	"regexp"
 	"strings"
+
+	graphql2 "github.com/99designs/gqlgen/graphql"
+	"github.com/go-playground/validator"
+	"github.com/labstack/echo"
+	"github.com/vektah/gqlparser/v2/gqlerror"
+	"github.com/wednesday-solutions/go-template/internal/server"
 )
 
 var (

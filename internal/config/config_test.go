@@ -2,12 +2,12 @@ package config_test
 
 import (
 	"fmt"
-	"github.com/joho/godotenv"
 	"os"
 	"testing"
 
+	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
-	"github.com/wednesday-solutions/go-template/pkg/utl/config"
+	"github.com/wednesday-solutions/go-template/internal/config"
 )
 
 func TestLoad(t *testing.T) {
