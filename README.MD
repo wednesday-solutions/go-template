@@ -164,12 +164,14 @@ For more information on migration package refer [here](https://github.com/rubenv
 go-template/
 └──.github/
 │  └──workflow/go-template-ci.yml   # this file contains the config of github action
+└──alertmanager/                    # this directory will be mounted at /etc/alertmanager/ inside the alertmanager service. It contains config.yml that configs various notification receivers for prometheus
 └──cmd/
 │  └──seeder/
 │  │  └──v1/1_roles.go              # seed file to load roles into DB
 │  │  └──v2/2_users.go              # seed file to load users into DB
 │  └──server/main.go                # this is the starting point of the go server
 └──daos/                            # this directory will hold info about the DB transactions
+└──grafana/provisioning/            # this directory will be mounted at /etc/grafana/provisioning/ inside the grafana service
 └──graphql_models/                  # this directory contain modules for gqlgen and is mostly auto-generated
 └──internal/
 │  └──config/                       # this package loads env variables into a config object
@@ -192,6 +194,7 @@ go-template/
 │     └──result_wrapper/            # this package exports the custom errors produced by application
 │     └──secure/                    # this package has password related functionalities
 │     └──zlog/                      # this package has setup for zerolog logger
+└──prometheus/                      # this directory will be mounted at /etc/prometheus inside the prometheus service and contains prometheus.yml for the service
 └──resolver/                        # this directory will contain resolvers to populate info for graphQL queries, mutations and subscriptions
 └──schema/                          # this directory will have all the .graphql files which make the graphql api
 └──.env.local                       # a sample .env file for reference
