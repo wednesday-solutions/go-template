@@ -2,9 +2,10 @@ package seeders
 
 import (
 	"fmt"
-	"github.com/wednesday-solutions/go-template/pkg/utl/postgres"
 	"log"
 	"strings"
+
+	"github.com/wednesday-solutions/go-template/internal/postgres"
 )
 
 // SeedData ...

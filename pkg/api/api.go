@@ -18,12 +18,12 @@ import (
 	_ "github.com/lib/pq" // here
 	"github.com/volatiletech/sqlboiler/boil"
 	graphql "github.com/wednesday-solutions/go-template/graphql_models"
-	"github.com/wednesday-solutions/go-template/pkg/utl/config"
-	"github.com/wednesday-solutions/go-template/pkg/utl/jwt"
-	authMw "github.com/wednesday-solutions/go-template/pkg/utl/middleware/auth"
-	"github.com/wednesday-solutions/go-template/pkg/utl/postgres"
-	"github.com/wednesday-solutions/go-template/pkg/utl/rate_throttle"
-	"github.com/wednesday-solutions/go-template/pkg/utl/server"
+	"github.com/wednesday-solutions/go-template/internal/config"
+	"github.com/wednesday-solutions/go-template/internal/jwt"
+	authMw "github.com/wednesday-solutions/go-template/internal/middleware/auth"
+	"github.com/wednesday-solutions/go-template/internal/postgres"
+	"github.com/wednesday-solutions/go-template/internal/server"
+	throttle "github.com/wednesday-solutions/go-template/pkg/utl/rate_throttle"
 	"github.com/wednesday-solutions/go-template/resolver"
 )
 

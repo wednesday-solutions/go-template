@@ -114,22 +114,22 @@ Also, there will be 5 monitoring containers produced for Prometheus set-up
 
 To ease the development process a make file is provided with 5 commands
 
-- **`make local`**
-  Requires `.env.local` file to be present and set
+- **`make local`**  
+  Requires `.env.local` file to be present and set  
   This starts the containers in `local` stage, bind the `current directory` to `/go/src/server` inside the `go-template_server_1` container and then starts the `terminal` inside `go-template_server_1`. Once the development is over, `exit` the terminal and call `make tear env=local` to stop all the containers
 
-- **`make test`**
-  Requires `.env.test` file to be present and set
+- **`make test`**  
+  Requires `.env.test` file to be present and set  
   This starts the containers in `test` stage and runs `go test -v ./...` inside `go-template_server_1` container. This can be used for `CI/CD` pipelines too. Remember to call `make tear env=test` to stop the containers.
 
-- **`make prod`**
-  Requires `.env.prod` file to be present and set
+- **`make prod`**  
+  Requires `.env.prod` file to be present and set  
   This starts the containers in `prod` stage. You cannot connect to `go-template_server_1` because it has no terminal the contain is build from `scratch` image with only the `go binary` running in it. To stop the containers use `make tear env=prod` and to get live logs from the containers use `make logs env=prod`.
 
-- **`make logs env=<stage>`**
+- **`make logs env=<stage>`**  
   this command gives the logs of all the containers in the given stage, useful because the containers are started in detached mode (`-d`)
 
-- **`make tear env=<stage>`**
+- **`make tear env=<stage>`**  
   this command tears down (`docker-compose down`) all 3 running containers (`db`, `redis`, `server`).
 
 # Running migrations
@@ -152,8 +152,57 @@ sql-migrate new -env postgres <name>
 ```
 append query to above file
 
-
 For more information on migration package refer [here](https://github.com/rubenv/sql-migrate)
+
+# File Structure
+
+```txt
+go-template/
+└──.github/
+│  └──workflow/go-template-ci.yml   # this file contains the config of github action
+└──cmd/
+│  └──seeder/
+│  │  └──v1/1_roles.go              # seed file to load roles into DB
+│  │  └──v2/2_users.go              # seed file to load users into DB
+│  └──server/main.go                # this is the starting point of the go server
+└──daos/                            # this directory will hold info about the DB transactions
+└──graphql_models/                  # this directory contain modules for gqlgen and is mostly auto-generated
+└──internal/
+│  └──config/                       # this package loads env variables into a config object
+│  └──jwt/                          # this package has JWT related middlewares and convertors
+│  └──middleware/
+│     └──auth/
+│     └──secure/
+│  └──migrations/                   # these are the migrations to be applied
+│  └──postgres/                      # this takes care of connecting to postgre
+│  └──server/                       # this package have functionality to start a echo server
+│  └──services/                     # this will have services used in the server
+└──models/
+└──pkg/
+│  └──api/api.go                    # the starting point of the api
+│  └──utl/
+│     └──convert/                   # this package has functionality for type conversions
+│     └──mock/                      # this package has mocks related to passwords and JWTs
+│     └──rate_throttle/             # this package has functionality for request rate throttling
+│     └──redis_cache/               # this package has functionality for accessing and using redis
+│     └──result_wrapper/            # this package exports the custom errors produced by application
+│     └──secure/                    # this package has password related functionalities
+│     └──zlog/                      # this package has setup for zerolog logger
+└──resolver/                        # this directory will contain resolvers to populate info for graphQL queries, mutations and subscriptions
+└──schema/                          # this directory will have all the .graphql files which make the graphql api
+└──.env.local                       # a sample .env file for reference
+└──.pre-commit-config.yaml          # config to run pre-commit utility
+└──dbconfig.yml
+└──docker-compose.*.yml             # docker-compose file corresponding to the state of project (local, prod, test)
+└──docker-compose.yml               # docker-compose file which serves as a base to other docker-compose files
+└──generate-modules.sh              # script to generate modules
+└──gqlgen.yml                       # file to configure gqlgen
+└──makefile
+└──migrate-run.sh                   # script to run DB migrations
+└──setup-local.sh                   # a helper script to setup local env (do migration, etc)
+└──sqlboiler.toml                   # sqlboiler config file
+└──test.sh                          # a helper script to run test in local env
+```
 
 # DB Models
 
