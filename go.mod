@@ -30,6 +30,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rafaeljusto/redigomock v2.4.0+incompatible
 	github.com/rs/zerolog v1.18.0
+	github.com/rubenv/sql-migrate v0.0.0-20210215143335-f84234893558 // indirect
 	github.com/spf13/afero v1.2.2 // indirect
 	github.com/spf13/cast v1.3.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect

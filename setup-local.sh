@@ -3,6 +3,7 @@ set -a
 source .env.local
 set +a
 
+export DB_HOST=localhost
 # drop tables
 sql-migrate down -env postgres -limit=0
 
