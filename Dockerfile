@@ -1,34 +1,17 @@
-# syntax = docker/dockerfile:1.0-experimental
+FROM golang
 
-# All dependencies are set here
-FROM golang:1.15.2-buster AS base
+RUN mkdir -p /go/src/github.com/wednesday-solutions/go-template
 
-LABEL author "Wednesday Solutions <wednesday.is>"
-LABEL description "Golang Template"
-
-WORKDIR /go/src/server
-COPY go.* ./
-RUN go mod download -x; go mod tidy -v
-
-# here dev/local stage is set
-FROM base AS local
-RUN GO111MODULE=off go get -v github.com/rubenv/sql-migrate/... \
+RUN go get -v github.com/rubenv/sql-migrate/... \
   github.com/volatiletech/sqlboiler \
   github.com/99designs/gqlgen
-CMD [ "/bin/bash" ]
 
-# A testing stage for the app
-FROM base AS test
-COPY . .
-RUN go test  -v ./...
+ADD . /go/src/github.com/wednesday-solutions/go-template
+WORKDIR /go/src/github.com/wednesday-solutions/go-template
 
-# here the static app binary (CGO_ENABLED=0) is build
-FROM base AS build
-ENV CGO_ENABLED=0
-COPY . .
-RUN go build -o /bin/server ./cmd/server/main.go
+RUN GOARCH=amd64 \
+    GOOS=linux \
+    CGO_ENABLED=0 \
+    go mod vendor
 
-# This results in a single layer image
-FROM scratch AS prod
-COPY --from=build /bin/server /server
-ENTRYPOINT ["/server"]
+CMD ["bash", "./migrate-and-run.sh"]
