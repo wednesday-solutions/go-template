@@ -20,7 +20,7 @@ import (
 	"github.com/wednesday-solutions/go-template/models"
 	"github.com/wednesday-solutions/go-template/pkg/utl"
 	"github.com/wednesday-solutions/go-template/pkg/utl/convert"
-	throttle "github.com/wednesday-solutions/go-template/pkg/utl/rate_throttle"
+	"github.com/wednesday-solutions/go-template/pkg/utl/rate_throttle"
 	rediscache "github.com/wednesday-solutions/go-template/pkg/utl/redis_cache"
 	resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
 )
@@ -147,7 +147,6 @@ func (r *mutationResolver) RefreshToken(ctx context.Context, token string) (*gra
 }
 
 func (r *mutationResolver) CreateUser(ctx context.Context, input graphql_models.UserCreateInput) (*graphql_models.UserPayload, error) {
-
 	err := throttle.Check(ctx, 5, 10*time.Second)
 	if err != nil {
 		return nil, err
