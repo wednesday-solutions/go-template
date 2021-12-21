@@ -56,6 +56,7 @@ func DeleteUser(user models.User) (int64, error) {
 	return rowsAffected, err
 }
 
+// FindAllUsersWithCount ... This will get all the users that match the queryMod filter and also return the count
 func FindAllUsersWithCount(queryMods []qm.QueryMod) (models.UserSlice, int64, error) {
 	contextExecutor := getContextExecutor(nil)
 	users, err := models.Users(queryMods...).All(context.Background(), contextExecutor)
