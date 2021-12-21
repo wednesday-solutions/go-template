@@ -27,7 +27,7 @@ func New() *echo.Echo {
 }
 
 func healthCheck(c echo.Context) error {
-	return c.JSON(http.StatusOK, "OK")
+	return c.JSON(http.StatusOK, "Go template at your service!🍲")
 }
 
 // Config represents server specific config
