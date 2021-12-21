@@ -80,6 +80,7 @@ type UserDeletePayload {
 
 type UsersPayload {
     users: [User!]!
+    total: Int!   
 }
 
 type UsersDeletePayload {

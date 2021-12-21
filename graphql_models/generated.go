@@ -143,6 +143,7 @@ type ComplexityRoot struct {
 	}
 
 	UsersPayload struct {
+		Total func(childComplexity int) int
 		Users func(childComplexity int) int
 	}
 }
@@ -543,6 +544,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UsersDeletePayload.Ids(childComplexity), true
 
+	case "UsersPayload.total":
+		if e.complexity.UsersPayload.Total == nil {
+			break
+		}
+
+		return e.complexity.UsersPayload.Total(childComplexity), true
+
 	case "UsersPayload.users":
 		if e.complexity.UsersPayload.Users == nil {
 			break
@@ -849,6 +857,7 @@ type UserDeletePayload {
 
 type UsersPayload {
     users: [User!]!
+    total: Int!   
 }
 
 type UsersDeletePayload {
@@ -2811,6 +2820,41 @@ func (ec *executionContext) _UsersPayload_users(ctx context.Context, field graph
 	res := resTmp.([]*User)
 	fc.Result = res
 	return ec.marshalNUser2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _UsersPayload_total(ctx context.Context, field graphql.CollectedField, obj *UsersPayload) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "UsersPayload",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
@@ -5543,6 +5587,11 @@ func (ec *executionContext) _UsersPayload(ctx context.Context, sel ast.Selection
 			out.Values[i] = graphql.MarshalString("UsersPayload")
 		case "users":
 			out.Values[i] = ec._UsersPayload_users(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "total":
+			out.Values[i] = ec._UsersPayload_total(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}

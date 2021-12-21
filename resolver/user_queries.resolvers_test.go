@@ -117,10 +117,15 @@ func TestUsers(t *testing.T) {
 			mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"users\";")).
 				WithArgs().
 				WillReturnRows(rows)
+			rowCount := sqlmock.NewRows([]string{"count"}).AddRow(1)
+			mock.ExpectQuery(regexp.QuoteMeta("SELECT COUNT(*) FROM \"users\";")).
+				WithArgs().
+				WillReturnRows(rowCount)
 
 			c := context.Background()
 			ctx := context.WithValue(c, userKey, models.User{ID: 1, FirstName: null.StringFrom("First"), LastName: null.StringFrom("Last"), Username: null.StringFrom("username"), Email: null.StringFrom("mac@wednesday.is"), Mobile: null.StringFrom("+911234567890"), Phone: null.StringFrom("05943-1123"), Address: null.StringFrom("22 Jump Street")})
 			response, err := resolver1.Query().Users(ctx, tt.pagination)
+
 			if tt.wantResp != nil && response != nil {
 				assert.Equal(t, len(tt.wantResp), len(response.Users))
 			}
