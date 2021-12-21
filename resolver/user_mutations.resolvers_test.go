@@ -34,7 +34,7 @@ func TestCreateUser(t *testing.T) {
 		{
 			name:     "Success",
 			req:      fm.UserCreateInput{FirstName: convert.StringToPointerString("First"), LastName: convert.StringToPointerString("Last"), Username: convert.StringToPointerString("username"), Email: convert.StringToPointerString("mac@wednesday.is")},
-			wantResp: &fm.UserPayload{User: &fm.User{FirstName: convert.StringToPointerString("First"), LastName: convert.StringToPointerString("Last"), Username: convert.StringToPointerString("username"), Email: convert.StringToPointerString("mac@wednesday.is")}},
+			wantResp: &fm.UserPayload{User: &fm.User{ID: "1", FirstName: convert.StringToPointerString("First"), LastName: convert.StringToPointerString("Last"), Username: convert.StringToPointerString("username"), Email: convert.StringToPointerString("mac@wednesday.is")}},
 			wantErr:  false,
 		},
 	}
