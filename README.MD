@@ -246,7 +246,7 @@ http:
 
 ## Testing
 
-Get test coverage with 
+Get test coverage using
 ```
 go test -cover
 ```
