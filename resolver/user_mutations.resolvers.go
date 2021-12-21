@@ -72,13 +72,7 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, input *graphql_models
 		return nil, resultwrapper.ResolverSQLError(err, "new information")
 	}
 
-	graphUser := &graphql_models.User{
-		FirstName: convert.NullDotStringToPointerString(u.FirstName),
-		LastName:  convert.NullDotStringToPointerString(u.LastName),
-		Mobile:    convert.NullDotStringToPointerString(u.Mobile),
-		Phone:     convert.NullDotStringToPointerString(u.Phone),
-		Address:   convert.NullDotStringToPointerString(u.Address),
-	}
+	graphUser := convert.UserToGraphQlUser(&u)
 	r.Lock()
 	for _, observer := range r.Observers {
 		observer <- graphUser
