@@ -13,7 +13,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.14.x
+          go-version: 1.16.x
       - name: Install pre-commit dependencies
         run: |
           go get -v -d github.com/fzipp/gocyclo
