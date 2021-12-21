@@ -19,7 +19,7 @@ jobs:
       - name: Set env.ENVIRONMENT_NAME
         run: |
           if [[ ${{ steps.vars.outputs.stage }} == 'master' ]]; then
-              echo "ENVIRONMENT_NAME=prod" >> "$GITHUB_ENV"
+              echo "ENVIRONMENT_NAME=dev" >> "$GITHUB_ENV"
           else
               echo "ENVIRONMENT_NAME=${{ steps.vars.outputs.stage }}" >> "$GITHUB_ENV"
           fi
@@ -37,4 +37,4 @@ jobs:
 
       - name: Deploy ECS
         run: |
-          ./update-ecs.sh demo ${{ env.ENVIRONMENT_NAME }}
+          ./update-ecs.sh gotemplate ${{ env.ENVIRONMENT_NAME }}
