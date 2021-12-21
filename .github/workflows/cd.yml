@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - master
-      - qa
 jobs:
   deploy:
     name: Deploy to ECS
