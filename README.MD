@@ -220,8 +220,10 @@ gqlgen generate
 
 ### Create infrastructure
 
+Application name should container only lowercase letters. No hyphens and underscores or any other special characters.
+
 ```
-./scripts/setup-ecs.sh go-template dev
+./scripts/setup-ecs.sh gotemplate dev
 ```
 
 Make sure that the manifest.yml has http.path: '/'
@@ -239,8 +241,16 @@ http:
 ### Update infrastructure
 
 ```
-./scripts/update-ecs.sh go-template dev
+./scripts/update-ecs.sh gotemplate dev
 ```
+
+## Testing
+
+Get test coverage with 
+```
+go test -cover
+```
+
 ## License
 
 Go Template is licensed under the MIT license. Check the [LICENSE](LICENSE) file for details.
