@@ -84,11 +84,11 @@ func UserToGraphQlUser(u *models.User) *graphql.User {
 	return &graphql.User{
 		ID:        strconv.Itoa(u.ID),
 		FirstName: NullDotStringToPointerString(u.FirstName),
-		LastName:  NullDotStringToPointerString(u.FirstName),
-		Username:  NullDotStringToPointerString(u.FirstName),
-		Email:     NullDotStringToPointerString(u.FirstName),
-		Mobile:    NullDotStringToPointerString(u.FirstName),
-		Phone:     NullDotStringToPointerString(u.FirstName),
+		LastName:  NullDotStringToPointerString(u.LastName),
+		Username:  NullDotStringToPointerString(u.Username),
+		Email:     NullDotStringToPointerString(u.Email),
+		Mobile:    NullDotStringToPointerString(u.Mobile),
+		Phone:     NullDotStringToPointerString(u.Phone),
 		Address:   NullDotStringToPointerString(u.Address),
 		Active:    NullDotBoolToPointerBool(u.Active),
 	}

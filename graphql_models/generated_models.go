@@ -229,4 +229,5 @@ type UsersDeletePayload struct {
 
 type UsersPayload struct {
 	Users []*User `json:"users"`
+	Total int     `json:"total"`
 }

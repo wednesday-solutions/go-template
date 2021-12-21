@@ -2,7 +2,7 @@ exclude: '^gqlgen'
 fail_fast: true
 repos:
   - repo: git://github.com/dnephin/pre-commit-golang
-    rev: master
+    rev: v0.4.0
     hooks:
       - id: go-fmt
       - id: go-vet

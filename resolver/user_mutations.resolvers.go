@@ -46,15 +46,7 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input graphql_models.
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "user information")
 	}
-	graphUser := &graphql_models.User{
-		FirstName: convert.NullDotStringToPointerString(newUser.FirstName),
-		LastName:  convert.NullDotStringToPointerString(newUser.LastName),
-		Username:  convert.NullDotStringToPointerString(newUser.Username),
-		Email:     convert.NullDotStringToPointerString(newUser.Email),
-		Mobile:    convert.NullDotStringToPointerString(newUser.Mobile),
-		Phone:     convert.NullDotStringToPointerString(newUser.Phone),
-		Address:   convert.NullDotStringToPointerString(newUser.Address),
-	}
+	graphUser := convert.UserToGraphQlUser(&newUser)
 
 	r.Lock()
 	for _, observer := range r.Observers {
@@ -80,13 +72,7 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, input *graphql_models
 		return nil, resultwrapper.ResolverSQLError(err, "new information")
 	}
 
-	graphUser := &graphql_models.User{
-		FirstName: convert.NullDotStringToPointerString(u.FirstName),
-		LastName:  convert.NullDotStringToPointerString(u.LastName),
-		Mobile:    convert.NullDotStringToPointerString(u.Mobile),
-		Phone:     convert.NullDotStringToPointerString(u.Phone),
-		Address:   convert.NullDotStringToPointerString(u.Address),
-	}
+	graphUser := convert.UserToGraphQlUser(&u)
 	r.Lock()
 	for _, observer := range r.Observers {
 		observer <- graphUser
