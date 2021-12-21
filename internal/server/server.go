@@ -7,8 +7,6 @@ import (
 	"os/signal"
 	"time"
 
-	"fmt"
-
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -29,7 +27,6 @@ func New() *echo.Echo {
 }
 
 func healthCheck(c echo.Context) error {
-	fmt.Println(os.Environ())
 	return c.JSON(http.StatusOK, "Go template at your service!🍲")
 }
 
