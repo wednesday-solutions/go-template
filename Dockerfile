@@ -13,5 +13,5 @@ RUN GOARCH=amd64 \
     GOOS=linux \
     CGO_ENABLED=0 \
     go mod vendor
-
+RUN go build -o ./ ./cmd/server/main.go
 CMD ["bash", "./migrate-and-run.sh"]

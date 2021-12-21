@@ -12,4 +12,4 @@ sql-migrate down -env postgres -limit=0
 sql-migrate up -env postgres
 sql-migrate status -env postgres
 
-go run cmd/server/main.go
+./main
