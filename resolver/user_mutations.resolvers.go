@@ -16,7 +16,7 @@ import (
 	"github.com/wednesday-solutions/go-template/internal/service"
 	"github.com/wednesday-solutions/go-template/models"
 	"github.com/wednesday-solutions/go-template/pkg/utl/convert"
-	throttle "github.com/wednesday-solutions/go-template/pkg/utl/rate_throttle"
+	"github.com/wednesday-solutions/go-template/pkg/utl/rate_throttle"
 	resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
 )
 
@@ -46,15 +46,7 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input graphql_models.
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "user information")
 	}
-	graphUser := &graphql_models.User{
-		FirstName: convert.NullDotStringToPointerString(newUser.FirstName),
-		LastName:  convert.NullDotStringToPointerString(newUser.LastName),
-		Username:  convert.NullDotStringToPointerString(newUser.Username),
-		Email:     convert.NullDotStringToPointerString(newUser.Email),
-		Mobile:    convert.NullDotStringToPointerString(newUser.Mobile),
-		Phone:     convert.NullDotStringToPointerString(newUser.Phone),
-		Address:   convert.NullDotStringToPointerString(newUser.Address),
-	}
+	graphUser := convert.UserToGraphQlUser(&newUser)
 
 	r.Lock()
 	for _, observer := range r.Observers {
