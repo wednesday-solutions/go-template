@@ -1,0 +1,23 @@
+name: Backmerge from master
+on:
+  push:
+    branches:
+      - master
+jobs:
+  merge-master-back-to-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.WORKFLOW_TOKEN }}
+      - name: Set Git config
+        run: |
+          git config --local user.email "github@wednesday.is"
+          git config --local user.name "Github Actions"
+      - name: Merge master back to qa
+        run: |
+          git fetch --unshallow
+          git checkout qa
+          git pull
+          git merge --no-ff master -m "Auto-merge master back to qa"
+          git push

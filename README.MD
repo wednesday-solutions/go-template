@@ -215,6 +215,42 @@ gqlgen generate
 
   - [resolver.go](resolver.go)
 
+
+## Infrastructure
+
+### Create infrastructure
+
+Application name should container only lowercase letters. No hyphens and underscores or any other special characters.
+
+```
+./scripts/setup-ecs.sh gotemplate dev
+```
+
+Make sure that the manifest.yml has http.path: '/'
+
+```
+http:
+  # Requests to this path will be forwarded to your service.
+  # To match all requests you can use the "/" path.
+  path: '/'
+  # You can specify a custom health check path. The default is "/".
+  # healthcheck: '/'
+
+```
+
+### Update infrastructure
+
+```
+./scripts/update-ecs.sh gotemplate dev
+```
+
+## Testing
+
+Get test coverage with 
+```
+go test -cover
+```
+
 ## License
 
 Go Template is licensed under the MIT license. Check the [LICENSE](LICENSE) file for details.

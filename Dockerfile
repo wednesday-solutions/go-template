@@ -15,3 +15,4 @@ RUN GOARCH=amd64 \
     go mod vendor
 RUN go build -o ./ ./cmd/server/main.go
 CMD ["bash", "./migrate-and-run.sh"]
+EXPOSE 9000
