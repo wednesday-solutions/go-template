@@ -2,6 +2,7 @@ package daos
 
 import (
 	"database/sql"
+
 	"github.com/volatiletech/sqlboiler/boil"
 )
 

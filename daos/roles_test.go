@@ -2,15 +2,16 @@ package daos_test
 
 import (
 	"fmt"
+	"os"
+	"regexp"
+	"testing"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 	"github.com/volatiletech/sqlboiler/boil"
 	"github.com/wednesday-solutions/go-template/daos"
 	"github.com/wednesday-solutions/go-template/models"
-	"os"
-	"regexp"
-	"testing"
 )
 
 func TestCreateRoleTx(t *testing.T) {

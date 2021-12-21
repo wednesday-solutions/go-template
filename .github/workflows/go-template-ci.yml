@@ -16,11 +16,11 @@ jobs:
           go-version: 1.16.x
       - name: Install pre-commit dependencies
         run: |
-          go get -v -d github.com/fzipp/gocyclo
-          go get -v -d golang.org/x/tools/cmd/goimports
-          go get -v -d github.com/go-critic/go-critic/cmd/gocritic
-          go get -v -d golang.org/x/lint/golint
-          go get -v -d github.com/BurntSushi/toml/cmd/tomlv
+          go get github.com/fzipp/gocyclo
+          go get golang.org/x/tools/cmd/goimports
+          go get github.com/go-critic/go-critic/cmd/gocritic
+          go get golang.org/x/lint/golint
+          go get github.com/BurntSushi/toml/cmd/tomlv
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
       - uses: pre-commit/action@v2.0.0

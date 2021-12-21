@@ -18,6 +18,7 @@ import (
 	"github.com/wednesday-solutions/go-template/pkg/utl/convert"
 	"github.com/wednesday-solutions/go-template/resolver"
 )
+
 func TestCreateUser(t *testing.T) {
 	cases := []struct {
 		name     string

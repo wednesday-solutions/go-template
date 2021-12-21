@@ -108,4 +108,3 @@ func (r *mutationResolver) DeleteUser(ctx context.Context) (*graphql_models.User
 	}
 	return &graphql_models.UserDeletePayload{ID: fmt.Sprint(userID)}, nil
 }
-

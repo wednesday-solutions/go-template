@@ -51,4 +51,3 @@ func (r *queryResolver) Users(ctx context.Context, pagination *graphql_models.Us
 func (r *Resolver) Query() graphql_models.QueryResolver { return &queryResolver{r} }
 
 type queryResolver struct{ *Resolver }
-

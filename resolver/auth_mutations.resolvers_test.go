@@ -17,6 +17,7 @@ import (
 	"github.com/wednesday-solutions/go-template/models"
 	"github.com/wednesday-solutions/go-template/resolver"
 )
+
 func TestLogin(t *testing.T) {
 	type args struct {
 		UserName string
@@ -166,7 +167,6 @@ func TestChangePassword(t *testing.T) {
 		})
 	}
 }
-
 
 func TestRefreshToken(t *testing.T) {
 	cases := []struct {

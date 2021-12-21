@@ -3,6 +3,7 @@ package daos
 import (
 	"context"
 	"database/sql"
+
 	"github.com/volatiletech/sqlboiler/boil"
 	"github.com/wednesday-solutions/go-template/models"
 )

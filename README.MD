@@ -62,20 +62,22 @@ The Go Template is a template/starter go project.
 
 Using go-template requires having Go 1.7 or above. Once you download go-template (either using Git or go get) you need to configure the following:
 
-1. Set the ("ENVIRONMENT_NAME") environment variable, either using terminal or os.Setenv("ENVIRONMENT_NAME","dev").
+1. Run the `pre-commit-setup.sh` script to install the pre-commit hooks locally.
 
-2. Install the sqlboiler, sql-migrate and gqlgen using
+2. Set the ("ENVIRONMENT_NAME") environment variable, either using terminal or os.Setenv("ENVIRONMENT_NAME","dev").
+
+3. Install the sqlboiler, sql-migrate and gqlgen using
 ```
   go get -v github.com/rubenv/sql-migrate/... \
   github.com/volatiletech/sqlboiler \
   github.com/99designs/gqlgen
   ```
 
-3. To run all the migrations using the script setup-local.sh as follows `./setup-local.sh`.
+4. To run all the migrations using the script setup-local.sh as follows `./setup-local.sh`.
 
-4. Generate the graphql models using `gqlgen generate`
+5. Generate the graphql models using `gqlgen generate`
 
-5. Run the app using:
+6. Run the app using:
 
 ```bash
 go run cmd/server/main.go
