@@ -2,10 +2,11 @@ package jwt
 
 import (
 	"fmt"
-	"github.com/wednesday-solutions/go-template/models"
-	resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
 	"strings"
 	"time"
+
+	"github.com/wednesday-solutions/go-template/models"
+	resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
 
 	"github.com/dgrijalva/jwt-go"
 )

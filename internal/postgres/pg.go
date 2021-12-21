@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+
 	// DB adapter
 	_ "github.com/lib/pq"
 )

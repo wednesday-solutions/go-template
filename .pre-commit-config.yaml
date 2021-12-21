@@ -8,7 +8,6 @@ repos:
       - id: go-vet
       - id: go-lint
       - id: go-imports
-        args: [-over=15]
       - id: validate-toml
       - id: no-go-testing
       - id: go-mod-tidy

@@ -2,13 +2,14 @@ package auth
 
 import (
 	"context"
+	"reflect"
+
 	graphql2 "github.com/99designs/gqlgen/graphql"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"github.com/wednesday-solutions/go-template/daos"
 	"github.com/wednesday-solutions/go-template/models"
 	resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
-	"reflect"
 )
 
 type key string

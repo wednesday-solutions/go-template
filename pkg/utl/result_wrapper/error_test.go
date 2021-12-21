@@ -1,9 +1,10 @@
 package resultwrapper_test
 
 import (
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
-	"testing"
 )
 
 func TestSplitByLabel(t *testing.T) {

@@ -1,0 +1,5 @@
+extend type Mutation {
+    login(username: String!, password: String!): LoginResponse!
+    changePassword(oldPassword: String!, newPassword: String!): ChangePasswordResponse!
+    refreshToken(token: String!): RefreshTokenResponse!
+}

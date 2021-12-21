@@ -62,13 +62,22 @@ The Go Template is a template/starter go project.
 
 Using go-template requires having Go 1.7 or above. Once you download go-template (either using Git or go get) you need to configure the following:
 
-1. Set the ("ENVIRONMENT_NAME") environment variable, either using terminal or os.Setenv("ENVIRONMENT_NAME","dev").
+1. Run the `pre-commit-setup.sh` script to install the pre-commit hooks locally.
 
-2. To run all the migrations using the script setup-local.sh as follows `./setup-local.sh`.
+2. Set the ("ENVIRONMENT_NAME") environment variable, either using terminal or os.Setenv("ENVIRONMENT_NAME","dev").
 
-3. Generate the graphql models using `./generate-models.sh`
+3. Install the sqlboiler, sql-migrate and gqlgen using
+```
+  go get -v github.com/rubenv/sql-migrate/... \
+  github.com/volatiletech/sqlboiler \
+  github.com/99designs/gqlgen
+  ```
 
-4. Run the app using:
+4. To run all the migrations using the script setup-local.sh as follows `./setup-local.sh`.
+
+5. Generate the graphql models using `gqlgen generate`
+
+6. Run the app using:
 
 ```bash
 go run cmd/server/main.go
@@ -88,53 +97,11 @@ Steps to set up database with ```username``` and ```role``` using terminal
 
 # Using Docker
 
-- Requirement [Docker-Compose](https://docs.docker.com/compose/install/)
-
-You can chose to use Docker-compose for `local`, `prod` and `test` stages. This would take care of all the dependencies, i.e., No need for locally having `Golang`, `PostgreSQL`, `redis` and other `cli` tools used in the template.
-
-There will be 3 containers produced,
-
-- **`go-template_db_1`** this container is based on `postgres:13` image and is referred as `db` when connecting from the `server` source code.  
-
-- **`go-template_redis_1`** this container is based on `redis:6-alpine` image and is referred as `redis` when connecting from the `server` source code.  
-
-- **`go-template_server_1`** this container is where your source code lives and is based on `golang:1.15.2-buster` image (in `local` and `test` stage) or `scratch` image (in `prod` stage).
-
-Also, there will be 5 monitoring containers produced for Prometheus set-up
-
-- **`go-template_prometheus_1`** this container is based on `prom/prometheus:v2.22.0` image and needs `PROMETHEUS_PORT` env variable to be set. When set correctly prometheus could be accessed at `http://<host-ip>:<PROMETHEUS_PORT>` and Prometheus expression browser would be running at `http://<host-ip>:<PROMETHEUS_PORT>/graph/`  
-
-- **`go-template_cadvisor_1`** this container is based on `gcr.io/google_containers/cadvisor:v0.36.0` image and needs `PROMETHEUS_CADVISOR_PORT` env variable to be set. When set correctly cAdvisor could be accessed at `http://<host-ip>:<PROMETHEUS_CADVISOR_PORT>` and matrics for all the running containers (8) can be found at `http://<host-ip>:<PROMETHEUS_CADVISOR_PORT>/docker/`  
-
-- **`go-template_grafana_1`** this container is based on `grafana/grafana:7.2.2` image and needs `GRAFANA_PORT`, `GRAFANA_USER`, `GRAFANA_PASS` and `PROMETHEUS_PORT` env variables to be set. When set correctly Grafana Dashboards could be accessed at `http://<host-ip>:<GRAFANA_PORT>`. It already has 3 pre-configured Dashboards (inspired by [stefanprodan/dockprom](https://github.com/stefanprodan/dockprom)). It is recommended to use grafana for viewing/monitoring the matrixes  
-
-- **`go-template_node-exporter_1`** this container is based on `prom/node-exporter:v1.0.1` image and needs `PROMETHEUS_NODE_EXPORTER_PORT` env variable to be set. When set correctly node-exporter could be accessed at `http://<host-ip>:<PROMETHEUS_NODE_EXPORTER_PORT>` and matrics for host machine can be found at `http://<host-ip>:<PROMETHEUS_NODE_EXPORTER_PORT>/metrics/`  
-
-- **`go-template_alertmanager_1`** this container is based on `prom/alertmanager:v0.21.0` image and needs `PROMETHEUS_ALERTMANAGER_PORT` env variable to be set. When set correctly Prometheus Alert Manager could be accessed at `http://<host-ip>:<PROMETHEUS_ALERTMANAGER_PORT>`. Any alert created by Prometheus would be visible here, you can set custom alert receivers (like Slack alert) in `/alertmanager/config.yml`.
-
-When in `local` stage there will be 1 more container,
-
-- **`go-template_pgAdmin_1`** this container is based on `dpage/pgadmin4:4` and requires `PGADMIN_PORT`, `PGADMIN_EMAIL` and `PGADMIN_PASS` env variables to work. To connect to `go-template_db_1` from `pgadmin` put `db` as **Host name/ Address**
-
-To ease the development process a make file is provided with 5 commands
+To ease the development process a make file is provided
 
 - **`make local`**  
   Requires `.env.local` file to be present and set  
   This starts the containers in `local` stage, bind the `current directory` to `/go/src/server` inside the `go-template_server_1` container and then starts the `terminal` inside `go-template_server_1`. Once the development is over, `exit` the terminal and call `make tear env=local` to stop all the containers
-
-- **`make test`**  
-  Requires `.env.test` file to be present and set  
-  This starts the containers in `test` stage and runs `go test -v ./...` inside `go-template_server_1` container. This can be used for `CI/CD` pipelines too. Remember to call `make tear env=test` to stop the containers.
-
-- **`make prod`**  
-  Requires `.env.prod` file to be present and set  
-  This starts the containers in `prod` stage. You cannot connect to `go-template_server_1` because it has no terminal the contain is build from `scratch` image with only the `go binary` running in it. To stop the containers use `make tear env=prod` and to get live logs from the containers use `make logs env=prod`.
-
-- **`make logs env=<stage>`**  
-  this command gives the logs of all the containers in the given stage, useful because the containers are started in detached mode (`-d`)
-
-- **`make tear env=<stage>`**  
-  this command tears down (`docker-compose down`) all 3 running containers (`db`, `redis`, `server`).
 
 # Running migrations
 
@@ -164,14 +131,12 @@ For more information on migration package refer [here](https://github.com/rubenv
 go-template/
 └──.github/
 │  └──workflow/go-template-ci.yml   # this file contains the config of github action
-└──alertmanager/                    # this directory will be mounted at /etc/alertmanager/ inside the alertmanager service. It contains config.yml that configs various notification receivers for prometheus
 └──cmd/
 │  └──seeder/
 │  │  └──v1/1_roles.go              # seed file to load roles into DB
 │  │  └──v2/2_users.go              # seed file to load users into DB
 │  └──server/main.go                # this is the starting point of the go server
 └──daos/                            # this directory will hold info about the DB transactions
-└──grafana/provisioning/            # this directory will be mounted at /etc/grafana/provisioning/ inside the grafana service
 └──graphql_models/                  # this directory contain modules for gqlgen and is mostly auto-generated
 └──internal/
 │  └──config/                       # this package loads env variables into a config object
@@ -194,7 +159,6 @@ go-template/
 │     └──result_wrapper/            # this package exports the custom errors produced by application
 │     └──secure/                    # this package has password related functionalities
 │     └──zlog/                      # this package has setup for zerolog logger
-└──prometheus/                      # this directory will be mounted at /etc/prometheus inside the prometheus service and contains prometheus.yml for the service
 └──resolver/                        # this directory will contain resolvers to populate info for graphQL queries, mutations and subscriptions
 └──schema/                          # this directory will have all the .graphql files which make the graphql api
 └──.env.local                       # a sample .env file for reference

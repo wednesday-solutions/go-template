@@ -4,6 +4,8 @@ services:
   db:
     image: postgres:13
     restart: always
+    env_file:
+      - .env.docker
     environment:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASS}
@@ -14,132 +16,17 @@ services:
     image: redis:6-alpine
     restart: always
 
-  server:
-    build:
-      context: .
-      dockerfile: Dockerfile
+  app:
+    build: .
+    restart: always
+    env_file:
+      - ./.env.docker
     depends_on:
       - db
       - redis
     ports:
       - ${SERVER_PORT}:${SERVER_PORT}
-    expose:
-      - ${SERVER_PORT}
-
-  prometheus:
-      image: prom/prometheus:v2.22.0
-      restart: always
-      volumes:
-        - type: bind
-          source: ./prometheus
-          target: /etc/prometheus
-        - type: volume
-          source: prometheus_data
-          target: /prometheus
-      command:
-        - '--config.file=/etc/prometheus/prometheus.yml'
-        - '--storage.tsdb.path=/prometheus'
-        - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-        - '--web.console.templates=/usr/share/prometheus/consoles'
-      ports:
-        - ${PROMETHEUS_PORT}:9090
-      depends_on:
-        - cadvisor
-      labels:
-        org.label-schema.group: "monitoring"
-
-  cadvisor:
-    image: gcr.io/google_containers/cadvisor:v0.36.0
-    restart: always
-    volumes:
-      - type: bind
-        source: /
-        target: /rootfs
-        read_only: true
-      - type: bind
-        source: /var/run
-        target: /var/run
-      - type: bind
-        source: /sys
-        target: /sys
-        read_only: true
-      - type: bind
-        source: /var/lib/docker
-        target: /var/lib/docker
-        read_only: true
-    ports:
-      - ${PROMETHEUS_CADVISOR_PORT}:8080
-    depends_on:
-      - db
-      - redis
-      - server
-    labels:
-      org.label-schema.group: "monitoring"
-
-  grafana:
-    image: grafana/grafana:7.2.2
-    restart: always
-    user: "472"
-    depends_on:
-      - prometheus
-    ports:
-      - ${GRAFANA_PORT}:3000
-    volumes:
-      - type: volume
-        source: grafana_data
-        target: /var/lib/grafana
-      - type: bind
-        source: ./grafana/provisioning/
-        target: /etc/grafana/provisioning/
     environment:
-      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER}
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASS}
-      - GF_USERS_ALLOW_SIGN_UP=false
-      - PROMETHEUS_PORT=${PROMETHEUS_PORT}
-    labels:
-      org.label-schema.group: "monitoring"
+      ENVIRONMENT_NAME: 'docker'
 
-  node-exporter:
-    image: prom/node-exporter:v1.0.1
-    restart: always
-    volumes:
-      - type: bind
-        source: /
-        target: /rootfs
-        read_only: true
-      - type: bind
-        source: /sys
-        target: /host/sys
-        read_only: true
-      - type: bind
-        source: /proc
-        target: /host/proc
-        read_only: true
-    command: 
-      - '--path.procfs=/host/proc'
-      - '--path.sysfs=/host/sys'
-      - --collector.filesystem.ignored-mount-points
-      - "^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)"
-    ports:
-      - ${PROMETHEUS_NODE_EXPORTER_PORT}:9100
-    labels:
-      org.label-schema.group: "monitoring"
-
-  alertmanager:
-    image: prom/alertmanager:v0.21.0
-    restart: always
-    volumes:
-      - type: bind
-        source: ./alertmanager/
-        target: /etc/alertmanager/
-    command:
-      - '--config.file=/etc/alertmanager/config.yml'
-      - '--storage.path=/alertmanager'
-    ports:
-      - ${PROMETHEUS_ALERTMANAGER_PORT}:9093
-    labels:
-      org.label-schema.group: "monitoring"
-
-volumes:
-    prometheus_data:
-    grafana_data:
+   

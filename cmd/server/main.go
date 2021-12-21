@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/rs/zerolog"
 	"os"
+
+	"github.com/rs/zerolog"
 
 	"github.com/joho/godotenv"
 	"github.com/wednesday-solutions/go-template/internal/config"
