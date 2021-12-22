@@ -254,7 +254,7 @@ go test -cover
 
 ## Postman Collection
 
-The postman collection can be found at [collection](postman/collection.json) and has been auto-generated using [graphql-test](https://www.npmjs.com/package/graphql-testkit)
+The postman collection can be found [here](postman/collection.json) and has been auto-generated using [graphql-test](https://www.npmjs.com/package/graphql-testkit)
 ## License
 
 Go Template is licensed under the MIT license. Check the [LICENSE](LICENSE) file for details.
