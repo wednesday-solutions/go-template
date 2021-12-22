@@ -32,7 +32,7 @@ func TestUserNotification(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
 			if err != nil {
-				fmt.Print("Error loading .env file")
+				fmt.Print("error loading .env file")
 			}
 
 			c := context.Background()

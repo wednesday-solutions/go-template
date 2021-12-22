@@ -32,7 +32,7 @@ func TestCreateUserTx(t *testing.T) {
 	for _, tt := range cases {
 		err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
 		if err != nil {
-			fmt.Print("Error loading .env file")
+			fmt.Print("error loading .env file")
 		}
 
 		db, mock, err := sqlmock.New()
@@ -83,7 +83,7 @@ func TestFindUserByID(t *testing.T) {
 	for _, tt := range cases {
 		err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
 		if err != nil {
-			fmt.Print("Error loading .env file")
+			fmt.Print("error loading .env file")
 		}
 
 		db, mock, err := sqlmock.New()
@@ -137,7 +137,7 @@ func TestFindUserByEmail(t *testing.T) {
 	for _, tt := range cases {
 		err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
 		if err != nil {
-			fmt.Print("Error loading .env file")
+			fmt.Print("error loading .env file")
 		}
 
 		db, mock, err := sqlmock.New()
@@ -198,7 +198,7 @@ func TestFindUserByUserName(t *testing.T) {
 	for _, tt := range cases {
 		err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
 		if err != nil {
-			fmt.Print("Error loading .env file")
+			fmt.Print("error loading .env file")
 		}
 
 		db, mock, err := sqlmock.New()
@@ -259,7 +259,7 @@ func TestFindUserByToken(t *testing.T) {
 	for _, tt := range cases {
 		err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
 		if err != nil {
-			fmt.Print("Error loading .env file")
+			fmt.Print("error loading .env file")
 		}
 
 		db, mock, err := sqlmock.New()
@@ -312,7 +312,7 @@ func TestUpdateUserTx(t *testing.T) {
 	for _, tt := range cases {
 		err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
 		if err != nil {
-			fmt.Print("Error loading .env file")
+			fmt.Print("error loading .env file")
 		}
 
 		db, mock, err := sqlmock.New()
@@ -356,7 +356,7 @@ func TestDeleteUser(t *testing.T) {
 	for _, tt := range cases {
 		err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
 		if err != nil {
-			fmt.Print("Error loading .env file")
+			fmt.Print("error loading .env file")
 		}
 
 		db, mock, err := sqlmock.New()

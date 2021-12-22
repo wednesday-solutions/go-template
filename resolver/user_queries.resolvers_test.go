@@ -36,7 +36,7 @@ func TestMe(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
 			if err != nil {
-				fmt.Print("Error loading .env file")
+				fmt.Print("error loading .env file")
 			}
 			conn := redigomock.NewConn()
 			_ = &redis.Pool{
@@ -87,7 +87,7 @@ func TestUsers(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
 			if err != nil {
-				fmt.Print("Error loading .env file")
+				fmt.Print("error loading .env file")
 			}
 			db, mock, err := sqlmock.New()
 			if err != nil {

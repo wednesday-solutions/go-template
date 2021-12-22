@@ -15,7 +15,7 @@ func main() {
 
 	err := godotenv.Load(fmt.Sprintf(".env.%s", os.Getenv("ENVIRONMENT_NAME")))
 	if err != nil {
-		fmt.Print("Error loading .env file")
+		fmt.Print("error loading .env file")
 		checkErr(err)
 		os.Exit(1)
 	}

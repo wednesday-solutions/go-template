@@ -32,19 +32,19 @@ func Load() (*Configuration, error) {
 		},
 	}
 	if len(os.Getenv("SERVER_PORT")) == 0 {
-		return nil, fmt.Errorf("Error loading port from .env ")
+		return nil, fmt.Errorf("error loading port from .env ")
 	}
 	if len(os.Getenv("DB_TIMEOUT_SECONDS")) == 0 {
-		return nil, fmt.Errorf("Error loading db timeout from .env ")
+		return nil, fmt.Errorf("error loading db timeout from .env ")
 	}
 	if len(os.Getenv("JWT_MIN_SECRET_LENGTH")) == 0 {
-		return nil, fmt.Errorf("Error loading jwt min secret length from .env ")
+		return nil, fmt.Errorf("error loading jwt min secret length from .env ")
 	}
 	if len(os.Getenv("APP_MIN_PASSWORD_STR")) == 0 {
-		return nil, fmt.Errorf("Error loading application password string from .env ")
+		return nil, fmt.Errorf("error loading application password string from .env ")
 	}
 	if len(os.Getenv("SERVER_READ_TIMEOUT")) == 0 || len(os.Getenv("SERVER_WRITE_TIMEOUT")) == 0 {
-		return nil, fmt.Errorf("Error loading server timeout from .env ")
+		return nil, fmt.Errorf("error loading server timeout from .env ")
 	}
 	return cfg, nil
 }

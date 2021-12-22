@@ -48,9 +48,10 @@ func TestLoad(t *testing.T) {
 			fmt.Println(os.Getenv("ENVIRONMENT_NAME"))
 			err := godotenv.Load(fmt.Sprintf("../../../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
 			if err != nil {
-				fmt.Print("Error loading .env file")
+				fmt.Print("error loading .env file")
 			}
 			_, err = config.Load()
+			fmt.Print("\n", err, "\n")
 			assert.Equal(t, tt.wantErr, err != nil)
 		})
 	}
