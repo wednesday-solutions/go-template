@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-set -e
+set -a && source .env.local && set +a 
 echo "" > coverage.txt
 
-for d in $(go list ./... | grep -v -e pkg/utl/mock -e pkg/utl/server); do
+for d in $(go list ./... | grep -v models | grep -v mocks); do
     go test -race -coverprofile=profile.out -covermode=atomic "$d"
     if [ -f profile.out ]; then
         cat profile.out >> coverage.txt

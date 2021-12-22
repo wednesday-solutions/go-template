@@ -28,7 +28,13 @@ jobs:
       - name: Build
         run:  go build ./...
       - name: Test
-        run:  set -a && source .env.local && set +a && go test $(go list ./... | grep -v models | grep -v mocks)
+        run:  ./test.sh
+      - uses: codecov/codecov-action@v2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+          files: ./coverage.txt
+          verbose: true
   golangci-lint:
     runs-on: ubuntu-latest
     steps:

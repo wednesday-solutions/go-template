@@ -45,7 +45,7 @@ func TestLogin(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
 			if err != nil {
-				fmt.Print("Error loading .env file")
+				fmt.Print("error loading .env file")
 			}
 			db, mock, err := sqlmock.New()
 			if err != nil {
@@ -124,7 +124,7 @@ func TestChangePassword(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
 			if err != nil {
-				fmt.Print("Error loading .env file")
+				fmt.Print("error loading .env file")
 			}
 
 			db, mock, err := sqlmock.New()
@@ -195,7 +195,7 @@ func TestRefreshToken(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
 			if err != nil {
-				fmt.Print("Error loading .env file")
+				fmt.Print("error loading .env file")
 			}
 			db, mock, err := sqlmock.New()
 			if err != nil {

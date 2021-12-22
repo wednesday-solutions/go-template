@@ -46,7 +46,7 @@ func TestGraphQLMiddleware(t *testing.T) {
 
 	err := godotenv.Load(fmt.Sprintf("../../../../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
 	if err != nil {
-		fmt.Print("Error loading .env file")
+		fmt.Print("error loading .env file")
 	}
 	jWT, err := jwt.New(os.Getenv("JWT_SIGNING_ALGORITHM"), os.Getenv("JWT_SECRET"), 5, 109)
 	if err != nil {

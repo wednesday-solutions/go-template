@@ -39,7 +39,7 @@ func (r *mutationResolver) CreateUser(
 	// loading configurations
 	cfg, err := config.Load()
 	if err != nil {
-		return nil, fmt.Errorf("Error in loading config ")
+		return nil, fmt.Errorf("error in loading config ")
 	}
 	// creating new secure service
 	sec := service.Secure(cfg)
