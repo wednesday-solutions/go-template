@@ -35,7 +35,11 @@ func Start(cfg *config.Configuration) error {
 	}
 	boil.SetDB(db)
 
-	jwt, err := jwt.New(cfg.JWT.SigningAlgorithm, os.Getenv("JWT_SECRET"), cfg.JWT.DurationMinutes, cfg.JWT.MinSecretLength)
+	jwt, err := jwt.New(
+		cfg.JWT.SigningAlgorithm,
+		os.Getenv("JWT_SECRET"),
+		cfg.JWT.DurationMinutes,
+		cfg.JWT.MinSecretLength)
 	if err != nil {
 		return err
 	}

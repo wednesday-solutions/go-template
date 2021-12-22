@@ -24,7 +24,9 @@ func (r *queryResolver) Me(ctx context.Context) (*graphql_models.User, error) {
 	return convert.UserToGraphQlUser(user), err
 }
 
-func (r *queryResolver) Users(ctx context.Context, pagination *graphql_models.UserPagination) (*graphql_models.UsersPayload, error) {
+func (r *queryResolver) Users(
+	ctx context.Context,
+	pagination *graphql_models.UserPagination) (*graphql_models.UsersPayload, error) {
 	var queryMods []qm.QueryMod
 	if pagination != nil {
 		if pagination.Limit != 0 {

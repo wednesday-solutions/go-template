@@ -13,19 +13,22 @@ import (
 // FindUserByUserName finds user by username
 func FindUserByUserName(username string) (*models.User, error) {
 	contextExecutor := getContextExecutor(nil)
-	return models.Users(qm.Where(fmt.Sprintf("%s=?", models.UserColumns.Username), username)).One(context.Background(), contextExecutor)
+	return models.Users(qm.Where(fmt.Sprintf("%s=?", models.UserColumns.Username), username)).
+		One(context.Background(), contextExecutor)
 }
 
 // FindUserByEmail ...
 func FindUserByEmail(email string) (*models.User, error) {
 	contextExecutor := getContextExecutor(nil)
-	return models.Users(qm.Where(fmt.Sprintf("%s=?", models.UserColumns.Email), email)).One(context.Background(), contextExecutor)
+	return models.Users(qm.Where(fmt.Sprintf("%s=?", models.UserColumns.Email), email)).
+		One(context.Background(), contextExecutor)
 }
 
 // FindUserByToken ...
 func FindUserByToken(token string) (*models.User, error) {
 	contextExecutor := getContextExecutor(nil)
-	return models.Users(qm.Where(fmt.Sprintf("%s=?", models.UserColumns.Token), token)).One(context.Background(), contextExecutor)
+	return models.Users(qm.Where(fmt.Sprintf("%s=?", models.UserColumns.Token), token)).
+		One(context.Background(), contextExecutor)
 }
 
 // FindUserByID ...

@@ -6,7 +6,7 @@ repos:
     hooks:
       - id: go-fmt
       - id: go-vet
-      - id: go-lint
+      - id: golangci-lint
       - id: go-imports
       - id: validate-toml
       - id: no-go-testing

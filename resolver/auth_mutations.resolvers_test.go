@@ -11,10 +11,9 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
-	"github.com/volatiletech/null"
 	"github.com/volatiletech/sqlboiler/boil"
 	fm "github.com/wednesday-solutions/go-template/graphql_models"
-	"github.com/wednesday-solutions/go-template/models"
+	"github.com/wednesday-solutions/go-template/mocks"
 	"github.com/wednesday-solutions/go-template/resolver"
 )
 
@@ -67,7 +66,8 @@ func TestLogin(t *testing.T) {
 					WillReturnError(fmt.Errorf(""))
 			}
 			// get user by username
-			rows := sqlmock.NewRows([]string{"id", "password", "active"}).AddRow(1, "$2a$10$dS5vK8hHmG5gzwV8f7TK5.WHviMBqmYQLYp30a3XvqhCW9Wvl2tOS", true)
+			rows := sqlmock.NewRows([]string{"id", "password", "active"}).
+				AddRow(1, "$2a$10$dS5vK8hHmG5gzwV8f7TK5.WHviMBqmYQLYp30a3XvqhCW9Wvl2tOS", true)
 			mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"users\" WHERE (username=$1) LIMIT 1;")).
 				WithArgs().
 				WillReturnRows(rows)
@@ -146,7 +146,8 @@ func TestChangePassword(t *testing.T) {
 					WillReturnError(fmt.Errorf(""))
 			}
 			// get user by id
-			rows := sqlmock.NewRows([]string{"id", "email", "password"}).AddRow(1, "mac@wednesday.is", "$2a$10$dS5vK8hHmG5gzwV8f7TK5.WHviMBqmYQLYp30a3XvqhCW9Wvl2tOS")
+			rows := sqlmock.NewRows([]string{"id", "email", "password"}).
+				AddRow(1, "mac@wednesday.is", "$2a$10$dS5vK8hHmG5gzwV8f7TK5.WHviMBqmYQLYp30a3XvqhCW9Wvl2tOS")
 			mock.ExpectQuery(regexp.QuoteMeta("select * from \"users\" where \"id\"=$1")).
 				WithArgs().
 				WillReturnRows(rows)
@@ -158,7 +159,8 @@ func TestChangePassword(t *testing.T) {
 			}
 
 			c := context.Background()
-			ctx := context.WithValue(c, userKey, models.User{ID: 1, FirstName: null.StringFrom("First"), LastName: null.StringFrom("Last"), Username: null.StringFrom("username"), Email: null.StringFrom("mac@wednesday.is"), Mobile: null.StringFrom("+911234567890"), Phone: null.StringFrom("05943-1123"), Address: null.StringFrom("22 Jump Street")})
+			ctx := context.
+				WithValue(c, mocks.UserKey, mocks.MockUser())
 			response, err := resolver1.Mutation().ChangePassword(ctx, tt.req.OldPassword, tt.req.NewPassword)
 			if tt.wantResp != nil {
 				assert.Equal(t, tt.wantResp, response)
@@ -219,7 +221,11 @@ func TestRefreshToken(t *testing.T) {
 				WillReturnRows(rows)
 
 			c := context.Background()
-			ctx := context.WithValue(c, userKey, models.User{ID: 1, FirstName: null.StringFrom("First"), LastName: null.StringFrom("Last"), Username: null.StringFrom("username"), Email: null.StringFrom("mac@wednesday.is"), Mobile: null.StringFrom("+911234567890"), Phone: null.StringFrom("05943-1123"), Address: null.StringFrom("22 Jump Street")})
+			ctx := context.
+				WithValue(c,
+					mocks.UserKey,
+					mocks.MockUser(),
+				)
 			response, err := resolver1.Mutation().RefreshToken(ctx, tt.req)
 			if tt.wantResp != nil && response != nil {
 				tt.wantResp.Token = response.Token
