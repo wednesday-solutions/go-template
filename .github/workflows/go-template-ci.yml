@@ -21,13 +21,14 @@ jobs:
           go get github.com/go-critic/go-critic/cmd/gocritic
           go get golang.org/x/lint/golint
           go get github.com/BurntSushi/toml/cmd/tomlv
+          go get github.com/golangci/golangci-lint/cmd/golangci-lint@v1.43.0
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
       - uses: pre-commit/action@v2.0.0
       - name: Build
         run:  go build ./...
       - name: Test
-        run:  set -a && source .env.local && set +a && go test $(go list ./... | grep -v models)
+        run:  set -a && source .env.local && set +a && go test $(go list ./... | grep -v models | grep -v mocks)
   golangci-lint:
     runs-on: ubuntu-latest
     steps:
