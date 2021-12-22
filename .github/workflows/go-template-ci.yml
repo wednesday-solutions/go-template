@@ -28,7 +28,7 @@ jobs:
       - name: Build
         run:  go build ./...
       - name: Test
-        run:  set -a && source .env.local && set +a && go test $(go list ./... | grep -v models | grep -v mocks)
+        run:  ./test.sh
   golangci-lint:
     runs-on: ubuntu-latest
     steps:

@@ -15,17 +15,17 @@ func TestSplitByLabel(t *testing.T) {
 		wantResp string
 	}{
 		{
-			name:     "Error string",
+			name:     "error string",
 			req:      "no rows in sql",
 			wantResp: "no rows in sql",
 		},
 		{
-			name:     "Having `Error` in string",
+			name:     "having `Error` in string",
 			req:      `"Error":{"msg"}`,
 			wantResp: "\":{\"msg\"}",
 		},
 		{
-			name:     "Having `message` in string",
+			name:     "having `message` in string",
 			req:      `"message":{"msg"}`,
 			wantResp: "\":{\"msg\"}",
 		},
