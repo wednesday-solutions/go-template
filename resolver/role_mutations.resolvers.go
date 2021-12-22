@@ -17,7 +17,10 @@ import (
 	resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
 )
 
-func (r *mutationResolver) CreateRole(ctx context.Context, input graphql_models.RoleCreateInput) (*graphql_models.RolePayload, error) {
+func (r *mutationResolver) CreateRole(
+	ctx context.Context,
+	input graphql_models.RoleCreateInput) (*graphql_models.RolePayload, error) {
+
 	userID := auth.UserIDFromContext(ctx)
 	user, err := rediscache.GetUser(userID)
 	if err != nil {

@@ -48,7 +48,10 @@ func TestCreateUserTx(t *testing.T) {
 		boil.SetDB(db)
 
 		rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
-		mock.ExpectQuery(regexp.QuoteMeta("INSERT INTO \"users\" (\"first_name\",\"last_name\",\"username\",\"password\",\"email\",\"mobile\",\"phone\",\"address\",\"active\",\"last_login\",\"last_password_change\",\"token\",\"role_id\",\"created_at\",\"updated_at\",\"deleted_at\") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)")).
+		mock.ExpectQuery(regexp.QuoteMeta("INSERT INTO \"users\" (\"first_name\",\"last_name\"," +
+			"\"username\",\"password\",\"email\",\"mobile\",\"phone\",\"address\",\"active\",\"last_login\"," +
+			"\"last_password_change\",\"token\",\"role_id\",\"created_at\",\"updated_at\",\"deleted_at\") " +
+			"VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)")).
 			WithArgs().
 			WillReturnRows(rows)
 

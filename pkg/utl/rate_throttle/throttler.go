@@ -17,7 +17,8 @@ const (
 	userIPAdress key = "userIPAdress"
 )
 
-// Check function checks weather the given IP address has already tried a given query path 'limit' number of times within past 'dur'
+// Check function checks weather the given IP address has already
+// tried a given query path 'limit' number of times within past 'dur'
 func Check(ctx context.Context, limit int, dur time.Duration) error {
 	// disabled throttler in 'local' stage
 	if os.Getenv("ENVIRONMENT_NAME") == "local" {
@@ -46,7 +47,8 @@ func Check(ctx context.Context, limit int, dur time.Duration) error {
 	return nil
 }
 
-// GqlMiddleware returns a middleware that takes IP address from echo context and place it in the context of gqlgen resolvers.
+// GqlMiddleware returns a middleware that takes IP address
+// from echo context and place it in the context of gqlgen resolvers.
 func GqlMiddleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {

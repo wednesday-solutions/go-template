@@ -17,7 +17,11 @@ import (
 	resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
 )
 
-func (r *mutationResolver) Login(ctx context.Context, username string, password string) (*graphql_models.LoginResponse, error) {
+func (r *mutationResolver) Login(
+	ctx context.Context,
+	username string,
+	password string) (*graphql_models.LoginResponse, error) {
+
 	u, err := daos.FindUserByUserName(username)
 	if err != nil {
 		return nil, err
@@ -25,17 +29,17 @@ func (r *mutationResolver) Login(ctx context.Context, username string, password 
 	// loading configurations
 	cfg, err := config.Load()
 	if err != nil {
-		return nil, fmt.Errorf("Error in loading config ")
+		return nil, fmt.Errorf("error in loading config ")
 	}
 	// creating new secure and token generation service
 	sec := service.Secure(cfg)
 	tg, err := service.JWT(cfg)
 	if err != nil {
-		return nil, fmt.Errorf("Error in creating auth service ")
+		return nil, fmt.Errorf("error in creating auth service ")
 	}
 
 	if !u.Password.Valid || (!sec.HashMatchesPassword(u.Password.String, password)) {
-		return nil, fmt.Errorf("Username or password does not exist ")
+		return nil, fmt.Errorf("username or password does not exist ")
 	}
 
 	if !u.Active.Valid || (!u.Active.Bool) {
@@ -57,7 +61,11 @@ func (r *mutationResolver) Login(ctx context.Context, username string, password 
 	return &graphql_models.LoginResponse{Token: token, RefreshToken: refreshToken}, nil
 }
 
-func (r *mutationResolver) ChangePassword(ctx context.Context, oldPassword string, newPassword string) (*graphql_models.ChangePasswordResponse, error) {
+func (r *mutationResolver) ChangePassword(
+	ctx context.Context,
+	oldPassword string,
+	newPassword string) (*graphql_models.ChangePasswordResponse, error) {
+
 	userID := auth.UserIDFromContext(ctx)
 	u, err := daos.FindUserByID(userID)
 	if err != nil {
@@ -67,7 +75,7 @@ func (r *mutationResolver) ChangePassword(ctx context.Context, oldPassword strin
 	// loading configurations
 	cfg, err := config.Load()
 	if err != nil {
-		return nil, fmt.Errorf("Error in loading config ")
+		return nil, fmt.Errorf("error in loading config ")
 	}
 	// creating new secure service
 	sec := service.Secure(cfg)
@@ -75,7 +83,11 @@ func (r *mutationResolver) ChangePassword(ctx context.Context, oldPassword strin
 		return nil, fmt.Errorf("incorrect old password")
 	}
 
-	if !sec.Password(newPassword, convert.NullDotStringToString(u.FirstName), convert.NullDotStringToString(u.LastName), convert.NullDotStringToString(u.Username), convert.NullDotStringToString(u.Email)) {
+	if !sec.Password(newPassword,
+		convert.NullDotStringToString(u.FirstName),
+		convert.NullDotStringToString(u.LastName),
+		convert.NullDotStringToString(u.Username),
+		convert.NullDotStringToString(u.Email)) {
 		return nil, fmt.Errorf("insecure password")
 	}
 
@@ -87,7 +99,9 @@ func (r *mutationResolver) ChangePassword(ctx context.Context, oldPassword strin
 	return &graphql_models.ChangePasswordResponse{Ok: true}, err
 }
 
-func (r *mutationResolver) RefreshToken(ctx context.Context, token string) (*graphql_models.RefreshTokenResponse, error) {
+func (r *mutationResolver) RefreshToken(
+	ctx context.Context,
+	token string) (*graphql_models.RefreshTokenResponse, error) {
 	user, err := daos.FindUserByToken(token)
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "token")
@@ -95,12 +109,12 @@ func (r *mutationResolver) RefreshToken(ctx context.Context, token string) (*gra
 	// loading configurations
 	cfg, err := config.Load()
 	if err != nil {
-		return nil, fmt.Errorf("Error in loading config ")
+		return nil, fmt.Errorf("error in loading config ")
 	}
 	// creating new secure and token generation service
 	tg, err := service.JWT(cfg)
 	if err != nil {
-		return nil, fmt.Errorf("Error in creating auth service ")
+		return nil, fmt.Errorf("error in creating auth service ")
 	}
 	resp, err := tg.GenerateToken(user)
 	if err != nil {

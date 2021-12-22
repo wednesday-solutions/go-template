@@ -47,7 +47,8 @@ func TestCreateRoleTx(t *testing.T) {
 		boil.SetDB(db)
 
 		rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
-		mock.ExpectQuery(regexp.QuoteMeta("INSERT INTO \"roles\" (\"access_level\",\"name\",\"created_at\",\"updated_at\",\"deleted_at\") VALUES ($1,$2,$3,$4,$5)")).
+		mock.ExpectQuery(regexp.QuoteMeta("INSERT INTO \"roles\" " +
+			"(\"access_level\",\"name\",\"created_at\",\"updated_at\",\"deleted_at\") VALUES ($1,$2,$3,$4,$5)")).
 			WithArgs().
 			WillReturnRows(rows)
 
