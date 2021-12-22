@@ -166,8 +166,11 @@ func ResolverSQLError(err error, detail string) error {
 	if strings.Contains(fmt.Sprint(err), "unable to insert") {
 		return ResolverWrapperFromMessage(http.StatusInternalServerError, fmt.Sprint("Unable to save provided ", detail))
 	}
-	if strings.Contains(fmt.Sprint(err), "delete on table") && strings.Contains(fmt.Sprint(err), "violates foreign key constraint") {
-		return ResolverWrapperFromMessage(http.StatusInternalServerError, "Unable to complete the delete operation, it has useful data associated to it")
+	if strings.Contains(fmt.Sprint(err), "delete on table") &&
+		strings.Contains(fmt.Sprint(err), "violates foreign key constraint") {
+
+		return ResolverWrapperFromMessage(http.StatusInternalServerError,
+			"Unable to complete the delete operation, it has useful data associated to it")
 	}
 	return ResolverWrapperFromMessage(http.StatusBadRequest, fmt.Sprint(err))
 }

@@ -58,12 +58,15 @@ func TestGraphQLMiddleware(t *testing.T) {
 	for name, tt := range cases {
 		t.Run(name, func(t *testing.T) {
 
-			graphqlHandler := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: &resolver.Resolver{}}))
-			graphqlHandler.AroundOperations(func(ctx context.Context, next graphql2.OperationHandler) graphql2.ResponseHandler {
-				res := auth.GraphQLMiddleware(ctx, jWT, next)
-				assert.Equal(t, nil, res)
-				return res
-			})
+			graphqlHandler := handler.
+				NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: &resolver.Resolver{}}))
+
+			graphqlHandler.
+				AroundOperations(func(ctx context.Context, next graphql2.OperationHandler) graphql2.ResponseHandler {
+					res := auth.GraphQLMiddleware(ctx, jWT, next)
+					assert.Equal(t, nil, res)
+					return res
+				})
 
 			ts := httptest.NewServer(echoHandler())
 			defer ts.Close()

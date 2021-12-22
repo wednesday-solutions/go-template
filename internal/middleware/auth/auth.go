@@ -80,9 +80,12 @@ func contains(s []string, e string) bool {
 }
 
 // GraphQLMiddleware ...
-func GraphQLMiddleware(ctx context.Context, tokenParser TokenParser, next graphql2.OperationHandler) graphql2.ResponseHandler {
-	operationContext := graphql2.GetOperationContext(ctx)
+func GraphQLMiddleware(
+	ctx context.Context,
+	tokenParser TokenParser,
+	next graphql2.OperationHandler) graphql2.ResponseHandler {
 
+	operationContext := graphql2.GetOperationContext(ctx)
 	var needsAuth = false
 	var requiresSuperAdmin = false
 	for _, selectionSet := range operationContext.Operation.SelectionSet {

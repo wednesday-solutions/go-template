@@ -12,9 +12,9 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/rafaeljusto/redigomock"
 	"github.com/stretchr/testify/assert"
-	"github.com/volatiletech/null"
 	"github.com/volatiletech/sqlboiler/boil"
 	fm "github.com/wednesday-solutions/go-template/graphql_models"
+	"github.com/wednesday-solutions/go-template/mocks"
 	"github.com/wednesday-solutions/go-template/models"
 	"github.com/wednesday-solutions/go-template/resolver"
 )
@@ -57,12 +57,11 @@ func TestMe(t *testing.T) {
 			boil.SetDB(db)
 
 			// get user by id
-			//rows := sqlmock.NewRows([]string{"id", "email", "first_name", "last_name", "mobile", "username", "phone", "address"}).AddRow(1, "mac@wednesday.is", "First", "Last", "+911234567890", "username", "05943-1123", "22 Jump Street")
 			mock.ExpectQuery(regexp.QuoteMeta("select * from \"users\" where \"id\"=$1")).
 				WithArgs()
 
 			c := context.Background()
-			ctx := context.WithValue(c, userKey, models.User{ID: 1, FirstName: null.StringFrom("First"), LastName: null.StringFrom("Last"), Username: null.StringFrom("username"), Email: null.StringFrom("mac@wednesday.is"), Mobile: null.StringFrom("+911234567890"), Phone: null.StringFrom("05943-1123"), Address: null.StringFrom("22 Jump Street")})
+			ctx := context.WithValue(c, mocks.UserKey, mocks.MockUser())
 			response, _ := resolver1.Query().Me(ctx)
 			assert.Equal(t, tt.wantResp, response)
 		})
@@ -77,19 +76,9 @@ func TestUsers(t *testing.T) {
 		wantErr    bool
 	}{
 		{
-			name:    "Success",
-			wantErr: false,
-			wantResp: []*models.User{
-				{
-					FirstName: null.StringFrom("First"),
-					LastName:  null.StringFrom("Last"),
-					Username:  null.StringFrom("username"),
-					Email:     null.StringFrom("mac@wednesday.is"),
-					Mobile:    null.StringFrom("+911234567890"),
-					Phone:     null.StringFrom("05943-1123"),
-					Address:   null.StringFrom("22 Jump Street"),
-				},
-			},
+			name:     "Success",
+			wantErr:  false,
+			wantResp: mocks.MockUsers(),
 		},
 	}
 
@@ -113,7 +102,9 @@ func TestUsers(t *testing.T) {
 			boil.SetDB(db)
 
 			// get user by id
-			rows := sqlmock.NewRows([]string{"id", "email", "first_name", "last_name", "mobile", "username", "phone", "address"}).AddRow(1, "mac@wednesday.is", "First", "Last", "+911234567890", "username", "05943-1123", "22 Jump Street")
+			rows := sqlmock.
+				NewRows([]string{"id", "email", "first_name", "last_name", "mobile", "username", "phone", "address"}).
+				AddRow(1, "mac@wednesday.is", "First", "Last", "+911234567890", "username", "05943-1123", "22 Jump Street")
 			mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"users\";")).
 				WithArgs().
 				WillReturnRows(rows)
@@ -123,7 +114,7 @@ func TestUsers(t *testing.T) {
 				WillReturnRows(rowCount)
 
 			c := context.Background()
-			ctx := context.WithValue(c, userKey, models.User{ID: 1, FirstName: null.StringFrom("First"), LastName: null.StringFrom("Last"), Username: null.StringFrom("username"), Email: null.StringFrom("mac@wednesday.is"), Mobile: null.StringFrom("+911234567890"), Phone: null.StringFrom("05943-1123"), Address: null.StringFrom("22 Jump Street")})
+			ctx := context.WithValue(c, mocks.UserKey, mocks.MockUser())
 			response, err := resolver1.Query().Users(ctx, tt.pagination)
 
 			if tt.wantResp != nil && response != nil {

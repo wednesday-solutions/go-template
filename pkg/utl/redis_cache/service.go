@@ -76,7 +76,8 @@ func GetRole(roleID int) (*models.Role, error) {
 	return role, nil
 }
 
-// IncVisits Increases the no. of visits by a particular visitor on a particular graphQL path by one, or returns 1 if visiting 1st time.
+// IncVisits Increases the no. of visits by a particular visitor on a
+// particular graphQL path by one, or returns 1 if visiting 1st time.
 func IncVisits(path string) (int, error) {
 	conn, err := redisDial()
 	if err != nil {
@@ -87,7 +88,8 @@ func IncVisits(path string) (int, error) {
 	return redigo.Int(conn.Do("INCR", path))
 }
 
-// StartVisits is called when the visiter is first time entering the given path or no entry of the visiter is present because of time-out, It sets the path with expiry as exp
+// StartVisits is called when the visiter is first time entering the
+// given path or no entry of the visiter is present because of time-out, It sets the path with expiry as exp
 func StartVisits(path string, exp time.Duration) error {
 	conn, err := redisDial()
 	if err != nil {
