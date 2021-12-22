@@ -29,6 +29,12 @@ jobs:
         run:  go build ./...
       - name: Test
         run:  ./test.sh
+      - uses: codecov/codecov-action@v2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+          files: ./coverage.txt
+          verbose: true
   golangci-lint:
     runs-on: ubuntu-latest
     steps:
