@@ -2,7 +2,6 @@ package config_test
 
 import (
 	"fmt"
-	"os"
 	"testing"
 
 	"github.com/joho/godotenv"
@@ -45,8 +44,7 @@ func TestLoad(t *testing.T) {
 	}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			fmt.Println(os.Getenv("ENVIRONMENT_NAME"))
-			err := godotenv.Load(fmt.Sprintf("../../../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
+			err := godotenv.Load("../../.env.local")
 			if err != nil {
 				fmt.Print("error loading .env file")
 			}
