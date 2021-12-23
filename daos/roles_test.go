@@ -2,7 +2,6 @@ package daos_test
 
 import (
 	"fmt"
-	"os"
 	"regexp"
 	"testing"
 
@@ -29,7 +28,7 @@ func TestCreateRoleTx(t *testing.T) {
 	}
 
 	for _, tt := range cases {
-		err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
+		err := godotenv.Load("../.env.local")
 		if err != nil {
 			fmt.Print("error loading .env file")
 		}
@@ -78,7 +77,7 @@ func TestFindRoleByID(t *testing.T) {
 	}
 
 	for _, tt := range cases {
-		err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
+		err := godotenv.Load("../.env.local")
 		if err != nil {
 			fmt.Print("error loading .env file")
 		}

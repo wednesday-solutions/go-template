@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql/driver"
 	"fmt"
-	"os"
 	"regexp"
 	"testing"
 
@@ -13,9 +12,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/volatiletech/sqlboiler/boil"
 	fm "github.com/wednesday-solutions/go-template/graphql_models"
-	"github.com/wednesday-solutions/go-template/mocks"
 	"github.com/wednesday-solutions/go-template/pkg/utl/convert"
 	"github.com/wednesday-solutions/go-template/resolver"
+	"github.com/wednesday-solutions/go-template/testutls"
 )
 
 func TestCreateUser(t *testing.T) {
@@ -53,7 +52,7 @@ func TestCreateUser(t *testing.T) {
 	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
+			err := godotenv.Load("../.env.local")
 			if err != nil {
 				fmt.Print("error loading .env file")
 			}
@@ -123,7 +122,7 @@ func TestUpdateUser(t *testing.T) {
 	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
+			err := godotenv.Load("../.env.local")
 			if err != nil {
 				fmt.Print("error loading .env file")
 			}
@@ -155,7 +154,7 @@ func TestUpdateUser(t *testing.T) {
 				WillReturnResult(result)
 
 			c := context.Background()
-			ctx := context.WithValue(c, mocks.UserKey, mocks.MockUser())
+			ctx := context.WithValue(c, testutls.UserKey, testutls.MockUser())
 			response, err := resolver1.Mutation().UpdateUser(ctx, tt.req)
 			if tt.wantResp != nil && response != nil {
 				assert.Equal(t, tt.wantResp.Ok, response.Ok)
@@ -185,7 +184,7 @@ func TestDeleteUser(t *testing.T) {
 	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
+			err := godotenv.Load("../.env.local")
 			if err != nil {
 				fmt.Print("error loading .env file")
 			}
@@ -216,7 +215,7 @@ func TestDeleteUser(t *testing.T) {
 				WillReturnResult(result)
 
 			c := context.Background()
-			ctx := context.WithValue(c, mocks.UserKey, mocks.MockUser())
+			ctx := context.WithValue(c, testutls.UserKey, testutls.MockUser())
 			response, err := resolver1.Mutation().DeleteUser(ctx)
 			if tt.wantResp != nil {
 				assert.Equal(t, tt.wantResp, response)
