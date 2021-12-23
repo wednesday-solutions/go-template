@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql/driver"
 	"fmt"
-	"os"
 	"regexp"
 	"testing"
 
@@ -13,8 +12,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/volatiletech/sqlboiler/boil"
 	fm "github.com/wednesday-solutions/go-template/graphql_models"
-	"github.com/wednesday-solutions/go-template/mocks"
 	"github.com/wednesday-solutions/go-template/resolver"
+	"github.com/wednesday-solutions/go-template/testutls"
 )
 
 func TestLogin(t *testing.T) {
@@ -43,7 +42,7 @@ func TestLogin(t *testing.T) {
 	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
+			err := godotenv.Load("../.env.local")
 			if err != nil {
 				fmt.Print("error loading .env file")
 			}
@@ -122,7 +121,7 @@ func TestChangePassword(t *testing.T) {
 	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
+			err := godotenv.Load("../.env.local")
 			if err != nil {
 				fmt.Print("error loading .env file")
 			}
@@ -160,7 +159,7 @@ func TestChangePassword(t *testing.T) {
 
 			c := context.Background()
 			ctx := context.
-				WithValue(c, mocks.UserKey, mocks.MockUser())
+				WithValue(c, testutls.UserKey, testutls.MockUser())
 			response, err := resolver1.Mutation().ChangePassword(ctx, tt.req.OldPassword, tt.req.NewPassword)
 			if tt.wantResp != nil {
 				assert.Equal(t, tt.wantResp, response)
@@ -193,7 +192,7 @@ func TestRefreshToken(t *testing.T) {
 	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
+			err := godotenv.Load("../.env.local")
 			if err != nil {
 				fmt.Print("error loading .env file")
 			}
@@ -223,8 +222,8 @@ func TestRefreshToken(t *testing.T) {
 			c := context.Background()
 			ctx := context.
 				WithValue(c,
-					mocks.UserKey,
-					mocks.MockUser(),
+					testutls.UserKey,
+					testutls.MockUser(),
 				)
 			response, err := resolver1.Mutation().RefreshToken(ctx, tt.req)
 			if tt.wantResp != nil && response != nil {

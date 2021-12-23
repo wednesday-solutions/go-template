@@ -3,14 +3,13 @@ package resolver_test
 import (
 	"context"
 	"fmt"
-	"os"
 	"testing"
 
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 	fm "github.com/wednesday-solutions/go-template/graphql_models"
-	"github.com/wednesday-solutions/go-template/mocks"
 	"github.com/wednesday-solutions/go-template/resolver"
+	"github.com/wednesday-solutions/go-template/testutls"
 )
 
 func TestUserNotification(t *testing.T) {
@@ -30,14 +29,14 @@ func TestUserNotification(t *testing.T) {
 	resolver1 := resolver.Resolver{Observers: observers}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
+			err := godotenv.Load("../.env.local")
 			if err != nil {
 				fmt.Print("error loading .env file")
 			}
 
 			c := context.Background()
 			ctx := context.
-				WithValue(c, mocks.UserKey, mocks.MockUser())
+				WithValue(c, testutls.UserKey, testutls.MockUser())
 			response, err := resolver1.Subscription().UserNotification(ctx)
 			if tt.wantResp != nil {
 				tt.wantResp = response

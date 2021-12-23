@@ -1,7 +1,14 @@
-package mocks
+package testutls
 
 import (
+	"database/sql"
+	"fmt"
+	"testing"
+
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/joho/godotenv"
 	"github.com/volatiletech/null"
+	"github.com/volatiletech/sqlboiler/boil"
 	"github.com/wednesday-solutions/go-template/models"
 )
 
@@ -35,4 +42,19 @@ func MockUsers() []*models.User {
 		},
 	}
 
+}
+
+func SetupEnvAndDB(t *testing.T) (mock sqlmock.Sqlmock, db *sql.DB, err error) {
+	err = godotenv.Load("../.env.local")
+	if err != nil {
+		fmt.Print("error loading .env file")
+	}
+	db, mock, err = sqlmock.New()
+	if err != nil {
+		if err != nil {
+			t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+		}
+	}
+	boil.SetDB(db)
+	return mock, db, nil
 }

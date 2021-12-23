@@ -3,7 +3,6 @@ package resolver_test
 import (
 	"context"
 	"fmt"
-	"os"
 	"regexp"
 	"testing"
 
@@ -14,9 +13,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/volatiletech/sqlboiler/boil"
 	fm "github.com/wednesday-solutions/go-template/graphql_models"
-	"github.com/wednesday-solutions/go-template/mocks"
 	"github.com/wednesday-solutions/go-template/models"
 	"github.com/wednesday-solutions/go-template/resolver"
+	"github.com/wednesday-solutions/go-template/testutls"
 )
 
 func TestMe(t *testing.T) {
@@ -34,7 +33,7 @@ func TestMe(t *testing.T) {
 	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
+			err := godotenv.Load("../.env.local")
 			if err != nil {
 				fmt.Print("error loading .env file")
 			}
@@ -61,7 +60,7 @@ func TestMe(t *testing.T) {
 				WithArgs()
 
 			c := context.Background()
-			ctx := context.WithValue(c, mocks.UserKey, mocks.MockUser())
+			ctx := context.WithValue(c, testutls.UserKey, testutls.MockUser())
 			response, _ := resolver1.Query().Me(ctx)
 			assert.Equal(t, tt.wantResp, response)
 		})
@@ -78,14 +77,14 @@ func TestUsers(t *testing.T) {
 		{
 			name:     "Success",
 			wantErr:  false,
-			wantResp: mocks.MockUsers(),
+			wantResp: testutls.MockUsers(),
 		},
 	}
 
 	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
+			err := godotenv.Load("../.env.local")
 			if err != nil {
 				fmt.Print("error loading .env file")
 			}
@@ -114,7 +113,7 @@ func TestUsers(t *testing.T) {
 				WillReturnRows(rowCount)
 
 			c := context.Background()
-			ctx := context.WithValue(c, mocks.UserKey, mocks.MockUser())
+			ctx := context.WithValue(c, testutls.UserKey, testutls.MockUser())
 			response, err := resolver1.Query().Users(ctx, tt.pagination)
 
 			if tt.wantResp != nil && response != nil {

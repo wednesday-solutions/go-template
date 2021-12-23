@@ -153,7 +153,7 @@ go-template/
 │  └──api/api.go                    # the starting point of the api
 │  └──utl/
 │     └──convert/                   # this package has functionality for type conversions
-│     └──mock/                      # this package has mocks related to passwords and JWTs
+│     └──mock/                      # this package has mock related to passwords and JWTs
 │     └──rate_throttle/             # this package has functionality for request rate throttling
 │     └──redis_cache/               # this package has functionality for accessing and using redis
 │     └──result_wrapper/            # this package exports the custom errors produced by application

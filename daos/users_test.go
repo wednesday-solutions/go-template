@@ -3,16 +3,18 @@ package daos_test
 import (
 	"database/sql/driver"
 	"fmt"
-	"os"
 	"regexp"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
+	"github.com/volatiletech/null"
 	"github.com/volatiletech/sqlboiler/boil"
+	"github.com/volatiletech/sqlboiler/queries/qm"
 	"github.com/wednesday-solutions/go-template/daos"
 	"github.com/wednesday-solutions/go-template/models"
+	"github.com/wednesday-solutions/go-template/testutls"
 )
 
 func TestCreateUserTx(t *testing.T) {
@@ -30,7 +32,7 @@ func TestCreateUserTx(t *testing.T) {
 	}
 
 	for _, tt := range cases {
-		err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
+		err := godotenv.Load("../.env.local")
 		if err != nil {
 			fmt.Print("error loading .env file")
 		}
@@ -81,7 +83,7 @@ func TestFindUserByID(t *testing.T) {
 	}
 
 	for _, tt := range cases {
-		err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
+		err := godotenv.Load("../.env.local")
 		if err != nil {
 			fmt.Print("error loading .env file")
 		}
@@ -135,7 +137,7 @@ func TestFindUserByEmail(t *testing.T) {
 	}
 
 	for _, tt := range cases {
-		err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
+		err := godotenv.Load("../.env.local")
 		if err != nil {
 			fmt.Print("error loading .env file")
 		}
@@ -196,7 +198,7 @@ func TestFindUserByUserName(t *testing.T) {
 	}
 
 	for _, tt := range cases {
-		err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
+		err := godotenv.Load("../.env.local")
 		if err != nil {
 			fmt.Print("error loading .env file")
 		}
@@ -257,7 +259,7 @@ func TestFindUserByToken(t *testing.T) {
 	}
 
 	for _, tt := range cases {
-		err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
+		err := godotenv.Load("../.env.local")
 		if err != nil {
 			fmt.Print("error loading .env file")
 		}
@@ -310,7 +312,7 @@ func TestUpdateUserTx(t *testing.T) {
 	}
 
 	for _, tt := range cases {
-		err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
+		err := godotenv.Load("../.env.local")
 		if err != nil {
 			fmt.Print("error loading .env file")
 		}
@@ -354,7 +356,7 @@ func TestDeleteUser(t *testing.T) {
 	}
 
 	for _, tt := range cases {
-		err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("ENVIRONMENT_NAME")))
+		err := godotenv.Load("../.env.local")
 		if err != nil {
 			fmt.Print("error loading .env file")
 		}
@@ -381,4 +383,76 @@ func TestDeleteUser(t *testing.T) {
 			assert.Equal(t, err, tt.err)
 		})
 	}
+}
+
+func TestFindAllUsersWithCount(t *testing.T) {
+
+	oldDB := boil.GetDB()
+	mock, db, _ := testutls.SetupEnvAndDB(t)
+
+	type queryData struct {
+		query      string
+		dbResponse *sqlmock.Rows
+	}
+	email := "mac@wednesday.is"
+	token := "token_string"
+	id := 1
+	count := int64(1)
+
+	cases := []struct {
+		name      string
+		err       error
+		dbQueries []queryData
+	}{
+		{
+			name: "Failed to find all users with count",
+			err:  fmt.Errorf("sql: no rows in sql"),
+		},
+		{
+			name: "Successfully find all users with count",
+			err:  nil,
+			dbQueries: []queryData{
+				{
+					query:      "SELECT * FROM \"users\";",
+					dbResponse: sqlmock.NewRows([]string{"id", "email", "token"}).AddRow(id, email, token),
+				},
+				{
+					query:      "SELECT COUNT(*) FROM \"users\";",
+					dbResponse: sqlmock.NewRows([]string{"count"}).AddRow(count),
+				},
+			},
+		},
+	}
+
+	for _, tt := range cases {
+
+		if tt.err != nil {
+			mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"users\";")).
+				WithArgs().
+				WillReturnError(fmt.Errorf("this is some error"))
+		}
+
+		for _, dbQuery := range tt.dbQueries {
+			mock.ExpectQuery(regexp.QuoteMeta(dbQuery.query)).
+				WithArgs().
+				WillReturnRows(dbQuery.dbResponse)
+
+		}
+
+		t.Run(tt.name, func(t *testing.T) {
+			res, c, err := daos.FindAllUsersWithCount([]qm.QueryMod{})
+			if err != nil {
+				assert.Equal(t, true, tt.err != nil)
+			} else {
+				assert.Equal(t, err, tt.err)
+				assert.Equal(t, count, c)
+				assert.Equal(t, res[0].Email, null.StringFrom(email))
+				assert.Equal(t, res[0].Token, null.StringFrom(token))
+				assert.Equal(t, res[0].ID, int(id))
+
+			}
+		})
+	}
+	boil.SetDB(oldDB)
+	db.Close()
 }
