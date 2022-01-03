@@ -5,6 +5,9 @@ import (
 	"context"
 	"database/sql/driver"
 	"encoding/json"
+	"fmt"
+	"io"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"regexp"
@@ -41,6 +44,7 @@ func TestGraphQLMiddleware(t *testing.T) {
 		wantStatus       int
 		header           string
 		signMethod       string
+		err              string
 		dbQueries        []testutls.QueryData
 		operationHandler func(ctx context.Context) graphql2.ResponseHandler
 		tokenParser      func(token string) (*jwt.Token, error)
@@ -48,6 +52,7 @@ func TestGraphQLMiddleware(t *testing.T) {
 		"Success": {
 			header:     "Bearer 123",
 			wantStatus: http.StatusOK,
+			err:        "",
 			tokenParser: func(token string) (*jwt.Token, error) {
 				return testutls.MockJwt(), nil
 			},
@@ -81,6 +86,56 @@ func TestGraphQLMiddleware(t *testing.T) {
 				},
 			},
 		},
+		"Failure__NoAuthorizationToken": {
+			header:     "",
+			wantStatus: http.StatusOK,
+			err:        "Authorization header is missing",
+			tokenParser: func(token string) (*jwt.Token, error) {
+				return nil, fmt.Errorf("token is invalid")
+			},
+			operationHandler: func(ctx context.Context) graphql2.ResponseHandler {
+				user := ctx.Value(auth.UserCtxKey).(*models.User)
+
+				// add your assertions here
+				assert.Equal(t, testutls.MockEmail, user.Email.String)
+				assert.Equal(t, testutls.MockID, user.ID)
+				assert.Equal(t, testutls.MockToken, user.Token.String)
+
+				// if you want a custom response you can add it here
+				var handler = func(ctx context.Context) *graphql2.Response {
+					return &graphql2.Response{
+						Data: json.RawMessage([]byte("{}")),
+					}
+				}
+				return handler
+			},
+			dbQueries: []testutls.QueryData{},
+		},
+		"Failure__InvalidAuthorizationToken": {
+			header:     "bearer 123",
+			wantStatus: http.StatusOK,
+			err:        "Invalid authorization token",
+			tokenParser: func(token string) (*jwt.Token, error) {
+				return nil, fmt.Errorf("token is invalid")
+			},
+			operationHandler: func(ctx context.Context) graphql2.ResponseHandler {
+				user := ctx.Value(auth.UserCtxKey).(*models.User)
+
+				// add your assertions here
+				assert.Equal(t, testutls.MockEmail, user.Email.String)
+				assert.Equal(t, testutls.MockID, user.ID)
+				assert.Equal(t, testutls.MockToken, user.Token.String)
+
+				// if you want a custom response you can add it here
+				var handler = func(ctx context.Context) *graphql2.Response {
+					return &graphql2.Response{
+						Data: json.RawMessage([]byte("{}")),
+					}
+				}
+				return handler
+			},
+			dbQueries: []testutls.QueryData{},
+		},
 	}
 
 	oldDB := boil.GetDB()
@@ -88,11 +143,6 @@ func TestGraphQLMiddleware(t *testing.T) {
 
 	for name, tt := range cases {
 		t.Run(name, func(t *testing.T) {
-			// mock operation handler, and assert different conditions
-			operationHandlerMock = tt.operationHandler
-
-			// mock token parser to handle the different cases for when the token us valid, invalid, empty
-			parseTokenMock = tt.tokenParser
 
 			for _, dbQuery := range tt.dbQueries {
 				mock.ExpectQuery(regexp.QuoteMeta(dbQuery.Query)).
@@ -110,10 +160,17 @@ func makeRequest(t *testing.T, tt struct {
 	wantStatus       int
 	header           string
 	signMethod       string
+	err              string
 	dbQueries        []testutls.QueryData
 	operationHandler func(ctx context.Context) graphql2.ResponseHandler
 	tokenParser      func(token string) (*jwt.Token, error)
 }) {
+	// mock token parser to handle the different cases for when the token us valid, invalid, empty
+	parseTokenMock = tt.tokenParser
+
+	// mock operation handler, and assert different conditions
+	operationHandlerMock = tt.operationHandler
+
 	tokenParser := tokenParserMock{}
 	client := &http.Client{}
 	observers := map[string]chan *graphql.User{}
@@ -155,6 +212,20 @@ func makeRequest(t *testing.T, tt struct {
 	res, err := client.Do(req)
 	if err != nil {
 		t.Fatal("Cannot create http request")
+	}
+
+	bodyBytes, err := io.ReadAll(res.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	var jsonRes graphql2.Response
+	err = json.Unmarshal(bodyBytes, &jsonRes)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, errorString := range jsonRes.Errors {
+		assert.Equal(t, tt.err, errorString.Message)
 	}
 	assert.Equal(t, tt.wantStatus, res.StatusCode)
 }
