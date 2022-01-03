@@ -48,11 +48,13 @@ func TestGraphQLMiddleware(t *testing.T) {
 		dbQueries        []testutls.QueryData
 		operationHandler func(ctx context.Context) graphql2.ResponseHandler
 		tokenParser      func(token string) (*jwt.Token, error)
+		whiteListedQuery bool
 	}{
 		"Success": {
-			header:     "Bearer 123",
-			wantStatus: http.StatusOK,
-			err:        "",
+			whiteListedQuery: false,
+			header:           "Bearer 123",
+			wantStatus:       http.StatusOK,
+			err:              "",
 			tokenParser: func(token string) (*jwt.Token, error) {
 				return testutls.MockJwt("ADMIN"), nil
 			},
@@ -86,10 +88,31 @@ func TestGraphQLMiddleware(t *testing.T) {
 				},
 			},
 		},
+		"Success__WhitelistedQuery": {
+			whiteListedQuery: true,
+			header:           "bearer 123",
+			wantStatus:       http.StatusOK,
+			err:              "",
+			tokenParser: func(token string) (*jwt.Token, error) {
+				// even without mocking the database or the token parser the middleware
+				// doesn't throw an error since it skips all the checks and directly calls next
+				return nil, nil
+			},
+			operationHandler: func(ctx context.Context) graphql2.ResponseHandler {
+				var handler = func(ctx context.Context) *graphql2.Response {
+					return &graphql2.Response{
+						Data: json.RawMessage([]byte("{}")),
+					}
+				}
+				return handler
+			},
+			dbQueries: []testutls.QueryData{},
+		},
 		"Failure__NoAuthorizationToken": {
-			header:     "",
-			wantStatus: http.StatusOK,
-			err:        "Authorization header is missing",
+			whiteListedQuery: false,
+			header:           "",
+			wantStatus:       http.StatusOK,
+			err:              "Authorization header is missing",
 			tokenParser: func(token string) (*jwt.Token, error) {
 				return nil, fmt.Errorf("token is invalid")
 			},
@@ -99,9 +122,10 @@ func TestGraphQLMiddleware(t *testing.T) {
 			dbQueries: []testutls.QueryData{},
 		},
 		"Failure__InvalidAuthorizationToken": {
-			header:     "bearer 123",
-			wantStatus: http.StatusOK,
-			err:        "Invalid authorization token",
+			whiteListedQuery: false,
+			header:           "bearer 123",
+			wantStatus:       http.StatusOK,
+			err:              "Invalid authorization token",
 			tokenParser: func(token string) (*jwt.Token, error) {
 				return nil, fmt.Errorf("token is invalid")
 			},
@@ -111,9 +135,10 @@ func TestGraphQLMiddleware(t *testing.T) {
 			dbQueries: []testutls.QueryData{},
 		},
 		"Failure__NotAnAdmin": {
-			header:     "bearer 123",
-			wantStatus: http.StatusOK,
-			err:        "Unauthorized! \n Only admins are authorized to make this request.",
+			whiteListedQuery: false,
+			header:           "bearer 123",
+			wantStatus:       http.StatusOK,
+			err:              "Unauthorized! \n Only admins are authorized to make this request.",
 			tokenParser: func(token string) (*jwt.Token, error) {
 				return testutls.MockJwt("USER"), nil
 			},
@@ -123,9 +148,10 @@ func TestGraphQLMiddleware(t *testing.T) {
 			dbQueries: []testutls.QueryData{},
 		},
 		"Failure__NoUserWithThatEmail": {
-			header:     "bearer 123",
-			wantStatus: http.StatusOK,
-			err:        "No user found for this email address",
+			whiteListedQuery: false,
+			header:           "bearer 123",
+			wantStatus:       http.StatusOK,
+			err:              "No user found for this email address",
 			tokenParser: func(token string) (*jwt.Token, error) {
 				return testutls.MockJwt("ADMIN"), nil
 			},
@@ -147,14 +173,19 @@ func TestGraphQLMiddleware(t *testing.T) {
 					WithArgs(*dbQuery.Actions...).
 					WillReturnRows(dbQuery.DbResponse)
 			}
-			makeRequest(t, tt)
+
+			requestQuery := `{"query":"query users { users { users { id } } }","variables":{}}"`
+			if tt.whiteListedQuery {
+				requestQuery = `{"query":"query Schema {  __schema { queryType { kind } } }","variables":{}}"`
+			}
+			makeRequest(t, requestQuery, tt)
 		})
 	}
 	boil.SetDB(oldDB)
 	db.Close()
 }
 
-func makeRequest(t *testing.T, tt struct {
+func makeRequest(t *testing.T, requestQuery string, tt struct {
 	wantStatus       int
 	header           string
 	signMethod       string
@@ -162,6 +193,7 @@ func makeRequest(t *testing.T, tt struct {
 	dbQueries        []testutls.QueryData
 	operationHandler func(ctx context.Context) graphql2.ResponseHandler
 	tokenParser      func(token string) (*jwt.Token, error)
+	whiteListedQuery bool
 }) {
 	// mock token parser to handle the different cases for when the token us valid, invalid, empty
 	parseTokenMock = tt.tokenParser
@@ -200,7 +232,7 @@ func makeRequest(t *testing.T, tt struct {
 	req, _ := http.NewRequest(
 		"POST",
 		path,
-		bytes.NewBuffer([]byte(`{"query":"query users { users { users { id } } }","variables":{}}`)),
+		bytes.NewBuffer([]byte(requestQuery)),
 	)
 
 	if tt.wantStatus != 401 {
@@ -226,4 +258,35 @@ func makeRequest(t *testing.T, tt struct {
 		assert.Equal(t, tt.err, errorString.Message)
 	}
 	assert.Equal(t, tt.wantStatus, res.StatusCode)
+}
+
+func TestUserIDFromContext(t *testing.T) {
+	cases := map[string]struct {
+		user   *models.User
+		userID int
+	}{
+		"Success": {
+			user:   &models.User{ID: testutls.MockID},
+			userID: testutls.MockID,
+		},
+		"Failure": {
+			user:   nil,
+			userID: 0,
+		},
+	}
+	for name, tt := range cases {
+		t.Run(name, func(t *testing.T) {
+
+			userID := auth.UserIDFromContext(context.WithValue(testutls.MockContext{}, auth.UserCtxKey, tt.user))
+			assert.Equal(t, tt.userID, userID)
+		})
+	}
+
+}
+
+func TestFromContext(t *testing.T) {
+	user := &models.User{ID: testutls.MockID}
+	u := auth.FromContext(context.WithValue(testutls.MockContext{}, auth.UserCtxKey, user))
+	assert.Equal(t, user, u)
+	assert.Equal(t, user.ID, testutls.MockID)
 }

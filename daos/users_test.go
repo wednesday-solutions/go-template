@@ -253,7 +253,7 @@ func TestFindUserByToken(t *testing.T) {
 		},
 		{
 			name: "Passing an email",
-			req:  args{Token: "token_string"},
+			req:  args{Token: testutls.MockToken},
 			err:  nil,
 		},
 	}

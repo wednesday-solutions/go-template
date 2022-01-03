@@ -35,7 +35,7 @@ func TestCreateUser(t *testing.T) {
 				FirstName: convert.StringToPointerString("First"),
 				LastName:  convert.StringToPointerString("Last"),
 				Username:  convert.StringToPointerString("username"),
-				Email:     convert.StringToPointerString("mac@wednesday.is"),
+				Email:     convert.StringToPointerString(testutls.MockEmail),
 			},
 			wantResp: &fm.UserPayload{
 				User: &fm.User{
@@ -43,7 +43,7 @@ func TestCreateUser(t *testing.T) {
 					FirstName: convert.StringToPointerString("First"),
 					LastName:  convert.StringToPointerString("Last"),
 					Username:  convert.StringToPointerString("username"),
-					Email:     convert.StringToPointerString("mac@wednesday.is"),
+					Email:     convert.StringToPointerString(testutls.MockEmail),
 				}},
 			wantErr: false,
 		},
