@@ -67,7 +67,6 @@ func Start(cfg *config.Configuration) error {
 	e.POST("/graphql", func(c echo.Context) error {
 		req := c.Request()
 		res := c.Response()
-
 		graphqlHandler.ServeHTTP(res, req)
 		return nil
 	}, gqlMiddleware, throttlerMiddleware)

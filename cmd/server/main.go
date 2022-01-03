@@ -12,8 +12,13 @@ import (
 )
 
 func main() {
+	envName := os.Getenv("ENVIRONMENT_NAME")
 
-	err := godotenv.Load(fmt.Sprintf(".env.%s", os.Getenv("ENVIRONMENT_NAME")))
+	if envName == "" {
+		envName = "local"
+	}
+
+	err := godotenv.Load(fmt.Sprintf(".env.%s", envName))
 	if err != nil {
 		fmt.Print("error loading .env file")
 		checkErr(err)

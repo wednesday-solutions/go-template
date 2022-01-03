@@ -29,17 +29,15 @@ type CustomContext struct {
 	ctx context.Context
 }
 
-// A private key for context that only this package can access. This is important
-// to prevent collisions between different context uses
-var userCtxKey = &contextKey{"user"}
+var UserCtxKey = &ContextKey{"user"}
 
-type contextKey struct {
-	name string
+type ContextKey struct {
+	Name string
 }
 
 // FromContext finds the user from the context. REQUIRES Middleware to have run.
 func FromContext(ctx context.Context) *models.User {
-	user, _ := ctx.Value(userCtxKey).(*models.User)
+	user, _ := ctx.Value(UserCtxKey).(*models.User)
 	return user
 }
 
@@ -126,11 +124,12 @@ func GraphQLMiddleware(
 
 		email := claims["e"].(string)
 		user, err := daos.FindUserByEmail(email)
+
 		if err != nil {
 			return resultwrapper.HandleGraphQLError("No user found for this email address")
 		}
 
-		ctx = context.WithValue(ctx, userCtxKey, user)
+		ctx = context.WithValue(ctx, UserCtxKey, user)
 		return next(ctx)
 	}
 
