@@ -51,7 +51,7 @@ func MockUsers() []*models.User {
 
 }
 
-func MockJwt() *jwt.Token {
+func MockJwt(role string) *jwt.Token {
 	return &jwt.Token{
 		Raw: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIi" +
 			"wibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
@@ -64,6 +64,7 @@ func MockJwt() *jwt.Token {
 			"sub":  "1234567890",
 			"name": "John Doe",
 			"iat":  1516239022,
+			"role": role,
 		},
 		Header: map[string]interface{}{
 			"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",

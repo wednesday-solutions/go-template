@@ -54,7 +54,7 @@ func TestGraphQLMiddleware(t *testing.T) {
 			wantStatus: http.StatusOK,
 			err:        "",
 			tokenParser: func(token string) (*jwt.Token, error) {
-				return testutls.MockJwt(), nil
+				return testutls.MockJwt("ADMIN"), nil
 			},
 			operationHandler: func(ctx context.Context) graphql2.ResponseHandler {
 				user := ctx.Value(auth.UserCtxKey).(*models.User)
@@ -94,20 +94,7 @@ func TestGraphQLMiddleware(t *testing.T) {
 				return nil, fmt.Errorf("token is invalid")
 			},
 			operationHandler: func(ctx context.Context) graphql2.ResponseHandler {
-				user := ctx.Value(auth.UserCtxKey).(*models.User)
-
-				// add your assertions here
-				assert.Equal(t, testutls.MockEmail, user.Email.String)
-				assert.Equal(t, testutls.MockID, user.ID)
-				assert.Equal(t, testutls.MockToken, user.Token.String)
-
-				// if you want a custom response you can add it here
-				var handler = func(ctx context.Context) *graphql2.Response {
-					return &graphql2.Response{
-						Data: json.RawMessage([]byte("{}")),
-					}
-				}
-				return handler
+				return nil
 			},
 			dbQueries: []testutls.QueryData{},
 		},
@@ -119,20 +106,31 @@ func TestGraphQLMiddleware(t *testing.T) {
 				return nil, fmt.Errorf("token is invalid")
 			},
 			operationHandler: func(ctx context.Context) graphql2.ResponseHandler {
-				user := ctx.Value(auth.UserCtxKey).(*models.User)
-
-				// add your assertions here
-				assert.Equal(t, testutls.MockEmail, user.Email.String)
-				assert.Equal(t, testutls.MockID, user.ID)
-				assert.Equal(t, testutls.MockToken, user.Token.String)
-
-				// if you want a custom response you can add it here
-				var handler = func(ctx context.Context) *graphql2.Response {
-					return &graphql2.Response{
-						Data: json.RawMessage([]byte("{}")),
-					}
-				}
-				return handler
+				return nil
+			},
+			dbQueries: []testutls.QueryData{},
+		},
+		"Failure__NotAnAdmin": {
+			header:     "bearer 123",
+			wantStatus: http.StatusOK,
+			err:        "Unauthorized! \n Only admins are authorized to make this request.",
+			tokenParser: func(token string) (*jwt.Token, error) {
+				return testutls.MockJwt("USER"), nil
+			},
+			operationHandler: func(ctx context.Context) graphql2.ResponseHandler {
+				return nil
+			},
+			dbQueries: []testutls.QueryData{},
+		},
+		"Failure__NoUserWithThatEmail": {
+			header:     "bearer 123",
+			wantStatus: http.StatusOK,
+			err:        "No user found for this email address",
+			tokenParser: func(token string) (*jwt.Token, error) {
+				return testutls.MockJwt("ADMIN"), nil
+			},
+			operationHandler: func(ctx context.Context) graphql2.ResponseHandler {
+				return nil
 			},
 			dbQueries: []testutls.QueryData{},
 		},
@@ -202,7 +200,7 @@ func makeRequest(t *testing.T, tt struct {
 	req, _ := http.NewRequest(
 		"POST",
 		path,
-		bytes.NewBuffer([]byte(`{"query":"query Me {me{id}}","variables":{}}`)),
+		bytes.NewBuffer([]byte(`{"query":"query users { users { users { id } } }","variables":{}}`)),
 	)
 
 	if tt.wantStatus != 401 {
