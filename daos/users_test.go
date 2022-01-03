@@ -253,7 +253,7 @@ func TestFindUserByToken(t *testing.T) {
 		},
 		{
 			name: "Passing an email",
-			req:  args{Token: "token_string"},
+			req:  args{Token: testutls.MockToken},
 			err:  nil,
 		},
 	}
@@ -388,21 +388,12 @@ func TestDeleteUser(t *testing.T) {
 func TestFindAllUsersWithCount(t *testing.T) {
 
 	oldDB := boil.GetDB()
-	mock, db, _ := testutls.SetupEnvAndDB(t)
-
-	type queryData struct {
-		query      string
-		dbResponse *sqlmock.Rows
-	}
-	email := "mac@wednesday.is"
-	token := "token_string"
-	id := 1
-	count := int64(1)
+	mock, db, _ := testutls.SetupEnvAndDB(t, testutls.Parameters{})
 
 	cases := []struct {
 		name      string
 		err       error
-		dbQueries []queryData
+		dbQueries []testutls.QueryData
 	}{
 		{
 			name: "Failed to find all users with count",
@@ -411,14 +402,17 @@ func TestFindAllUsersWithCount(t *testing.T) {
 		{
 			name: "Successfully find all users with count",
 			err:  nil,
-			dbQueries: []queryData{
+			dbQueries: []testutls.QueryData{
 				{
-					query:      "SELECT * FROM \"users\";",
-					dbResponse: sqlmock.NewRows([]string{"id", "email", "token"}).AddRow(id, email, token),
+					Query: "SELECT * FROM \"users\";",
+					DbResponse: sqlmock.NewRows([]string{"id", "email", "token"}).AddRow(
+						testutls.MockID,
+						testutls.MockEmail,
+						testutls.MockToken),
 				},
 				{
-					query:      "SELECT COUNT(*) FROM \"users\";",
-					dbResponse: sqlmock.NewRows([]string{"count"}).AddRow(count),
+					Query:      "SELECT COUNT(*) FROM \"users\";",
+					DbResponse: sqlmock.NewRows([]string{"count"}).AddRow(testutls.MockCount),
 				},
 			},
 		},
@@ -433,10 +427,9 @@ func TestFindAllUsersWithCount(t *testing.T) {
 		}
 
 		for _, dbQuery := range tt.dbQueries {
-			mock.ExpectQuery(regexp.QuoteMeta(dbQuery.query)).
+			mock.ExpectQuery(regexp.QuoteMeta(dbQuery.Query)).
 				WithArgs().
-				WillReturnRows(dbQuery.dbResponse)
-
+				WillReturnRows(dbQuery.DbResponse)
 		}
 
 		t.Run(tt.name, func(t *testing.T) {
@@ -445,10 +438,10 @@ func TestFindAllUsersWithCount(t *testing.T) {
 				assert.Equal(t, true, tt.err != nil)
 			} else {
 				assert.Equal(t, err, tt.err)
-				assert.Equal(t, count, c)
-				assert.Equal(t, res[0].Email, null.StringFrom(email))
-				assert.Equal(t, res[0].Token, null.StringFrom(token))
-				assert.Equal(t, res[0].ID, int(id))
+				assert.Equal(t, testutls.MockCount, c)
+				assert.Equal(t, res[0].Email, null.StringFrom(testutls.MockEmail))
+				assert.Equal(t, res[0].Token, null.StringFrom(testutls.MockToken))
+				assert.Equal(t, res[0].ID, int(testutls.MockID))
 
 			}
 		})

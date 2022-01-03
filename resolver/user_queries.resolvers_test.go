@@ -103,7 +103,16 @@ func TestUsers(t *testing.T) {
 			// get user by id
 			rows := sqlmock.
 				NewRows([]string{"id", "email", "first_name", "last_name", "mobile", "username", "phone", "address"}).
-				AddRow(1, "mac@wednesday.is", "First", "Last", "+911234567890", "username", "05943-1123", "22 Jump Street")
+				AddRow(
+					testutls.MockID,
+					testutls.MockEmail,
+					"First",
+					"Last",
+					"+911234567890",
+					"username",
+					"05943-1123",
+					"22 Jump Street",
+				)
 			mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"users\";")).
 				WithArgs().
 				WillReturnRows(rows)

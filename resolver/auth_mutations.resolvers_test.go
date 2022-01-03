@@ -34,7 +34,7 @@ func TestLogin(t *testing.T) {
 		},
 		{
 			name:     "Success",
-			req:      args{UserName: "mac@wednesday.is", Password: "adminuser"},
+			req:      args{UserName: testutls.MockEmail, Password: "adminuser"},
 			wantResp: &fm.LoginResponse{Token: "jwttokenstring", RefreshToken: "refreshtoken"},
 		},
 	}
@@ -66,7 +66,7 @@ func TestLogin(t *testing.T) {
 			}
 			// get user by username
 			rows := sqlmock.NewRows([]string{"id", "password", "active"}).
-				AddRow(1, "$2a$10$dS5vK8hHmG5gzwV8f7TK5.WHviMBqmYQLYp30a3XvqhCW9Wvl2tOS", true)
+				AddRow(testutls.MockID, "$2a$10$dS5vK8hHmG5gzwV8f7TK5.WHviMBqmYQLYp30a3XvqhCW9Wvl2tOS", true)
 			mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"users\" WHERE (username=$1) LIMIT 1;")).
 				WithArgs().
 				WillReturnRows(rows)
@@ -146,7 +146,7 @@ func TestChangePassword(t *testing.T) {
 			}
 			// get user by id
 			rows := sqlmock.NewRows([]string{"id", "email", "password"}).
-				AddRow(1, "mac@wednesday.is", "$2a$10$dS5vK8hHmG5gzwV8f7TK5.WHviMBqmYQLYp30a3XvqhCW9Wvl2tOS")
+				AddRow(testutls.MockID, testutls.MockEmail, "$2a$10$dS5vK8hHmG5gzwV8f7TK5.WHviMBqmYQLYp30a3XvqhCW9Wvl2tOS")
 			mock.ExpectQuery(regexp.QuoteMeta("select * from \"users\" where \"id\"=$1")).
 				WithArgs().
 				WillReturnRows(rows)
@@ -184,7 +184,7 @@ func TestRefreshToken(t *testing.T) {
 		{
 			name:     "Success",
 			req:      "refresh_token",
-			wantResp: &fm.RefreshTokenResponse{Token: "token_string"},
+			wantResp: &fm.RefreshTokenResponse{Token: testutls.MockToken},
 			wantErr:  false,
 		},
 	}
@@ -214,7 +214,7 @@ func TestRefreshToken(t *testing.T) {
 					WillReturnError(fmt.Errorf(""))
 			}
 			// get user by token
-			rows := sqlmock.NewRows([]string{"id", "email", "token"}).AddRow(1, "mac@wednesday.is", "token_string")
+			rows := sqlmock.NewRows([]string{"id", "email", "token"}).AddRow(1, testutls.MockEmail, testutls.MockToken)
 			mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"users\" WHERE (token=$1) LIMIT 1;")).
 				WithArgs().
 				WillReturnRows(rows)
