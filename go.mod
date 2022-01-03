@@ -5,7 +5,6 @@ go 1.14
 require (
 	github.com/99designs/gqlgen v0.14.0
 	github.com/DATA-DOG/go-sqlmock v1.5.0
-	github.com/cpuguy83/go-md2man/v2 v2.0.1 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/friendsofgo/errors v0.9.2
 	github.com/go-playground/universal-translator v0.17.0 // indirect
@@ -20,12 +19,10 @@ require (
 	github.com/leodido/go-urn v1.2.0 // indirect
 	github.com/lib/pq v1.10.0
 	github.com/nbutton23/zxcvbn-go v0.0.0-20180912185939-ae427f1e4c1d
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rafaeljusto/redigomock v2.4.0+incompatible
 	github.com/rs/zerolog v1.18.0
 	github.com/spf13/viper v1.10.0
 	github.com/stretchr/testify v1.7.0
-	github.com/urfave/cli/v2 v2.2.0 // indirect
 	github.com/valyala/fasttemplate v1.1.0 // indirect
 	github.com/vektah/gqlparser/v2 v2.2.0
 	github.com/volatiletech/inflect v0.0.1 // indirect
