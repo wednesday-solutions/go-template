@@ -4,14 +4,17 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/rs/zerolog"
 
-	"github.com/joho/godotenv"
 	"github.com/wednesday-solutions/go-template/internal/config"
 	"github.com/wednesday-solutions/go-template/pkg/api"
 )
 
 func main() {
+	Setup()
+}
+func Setup() {
 	envName := os.Getenv("ENVIRONMENT_NAME")
 
 	if envName == "" {
