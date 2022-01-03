@@ -5,6 +5,7 @@ go 1.14
 require (
 	github.com/99designs/gqlgen v0.14.0
 	github.com/DATA-DOG/go-sqlmock v1.5.0
+	github.com/agiledragon/gomonkey/v2 v2.2.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/friendsofgo/errors v0.9.2
 	github.com/go-playground/universal-translator v0.17.0 // indirect
