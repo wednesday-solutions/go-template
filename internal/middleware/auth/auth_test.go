@@ -28,10 +28,10 @@ import (
 	testutls "github.com/wednesday-solutions/go-template/testutls"
 )
 
+var parseTokenMock func(token string) (*jwt.Token, error)
+
 type tokenParserMock struct {
 }
-
-var parseTokenMock func(token string) (*jwt.Token, error)
 
 func (s tokenParserMock) ParseToken(token string) (*jwt.Token, error) {
 	return parseTokenMock(token)
