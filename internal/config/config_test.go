@@ -2,11 +2,13 @@ package config_test
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
-	"github.com/joho/godotenv"
+	. "github.com/agiledragon/gomonkey/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/wednesday-solutions/go-template/internal/config"
+	"github.com/wednesday-solutions/go-template/testutls"
 )
 
 func TestLoad(t *testing.T) {
@@ -14,6 +16,8 @@ func TestLoad(t *testing.T) {
 		name     string
 		wantData *config.Configuration
 		wantErr  bool
+		errKey   string
+		error    string
 	}{
 		{
 			name:    "Success",
@@ -21,36 +25,85 @@ func TestLoad(t *testing.T) {
 			wantData: &config.Configuration{
 				DB: &config.Database{
 					LogQueries: true,
-					Timeout:    20,
+					Timeout:    5,
 				},
 				Server: &config.Server{
-					Port:         ":8080",
+					Port:         ":9000",
 					Debug:        true,
-					ReadTimeout:  15,
-					WriteTimeout: 20,
+					ReadTimeout:  10,
+					WriteTimeout: 5,
 				},
 				JWT: &config.JWT{
-					MinSecretLength:  128,
-					DurationMinutes:  10,
-					RefreshDuration:  10,
-					MaxRefresh:       144,
-					SigningAlgorithm: "HS384",
+					MinSecretLength:  64,
+					DurationMinutes:  15,
+					RefreshDuration:  15,
+					MaxRefresh:       1440,
+					SigningAlgorithm: "HS256",
 				},
 				App: &config.Application{
-					MinPasswordStr: 3,
+					MinPasswordStr: 1,
 				},
 			},
+		},
+		{
+			name:    "Failure__NO_SERVER_PORT",
+			wantErr: true,
+			errKey:  "SERVER_PORT",
+			error:   "error loading port from .env ",
+		},
+		{
+			name:    "Failure__NO_DB_TIMEOUT_SECONDS",
+			wantErr: true,
+			errKey:  "DB_TIMEOUT_SECONDS",
+			error:   "error loading db timeout from .env ",
+		},
+		{
+			name:    "Failure__NO_JWT_MIN_SECRET_LENGTH",
+			wantErr: true,
+			errKey:  "JWT_MIN_SECRET_LENGTH",
+			error:   "error loading jwt min secret length from .env ",
+		},
+		{
+			name:    "Failure__NO_APP_MIN_PASSWORD_STR",
+			wantErr: true,
+			errKey:  "APP_MIN_PASSWORD_STR",
+			error:   "error loading application password string from .env ",
+		},
+		{
+			name:    "Failure__NO_SERVER_READ_TIMEOUT",
+			wantErr: true,
+			errKey:  "SERVER_READ_TIMEOUT",
+			error:   "error loading server timeout from .env ",
 		},
 	}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			err := godotenv.Load("../../.env.local")
+
+			_, _, err := testutls.SetupEnvAndDB(t, testutls.Parameters{EnvFileLocation: "../../.env.local"})
 			if err != nil {
 				fmt.Print("error loading .env file")
 			}
-			_, err = config.Load()
-			fmt.Print("\n", err, "\n")
-			assert.Equal(t, tt.wantErr, err != nil)
+
+			if tt.wantErr == true {
+				ApplyFunc(os.Getenv, func(key string) string {
+					if key == tt.errKey {
+						return ""
+					}
+					return key
+				})
+			}
+
+			config, err := config.Load()
+			if tt.wantData != nil {
+				assert.Equal(t, config, tt.wantData)
+			}
+
+			isError := err != nil
+			assert.Equal(t, tt.wantErr, isError)
+			if isError {
+
+				assert.Equal(t, err.Error(), tt.error)
+			}
 		})
 	}
 }
