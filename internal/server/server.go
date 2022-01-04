@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
@@ -16,8 +17,7 @@ import (
 // New instantates new Echo server
 func New() *echo.Echo {
 	e := echo.New()
-	e.Use(middleware.Logger(), middleware.Recover(),
-		secure.CORS(), secure.Headers())
+	e.Use(middleware.Logger(), middleware.Recover(), secure.CORS(), secure.Headers())
 	e.GET("/", healthCheck)
 	e.Validator = &CustomValidator{V: validator.New()}
 	custErr := &customErrHandler{e: e}
@@ -26,8 +26,12 @@ func New() *echo.Echo {
 	return e
 }
 
+type response struct {
+	Data string `json:"data"`
+}
+
 func healthCheck(c echo.Context) error {
-	return c.JSON(http.StatusOK, "Go template at your service!🍲")
+	return c.JSON(http.StatusOK, response{Data: "Go template at your service!🍲"})
 }
 
 // Config represents server specific config
@@ -49,6 +53,7 @@ func Start(e *echo.Echo, cfg *Config) {
 
 	// Start server
 	go func() {
+		fmt.Print("Warming up server... ")
 		if err := e.StartServer(s); err != nil {
 			e.Logger.Info("Shutting down the server")
 		}
@@ -62,6 +67,6 @@ func Start(e *echo.Echo, cfg *Config) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	if err := e.Shutdown(ctx); err != nil {
-		e.Logger.Fatal(err)
+		e.StdLogger.Fatal(err)
 	}
 }
