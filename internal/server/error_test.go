@@ -177,7 +177,7 @@ func Test_customErrHandler_handler(t *testing.T) {
 					AnyTimes()
 			}
 
-			// with the test.err call the handler. We are asserting in the JSON call
+			// call the handler with tt.args.err. We are asserting in the JSON/NoContent call
 			custErr.handler(tt.args.err, ctx)
 		})
 	}
