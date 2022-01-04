@@ -277,7 +277,7 @@ func TestUserIDFromContext(t *testing.T) {
 	for name, tt := range cases {
 		t.Run(name, func(t *testing.T) {
 
-			userID := auth.UserIDFromContext(context.WithValue(testutls.MockContext{}, auth.UserCtxKey, tt.user))
+			userID := auth.UserIDFromContext(context.WithValue(testutls.MockCtx{}, auth.UserCtxKey, tt.user))
 			assert.Equal(t, tt.userID, userID)
 		})
 	}
@@ -286,7 +286,7 @@ func TestUserIDFromContext(t *testing.T) {
 
 func TestFromContext(t *testing.T) {
 	user := &models.User{ID: testutls.MockID}
-	u := auth.FromContext(context.WithValue(testutls.MockContext{}, auth.UserCtxKey, user))
+	u := auth.FromContext(context.WithValue(testutls.MockCtx{}, auth.UserCtxKey, user))
 	assert.Equal(t, user, u)
 	assert.Equal(t, user.ID, testutls.MockID)
 }
