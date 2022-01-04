@@ -36,36 +36,25 @@ func (ce *customErrHandler) handler(err error, c echo.Context) {
 		Message interface{} `json:"message"`
 	}
 
-	if ce.e.Debug {
-		msg = err.Error()
-		t := err
-		switch t.(type) {
-		case *echo.HTTPError:
-			code = err.(*echo.HTTPError).Code
-		case validator.ValidationErrors:
-			code = http.StatusBadRequest
+	switch e := err.(type) {
+	case *echo.HTTPError:
+		code = e.Code
+		msg = e.Message
+		if e.Internal != nil {
+			msg = fmt.Sprintf("%v, %v", err, e.Internal)
 		}
-	} else {
-		switch e := err.(type) {
-		case *echo.HTTPError:
-			code = e.Code
-			msg = e.Message
-			if e.Internal != nil {
-				msg = fmt.Sprintf("%v, %v", err, e.Internal)
-			}
-		case validator.ValidationErrors:
-			var errMsg []string
-			for _, v := range e {
-				errMsg = append(errMsg, fmt.Sprintf("%s%s", v.Field(), getVldErrorMsg(v.ActualTag())))
-			}
-			msg = resp{Message: errMsg}
-			code = http.StatusBadRequest
-		default:
-			msg = http.StatusText(code)
+	case validator.ValidationErrors:
+		var errMsg []string
+		for _, v := range e {
+			errMsg = append(errMsg, fmt.Sprintf("%s%s", v.Field(), getVldErrorMsg(v.ActualTag())))
 		}
-		if _, ok := msg.(string); ok {
-			msg = resp{Message: msg}
-		}
+		msg = resp{Message: errMsg}
+		code = http.StatusBadRequest
+	default:
+		msg = http.StatusText(code)
+	}
+	if _, ok := msg.(string); ok {
+		msg = resp{Message: msg}
 	}
 
 	// Send response

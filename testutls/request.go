@@ -22,6 +22,10 @@ type RequestParameters struct {
 }
 
 func MakeRequest(parameters RequestParameters) (map[string]interface{}, error) {
+	_, _, jsonRes, err := MakeAndGetRequest(parameters)
+	return jsonRes, err
+}
+func MakeAndGetRequest(parameters RequestParameters) (*http.Request, *http.Response, map[string]interface{}, error) {
 	client := &http.Client{}
 	ts := httptest.NewServer(parameters.E)
 	path := ts.URL + parameters.Pathname
@@ -42,24 +46,23 @@ func MakeRequest(parameters RequestParameters) (map[string]interface{}, error) {
 
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
-		return nil, err
+		return nil, nil, nil, err
 	}
 	if parameters.IsGraphQL {
 		var jsonRes map[string]interface{}
 		err = json.Unmarshal(bodyBytes, &jsonRes)
 		fmt.Print(err, jsonRes)
 		if err != nil {
-			return nil, err
+			return nil, nil, nil, err
 
 		}
-		return jsonRes, nil
+		return req, res, jsonRes, nil
 	} else {
 		var jsonRes map[string]interface{}
 		err = json.Unmarshal(bodyBytes, &jsonRes)
 		if err != nil {
-			return nil, err
+			return nil, nil, nil, err
 		}
-		return jsonRes, nil
+		return req, res, jsonRes, nil
 	}
-
 }
