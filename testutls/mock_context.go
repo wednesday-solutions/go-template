@@ -5,22 +5,22 @@ import (
 	"time"
 )
 
-type MockContext struct{}
+type MockCtx struct{}
 
-func (ctx MockContext) Deadline() (deadline time.Time, ok bool) {
+func (ctx MockCtx) Deadline() (deadline time.Time, ok bool) {
 	return deadline, ok
 }
 
-func (ctx MockContext) Done() <-chan struct{} {
+func (ctx MockCtx) Done() <-chan struct{} {
 	ch := make(chan struct{})
 	close(ch)
 	return ch
 }
 
-func (ctx MockContext) Err() error {
+func (ctx MockCtx) Err() error {
 	return context.DeadlineExceeded
 }
 
-func (ctx MockContext) Value(key interface{}) interface{} {
+func (ctx MockCtx) Value(key interface{}) interface{} {
 	return nil
 }
