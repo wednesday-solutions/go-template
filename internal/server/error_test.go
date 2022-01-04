@@ -70,7 +70,6 @@ func Test_getVldErrorMsg(t *testing.T) {
 func Test_customErrHandler_handler(t *testing.T) {
 
 	type args struct {
-		err                error
 		errorFunc          func(c echo.Context) error
 		expectedStatusCode int
 	}
@@ -86,7 +85,6 @@ func Test_customErrHandler_handler(t *testing.T) {
 			name: "Faliure_Default",
 			args: args{
 				expectedStatusCode: http.StatusInternalServerError,
-				err:                fmt.Errorf("this is an error"),
 				errorFunc: func(c echo.Context) error {
 					return fmt.Errorf("asd")
 				},
@@ -96,7 +94,6 @@ func Test_customErrHandler_handler(t *testing.T) {
 			name: "Faliure_HttpError",
 			args: args{
 				expectedStatusCode: http.StatusBadRequest,
-				err:                fmt.Errorf("this is an error"),
 				errorFunc: func(c echo.Context) error {
 					return &echo.HTTPError{Code: http.StatusBadRequest, Message: "asd"}
 				},
@@ -106,25 +103,19 @@ func Test_customErrHandler_handler(t *testing.T) {
 			name: "Faliure_ValidationErrors",
 			args: args{
 				expectedStatusCode: http.StatusBadRequest,
-				err:                fmt.Errorf("this is an error"),
 				errorFunc: func(c echo.Context) error {
 
 					fieldError := testutls.NewMockFieldError(gomock.NewController(t))
-					fieldError.EXPECT().Field().
-						DoAndReturn(func() string {
-							return "FIELD"
-						}).
-						AnyTimes()
-					fieldError.EXPECT().ActualTag().
-						DoAndReturn(func() string {
-							return "ACTUALTAG"
-						}).
-						AnyTimes()
 
-					fmt.Print("fieldError", fieldError)
-					v := validator.ValidationErrors{fieldError}
-					return v
+					fieldError.EXPECT().Field().DoAndReturn(func() string {
+						return "FIELD"
+					}).AnyTimes()
 
+					fieldError.EXPECT().ActualTag().DoAndReturn(func() string {
+						return "ACTUALTAG"
+					}).AnyTimes()
+
+					return validator.ValidationErrors{fieldError}
 				},
 			},
 		},
