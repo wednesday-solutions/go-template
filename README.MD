@@ -251,6 +251,13 @@ Get test coverage using
 go test -cover
 ```
 
+## Generate mocks
+
+Sample command to generate mocks
+
+```
+  mockgen --build_flags=--mod=mod github.com/go-playground/validator  FieldError
+```
 
 ## Postman Collection
 
