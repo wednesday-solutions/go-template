@@ -101,7 +101,7 @@ func TestGraphQLMiddleware(t *testing.T) {
 			operationHandler: func(ctx context.Context) graphql2.ResponseHandler {
 				var handler = func(ctx context.Context) *graphql2.Response {
 					return &graphql2.Response{
-						Data: json.RawMessage([]byte("{}")),
+						Data: json.RawMessage([]byte(`{ "data": { "user": { "id": 1 } } } `)),
 					}
 				}
 				return handler

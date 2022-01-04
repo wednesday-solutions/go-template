@@ -11,6 +11,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/volatiletech/null"
 	"github.com/volatiletech/sqlboiler/boil"
+	"github.com/wednesday-solutions/go-template/internal/config"
 	"github.com/wednesday-solutions/go-template/models"
 )
 
@@ -96,4 +97,29 @@ type QueryData struct {
 	Actions    *[]driver.Value
 	Query      string
 	DbResponse *sqlmock.Rows
+}
+
+func MockConfig() *config.Configuration {
+	return &config.Configuration{
+		DB: &config.Database{
+			LogQueries: true,
+			Timeout:    5,
+		},
+		Server: &config.Server{
+			Port:         ":9000",
+			Debug:        true,
+			ReadTimeout:  10,
+			WriteTimeout: 5,
+		},
+		JWT: &config.JWT{
+			MinSecretLength:  64,
+			DurationMinutes:  15,
+			RefreshDuration:  15,
+			MaxRefresh:       1440,
+			SigningAlgorithm: "HS256",
+		},
+		App: &config.Application{
+			MinPasswordStr: 1,
+		},
+	}
 }

@@ -20,30 +20,9 @@ func TestLoad(t *testing.T) {
 		error    string
 	}{
 		{
-			name:    "Success",
-			wantErr: false,
-			wantData: &config.Configuration{
-				DB: &config.Database{
-					LogQueries: true,
-					Timeout:    5,
-				},
-				Server: &config.Server{
-					Port:         ":9000",
-					Debug:        true,
-					ReadTimeout:  10,
-					WriteTimeout: 5,
-				},
-				JWT: &config.JWT{
-					MinSecretLength:  64,
-					DurationMinutes:  15,
-					RefreshDuration:  15,
-					MaxRefresh:       1440,
-					SigningAlgorithm: "HS256",
-				},
-				App: &config.Application{
-					MinPasswordStr: 1,
-				},
-			},
+			name:     "Success",
+			wantErr:  false,
+			wantData: testutls.MockConfig(),
 		},
 		{
 			name:    "Failure__NO_SERVER_PORT",
