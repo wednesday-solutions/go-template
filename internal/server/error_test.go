@@ -110,21 +110,16 @@ func Test_customErrHandler_handler(t *testing.T) {
 				errorFunc: func(c echo.Context) error {
 
 					fieldError := testutls.NewMockFieldError(gomock.NewController(t))
-					fieldError.EXPECT().Field().
-						DoAndReturn(func() string {
-							return "FIELD"
-						}).
-						AnyTimes()
-					fieldError.EXPECT().ActualTag().
-						DoAndReturn(func() string {
-							return "ACTUALTAG"
-						}).
-						AnyTimes()
 
-					fmt.Print("fieldError", fieldError)
-					v := validator.ValidationErrors{fieldError}
-					return v
+					fieldError.EXPECT().Field().DoAndReturn(func() string {
+						return "FIELD"
+					}).AnyTimes()
 
+					fieldError.EXPECT().ActualTag().DoAndReturn(func() string {
+						return "ACTUALTAG"
+					}).AnyTimes()
+
+					return validator.ValidationErrors{fieldError}
 				},
 			},
 		},
