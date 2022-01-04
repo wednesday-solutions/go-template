@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/go-playground/validator"
+	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
 	"github.com/wednesday-solutions/go-template/testutls"
@@ -107,7 +108,22 @@ func Test_customErrHandler_handler(t *testing.T) {
 				expectedStatusCode: http.StatusBadRequest,
 				err:                fmt.Errorf("this is an error"),
 				errorFunc: func(c echo.Context) error {
-					return validator.ValidationErrors{}
+
+					fieldError := testutls.NewMockFieldError(gomock.NewController(t))
+					fieldError.EXPECT().Field().
+						DoAndReturn(func() string {
+							return "FIELD"
+						}).
+						AnyTimes()
+					fieldError.EXPECT().ActualTag().
+						DoAndReturn(func() string {
+							return "ACTUALTAG"
+						}).
+						AnyTimes()
+
+					fmt.Print("fieldError", fieldError)
+					v := validator.ValidationErrors{fieldError}
+					return v
 
 				},
 			},

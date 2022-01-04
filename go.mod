@@ -8,9 +8,10 @@ require (
 	github.com/agiledragon/gomonkey/v2 v2.2.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/friendsofgo/errors v0.9.2
-	github.com/go-playground/universal-translator v0.17.0 // indirect
+	github.com/go-playground/universal-translator v0.17.0
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/gofrs/uuid v3.2.0+incompatible // indirect
+	github.com/golang/mock v1.6.0
 	github.com/gomodule/redigo v1.8.2
 	github.com/gorilla/websocket v1.4.2
 	github.com/joho/godotenv v1.3.0
