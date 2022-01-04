@@ -1,15 +1,14 @@
 package server
 
 import (
+	"bytes"
 	"fmt"
-	"log"
 	"net/http"
 	"testing"
 
 	"github.com/go-playground/validator"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo"
-	"github.com/stretchr/testify/assert"
 	"github.com/wednesday-solutions/go-template/testutls"
 )
 
@@ -67,15 +66,29 @@ func Test_getVldErrorMsg(t *testing.T) {
 	}
 }
 
+func getValidatorErr(t *testing.T) error {
+
+	fieldError := testutls.NewMockFieldError(gomock.NewController(t))
+
+	fieldError.EXPECT().Field().DoAndReturn(func() string {
+		return "FIELD"
+	}).AnyTimes()
+
+	fieldError.EXPECT().ActualTag().DoAndReturn(func() string {
+		return "ACTUALTAG"
+	}).AnyTimes()
+
+	return validator.ValidationErrors{fieldError}
+}
 func Test_customErrHandler_handler(t *testing.T) {
 
 	type args struct {
-		errorFunc          func(c echo.Context) error
+		err                error
 		expectedStatusCode int
+		httpMethod         string
 	}
 	e := echo.New()
 	custErr := &customErrHandler{e: e}
-	e.HTTPErrorHandler = custErr.handler
 
 	tests := []struct {
 		name string
@@ -85,56 +98,87 @@ func Test_customErrHandler_handler(t *testing.T) {
 			name: "Faliure_Default",
 			args: args{
 				expectedStatusCode: http.StatusInternalServerError,
-				errorFunc: func(c echo.Context) error {
-					return fmt.Errorf("asd")
-				},
+				err:                fmt.Errorf("asd"),
+				httpMethod:         "GET",
+			},
+		},
+		{
+			name: "Faliure_NoContent",
+			args: args{
+				expectedStatusCode: http.StatusInternalServerError,
+				err:                fmt.Errorf("asd"),
+				httpMethod:         "HEAD",
 			},
 		},
 		{
 			name: "Faliure_HttpError",
 			args: args{
 				expectedStatusCode: http.StatusBadRequest,
-				errorFunc: func(c echo.Context) error {
-					return &echo.HTTPError{Code: http.StatusBadRequest, Message: "asd"}
-				},
+				err:                &echo.HTTPError{Code: http.StatusBadRequest, Message: "asd", Internal: fmt.Errorf("asd")},
+				httpMethod:         "GET",
 			},
 		},
 		{
 			name: "Faliure_ValidationErrors",
 			args: args{
 				expectedStatusCode: http.StatusBadRequest,
-				errorFunc: func(c echo.Context) error {
-
-					fieldError := testutls.NewMockFieldError(gomock.NewController(t))
-
-					fieldError.EXPECT().Field().DoAndReturn(func() string {
-						return "FIELD"
-					}).AnyTimes()
-
-					fieldError.EXPECT().ActualTag().DoAndReturn(func() string {
-						return "ACTUALTAG"
-					}).AnyTimes()
-
-					return validator.ValidationErrors{fieldError}
-				},
+				err:                getValidatorErr(t),
+				httpMethod:         "GET",
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			e.GET("/", tt.args.errorFunc)
-			_, res, _, err := testutls.MakeAndGetRequest(testutls.RequestParameters{
-				Pathname:   "/",
-				HttpMethod: "GET",
-				E:          e,
-			})
+			// just make a request
+			req, _ := http.NewRequest(
+				tt.args.httpMethod,
+				"/",
+				bytes.NewBuffer([]byte("")),
+			)
 
-			if err != nil {
-				log.Fatal(err)
+			ctx := testutls.NewMockContext(gomock.NewController(t))
+
+			// mock ctx.Response
+			ctx.
+				EXPECT().
+				Response().
+				DoAndReturn(func() *echo.Response {
+					return &echo.Response{Status: tt.args.expectedStatusCode}
+				}).
+				AnyTimes()
+
+			// mock ctx.Request
+			ctx.
+				EXPECT().
+				Request().
+				DoAndReturn(func() *http.Request {
+					return req
+				}).
+				AnyTimes()
+
+			if tt.args.httpMethod == "HEAD" {
+				// mock ctx.NoContent
+				ctx.
+					EXPECT().
+					NoContent(gomock.Eq(tt.args.expectedStatusCode)).
+					DoAndReturn(func(code int) error {
+						return nil
+					}).
+					AnyTimes()
+			} else {
+				// mock ctx.JSON
+				ctx.
+					EXPECT().
+					JSON(gomock.Eq(tt.args.expectedStatusCode), gomock.Any()).
+					DoAndReturn(func(code int, i interface{}) error {
+						return nil
+					}).
+					AnyTimes()
 			}
-			assert.Equal(t, tt.args.expectedStatusCode, res.StatusCode)
 
+			// with the test.err call the handler. We are asserting in the JSON call
+			custErr.handler(tt.args.err, ctx)
 		})
 	}
 }
