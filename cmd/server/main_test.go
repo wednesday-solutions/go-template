@@ -1,12 +1,12 @@
 package main_test
 
 import (
-	"fmt"
 	"log"
 	"testing"
 
 	. "github.com/agiledragon/gomonkey/v2"
 	"github.com/joho/godotenv"
+	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
 	main "github.com/wednesday-solutions/go-template/cmd/server"
 	"github.com/wednesday-solutions/go-template/internal/config"
@@ -17,7 +17,6 @@ import (
 func TestSetup(t *testing.T) {
 
 	initEnv := func() {
-		fmt.Print("initing")
 		_, _, err := testutls.SetupEnvAndDB(t, testutls.Parameters{EnvFileLocation: "../../.env.local"})
 		if err != nil {
 			log.Fatal(err)
@@ -45,7 +44,6 @@ func TestSetup(t *testing.T) {
 	for name, tt := range cases {
 		t.Run(name, func(t *testing.T) {
 			if tt.init != nil {
-				fmt.Print("initing")
 				tt.init()
 			}
 			if tt.isPanic {
@@ -55,9 +53,9 @@ func TestSetup(t *testing.T) {
 				loadPatches := ApplyFunc(godotenv.Load, func(...string) error {
 					return nil
 				})
-				apiPatches := ApplyFunc(api.Start, func(cfg *config.Configuration) error {
+				apiPatches := ApplyFunc(api.Start, func(cfg *config.Configuration) (*echo.Echo, error) {
 					apiStarted = true
-					return nil
+					return nil, nil
 				})
 
 				defer apiPatches.Reset()

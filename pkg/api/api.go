@@ -28,11 +28,12 @@ import (
 )
 
 // Start starts the API service
-func Start(cfg *config.Configuration) error {
+func Start(cfg *config.Configuration) (*echo.Echo, error) {
 	db, err := postgres.Connect()
 	if err != nil {
-		return err
+		return nil, err
 	}
+
 	boil.SetDB(db)
 
 	jwt, err := jwt.New(
@@ -41,7 +42,7 @@ func Start(cfg *config.Configuration) error {
 		cfg.JWT.DurationMinutes,
 		cfg.JWT.MinSecretLength)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	e := server.New()
@@ -87,19 +88,13 @@ func Start(cfg *config.Configuration) error {
 	graphqlHandler.AddTransport(transport.GET{})
 	graphqlHandler.AddTransport(transport.POST{})
 	graphqlHandler.AddTransport(transport.MultipartForm{})
-	graphqlHandler.Use(extension.Introspection{})
+
 	graphqlHandler.SetQueryCache(lru.New(1000))
+
+	graphqlHandler.Use(extension.Introspection{})
 	graphqlHandler.Use(extension.AutomaticPersistedQuery{
 		Cache: lru.New(100),
 	})
-
-	e.GET("/graphql", func(c echo.Context) error {
-		req := c.Request()
-		res := c.Response()
-
-		graphqlHandler.ServeHTTP(res, req)
-		return nil
-	}, gqlMiddleware, throttlerMiddleware)
 
 	// graphql playground
 	e.GET("/playground", func(c echo.Context) error {
@@ -114,5 +109,5 @@ func Start(cfg *config.Configuration) error {
 		WriteTimeoutSeconds: cfg.Server.WriteTimeout,
 		Debug:               cfg.Server.Debug,
 	})
-	return nil
+	return e, nil
 }

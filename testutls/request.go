@@ -25,7 +25,8 @@ func MakeRequest(parameters RequestParameters) (map[string]interface{}, error) {
 	_, _, jsonRes, err := MakeAndGetRequest(parameters)
 	return jsonRes, err
 }
-func MakeAndGetRequest(parameters RequestParameters) (*http.Request, *http.Response, map[string]interface{}, error) {
+
+func SimpleMakeRequest(parameters RequestParameters) (*http.Request, *http.Response, error) {
 	client := &http.Client{}
 	ts := httptest.NewServer(parameters.E)
 	path := ts.URL + parameters.Pathname
@@ -41,9 +42,17 @@ func MakeAndGetRequest(parameters RequestParameters) (*http.Request, *http.Respo
 	req.Header.Set("Content-Type", "application/json")
 	res, err := client.Do(req)
 	if err != nil {
+		fmt.Print(err)
 		log.Fatal("Cannot create http request")
 	}
+	return req, res, nil
+}
 
+func MakeAndGetRequest(parameters RequestParameters) (*http.Request, *http.Response, map[string]interface{}, error) {
+	req, res, err := SimpleMakeRequest(parameters)
+	if err != nil {
+		return nil, nil, nil, err
+	}
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, nil, nil, err

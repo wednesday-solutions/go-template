@@ -30,8 +30,8 @@ func Setup() {
 
 	cfg, err := config.Load()
 	checkErr(err)
-
-	checkErr(api.Start(cfg))
+	_, err = api.Start(cfg)
+	checkErr(err)
 }
 
 func checkErr(err error) {

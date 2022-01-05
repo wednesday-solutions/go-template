@@ -174,9 +174,9 @@ func TestGraphQLMiddleware(t *testing.T) {
 					WillReturnRows(dbQuery.DbResponse)
 			}
 
-			requestQuery := `{"query":"query users { users { users { id } } }","variables":{}}"`
+			requestQuery := testutls.MockQuery
 			if tt.whiteListedQuery {
-				requestQuery = `{"query":"query Schema {  __schema { queryType { kind } } }","variables":{}}"`
+				requestQuery = testutls.MockWhitelistedQuery
 			}
 			makeRequest(t, requestQuery, tt)
 		})
