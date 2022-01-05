@@ -25,6 +25,9 @@ var MockEmail = "mac@wednesday.is"
 var MockToken = "token_string"
 var MockID = 1
 var MockCount = int64(1)
+var MockJWTSecret = "1234567890123456789012345678901234567890123456789012345678901234567890"
+var MockQuery = `{"query":"query users { users { users { id } } }","variables":{}}"`
+var MockWhitelistedQuery = `{"query":"query Schema {  __schema { queryType { kind } } }","variables":{}}"`
 
 func MockUser() *models.User {
 	return &models.User{
