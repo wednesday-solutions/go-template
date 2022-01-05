@@ -51,7 +51,7 @@ func TestJWT(t *testing.T) {
 		},
 	}
 	ApplyFunc(os.Getenv, func(s string) string {
-		return "1234567890123456789012345678901234567890123456789012345678901234567890"
+		return testutls.MockJWTSecret
 	})
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
