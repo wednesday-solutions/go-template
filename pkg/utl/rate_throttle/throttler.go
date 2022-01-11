@@ -27,7 +27,6 @@ func Check(ctx context.Context, limit int, dur time.Duration) error {
 
 	query := graphql.GetPath(ctx).String()
 	ip := ctx.Value(userIPAdress).(string)
-
 	key := fmt.Sprintf("rate-limit-%s-%s", query, ip)
 
 	num, err := rediscache.IncVisits(key)
