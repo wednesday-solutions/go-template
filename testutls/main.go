@@ -21,6 +21,7 @@ var (
 	UserKey key = "user"
 )
 
+var MockIpAddress = "0.0.0.0"
 var MockEmail = "mac@wednesday.is"
 var MockToken = "token_string"
 var MockID = 1
