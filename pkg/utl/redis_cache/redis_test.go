@@ -72,6 +72,14 @@ func TestSetKeyValue(t *testing.T) {
 				data: 1,
 			},
 		},
+		{
+			name: "Failure",
+			args: args{
+				key:  "user10",
+				data: 1,
+			},
+			wantErr: true,
+		},
 	}
 	ApplyFunc(redigo.Dial, func(string, string, ...redis.DialOption) (redis.Conn, error) {
 		return redigoConn, nil
@@ -79,12 +87,20 @@ func TestSetKeyValue(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			var patches *Patches
 			b, _ := json.Marshal(tt.args.data)
-
+			if tt.wantErr {
+				patches = ApplyFunc(redigo.Dial, func(string, string, ...redis.DialOption) (redis.Conn, error) {
+					return nil, fmt.Errorf("some error")
+				})
+			}
 			redigoConn.Command("SET", tt.args.key, string(b)).Expect("something")
 
 			if err := SetKeyValue(tt.args.key, tt.args.data); (err != nil) != tt.wantErr {
 				t.Errorf("SetKeyValue() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if patches != nil {
+				patches.Reset()
 			}
 		})
 	}
@@ -107,11 +123,24 @@ func TestGetKeyValue(t *testing.T) {
 			},
 			want: "user",
 		},
+		{
+			name: "Failure",
+			args: args{
+				key: "user10",
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
+			var patches *Patches
+			if tt.wantErr {
+				patches = ApplyFunc(redigo.Dial, func(string, string, ...redis.DialOption) (redis.Conn, error) {
+					return nil, fmt.Errorf("some error")
+				})
+			}
 			redigoConn.Command("GET", tt.args.key).Expect(tt.want)
+
 			got, err := GetKeyValue(tt.args.key)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetKeyValue() error = %v, wantErr %v", err, tt.wantErr)
@@ -119,6 +148,9 @@ func TestGetKeyValue(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("GetKeyValue() = %v, want %v", got, tt.want)
+			}
+			if patches != nil {
+				patches.Reset()
 			}
 		})
 	}
