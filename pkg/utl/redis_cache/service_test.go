@@ -18,6 +18,8 @@ import (
 	"github.com/wednesday-solutions/go-template/testutls"
 )
 
+var conn = redigomock.NewConn()
+
 func TestGetUser(t *testing.T) {
 	type args struct {
 		userID    int
@@ -64,7 +66,7 @@ func TestGetUser(t *testing.T) {
 			want: testutls.MockUser(),
 		},
 	}
-	conn := redigomock.NewConn()
+
 	ApplyFunc(redigo.Dial, func(string, string, ...redis.DialOption) (redis.Conn, error) {
 		return conn, nil
 	})
@@ -97,6 +99,91 @@ func TestGetUser(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("GetUser() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+	boil.SetDB(oldDB)
+	db.Close()
+}
+
+func TestGetRole(t *testing.T) {
+	type args struct {
+		roleID    int
+		cacheMiss bool
+		dbQueries []testutls.QueryData
+	}
+	var role = &models.Role{
+		ID:          1,
+		AccessLevel: 100,
+		Name:        "Admin",
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    *models.Role
+		wantErr bool
+	}{
+		{
+			name: "Success",
+			args: args{
+				roleID:    testutls.MockID,
+				dbQueries: []testutls.QueryData{},
+			},
+			want: role,
+		},
+		{
+			name: "Success_WithCacheMiss",
+			args: args{
+				roleID:    testutls.MockID,
+				cacheMiss: true,
+				dbQueries: []testutls.QueryData{
+					{
+						Actions: &[]driver.Value{role.ID},
+						Query:   "select * from \"roles\" where \"id\"=$1",
+						DbResponse: sqlmock.NewRows([]string{
+							"id", "access_level", "name",
+						}).AddRow(
+							role.ID,
+							role.AccessLevel,
+							role.Name,
+						),
+					},
+				},
+			},
+			want: role,
+		},
+	}
+	ApplyFunc(redigo.Dial, func(string, string, ...redis.DialOption) (redis.Conn, error) {
+		return conn, nil
+	})
+
+	oldDB := boil.GetDB()
+	mock, db, _ := testutls.SetupEnvAndDB(t, testutls.Parameters{EnvFileLocation: "../../../.env.local"})
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			if tt.args.cacheMiss {
+				conn.Command("GET", fmt.Sprintf("role%d", tt.args.roleID)).Expect(nil)
+
+				b, _ := json.Marshal(tt.want)
+				conn.Command("SET", fmt.Sprintf("role%d", tt.args.roleID), string(b)).Expect(nil)
+				for _, dbQuery := range tt.args.dbQueries {
+					mock.ExpectQuery(regexp.QuoteMeta(dbQuery.Query)).
+						WithArgs(*dbQuery.Actions...).
+						WillReturnRows(dbQuery.DbResponse)
+				}
+			} else {
+				b, _ := json.Marshal(tt.want)
+				conn.Command("GET", fmt.Sprintf("role%d", tt.args.roleID)).Expect(b)
+			}
+			got, err := GetRole(tt.args.roleID)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetRole() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("GetRole() = %v, want %v", got, tt.want)
 			}
 		})
 	}
