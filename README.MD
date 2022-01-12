@@ -1,3 +1,6 @@
+mac
+
+
 <img align="left" src="https://github.com/wednesday-solutions/go-template/blob/master/golang_template_github.svg" width="440" height="480" />
 
 <div>
