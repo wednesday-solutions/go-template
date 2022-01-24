@@ -2,6 +2,7 @@ package resolver_test
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"regexp"
 	"testing"
@@ -29,7 +30,7 @@ func TestCreateRole(t *testing.T) {
 		},
 		{
 			name:     "Success",
-			req:      fm.RoleCreateInput{Name: "Role", AccessLevel: 100},
+			req:      fm.RoleCreateInput{Name: "Role", AccessLevel: 200},
 			wantResp: &fm.RolePayload{},
 		},
 	}
@@ -51,6 +52,15 @@ func TestCreateRole(t *testing.T) {
 				boil.SetDB(oldDB)
 			}()
 			boil.SetDB(db)
+			rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
+
+			mock.ExpectQuery(regexp.QuoteMeta("select * from \"roles\" where \"id\"=$1")).
+				WithArgs([]driver.Value{0}...).
+				WillReturnRows(rows)
+
+			mock.ExpectQuery(regexp.QuoteMeta("select * from \"users\" where \"id\"=$1")).
+				WithArgs([]driver.Value{0}...).
+				WillReturnRows(rows)
 
 			if tt.name == "Fail on Create role" {
 				// insert new user
@@ -60,14 +70,17 @@ func TestCreateRole(t *testing.T) {
 					WillReturnError(fmt.Errorf(""))
 			}
 			// insert new user
-			rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
+			rows = sqlmock.NewRows([]string{"id"}).AddRow(1)
 			mock.ExpectQuery(regexp.QuoteMeta("INSERT INTO \"roles\" (\"access_level\"," +
 				"\"name\",\"created_at\",\"updated_at\",\"deleted_at\") VALUES ($1,$2,$3,$4,$5)")).
 				WithArgs().
 				WillReturnRows(rows)
 
 			c := context.Background()
-			response, _ := resolver1.Mutation().CreateRole(c, tt.req)
+			response, err := resolver1.Mutation().CreateRole(c, tt.req)
+			if tt.wantErr {
+				assert.NotNil(t, err)
+			}
 			assert.Equal(t, tt.wantResp, response)
 		})
 	}
