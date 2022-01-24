@@ -26,7 +26,7 @@ func TestMe(t *testing.T) {
 	}{
 		{
 			name:     "Success",
-			wantResp: &fm.User{},
+			wantResp: &fm.User{ID: "1"},
 		},
 	}
 
