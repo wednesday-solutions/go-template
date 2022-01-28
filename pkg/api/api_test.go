@@ -8,8 +8,10 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/http/httptest"
 	"os"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
@@ -184,6 +186,27 @@ func TestStart(t *testing.T) {
 
 				// check if the playground is returned
 				assert.Contains(t, string(bodyBytes), "GraphQLPlayground.init")
+				ts := httptest.NewServer(e)
+				u := "ws" + strings.TrimPrefix(ts.URL+"/graphql", "http")
+
+				// Connect to the server
+				fmt.Print(u)
+				ws, _, err := websocket.DefaultDialer.Dial(u, nil)
+				if err != nil {
+					t.Fatalf("%v", err)
+				}
+				defer ws.Close()
+
+				if err := ws.WriteMessage(websocket.TextMessage, []byte(`{"type":"connection_init","payload":`+
+					`{"authorization":"bearer ABC"}}`)); err != nil {
+					t.Fatalf("%v", err)
+				}
+				_, p, err := ws.ReadMessage()
+				if err != nil {
+					t.Fatalf("%v", err)
+				}
+				// check if the playground is returned
+				assert.Contains(t, string(p), "{\"type\":\"connection_ack\"}\n")
 			}
 
 		})
