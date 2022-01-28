@@ -157,6 +157,7 @@ func HandleGraphQLError(errMsg string) graphql2.ResponseHandler {
 
 // ResolverSQLError ...
 func ResolverSQLError(err error, detail string) error {
+	fmt.Print(err)
 	if strings.Contains(fmt.Sprint(err), "no rows in result") {
 		return ResolverWrapperFromMessage(http.StatusBadRequest, fmt.Sprint("No data found with provided ", detail))
 	}
