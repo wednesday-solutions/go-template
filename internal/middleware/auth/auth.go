@@ -63,7 +63,7 @@ func GqlMiddleware() echo.MiddlewareFunc {
 }
 
 // WhiteListedQueries ...
-var WhiteListedQueries = []string{"__schema", "introspectionquery", "login", "createUser", "userNotification"}
+var WhiteListedQueries = []string{"__schema", "introspectionquery", "login"}
 
 // AdminQueries ...
 var AdminQueries = []string{"users"}

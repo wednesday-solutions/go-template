@@ -5,6 +5,7 @@ package resolver
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/wednesday-solutions/go-template/graphql_models"
 	"github.com/wednesday-solutions/go-template/pkg/utl"
@@ -13,18 +14,16 @@ import (
 func (r *subscriptionResolver) UserNotification(ctx context.Context) (<-chan *graphql_models.User, error) {
 	id := utl.RandomSequence(5)
 	event := make(chan *graphql_models.User, 1)
-
 	go func() {
 		<-ctx.Done()
 		r.Lock()
 		delete(r.Observers, id)
 		r.Unlock()
 	}()
-
 	r.Lock()
 	r.Observers[id] = event
 	r.Unlock()
-
+	fmt.Print("Subscribed to user creation updates!")
 	return event, nil
 }
 

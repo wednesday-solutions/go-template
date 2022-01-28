@@ -72,11 +72,15 @@ func Start(cfg *config.Configuration) (*echo.Echo, error) {
 		return nil
 	}, gqlMiddleware, throttlerMiddleware)
 
+	e.GET("/graphql", func(c echo.Context) error {
+		req := c.Request()
+		res := c.Response()
+		graphqlHandler.ServeHTTP(res, req)
+		return nil
+	}, gqlMiddleware, throttlerMiddleware)
+
 	graphqlHandler.AddTransport(transport.Websocket{
 		KeepAlivePingInterval: 10 * time.Second,
-		InitFunc: func(ctx context.Context, initPayload transport.InitPayload) (context.Context, error) {
-			return ctx, nil
-		},
 		Upgrader: websocket.Upgrader{
 			CheckOrigin: func(r *http.Request) bool {
 				return true
