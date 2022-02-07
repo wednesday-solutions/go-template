@@ -27,6 +27,14 @@ import (
 	"github.com/wednesday-solutions/go-template/resolver"
 )
 
+type response struct {
+	Data string `json:"data"`
+}
+
+func healthCheck(c echo.Context) error {
+	return c.JSON(http.StatusOK, response{Data: "Go template at your service!🍲"})
+}
+
 // Start starts the API service
 func Start(cfg *config.Configuration) (*echo.Echo, error) {
 	db, err := postgres.Connect()
@@ -61,6 +69,8 @@ func Start(cfg *config.Configuration) (*echo.Echo, error) {
 	if os.Getenv("ENVIRONMENT_NAME") == "local" {
 		boil.DebugMode = true
 	}
+	e.GET("/", healthCheck)
+
 	// graphql apis
 	graphqlHandler.AroundOperations(func(ctx context.Context, next graphql2.OperationHandler) graphql2.ResponseHandler {
 		return authMw.GraphQLMiddleware(ctx, jwt, next)

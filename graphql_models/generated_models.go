@@ -46,6 +46,11 @@ type LoginResponse struct {
 	RefreshToken string `json:"refreshToken"`
 }
 
+type Pagination struct {
+	Page  int `json:"page"`
+	Limit int `json:"limit"`
+}
+
 type RefreshTokenResponse struct {
 	Token string `json:"token"`
 }
@@ -138,6 +143,16 @@ type StringFilter struct {
 	NotContainStrict   *string  `json:"notContainStrict"`
 }
 
+type Subject struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+type SubjectPayload struct {
+	Subjects []*Subject `json:"subjects"`
+	Total    int        `json:"total"`
+}
+
 type User struct {
 	ID                 string  `json:"id"`
 	FirstName          *string `json:"firstName"`
@@ -183,6 +198,11 @@ type UserPagination struct {
 
 type UserPayload struct {
 	User *User `json:"user"`
+}
+
+type UserSubject struct {
+	User    *User    `json:"user"`
+	Subject *Subject `json:"subject"`
 }
 
 type UserUpdateInput struct {

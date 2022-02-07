@@ -21,24 +21,24 @@ var (
 	_ = queries.Equal
 )
 
-func testRoles(t *testing.T) {
+func testSubjects(t *testing.T) {
 	t.Parallel()
 
-	query := Roles()
+	query := Subjects()
 
 	if query.Query == nil {
 		t.Error("expected a query, got nothing")
 	}
 }
 
-func testRolesDelete(t *testing.T) {
+func testSubjectsDelete(t *testing.T) {
 	t.Parallel()
 
 	seed := randomize.NewSeed()
 	var err error
-	o := &Role{}
-	if err = randomize.Struct(seed, o, roleDBTypes, true, roleColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Role struct: %s", err)
+	o := &Subject{}
+	if err = randomize.Struct(seed, o, subjectDBTypes, true, subjectColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Subject struct: %s", err)
 	}
 
 	ctx := context.Background()
@@ -54,7 +54,7 @@ func testRolesDelete(t *testing.T) {
 		t.Error("should only have deleted one row, but affected:", rowsAff)
 	}
 
-	count, err := Roles().Count(ctx, tx)
+	count, err := Subjects().Count(ctx, tx)
 	if err != nil {
 		t.Error(err)
 	}
@@ -64,14 +64,14 @@ func testRolesDelete(t *testing.T) {
 	}
 }
 
-func testRolesQueryDeleteAll(t *testing.T) {
+func testSubjectsQueryDeleteAll(t *testing.T) {
 	t.Parallel()
 
 	seed := randomize.NewSeed()
 	var err error
-	o := &Role{}
-	if err = randomize.Struct(seed, o, roleDBTypes, true, roleColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Role struct: %s", err)
+	o := &Subject{}
+	if err = randomize.Struct(seed, o, subjectDBTypes, true, subjectColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Subject struct: %s", err)
 	}
 
 	ctx := context.Background()
@@ -81,13 +81,13 @@ func testRolesQueryDeleteAll(t *testing.T) {
 		t.Error(err)
 	}
 
-	if rowsAff, err := Roles().DeleteAll(ctx, tx); err != nil {
+	if rowsAff, err := Subjects().DeleteAll(ctx, tx); err != nil {
 		t.Error(err)
 	} else if rowsAff != 1 {
 		t.Error("should only have deleted one row, but affected:", rowsAff)
 	}
 
-	count, err := Roles().Count(ctx, tx)
+	count, err := Subjects().Count(ctx, tx)
 	if err != nil {
 		t.Error(err)
 	}
@@ -97,14 +97,14 @@ func testRolesQueryDeleteAll(t *testing.T) {
 	}
 }
 
-func testRolesSliceDeleteAll(t *testing.T) {
+func testSubjectsSliceDeleteAll(t *testing.T) {
 	t.Parallel()
 
 	seed := randomize.NewSeed()
 	var err error
-	o := &Role{}
-	if err = randomize.Struct(seed, o, roleDBTypes, true, roleColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Role struct: %s", err)
+	o := &Subject{}
+	if err = randomize.Struct(seed, o, subjectDBTypes, true, subjectColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Subject struct: %s", err)
 	}
 
 	ctx := context.Background()
@@ -114,7 +114,7 @@ func testRolesSliceDeleteAll(t *testing.T) {
 		t.Error(err)
 	}
 
-	slice := RoleSlice{o}
+	slice := SubjectSlice{o}
 
 	if rowsAff, err := slice.DeleteAll(ctx, tx); err != nil {
 		t.Error(err)
@@ -122,7 +122,7 @@ func testRolesSliceDeleteAll(t *testing.T) {
 		t.Error("should only have deleted one row, but affected:", rowsAff)
 	}
 
-	count, err := Roles().Count(ctx, tx)
+	count, err := Subjects().Count(ctx, tx)
 	if err != nil {
 		t.Error(err)
 	}
@@ -132,14 +132,14 @@ func testRolesSliceDeleteAll(t *testing.T) {
 	}
 }
 
-func testRolesExists(t *testing.T) {
+func testSubjectsExists(t *testing.T) {
 	t.Parallel()
 
 	seed := randomize.NewSeed()
 	var err error
-	o := &Role{}
-	if err = randomize.Struct(seed, o, roleDBTypes, true, roleColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Role struct: %s", err)
+	o := &Subject{}
+	if err = randomize.Struct(seed, o, subjectDBTypes, true, subjectColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Subject struct: %s", err)
 	}
 
 	ctx := context.Background()
@@ -149,23 +149,23 @@ func testRolesExists(t *testing.T) {
 		t.Error(err)
 	}
 
-	e, err := RoleExists(ctx, tx, o.ID)
+	e, err := SubjectExists(ctx, tx, o.ID)
 	if err != nil {
-		t.Errorf("Unable to check if Role exists: %s", err)
+		t.Errorf("Unable to check if Subject exists: %s", err)
 	}
 	if !e {
-		t.Errorf("Expected RoleExists to return true, but got false.")
+		t.Errorf("Expected SubjectExists to return true, but got false.")
 	}
 }
 
-func testRolesFind(t *testing.T) {
+func testSubjectsFind(t *testing.T) {
 	t.Parallel()
 
 	seed := randomize.NewSeed()
 	var err error
-	o := &Role{}
-	if err = randomize.Struct(seed, o, roleDBTypes, true, roleColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Role struct: %s", err)
+	o := &Subject{}
+	if err = randomize.Struct(seed, o, subjectDBTypes, true, subjectColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Subject struct: %s", err)
 	}
 
 	ctx := context.Background()
@@ -175,24 +175,24 @@ func testRolesFind(t *testing.T) {
 		t.Error(err)
 	}
 
-	roleFound, err := FindRole(ctx, tx, o.ID)
+	subjectFound, err := FindSubject(ctx, tx, o.ID)
 	if err != nil {
 		t.Error(err)
 	}
 
-	if roleFound == nil {
+	if subjectFound == nil {
 		t.Error("want a record, got nil")
 	}
 }
 
-func testRolesBind(t *testing.T) {
+func testSubjectsBind(t *testing.T) {
 	t.Parallel()
 
 	seed := randomize.NewSeed()
 	var err error
-	o := &Role{}
-	if err = randomize.Struct(seed, o, roleDBTypes, true, roleColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Role struct: %s", err)
+	o := &Subject{}
+	if err = randomize.Struct(seed, o, subjectDBTypes, true, subjectColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Subject struct: %s", err)
 	}
 
 	ctx := context.Background()
@@ -202,19 +202,19 @@ func testRolesBind(t *testing.T) {
 		t.Error(err)
 	}
 
-	if err = Roles().Bind(ctx, tx, o); err != nil {
+	if err = Subjects().Bind(ctx, tx, o); err != nil {
 		t.Error(err)
 	}
 }
 
-func testRolesOne(t *testing.T) {
+func testSubjectsOne(t *testing.T) {
 	t.Parallel()
 
 	seed := randomize.NewSeed()
 	var err error
-	o := &Role{}
-	if err = randomize.Struct(seed, o, roleDBTypes, true, roleColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Role struct: %s", err)
+	o := &Subject{}
+	if err = randomize.Struct(seed, o, subjectDBTypes, true, subjectColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Subject struct: %s", err)
 	}
 
 	ctx := context.Background()
@@ -224,38 +224,38 @@ func testRolesOne(t *testing.T) {
 		t.Error(err)
 	}
 
-	if x, err := Roles().One(ctx, tx); err != nil {
+	if x, err := Subjects().One(ctx, tx); err != nil {
 		t.Error(err)
 	} else if x == nil {
 		t.Error("expected to get a non nil record")
 	}
 }
 
-func testRolesAll(t *testing.T) {
+func testSubjectsAll(t *testing.T) {
 	t.Parallel()
 
 	seed := randomize.NewSeed()
 	var err error
-	roleOne := &Role{}
-	roleTwo := &Role{}
-	if err = randomize.Struct(seed, roleOne, roleDBTypes, false, roleColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Role struct: %s", err)
+	subjectOne := &Subject{}
+	subjectTwo := &Subject{}
+	if err = randomize.Struct(seed, subjectOne, subjectDBTypes, false, subjectColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Subject struct: %s", err)
 	}
-	if err = randomize.Struct(seed, roleTwo, roleDBTypes, false, roleColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Role struct: %s", err)
+	if err = randomize.Struct(seed, subjectTwo, subjectDBTypes, false, subjectColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Subject struct: %s", err)
 	}
 
 	ctx := context.Background()
 	tx := MustTx(boil.BeginTx(ctx, nil))
 	defer func() { _ = tx.Rollback() }()
-	if err = roleOne.Insert(ctx, tx, boil.Infer()); err != nil {
+	if err = subjectOne.Insert(ctx, tx, boil.Infer()); err != nil {
 		t.Error(err)
 	}
-	if err = roleTwo.Insert(ctx, tx, boil.Infer()); err != nil {
+	if err = subjectTwo.Insert(ctx, tx, boil.Infer()); err != nil {
 		t.Error(err)
 	}
 
-	slice, err := Roles().All(ctx, tx)
+	slice, err := Subjects().All(ctx, tx)
 	if err != nil {
 		t.Error(err)
 	}
@@ -265,31 +265,31 @@ func testRolesAll(t *testing.T) {
 	}
 }
 
-func testRolesCount(t *testing.T) {
+func testSubjectsCount(t *testing.T) {
 	t.Parallel()
 
 	var err error
 	seed := randomize.NewSeed()
-	roleOne := &Role{}
-	roleTwo := &Role{}
-	if err = randomize.Struct(seed, roleOne, roleDBTypes, false, roleColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Role struct: %s", err)
+	subjectOne := &Subject{}
+	subjectTwo := &Subject{}
+	if err = randomize.Struct(seed, subjectOne, subjectDBTypes, false, subjectColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Subject struct: %s", err)
 	}
-	if err = randomize.Struct(seed, roleTwo, roleDBTypes, false, roleColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Role struct: %s", err)
+	if err = randomize.Struct(seed, subjectTwo, subjectDBTypes, false, subjectColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Subject struct: %s", err)
 	}
 
 	ctx := context.Background()
 	tx := MustTx(boil.BeginTx(ctx, nil))
 	defer func() { _ = tx.Rollback() }()
-	if err = roleOne.Insert(ctx, tx, boil.Infer()); err != nil {
+	if err = subjectOne.Insert(ctx, tx, boil.Infer()); err != nil {
 		t.Error(err)
 	}
-	if err = roleTwo.Insert(ctx, tx, boil.Infer()); err != nil {
+	if err = subjectTwo.Insert(ctx, tx, boil.Infer()); err != nil {
 		t.Error(err)
 	}
 
-	count, err := Roles().Count(ctx, tx)
+	count, err := Subjects().Count(ctx, tx)
 	if err != nil {
 		t.Error(err)
 	}
@@ -299,14 +299,14 @@ func testRolesCount(t *testing.T) {
 	}
 }
 
-func testRolesInsert(t *testing.T) {
+func testSubjectsInsert(t *testing.T) {
 	t.Parallel()
 
 	seed := randomize.NewSeed()
 	var err error
-	o := &Role{}
-	if err = randomize.Struct(seed, o, roleDBTypes, true, roleColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Role struct: %s", err)
+	o := &Subject{}
+	if err = randomize.Struct(seed, o, subjectDBTypes, true, subjectColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Subject struct: %s", err)
 	}
 
 	ctx := context.Background()
@@ -316,7 +316,7 @@ func testRolesInsert(t *testing.T) {
 		t.Error(err)
 	}
 
-	count, err := Roles().Count(ctx, tx)
+	count, err := Subjects().Count(ctx, tx)
 	if err != nil {
 		t.Error(err)
 	}
@@ -326,24 +326,24 @@ func testRolesInsert(t *testing.T) {
 	}
 }
 
-func testRolesInsertWhitelist(t *testing.T) {
+func testSubjectsInsertWhitelist(t *testing.T) {
 	t.Parallel()
 
 	seed := randomize.NewSeed()
 	var err error
-	o := &Role{}
-	if err = randomize.Struct(seed, o, roleDBTypes, true); err != nil {
-		t.Errorf("Unable to randomize Role struct: %s", err)
+	o := &Subject{}
+	if err = randomize.Struct(seed, o, subjectDBTypes, true); err != nil {
+		t.Errorf("Unable to randomize Subject struct: %s", err)
 	}
 
 	ctx := context.Background()
 	tx := MustTx(boil.BeginTx(ctx, nil))
 	defer func() { _ = tx.Rollback() }()
-	if err = o.Insert(ctx, tx, boil.Whitelist(roleColumnsWithoutDefault...)); err != nil {
+	if err = o.Insert(ctx, tx, boil.Whitelist(subjectColumnsWithoutDefault...)); err != nil {
 		t.Error(err)
 	}
 
-	count, err := Roles().Count(ctx, tx)
+	count, err := Subjects().Count(ctx, tx)
 	if err != nil {
 		t.Error(err)
 	}
@@ -353,33 +353,33 @@ func testRolesInsertWhitelist(t *testing.T) {
 	}
 }
 
-func testRoleToManyUsers(t *testing.T) {
+func testSubjectToManyUserSubjects(t *testing.T) {
 	var err error
 	ctx := context.Background()
 	tx := MustTx(boil.BeginTx(ctx, nil))
 	defer func() { _ = tx.Rollback() }()
 
-	var a Role
-	var b, c User
+	var a Subject
+	var b, c UserSubject
 
 	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, roleDBTypes, true, roleColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Role struct: %s", err)
+	if err = randomize.Struct(seed, &a, subjectDBTypes, true, subjectColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Subject struct: %s", err)
 	}
 
 	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
 		t.Fatal(err)
 	}
 
-	if err = randomize.Struct(seed, &b, userDBTypes, false, userColumnsWithDefault...); err != nil {
+	if err = randomize.Struct(seed, &b, userSubjectDBTypes, false, userSubjectColumnsWithDefault...); err != nil {
 		t.Fatal(err)
 	}
-	if err = randomize.Struct(seed, &c, userDBTypes, false, userColumnsWithDefault...); err != nil {
+	if err = randomize.Struct(seed, &c, userSubjectDBTypes, false, userSubjectColumnsWithDefault...); err != nil {
 		t.Fatal(err)
 	}
 
-	queries.Assign(&b.RoleID, a.ID)
-	queries.Assign(&c.RoleID, a.ID)
+	queries.Assign(&b.SubjectID, a.ID)
+	queries.Assign(&c.SubjectID, a.ID)
 	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
 		t.Fatal(err)
 	}
@@ -387,17 +387,17 @@ func testRoleToManyUsers(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	check, err := a.Users().All(ctx, tx)
+	check, err := a.UserSubjects().All(ctx, tx)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	bFound, cFound := false, false
 	for _, v := range check {
-		if queries.Equal(v.RoleID, b.RoleID) {
+		if queries.Equal(v.SubjectID, b.SubjectID) {
 			bFound = true
 		}
-		if queries.Equal(v.RoleID, c.RoleID) {
+		if queries.Equal(v.SubjectID, c.SubjectID) {
 			cFound = true
 		}
 	}
@@ -409,19 +409,19 @@ func testRoleToManyUsers(t *testing.T) {
 		t.Error("expected to find c")
 	}
 
-	slice := RoleSlice{&a}
-	if err = a.L.LoadUsers(ctx, tx, false, (*[]*Role)(&slice), nil); err != nil {
+	slice := SubjectSlice{&a}
+	if err = a.L.LoadUserSubjects(ctx, tx, false, (*[]*Subject)(&slice), nil); err != nil {
 		t.Fatal(err)
 	}
-	if got := len(a.R.Users); got != 2 {
+	if got := len(a.R.UserSubjects); got != 2 {
 		t.Error("number of eager loaded records wrong, got:", got)
 	}
 
-	a.R.Users = nil
-	if err = a.L.LoadUsers(ctx, tx, true, &a, nil); err != nil {
+	a.R.UserSubjects = nil
+	if err = a.L.LoadUserSubjects(ctx, tx, true, &a, nil); err != nil {
 		t.Fatal(err)
 	}
-	if got := len(a.R.Users); got != 2 {
+	if got := len(a.R.UserSubjects); got != 2 {
 		t.Error("number of eager loaded records wrong, got:", got)
 	}
 
@@ -430,23 +430,23 @@ func testRoleToManyUsers(t *testing.T) {
 	}
 }
 
-func testRoleToManyAddOpUsers(t *testing.T) {
+func testSubjectToManyAddOpUserSubjects(t *testing.T) {
 	var err error
 
 	ctx := context.Background()
 	tx := MustTx(boil.BeginTx(ctx, nil))
 	defer func() { _ = tx.Rollback() }()
 
-	var a Role
-	var b, c, d, e User
+	var a Subject
+	var b, c, d, e UserSubject
 
 	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, roleDBTypes, false, strmangle.SetComplement(rolePrimaryKeyColumns, roleColumnsWithoutDefault)...); err != nil {
+	if err = randomize.Struct(seed, &a, subjectDBTypes, false, strmangle.SetComplement(subjectPrimaryKeyColumns, subjectColumnsWithoutDefault)...); err != nil {
 		t.Fatal(err)
 	}
-	foreigners := []*User{&b, &c, &d, &e}
+	foreigners := []*UserSubject{&b, &c, &d, &e}
 	for _, x := range foreigners {
-		if err = randomize.Struct(seed, x, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
+		if err = randomize.Struct(seed, x, userSubjectDBTypes, false, strmangle.SetComplement(userSubjectPrimaryKeyColumns, userSubjectColumnsWithoutDefault)...); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -461,13 +461,13 @@ func testRoleToManyAddOpUsers(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	foreignersSplitByInsertion := [][]*User{
+	foreignersSplitByInsertion := [][]*UserSubject{
 		{&b, &c},
 		{&d, &e},
 	}
 
 	for i, x := range foreignersSplitByInsertion {
-		err = a.AddUsers(ctx, tx, i != 0, x...)
+		err = a.AddUserSubjects(ctx, tx, i != 0, x...)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -475,28 +475,28 @@ func testRoleToManyAddOpUsers(t *testing.T) {
 		first := x[0]
 		second := x[1]
 
-		if !queries.Equal(a.ID, first.RoleID) {
-			t.Error("foreign key was wrong value", a.ID, first.RoleID)
+		if !queries.Equal(a.ID, first.SubjectID) {
+			t.Error("foreign key was wrong value", a.ID, first.SubjectID)
 		}
-		if !queries.Equal(a.ID, second.RoleID) {
-			t.Error("foreign key was wrong value", a.ID, second.RoleID)
+		if !queries.Equal(a.ID, second.SubjectID) {
+			t.Error("foreign key was wrong value", a.ID, second.SubjectID)
 		}
 
-		if first.R.Role != &a {
+		if first.R.Subject != &a {
 			t.Error("relationship was not added properly to the foreign slice")
 		}
-		if second.R.Role != &a {
+		if second.R.Subject != &a {
 			t.Error("relationship was not added properly to the foreign slice")
 		}
 
-		if a.R.Users[i*2] != first {
+		if a.R.UserSubjects[i*2] != first {
 			t.Error("relationship struct slice not set to correct value")
 		}
-		if a.R.Users[i*2+1] != second {
+		if a.R.UserSubjects[i*2+1] != second {
 			t.Error("relationship struct slice not set to correct value")
 		}
 
-		count, err := a.Users().Count(ctx, tx)
+		count, err := a.UserSubjects().Count(ctx, tx)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -506,23 +506,23 @@ func testRoleToManyAddOpUsers(t *testing.T) {
 	}
 }
 
-func testRoleToManySetOpUsers(t *testing.T) {
+func testSubjectToManySetOpUserSubjects(t *testing.T) {
 	var err error
 
 	ctx := context.Background()
 	tx := MustTx(boil.BeginTx(ctx, nil))
 	defer func() { _ = tx.Rollback() }()
 
-	var a Role
-	var b, c, d, e User
+	var a Subject
+	var b, c, d, e UserSubject
 
 	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, roleDBTypes, false, strmangle.SetComplement(rolePrimaryKeyColumns, roleColumnsWithoutDefault)...); err != nil {
+	if err = randomize.Struct(seed, &a, subjectDBTypes, false, strmangle.SetComplement(subjectPrimaryKeyColumns, subjectColumnsWithoutDefault)...); err != nil {
 		t.Fatal(err)
 	}
-	foreigners := []*User{&b, &c, &d, &e}
+	foreigners := []*UserSubject{&b, &c, &d, &e}
 	for _, x := range foreigners {
-		if err = randomize.Struct(seed, x, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
+		if err = randomize.Struct(seed, x, userSubjectDBTypes, false, strmangle.SetComplement(userSubjectPrimaryKeyColumns, userSubjectColumnsWithoutDefault)...); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -537,25 +537,12 @@ func testRoleToManySetOpUsers(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = a.SetUsers(ctx, tx, false, &b, &c)
+	err = a.SetUserSubjects(ctx, tx, false, &b, &c)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	count, err := a.Users().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 2 {
-		t.Error("count was wrong:", count)
-	}
-
-	err = a.SetUsers(ctx, tx, true, &d, &e)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err = a.Users().Count(ctx, tx)
+	count, err := a.UserSubjects().Count(ctx, tx)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -563,57 +550,70 @@ func testRoleToManySetOpUsers(t *testing.T) {
 		t.Error("count was wrong:", count)
 	}
 
-	if !queries.IsValuerNil(b.RoleID) {
+	err = a.SetUserSubjects(ctx, tx, true, &d, &e)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	count, err = a.UserSubjects().Count(ctx, tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if count != 2 {
+		t.Error("count was wrong:", count)
+	}
+
+	if !queries.IsValuerNil(b.SubjectID) {
 		t.Error("want b's foreign key value to be nil")
 	}
-	if !queries.IsValuerNil(c.RoleID) {
+	if !queries.IsValuerNil(c.SubjectID) {
 		t.Error("want c's foreign key value to be nil")
 	}
-	if !queries.Equal(a.ID, d.RoleID) {
-		t.Error("foreign key was wrong value", a.ID, d.RoleID)
+	if !queries.Equal(a.ID, d.SubjectID) {
+		t.Error("foreign key was wrong value", a.ID, d.SubjectID)
 	}
-	if !queries.Equal(a.ID, e.RoleID) {
-		t.Error("foreign key was wrong value", a.ID, e.RoleID)
-	}
-
-	if b.R.Role != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if c.R.Role != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if d.R.Role != &a {
-		t.Error("relationship was not added properly to the foreign struct")
-	}
-	if e.R.Role != &a {
-		t.Error("relationship was not added properly to the foreign struct")
+	if !queries.Equal(a.ID, e.SubjectID) {
+		t.Error("foreign key was wrong value", a.ID, e.SubjectID)
 	}
 
-	if a.R.Users[0] != &d {
+	if b.R.Subject != nil {
+		t.Error("relationship was not removed properly from the foreign struct")
+	}
+	if c.R.Subject != nil {
+		t.Error("relationship was not removed properly from the foreign struct")
+	}
+	if d.R.Subject != &a {
+		t.Error("relationship was not added properly to the foreign struct")
+	}
+	if e.R.Subject != &a {
+		t.Error("relationship was not added properly to the foreign struct")
+	}
+
+	if a.R.UserSubjects[0] != &d {
 		t.Error("relationship struct slice not set to correct value")
 	}
-	if a.R.Users[1] != &e {
+	if a.R.UserSubjects[1] != &e {
 		t.Error("relationship struct slice not set to correct value")
 	}
 }
 
-func testRoleToManyRemoveOpUsers(t *testing.T) {
+func testSubjectToManyRemoveOpUserSubjects(t *testing.T) {
 	var err error
 
 	ctx := context.Background()
 	tx := MustTx(boil.BeginTx(ctx, nil))
 	defer func() { _ = tx.Rollback() }()
 
-	var a Role
-	var b, c, d, e User
+	var a Subject
+	var b, c, d, e UserSubject
 
 	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, roleDBTypes, false, strmangle.SetComplement(rolePrimaryKeyColumns, roleColumnsWithoutDefault)...); err != nil {
+	if err = randomize.Struct(seed, &a, subjectDBTypes, false, strmangle.SetComplement(subjectPrimaryKeyColumns, subjectColumnsWithoutDefault)...); err != nil {
 		t.Fatal(err)
 	}
-	foreigners := []*User{&b, &c, &d, &e}
+	foreigners := []*UserSubject{&b, &c, &d, &e}
 	for _, x := range foreigners {
-		if err = randomize.Struct(seed, x, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
+		if err = randomize.Struct(seed, x, userSubjectDBTypes, false, strmangle.SetComplement(userSubjectPrimaryKeyColumns, userSubjectColumnsWithoutDefault)...); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -622,12 +622,12 @@ func testRoleToManyRemoveOpUsers(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = a.AddUsers(ctx, tx, true, foreigners...)
+	err = a.AddUserSubjects(ctx, tx, true, foreigners...)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	count, err := a.Users().Count(ctx, tx)
+	count, err := a.UserSubjects().Count(ctx, tx)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -635,12 +635,12 @@ func testRoleToManyRemoveOpUsers(t *testing.T) {
 		t.Error("count was wrong:", count)
 	}
 
-	err = a.RemoveUsers(ctx, tx, foreigners[:2]...)
+	err = a.RemoveUserSubjects(ctx, tx, foreigners[:2]...)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	count, err = a.Users().Count(ctx, tx)
+	count, err = a.UserSubjects().Count(ctx, tx)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -648,47 +648,47 @@ func testRoleToManyRemoveOpUsers(t *testing.T) {
 		t.Error("count was wrong:", count)
 	}
 
-	if !queries.IsValuerNil(b.RoleID) {
+	if !queries.IsValuerNil(b.SubjectID) {
 		t.Error("want b's foreign key value to be nil")
 	}
-	if !queries.IsValuerNil(c.RoleID) {
+	if !queries.IsValuerNil(c.SubjectID) {
 		t.Error("want c's foreign key value to be nil")
 	}
 
-	if b.R.Role != nil {
+	if b.R.Subject != nil {
 		t.Error("relationship was not removed properly from the foreign struct")
 	}
-	if c.R.Role != nil {
+	if c.R.Subject != nil {
 		t.Error("relationship was not removed properly from the foreign struct")
 	}
-	if d.R.Role != &a {
+	if d.R.Subject != &a {
 		t.Error("relationship to a should have been preserved")
 	}
-	if e.R.Role != &a {
+	if e.R.Subject != &a {
 		t.Error("relationship to a should have been preserved")
 	}
 
-	if len(a.R.Users) != 2 {
+	if len(a.R.UserSubjects) != 2 {
 		t.Error("should have preserved two relationships")
 	}
 
 	// Removal doesn't do a stable deletion for performance so we have to flip the order
-	if a.R.Users[1] != &d {
+	if a.R.UserSubjects[1] != &d {
 		t.Error("relationship to d should have been preserved")
 	}
-	if a.R.Users[0] != &e {
+	if a.R.UserSubjects[0] != &e {
 		t.Error("relationship to e should have been preserved")
 	}
 }
 
-func testRolesReload(t *testing.T) {
+func testSubjectsReload(t *testing.T) {
 	t.Parallel()
 
 	seed := randomize.NewSeed()
 	var err error
-	o := &Role{}
-	if err = randomize.Struct(seed, o, roleDBTypes, true, roleColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Role struct: %s", err)
+	o := &Subject{}
+	if err = randomize.Struct(seed, o, subjectDBTypes, true, subjectColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Subject struct: %s", err)
 	}
 
 	ctx := context.Background()
@@ -703,14 +703,14 @@ func testRolesReload(t *testing.T) {
 	}
 }
 
-func testRolesReloadAll(t *testing.T) {
+func testSubjectsReloadAll(t *testing.T) {
 	t.Parallel()
 
 	seed := randomize.NewSeed()
 	var err error
-	o := &Role{}
-	if err = randomize.Struct(seed, o, roleDBTypes, true, roleColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Role struct: %s", err)
+	o := &Subject{}
+	if err = randomize.Struct(seed, o, subjectDBTypes, true, subjectColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Subject struct: %s", err)
 	}
 
 	ctx := context.Background()
@@ -720,21 +720,21 @@ func testRolesReloadAll(t *testing.T) {
 		t.Error(err)
 	}
 
-	slice := RoleSlice{o}
+	slice := SubjectSlice{o}
 
 	if err = slice.ReloadAll(ctx, tx); err != nil {
 		t.Error(err)
 	}
 }
 
-func testRolesSelect(t *testing.T) {
+func testSubjectsSelect(t *testing.T) {
 	t.Parallel()
 
 	seed := randomize.NewSeed()
 	var err error
-	o := &Role{}
-	if err = randomize.Struct(seed, o, roleDBTypes, true, roleColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Role struct: %s", err)
+	o := &Subject{}
+	if err = randomize.Struct(seed, o, subjectDBTypes, true, subjectColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Subject struct: %s", err)
 	}
 
 	ctx := context.Background()
@@ -744,7 +744,7 @@ func testRolesSelect(t *testing.T) {
 		t.Error(err)
 	}
 
-	slice, err := Roles().All(ctx, tx)
+	slice, err := Subjects().All(ctx, tx)
 	if err != nil {
 		t.Error(err)
 	}
@@ -755,25 +755,25 @@ func testRolesSelect(t *testing.T) {
 }
 
 var (
-	roleDBTypes = map[string]string{`ID`: `integer`, `AccessLevel`: `integer`, `Name`: `text`, `CreatedAt`: `timestamp with time zone`, `UpdatedAt`: `timestamp with time zone`, `DeletedAt`: `timestamp with time zone`}
-	_           = bytes.MinRead
+	subjectDBTypes = map[string]string{`ID`: `integer`, `Name`: `text`, `CreatedAt`: `timestamp with time zone`, `UpdatedAt`: `timestamp with time zone`, `DeletedAt`: `timestamp with time zone`}
+	_              = bytes.MinRead
 )
 
-func testRolesUpdate(t *testing.T) {
+func testSubjectsUpdate(t *testing.T) {
 	t.Parallel()
 
-	if 0 == len(rolePrimaryKeyColumns) {
+	if 0 == len(subjectPrimaryKeyColumns) {
 		t.Skip("Skipping table with no primary key columns")
 	}
-	if len(roleAllColumns) == len(rolePrimaryKeyColumns) {
+	if len(subjectAllColumns) == len(subjectPrimaryKeyColumns) {
 		t.Skip("Skipping table with only primary key columns")
 	}
 
 	seed := randomize.NewSeed()
 	var err error
-	o := &Role{}
-	if err = randomize.Struct(seed, o, roleDBTypes, true, roleColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Role struct: %s", err)
+	o := &Subject{}
+	if err = randomize.Struct(seed, o, subjectDBTypes, true, subjectColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Subject struct: %s", err)
 	}
 
 	ctx := context.Background()
@@ -783,7 +783,7 @@ func testRolesUpdate(t *testing.T) {
 		t.Error(err)
 	}
 
-	count, err := Roles().Count(ctx, tx)
+	count, err := Subjects().Count(ctx, tx)
 	if err != nil {
 		t.Error(err)
 	}
@@ -792,8 +792,8 @@ func testRolesUpdate(t *testing.T) {
 		t.Error("want one record, got:", count)
 	}
 
-	if err = randomize.Struct(seed, o, roleDBTypes, true, rolePrimaryKeyColumns...); err != nil {
-		t.Errorf("Unable to randomize Role struct: %s", err)
+	if err = randomize.Struct(seed, o, subjectDBTypes, true, subjectPrimaryKeyColumns...); err != nil {
+		t.Errorf("Unable to randomize Subject struct: %s", err)
 	}
 
 	if rowsAff, err := o.Update(ctx, tx, boil.Infer()); err != nil {
@@ -803,18 +803,18 @@ func testRolesUpdate(t *testing.T) {
 	}
 }
 
-func testRolesSliceUpdateAll(t *testing.T) {
+func testSubjectsSliceUpdateAll(t *testing.T) {
 	t.Parallel()
 
-	if len(roleAllColumns) == len(rolePrimaryKeyColumns) {
+	if len(subjectAllColumns) == len(subjectPrimaryKeyColumns) {
 		t.Skip("Skipping table with only primary key columns")
 	}
 
 	seed := randomize.NewSeed()
 	var err error
-	o := &Role{}
-	if err = randomize.Struct(seed, o, roleDBTypes, true, roleColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize Role struct: %s", err)
+	o := &Subject{}
+	if err = randomize.Struct(seed, o, subjectDBTypes, true, subjectColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Subject struct: %s", err)
 	}
 
 	ctx := context.Background()
@@ -824,7 +824,7 @@ func testRolesSliceUpdateAll(t *testing.T) {
 		t.Error(err)
 	}
 
-	count, err := Roles().Count(ctx, tx)
+	count, err := Subjects().Count(ctx, tx)
 	if err != nil {
 		t.Error(err)
 	}
@@ -833,18 +833,18 @@ func testRolesSliceUpdateAll(t *testing.T) {
 		t.Error("want one record, got:", count)
 	}
 
-	if err = randomize.Struct(seed, o, roleDBTypes, true, rolePrimaryKeyColumns...); err != nil {
-		t.Errorf("Unable to randomize Role struct: %s", err)
+	if err = randomize.Struct(seed, o, subjectDBTypes, true, subjectPrimaryKeyColumns...); err != nil {
+		t.Errorf("Unable to randomize Subject struct: %s", err)
 	}
 
 	// Remove Primary keys and unique columns from what we plan to update
 	var fields []string
-	if strmangle.StringSliceMatch(roleAllColumns, rolePrimaryKeyColumns) {
-		fields = roleAllColumns
+	if strmangle.StringSliceMatch(subjectAllColumns, subjectPrimaryKeyColumns) {
+		fields = subjectAllColumns
 	} else {
 		fields = strmangle.SetComplement(
-			roleAllColumns,
-			rolePrimaryKeyColumns,
+			subjectAllColumns,
+			subjectPrimaryKeyColumns,
 		)
 	}
 
@@ -862,7 +862,7 @@ func testRolesSliceUpdateAll(t *testing.T) {
 		}
 	}
 
-	slice := RoleSlice{o}
+	slice := SubjectSlice{o}
 	if rowsAff, err := slice.UpdateAll(ctx, tx, updateMap); err != nil {
 		t.Error(err)
 	} else if rowsAff != 1 {
@@ -870,29 +870,29 @@ func testRolesSliceUpdateAll(t *testing.T) {
 	}
 }
 
-func testRolesUpsert(t *testing.T) {
+func testSubjectsUpsert(t *testing.T) {
 	t.Parallel()
 
-	if len(roleAllColumns) == len(rolePrimaryKeyColumns) {
+	if len(subjectAllColumns) == len(subjectPrimaryKeyColumns) {
 		t.Skip("Skipping table with only primary key columns")
 	}
 
 	seed := randomize.NewSeed()
 	var err error
 	// Attempt the INSERT side of an UPSERT
-	o := Role{}
-	if err = randomize.Struct(seed, &o, roleDBTypes, true); err != nil {
-		t.Errorf("Unable to randomize Role struct: %s", err)
+	o := Subject{}
+	if err = randomize.Struct(seed, &o, subjectDBTypes, true); err != nil {
+		t.Errorf("Unable to randomize Subject struct: %s", err)
 	}
 
 	ctx := context.Background()
 	tx := MustTx(boil.BeginTx(ctx, nil))
 	defer func() { _ = tx.Rollback() }()
 	if err = o.Upsert(ctx, tx, false, nil, boil.Infer(), boil.Infer()); err != nil {
-		t.Errorf("Unable to upsert Role: %s", err)
+		t.Errorf("Unable to upsert Subject: %s", err)
 	}
 
-	count, err := Roles().Count(ctx, tx)
+	count, err := Subjects().Count(ctx, tx)
 	if err != nil {
 		t.Error(err)
 	}
@@ -901,15 +901,15 @@ func testRolesUpsert(t *testing.T) {
 	}
 
 	// Attempt the UPDATE side of an UPSERT
-	if err = randomize.Struct(seed, &o, roleDBTypes, false, rolePrimaryKeyColumns...); err != nil {
-		t.Errorf("Unable to randomize Role struct: %s", err)
+	if err = randomize.Struct(seed, &o, subjectDBTypes, false, subjectPrimaryKeyColumns...); err != nil {
+		t.Errorf("Unable to randomize Subject struct: %s", err)
 	}
 
 	if err = o.Upsert(ctx, tx, true, nil, boil.Infer(), boil.Infer()); err != nil {
-		t.Errorf("Unable to upsert Role: %s", err)
+		t.Errorf("Unable to upsert Subject: %s", err)
 	}
 
-	count, err = Roles().Count(ctx, tx)
+	count, err = Subjects().Count(ctx, tx)
 	if err != nil {
 		t.Error(err)
 	}

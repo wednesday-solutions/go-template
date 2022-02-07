@@ -16,13 +16,11 @@ import (
 	"github.com/wednesday-solutions/go-template/internal/service"
 	"github.com/wednesday-solutions/go-template/models"
 	"github.com/wednesday-solutions/go-template/pkg/utl/convert"
-	throttle "github.com/wednesday-solutions/go-template/pkg/utl/rate_throttle"
+	"github.com/wednesday-solutions/go-template/pkg/utl/rate_throttle"
 	resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
 )
 
-func (r *mutationResolver) CreateUser(
-	ctx context.Context,
-	input graphql_models.UserCreateInput) (*graphql_models.UserPayload, error) {
+func (r *mutationResolver) CreateUser(ctx context.Context, input graphql_models.UserCreateInput) (*graphql_models.UserPayload, error) {
 	err := throttle.Check(ctx, 5, 10*time.Second)
 	if err != nil {
 		return nil, err
@@ -59,10 +57,7 @@ func (r *mutationResolver) CreateUser(
 	return &graphql_models.UserPayload{User: graphUser}, err
 }
 
-func (r *mutationResolver) UpdateUser(
-	ctx context.Context,
-	input *graphql_models.UserUpdateInput) (*graphql_models.UserUpdatePayload, error) {
-
+func (r *mutationResolver) UpdateUser(ctx context.Context, input *graphql_models.UserUpdateInput) (*graphql_models.UserUpdatePayload, error) {
 	userID := auth.UserIDFromContext(ctx)
 	u := models.User{
 		ID:        userID,

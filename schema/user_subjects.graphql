@@ -1,0 +1,21 @@
+type Subject {
+    id: ID!
+    name: String!
+}
+type UserSubject {
+    user: User!
+    subject: Subject!
+}
+input Pagination {
+    page: Int!
+    limit: Int!
+}
+type SubjectPayload {
+    subjects: [Subject!]!
+    total: Int!
+}
+extend type Query {
+    subject(id: Int!): Subject
+    subjects(pagination: Pagination!): SubjectPayload
+    userSubjects(userId: Int, subjectId: Int): UserSubject
+}

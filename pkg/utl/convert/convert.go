@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/volatiletech/null"
+	"github.com/wednesday-solutions/go-template/daos"
 	graphql "github.com/wednesday-solutions/go-template/graphql_models"
 	"github.com/wednesday-solutions/go-template/models"
 )
@@ -91,5 +92,32 @@ func UserToGraphQlUser(u *models.User) *graphql.User {
 		Phone:     NullDotStringToPointerString(u.Phone),
 		Address:   NullDotStringToPointerString(u.Address),
 		Active:    NullDotBoolToPointerBool(u.Active),
+	}
+}
+func SubjectsToGraphQlSubjects(s models.SubjectSlice) []*graphql.Subject {
+	var r []*graphql.Subject
+	for _, e := range s {
+		r = append(r, SubjectToGraphQlSubject(e))
+	}
+	return r
+}
+func SubjectToGraphQlSubject(s *models.Subject) *graphql.Subject {
+	return &graphql.Subject{
+		ID:   strconv.Itoa(s.ID),
+		Name: s.Name,
+	}
+}
+func UserSubjectToGraphQlUserSubject(us *models.UserSubject) *graphql.UserSubject {
+	subject, err := daos.GetSubjectForUserSubject(us)
+	if err != nil {
+		return &graphql.UserSubject{}
+	}
+	user, err := daos.GetUserForUserSubject(us)
+	if err != nil {
+		return &graphql.UserSubject{}
+	}
+	return &graphql.UserSubject{
+		Subject: SubjectToGraphQlSubject(subject),
+		User:    UserToGraphQlUser(user),
 	}
 }

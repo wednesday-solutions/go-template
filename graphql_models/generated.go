@@ -64,8 +64,11 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Me    func(childComplexity int) int
-		Users func(childComplexity int, pagination *UserPagination) int
+		Me           func(childComplexity int) int
+		Subject      func(childComplexity int, id int) int
+		Subjects     func(childComplexity int, pagination Pagination) int
+		UserSubjects func(childComplexity int, userID *int, subjectID *int) int
+		Users        func(childComplexity int, pagination *UserPagination) int
 	}
 
 	RefreshTokenResponse struct {
@@ -102,6 +105,16 @@ type ComplexityRoot struct {
 		Ok func(childComplexity int) int
 	}
 
+	Subject struct {
+		ID   func(childComplexity int) int
+		Name func(childComplexity int) int
+	}
+
+	SubjectPayload struct {
+		Subjects func(childComplexity int) int
+		Total    func(childComplexity int) int
+	}
+
 	Subscription struct {
 		UserNotification func(childComplexity int) int
 	}
@@ -134,6 +147,11 @@ type ComplexityRoot struct {
 		User func(childComplexity int) int
 	}
 
+	UserSubject struct {
+		Subject func(childComplexity int) int
+		User    func(childComplexity int) int
+	}
+
 	UserUpdatePayload struct {
 		Ok func(childComplexity int) int
 	}
@@ -160,6 +178,9 @@ type MutationResolver interface {
 type QueryResolver interface {
 	Me(ctx context.Context) (*User, error)
 	Users(ctx context.Context, pagination *UserPagination) (*UsersPayload, error)
+	Subject(ctx context.Context, id int) (*Subject, error)
+	Subjects(ctx context.Context, pagination Pagination) (*SubjectPayload, error)
+	UserSubjects(ctx context.Context, userID *int, subjectID *int) (*UserSubject, error)
 }
 type SubscriptionResolver interface {
 	UserNotification(ctx context.Context) (<-chan *User, error)
@@ -287,6 +308,42 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Me(childComplexity), true
 
+	case "Query.subject":
+		if e.complexity.Query.Subject == nil {
+			break
+		}
+
+		args, err := ec.field_Query_subject_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Subject(childComplexity, args["id"].(int)), true
+
+	case "Query.subjects":
+		if e.complexity.Query.Subjects == nil {
+			break
+		}
+
+		args, err := ec.field_Query_subjects_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Subjects(childComplexity, args["pagination"].(Pagination)), true
+
+	case "Query.userSubjects":
+		if e.complexity.Query.UserSubjects == nil {
+			break
+		}
+
+		args, err := ec.field_Query_userSubjects_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.UserSubjects(childComplexity, args["userId"].(*int), args["subjectId"].(*int)), true
+
 	case "Query.users":
 		if e.complexity.Query.Users == nil {
 			break
@@ -389,6 +446,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.RolesUpdatePayload.Ok(childComplexity), true
+
+	case "Subject.id":
+		if e.complexity.Subject.ID == nil {
+			break
+		}
+
+		return e.complexity.Subject.ID(childComplexity), true
+
+	case "Subject.name":
+		if e.complexity.Subject.Name == nil {
+			break
+		}
+
+		return e.complexity.Subject.Name(childComplexity), true
+
+	case "SubjectPayload.subjects":
+		if e.complexity.SubjectPayload.Subjects == nil {
+			break
+		}
+
+		return e.complexity.SubjectPayload.Subjects(childComplexity), true
+
+	case "SubjectPayload.total":
+		if e.complexity.SubjectPayload.Total == nil {
+			break
+		}
+
+		return e.complexity.SubjectPayload.Total(childComplexity), true
 
 	case "Subscription.userNotification":
 		if e.complexity.Subscription.UserNotification == nil {
@@ -529,6 +614,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.UserPayload.User(childComplexity), true
+
+	case "UserSubject.subject":
+		if e.complexity.UserSubject.Subject == nil {
+			break
+		}
+
+		return e.complexity.UserSubject.Subject(childComplexity), true
+
+	case "UserSubject.user":
+		if e.complexity.UserSubject.User == nil {
+			break
+		}
+
+		return e.complexity.UserSubject.User(childComplexity), true
 
 	case "UserUpdatePayload.ok":
 		if e.complexity.UserUpdatePayload.Ok == nil {
@@ -889,6 +988,27 @@ type RefreshTokenResponse {
     me: User!
     users(pagination: UserPagination): UsersPayload!
 }`, BuiltIn: false},
+	{Name: "schema/user_subjects.graphql", Input: `type Subject {
+    id: ID!
+    name: String!
+}
+type UserSubject {
+    user: User!
+    subject: Subject!
+}
+input Pagination {
+    page: Int!
+    limit: Int!
+}
+type SubjectPayload {
+    subjects: [Subject!]!
+    total: Int!
+}
+extend type Query {
+    subject(id: Int!): Subject
+    subjects(pagination: Pagination!): SubjectPayload
+    userSubjects(userId: Int, subjectId: Int): UserSubject
+}`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
@@ -1016,6 +1136,60 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_subject_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_subjects_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 Pagination
+	if tmp, ok := rawArgs["pagination"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
+		arg0, err = ec.unmarshalNPagination2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐPagination(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pagination"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_userSubjects_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["userId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["userId"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["subjectId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("subjectId"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["subjectId"] = arg1
 	return args, nil
 }
 
@@ -1541,6 +1715,123 @@ func (ec *executionContext) _Query_users(ctx context.Context, field graphql.Coll
 	return ec.marshalNUsersPayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUsersPayload(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_subject(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_subject_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Subject(rctx, args["id"].(int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*Subject)
+	fc.Result = res
+	return ec.marshalOSubject2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐSubject(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_subjects(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_subjects_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Subjects(rctx, args["pagination"].(Pagination))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*SubjectPayload)
+	fc.Result = res
+	return ec.marshalOSubjectPayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐSubjectPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_userSubjects(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_userSubjects_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().UserSubjects(rctx, args["userId"].(*int), args["subjectId"].(*int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*UserSubject)
+	fc.Result = res
+	return ec.marshalOUserSubject2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserSubject(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -2053,6 +2344,146 @@ func (ec *executionContext) _RolesUpdatePayload_ok(ctx context.Context, field gr
 	res := resTmp.(bool)
 	fc.Result = res
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Subject_id(ctx context.Context, field graphql.CollectedField, obj *Subject) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Subject",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Subject_name(ctx context.Context, field graphql.CollectedField, obj *Subject) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Subject",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SubjectPayload_subjects(ctx context.Context, field graphql.CollectedField, obj *SubjectPayload) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SubjectPayload",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Subjects, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*Subject)
+	fc.Result = res
+	return ec.marshalNSubject2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐSubjectᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SubjectPayload_total(ctx context.Context, field graphql.CollectedField, obj *SubjectPayload) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SubjectPayload",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Subscription_userNotification(ctx context.Context, field graphql.CollectedField) (ret func() graphql.Marshaler) {
@@ -2715,6 +3146,76 @@ func (ec *executionContext) _UserPayload_user(ctx context.Context, field graphql
 	res := resTmp.(*User)
 	fc.Result = res
 	return ec.marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _UserSubject_user(ctx context.Context, field graphql.CollectedField, obj *UserSubject) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "UserSubject",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.User, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _UserSubject_subject(ctx context.Context, field graphql.CollectedField, obj *UserSubject) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "UserSubject",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Subject, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*Subject)
+	fc.Result = res
+	return ec.marshalNSubject2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐSubject(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _UserUpdatePayload_ok(ctx context.Context, field graphql.CollectedField, obj *UserUpdatePayload) (ret graphql.Marshaler) {
@@ -4223,6 +4724,37 @@ func (ec *executionContext) unmarshalInputIntFilter(ctx context.Context, obj int
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputPagination(ctx context.Context, obj interface{}) (Pagination, error) {
+	var it Pagination
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "page":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+			it.Page, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "limit":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+			it.Limit, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputRoleCreateInput(ctx context.Context, obj interface{}) (RoleCreateInput, error) {
 	var it RoleCreateInput
 	asMap := map[string]interface{}{}
@@ -5165,6 +5697,39 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
+		case "subject":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_subject(ctx, field)
+				return res
+			})
+		case "subjects":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_subjects(ctx, field)
+				return res
+			})
+		case "userSubjects":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_userSubjects(ctx, field)
+				return res
+			})
 		case "__type":
 			out.Values[i] = ec._Query___type(ctx, field)
 		case "__schema":
@@ -5387,6 +5952,70 @@ func (ec *executionContext) _RolesUpdatePayload(ctx context.Context, sel ast.Sel
 	return out
 }
 
+var subjectImplementors = []string{"Subject"}
+
+func (ec *executionContext) _Subject(ctx context.Context, sel ast.SelectionSet, obj *Subject) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, subjectImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Subject")
+		case "id":
+			out.Values[i] = ec._Subject_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "name":
+			out.Values[i] = ec._Subject_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var subjectPayloadImplementors = []string{"SubjectPayload"}
+
+func (ec *executionContext) _SubjectPayload(ctx context.Context, sel ast.SelectionSet, obj *SubjectPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, subjectPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SubjectPayload")
+		case "subjects":
+			out.Values[i] = ec._SubjectPayload_subjects(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "total":
+			out.Values[i] = ec._SubjectPayload_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var subscriptionImplementors = []string{"Subscription"}
 
 func (ec *executionContext) _Subscription(ctx context.Context, sel ast.SelectionSet) func() graphql.Marshaler {
@@ -5506,6 +6135,38 @@ func (ec *executionContext) _UserPayload(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = graphql.MarshalString("UserPayload")
 		case "user":
 			out.Values[i] = ec._UserPayload_user(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var userSubjectImplementors = []string{"UserSubject"}
+
+func (ec *executionContext) _UserSubject(ctx context.Context, sel ast.SelectionSet, obj *UserSubject) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, userSubjectImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UserSubject")
+		case "user":
+			out.Values[i] = ec._UserSubject_user(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "subject":
+			out.Values[i] = ec._UserSubject_subject(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -5980,6 +6641,11 @@ func (ec *executionContext) marshalNLoginResponse2ᚖgithubᚗcomᚋwednesdayᚑ
 	return ec._LoginResponse(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNPagination2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐPagination(ctx context.Context, v interface{}) (Pagination, error) {
+	res, err := ec.unmarshalInputPagination(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalNRefreshTokenResponse2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐRefreshTokenResponse(ctx context.Context, sel ast.SelectionSet, v RefreshTokenResponse) graphql.Marshaler {
 	return ec._RefreshTokenResponse(ctx, sel, &v)
 }
@@ -6106,6 +6772,60 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNSubject2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐSubjectᚄ(ctx context.Context, sel ast.SelectionSet, v []*Subject) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNSubject2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐSubject(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNSubject2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐSubject(ctx context.Context, sel ast.SelectionSet, v *Subject) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._Subject(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNUser2githubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUser(ctx context.Context, sel ast.SelectionSet, v User) graphql.Marshaler {
@@ -6818,6 +7538,20 @@ func (ec *executionContext) unmarshalOStringFilter2ᚖgithubᚗcomᚋwednesday�
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalOSubject2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐSubject(ctx context.Context, sel ast.SelectionSet, v *Subject) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Subject(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOSubjectPayload2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐSubjectPayload(ctx context.Context, sel ast.SelectionSet, v *SubjectPayload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._SubjectPayload(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalOUser2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUser(ctx context.Context, sel ast.SelectionSet, v []*User) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -6872,6 +7606,13 @@ func (ec *executionContext) unmarshalOUserPagination2ᚖgithubᚗcomᚋwednesday
 	}
 	res, err := ec.unmarshalInputUserPagination(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOUserSubject2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserSubject(ctx context.Context, sel ast.SelectionSet, v *UserSubject) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._UserSubject(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOUserUpdateInput2ᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserUpdateInput(ctx context.Context, v interface{}) (*UserUpdateInput, error) {
