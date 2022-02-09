@@ -117,8 +117,8 @@ func MockConfig() *config.Configuration {
 		},
 		JWT: &config.JWT{
 			MinSecretLength:  64,
-			DurationMinutes:  15,
-			RefreshDuration:  15,
+			DurationMinutes:  1440,
+			RefreshDuration:  3499200,
 			MaxRefresh:       1440,
 			SigningAlgorithm: "HS256",
 		},
