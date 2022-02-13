@@ -2,6 +2,11 @@
 
 package graphql_models
 
+type BackwardSubjectsInput struct {
+	Last   int    `json:"last"`
+	Before string `json:"before"`
+}
+
 type BooleanFilter struct {
 	IsTrue  *bool `json:"isTrue"`
 	IsFalse *bool `json:"isFalse"`
@@ -21,6 +26,11 @@ type FloatFilter struct {
 	MoreThanOrEqualTo *float64  `json:"moreThanOrEqualTo"`
 	In                []float64 `json:"in"`
 	NotIn             []float64 `json:"notIn"`
+}
+
+type ForwardSubjectsInput struct {
+	First int     `json:"first"`
+	After *string `json:"after"`
 }
 
 type IDFilter struct {
@@ -44,6 +54,13 @@ type IntFilter struct {
 type LoginResponse struct {
 	Token        string `json:"token"`
 	RefreshToken string `json:"refreshToken"`
+}
+
+type PageInfo struct {
+	HasNextPage     bool   `json:"hasNextPage"`
+	HasPreviousPage bool   `json:"hasPreviousPage"`
+	StartCursor     string `json:"startCursor"`
+	EndCursor       string `json:"endCursor"`
 }
 
 type Pagination struct {
@@ -146,6 +163,16 @@ type StringFilter struct {
 type Subject struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
+}
+
+type SubjectConnection struct {
+	Edges    []*SubjectEdge `json:"edges"`
+	PageInfo *PageInfo      `json:"pageInfo"`
+}
+
+type SubjectEdge struct {
+	Node   *Subject `json:"node"`
+	Cursor string   `json:"cursor"`
 }
 
 type SubjectPayload struct {

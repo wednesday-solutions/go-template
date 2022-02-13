@@ -11,7 +11,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/rafaeljusto/redigomock"
 	"github.com/stretchr/testify/assert"
-	"github.com/volatiletech/sqlboiler/boil"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	fm "github.com/wednesday-solutions/go-template/graphql_models"
 	"github.com/wednesday-solutions/go-template/models"
 	"github.com/wednesday-solutions/go-template/resolver"

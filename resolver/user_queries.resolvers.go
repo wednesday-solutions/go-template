@@ -6,7 +6,7 @@ package resolver
 import (
 	"context"
 
-	"github.com/volatiletech/sqlboiler/queries/qm"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"github.com/wednesday-solutions/go-template/daos"
 	"github.com/wednesday-solutions/go-template/graphql_models"
 	"github.com/wednesday-solutions/go-template/internal/middleware/auth"

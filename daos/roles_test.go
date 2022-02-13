@@ -8,7 +8,7 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
-	"github.com/volatiletech/sqlboiler/boil"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/wednesday-solutions/go-template/daos"
 	"github.com/wednesday-solutions/go-template/models"
 )

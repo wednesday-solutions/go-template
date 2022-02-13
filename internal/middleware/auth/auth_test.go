@@ -20,7 +20,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
-	"github.com/volatiletech/sqlboiler/boil"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	graphql "github.com/wednesday-solutions/go-template/graphql_models"
 	"github.com/wednesday-solutions/go-template/internal/middleware/auth"
 	"github.com/wednesday-solutions/go-template/models"

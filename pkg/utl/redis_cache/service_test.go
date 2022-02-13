@@ -15,7 +15,7 @@ import (
 	redigo "github.com/gomodule/redigo/redis"
 	redis "github.com/gomodule/redigo/redis"
 	redigomock "github.com/rafaeljusto/redigomock/v3"
-	"github.com/volatiletech/sqlboiler/boil"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/wednesday-solutions/go-template/models"
 	"github.com/wednesday-solutions/go-template/testutls"
 )

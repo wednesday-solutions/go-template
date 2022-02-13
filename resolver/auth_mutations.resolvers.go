@@ -7,7 +7,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/volatiletech/null"
+	null "github.com/volatiletech/null/v8"
 	"github.com/wednesday-solutions/go-template/daos"
 	"github.com/wednesday-solutions/go-template/graphql_models"
 	"github.com/wednesday-solutions/go-template/internal/config"

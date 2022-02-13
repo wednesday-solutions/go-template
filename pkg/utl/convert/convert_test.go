@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/volatiletech/null"
+	"github.com/volatiletech/null/v8"
 	graphql "github.com/wednesday-solutions/go-template/graphql_models"
 	"github.com/wednesday-solutions/go-template/models"
 )

@@ -1,0 +1,45 @@
+extend type Query {
+  subject(id: Int!): Subject
+  subjects(pagination: Pagination!): SubjectPayload
+  subjectConnection(
+    forward: ForwardSubjectsInput
+    backward: BackwardSubjectsInput
+  ): SubjectConnection
+}
+
+input Pagination {
+  page: Int!
+  limit: Int!
+}
+
+type SubjectPayload {
+  subjects: [Subject!]!
+  total: Int!
+}
+
+type SubjectEdge {
+  node: Subject!
+  cursor: String!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String!
+  endCursor: String!
+}
+
+input ForwardSubjectsInput {
+  first: Int!
+  after: String
+}
+
+input BackwardSubjectsInput {
+  last: Int!
+  before: String!
+}
+
+type SubjectConnection {
+  edges: [SubjectEdge]!
+  pageInfo: PageInfo!
+}

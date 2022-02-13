@@ -9,8 +9,8 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/joho/godotenv"
-	"github.com/volatiletech/null"
-	"github.com/volatiletech/sqlboiler/boil"
+	"github.com/volatiletech/null/v8"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/wednesday-solutions/go-template/internal/config"
 	"github.com/wednesday-solutions/go-template/models"
 )

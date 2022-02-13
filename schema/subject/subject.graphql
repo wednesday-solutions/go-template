@@ -1,0 +1,4 @@
+type Subject {
+  id: ID!
+  name: String!
+}

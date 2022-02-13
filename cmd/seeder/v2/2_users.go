@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/volatiletech/sqlboiler/queries/qm"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	seeders "github.com/wednesday-solutions/go-template/cmd/seeder"
 	"github.com/wednesday-solutions/go-template/internal/postgres"
 	"github.com/wednesday-solutions/go-template/models"

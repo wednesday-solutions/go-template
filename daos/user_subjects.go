@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/volatiletech/sqlboiler/queries/qm"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"github.com/wednesday-solutions/go-template/models"
 	resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
 )

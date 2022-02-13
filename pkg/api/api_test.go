@@ -23,7 +23,7 @@ import (
 	"github.com/labstack/echo"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
-	"github.com/volatiletech/sqlboiler/boil"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	graphql "github.com/wednesday-solutions/go-template/graphql_models"
 	"github.com/wednesday-solutions/go-template/internal/config"
 	"github.com/wednesday-solutions/go-template/internal/server"

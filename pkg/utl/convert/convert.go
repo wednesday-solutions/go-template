@@ -3,8 +3,9 @@ package convert
 import (
 	"strconv"
 
-	"github.com/volatiletech/null"
+	"github.com/volatiletech/null/v8"
 	"github.com/wednesday-solutions/go-template/daos"
+	"github.com/wednesday-solutions/go-template/graphql_models"
 	graphql "github.com/wednesday-solutions/go-template/graphql_models"
 	"github.com/wednesday-solutions/go-template/models"
 )
@@ -120,4 +121,13 @@ func UserSubjectToGraphQlUserSubject(us *models.UserSubject) *graphql.UserSubjec
 		Subject: SubjectToGraphQlSubject(subject),
 		User:    UserToGraphQlUser(user),
 	}
+}
+
+func ToConnectionResult(results models.SubjectSlice) []*graphql_models.SubjectEdge {
+	edges := []*graphql_models.SubjectEdge{}
+	for _, i := range results {
+		subject := SubjectToGraphQlSubject(i)
+		edges = append(edges, &graphql_models.SubjectEdge{Node: subject, Cursor: subject.ID})
+	}
+	return edges
 }
