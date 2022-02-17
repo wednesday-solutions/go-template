@@ -1,3 +1,3 @@
 extend type Query {
-  userSubjects(userId: Int, subjectId: Int): UserSubject
+  userSubject(userId: Int, subjectId: Int): UserSubject
 }

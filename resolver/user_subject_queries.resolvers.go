@@ -13,7 +13,7 @@ import (
 	resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
 )
 
-func (r *queryResolver) UserSubjects(ctx context.Context, userID *int, subjectID *int) (*graphql_models.UserSubject, error) {
+func (r *queryResolver) UserSubject(ctx context.Context, userID *int, subjectID *int) (*graphql_models.UserSubject, error) {
 	userSubject, err := daos.FindUserSubjectById(userID, subjectID)
 	fmt.Print("userSubject", userSubject)
 	if err != nil {

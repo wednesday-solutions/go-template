@@ -70,11 +70,11 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Me           func(childComplexity int) int
-		Subject      func(childComplexity int, id int) int
-		Subjects     func(childComplexity int, pagination Pagination) int
-		UserSubjects func(childComplexity int, userID *int, subjectID *int) int
-		Users        func(childComplexity int, pagination *UserPagination) int
+		Me          func(childComplexity int) int
+		Subject     func(childComplexity int, id int) int
+		Subjects    func(childComplexity int, pagination Pagination) int
+		UserSubject func(childComplexity int, userID *int, subjectID *int) int
+		Users       func(childComplexity int, pagination *UserPagination) int
 	}
 
 	RefreshTokenResponse struct {
@@ -162,7 +162,7 @@ type QueryResolver interface {
 	Subjects(ctx context.Context, pagination Pagination) ([]*Subject, error)
 	Me(ctx context.Context) (*User, error)
 	Users(ctx context.Context, pagination *UserPagination) ([]*User, error)
-	UserSubjects(ctx context.Context, userID *int, subjectID *int) (*UserSubject, error)
+	UserSubject(ctx context.Context, userID *int, subjectID *int) (*UserSubject, error)
 }
 type SubscriptionResolver interface {
 	UserNotification(ctx context.Context) (<-chan *User, error)
@@ -391,17 +391,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Subjects(childComplexity, args["pagination"].(Pagination)), true
 
-	case "Query.userSubjects":
-		if e.complexity.Query.UserSubjects == nil {
+	case "Query.userSubject":
+		if e.complexity.Query.UserSubject == nil {
 			break
 		}
 
-		args, err := ec.field_Query_userSubjects_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_userSubject_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.UserSubjects(childComplexity, args["userId"].(*int), args["subjectId"].(*int)), true
+		return e.complexity.Query.UserSubject(childComplexity, args["userId"].(*int), args["subjectId"].(*int)), true
 
 	case "Query.users":
 		if e.complexity.Query.Users == nil {
@@ -1024,7 +1024,7 @@ extend type Mutation {
 }
 `, BuiltIn: false},
 	{Name: "schema/user_subject/user_subject_queries.graphql", Input: `extend type Query {
-  userSubjects(userId: Int, subjectId: Int): UserSubject
+  userSubject(userId: Int, subjectId: Int): UserSubject
 }
 `, BuiltIn: false},
 }
@@ -1292,7 +1292,7 @@ func (ec *executionContext) field_Query_subjects_args(ctx context.Context, rawAr
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_userSubjects_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_userSubject_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 *int
@@ -2166,7 +2166,7 @@ func (ec *executionContext) _Query_users(ctx context.Context, field graphql.Coll
 	return ec.marshalNUser2ᚕᚖgithubᚗcomᚋwednesdayᚑsolutionsᚋgoᚑtemplateᚋgraphql_modelsᚐUserᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Query_userSubjects(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Query_userSubject(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2183,7 +2183,7 @@ func (ec *executionContext) _Query_userSubjects(ctx context.Context, field graph
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Query_userSubjects_args(ctx, rawArgs)
+	args, err := ec.field_Query_userSubject_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -2191,7 +2191,7 @@ func (ec *executionContext) _Query_userSubjects(ctx context.Context, field graph
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().UserSubjects(rctx, args["userId"].(*int), args["subjectId"].(*int))
+		return ec.resolvers.Query().UserSubject(rctx, args["userId"].(*int), args["subjectId"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6044,7 +6044,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "userSubjects":
+		case "userSubject":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -6053,7 +6053,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_userSubjects(ctx, field)
+				res = ec._Query_userSubject(ctx, field)
 				return res
 			}
 

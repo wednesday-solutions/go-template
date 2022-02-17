@@ -3,6 +3,7 @@ package daos
 import (
 	"context"
 
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"github.com/wednesday-solutions/go-template/models"
 )
@@ -26,4 +27,12 @@ func FindAllSubjectsWithCount(queryMods []qm.QueryMod) (models.SubjectSlice, int
 	queryMods = append(queryMods, qm.Offset(0))
 	count, err := models.Subjects(queryMods...).Count(context.Background(), contextExecutor)
 	return subjects, count, err
+}
+
+// CreateSubject Create a new Subject
+func CreateSubject(subject models.Subject) (models.Subject, error) {
+	contextExecutor := getContextExecutor(nil)
+
+	err := subject.Insert(context.Background(), contextExecutor, boil.Infer())
+	return subject, err
 }
