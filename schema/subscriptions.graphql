@@ -1,3 +1,0 @@
-extend type Subscription {
-    userNotification: User!
-}

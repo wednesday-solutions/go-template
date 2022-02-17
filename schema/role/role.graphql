@@ -1,0 +1,25 @@
+type Role {
+  id: ID!
+  accessLevel: Int!
+  name: String!
+  updatedAt: Int
+  deletedAt: Int
+  createdAt: Int
+  users: [User]
+}
+
+type RolesPayload {
+  roles: [Role!]!
+}
+
+type RolesUpdatePayload {
+  ok: Boolean!
+}
+
+type RoleDeletePayload {
+  id: ID!
+}
+
+type RolesDeletePayload {
+  ids: [ID!]!
+}

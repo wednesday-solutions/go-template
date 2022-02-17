@@ -1,0 +1,12 @@
+type LoginResponse {
+  token: String!
+  refreshToken: String!
+}
+
+type ChangePasswordResponse {
+  ok: Boolean!
+}
+
+type RefreshTokenResponse {
+  token: String!
+}

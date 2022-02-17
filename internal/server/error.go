@@ -9,8 +9,8 @@ import (
 	"github.com/labstack/echo"
 )
 
-type customErrHandler struct {
-	e *echo.Echo
+type CustomErrHandler struct {
+	E *echo.Echo
 }
 
 var validationErrors = map[string]string{
@@ -19,14 +19,14 @@ var validationErrors = map[string]string{
 	"max":      "'s value or length is bigger than allowed",
 }
 
-func getVldErrorMsg(s string) string {
+func GetVldErrorMsg(s string) string {
 	if v, ok := validationErrors[s]; ok {
 		return v
 	}
 	return " failed on " + s + " validation"
 }
 
-func (ce *customErrHandler) handler(err error, c echo.Context) {
+func (ce *CustomErrHandler) Handler(err error, c echo.Context) {
 	var (
 		code = http.StatusInternalServerError
 		msg  interface{}
@@ -46,7 +46,7 @@ func (ce *customErrHandler) handler(err error, c echo.Context) {
 	case validator.ValidationErrors:
 		var errMsg []string
 		for _, v := range e {
-			errMsg = append(errMsg, fmt.Sprintf("%s%s", v.Field(), getVldErrorMsg(v.ActualTag())))
+			errMsg = append(errMsg, fmt.Sprintf("%s%s", v.Field(), GetVldErrorMsg(v.ActualTag())))
 		}
 		msg = resp{Message: errMsg}
 		code = http.StatusBadRequest
@@ -65,7 +65,7 @@ func (ce *customErrHandler) handler(err error, c echo.Context) {
 			err = c.JSON(code, msg)
 		}
 		if err != nil {
-			ce.e.Logger.Error(err)
+			ce.E.Logger.Error(err)
 		}
 	}
 }

@@ -21,7 +21,7 @@ func TestCreateUser(t *testing.T) {
 	cases := []struct {
 		name     string
 		req      fm.UserCreateInput
-		wantResp *fm.UserPayload
+		wantResp *fm.User
 		wantErr  bool
 	}{
 		{
@@ -37,14 +37,13 @@ func TestCreateUser(t *testing.T) {
 				Username:  convert.StringToPointerString("username"),
 				Email:     convert.StringToPointerString(testutls.MockEmail),
 			},
-			wantResp: &fm.UserPayload{
-				User: &fm.User{
-					ID:        "1",
-					FirstName: convert.StringToPointerString("First"),
-					LastName:  convert.StringToPointerString("Last"),
-					Username:  convert.StringToPointerString("username"),
-					Email:     convert.StringToPointerString(testutls.MockEmail),
-				}},
+			wantResp: &fm.User{
+				ID:        "1",
+				FirstName: convert.StringToPointerString("First"),
+				LastName:  convert.StringToPointerString("Last"),
+				Username:  convert.StringToPointerString("username"),
+				Email:     convert.StringToPointerString(testutls.MockEmail),
+			},
 			wantErr: false,
 		},
 	}
@@ -99,7 +98,7 @@ func TestUpdateUser(t *testing.T) {
 	cases := []struct {
 		name     string
 		req      *fm.UserUpdateInput
-		wantResp *fm.UserUpdatePayload
+		wantResp *fm.User
 		wantErr  bool
 	}{
 		{
@@ -114,7 +113,7 @@ func TestUpdateUser(t *testing.T) {
 				LastName:  convert.StringToPointerString("Last"),
 				Address:   convert.StringToPointerString("address"),
 			},
-			wantResp: &fm.UserUpdatePayload{Ok: true},
+			wantResp: &fm.User{},
 			wantErr:  false,
 		},
 	}
@@ -157,7 +156,7 @@ func TestUpdateUser(t *testing.T) {
 			ctx := context.WithValue(c, testutls.UserKey, testutls.MockUser())
 			response, err := resolver1.Mutation().UpdateUser(ctx, tt.req)
 			if tt.wantResp != nil && response != nil {
-				assert.Equal(t, tt.wantResp.Ok, response.Ok)
+				assert.Equal(t, tt.wantResp, response)
 			}
 			assert.Equal(t, tt.wantErr, err != nil)
 		})
@@ -167,7 +166,7 @@ func TestUpdateUser(t *testing.T) {
 func TestDeleteUser(t *testing.T) {
 	cases := []struct {
 		name     string
-		wantResp *fm.UserDeletePayload
+		wantResp string
 		wantErr  bool
 	}{
 		{
@@ -176,7 +175,7 @@ func TestDeleteUser(t *testing.T) {
 		},
 		{
 			name:     "Success",
-			wantResp: &fm.UserDeletePayload{ID: "0"},
+			wantResp: "1",
 			wantErr:  false,
 		},
 	}
@@ -216,8 +215,8 @@ func TestDeleteUser(t *testing.T) {
 
 			c := context.Background()
 			ctx := context.WithValue(c, testutls.UserKey, testutls.MockUser())
-			response, err := resolver1.Mutation().DeleteUser(ctx)
-			if tt.wantResp != nil {
+			response, err := resolver1.Mutation().DeleteUser(ctx, "1")
+			if tt.wantResp != "" {
 				assert.Equal(t, tt.wantResp, response)
 			}
 			assert.Equal(t, tt.wantErr, err != nil)

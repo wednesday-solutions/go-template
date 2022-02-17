@@ -19,19 +19,19 @@ func TestCreateRole(t *testing.T) {
 	cases := []struct {
 		name     string
 		req      fm.RoleCreateInput
-		wantResp *fm.RolePayload
+		wantResp *fm.Role
 		wantErr  bool
 	}{
 		{
 			name:     "Fail on Create role",
 			req:      fm.RoleCreateInput{},
-			wantResp: &fm.RolePayload{},
+			wantResp: &fm.Role{},
 			wantErr:  true,
 		},
 		{
 			name:     "Success",
 			req:      fm.RoleCreateInput{Name: "Role", AccessLevel: 200},
-			wantResp: &fm.RolePayload{},
+			wantResp: &fm.Role{},
 		},
 	}
 

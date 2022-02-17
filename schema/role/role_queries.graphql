@@ -1,0 +1,21 @@
+input RoleFilter {
+  search: String
+  where: RoleWhere
+}
+
+input RolePagination {
+  limit: Int!
+  page: Int!
+}
+
+input RoleWhere {
+  id: IDFilter
+  accessLevel: IntFilter
+  name: StringFilter
+  updatedAt: IntFilter
+  deletedAt: IntFilter
+  createdAt: IntFilter
+  users: UserWhere
+  or: RoleWhere
+  and: RoleWhere
+}

@@ -19,8 +19,8 @@ func New() *echo.Echo {
 	e := echo.New()
 	e.Use(middleware.Logger(), middleware.Recover(), secure.CORS(), secure.Headers())
 	e.Validator = &CustomValidator{V: validator.New()}
-	custErr := &customErrHandler{e: e}
-	e.HTTPErrorHandler = custErr.handler
+	custErr := &CustomErrHandler{E: e}
+	e.HTTPErrorHandler = custErr.Handler
 	e.Binder = &CustomBinder{b: &echo.DefaultBinder{}}
 	return e
 }

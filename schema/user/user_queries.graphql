@@ -1,0 +1,36 @@
+input UserWhere {
+  id: IDFilter
+  firstName: StringFilter
+  lastName: StringFilter
+  username: StringFilter
+  password: StringFilter
+  email: StringFilter
+  mobile: StringFilter
+  phone: StringFilter
+  address: StringFilter
+  active: BooleanFilter
+  lastLogin: IntFilter
+  lastPasswordChange: IntFilter
+  token: StringFilter
+  role: RoleWhere
+  createdAt: IntFilter
+  deletedAt: IntFilter
+  updatedAt: IntFilter
+  or: UserWhere
+  and: UserWhere
+}
+
+input UserFilter {
+  search: String
+  where: UserWhere
+}
+
+input UserPagination {
+  limit: Int!
+  page: Int!
+}
+
+extend type Query {
+  me: User!
+  users(pagination: UserPagination): [User!]!
+}

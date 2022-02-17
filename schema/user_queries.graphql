@@ -1,4 +1,0 @@
-extend type Query {
-    me: User!
-    users(pagination: UserPagination): UsersPayload!
-}

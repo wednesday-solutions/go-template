@@ -1,0 +1,16 @@
+input CreateUserSubjectInput {
+  userID: ID!
+  subjectID: ID!
+}
+
+input UpdateUserSubjectInput {
+  id: ID!
+  userID: ID
+  subjectID: ID
+}
+
+extend type Mutation {
+  createUserSubject(createUserSubjectInput: CreateUserSubjectInput): UserSubject
+  updateUserSubject(updateUserSubjectInput: UpdateUserSubjectInput): UserSubject
+  deleteUserSubject(userSubjectID: ID!): ID!
+}

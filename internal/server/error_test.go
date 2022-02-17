@@ -1,4 +1,4 @@
-package server
+package server_test
 
 import (
 	"bytes"
@@ -9,6 +9,7 @@ import (
 	"github.com/go-playground/validator"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo"
+	"github.com/wednesday-solutions/go-template/internal/server"
 	"github.com/wednesday-solutions/go-template/testutls"
 )
 
@@ -59,8 +60,8 @@ func Test_getVldErrorMsg(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := getVldErrorMsg(tt.args.s); got != tt.want {
-				t.Errorf("getVldErrorMsg() = %v, want %v", got, tt.want)
+			if got := server.GetVldErrorMsg(tt.args.s); got != tt.want {
+				t.Errorf("GetVldErrorMsg() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -88,7 +89,7 @@ func Test_customErrHandler_handler(t *testing.T) {
 		httpMethod         string
 	}
 	e := echo.New()
-	custErr := &customErrHandler{e: e}
+	custErr := &server.CustomErrHandler{E: e}
 
 	tests := []struct {
 		name string
@@ -178,7 +179,7 @@ func Test_customErrHandler_handler(t *testing.T) {
 			}
 
 			// call the handler with tt.args.err. We are asserting in the JSON/NoContent call
-			custErr.handler(tt.args.err, ctx)
+			custErr.Handler(tt.args.err, ctx)
 		})
 	}
 }

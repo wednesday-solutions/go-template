@@ -1,0 +1,18 @@
+input CreateSubjectInput {
+  name: String!
+}
+
+input UpdateSubjectInput {
+  id: ID!
+  name: String!
+}
+
+input DeleteSubjectInput {
+  id: ID!
+}
+
+extend type Mutation {
+  createSubject(createSubjectInput: CreateSubjectInput): Subject
+  updateSubject(updateSubjectInput: UpdateSubjectInput): Subject
+  deleteSubject(deleteSubjectInput: DeleteSubjectInput): ID!
+}

@@ -2,11 +2,6 @@
 
 package graphql_models
 
-type BackwardSubjectsInput struct {
-	Last   int    `json:"last"`
-	Before string `json:"before"`
-}
-
 type BooleanFilter struct {
 	IsTrue  *bool `json:"isTrue"`
 	IsFalse *bool `json:"isFalse"`
@@ -15,6 +10,19 @@ type BooleanFilter struct {
 
 type ChangePasswordResponse struct {
 	Ok bool `json:"ok"`
+}
+
+type CreateSubjectInput struct {
+	Name string `json:"name"`
+}
+
+type CreateUserSubjectInput struct {
+	UserID    string `json:"userID"`
+	SubjectID string `json:"subjectID"`
+}
+
+type DeleteSubjectInput struct {
+	ID string `json:"id"`
 }
 
 type FloatFilter struct {
@@ -26,11 +34,6 @@ type FloatFilter struct {
 	MoreThanOrEqualTo *float64  `json:"moreThanOrEqualTo"`
 	In                []float64 `json:"in"`
 	NotIn             []float64 `json:"notIn"`
-}
-
-type ForwardSubjectsInput struct {
-	First int     `json:"first"`
-	After *string `json:"after"`
 }
 
 type IDFilter struct {
@@ -54,13 +57,6 @@ type IntFilter struct {
 type LoginResponse struct {
 	Token        string `json:"token"`
 	RefreshToken string `json:"refreshToken"`
-}
-
-type PageInfo struct {
-	HasNextPage     bool   `json:"hasNextPage"`
-	HasPreviousPage bool   `json:"hasPreviousPage"`
-	StartCursor     string `json:"startCursor"`
-	EndCursor       string `json:"endCursor"`
 }
 
 type Pagination struct {
@@ -99,10 +95,6 @@ type RoleFilter struct {
 type RolePagination struct {
 	Limit int `json:"limit"`
 	Page  int `json:"page"`
-}
-
-type RolePayload struct {
-	Role *Role `json:"role"`
 }
 
 type RoleUpdateInput struct {
@@ -165,19 +157,15 @@ type Subject struct {
 	Name string `json:"name"`
 }
 
-type SubjectConnection struct {
-	Edges    []*SubjectEdge `json:"edges"`
-	PageInfo *PageInfo      `json:"pageInfo"`
+type UpdateSubjectInput struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
-type SubjectEdge struct {
-	Node   *Subject `json:"node"`
-	Cursor string   `json:"cursor"`
-}
-
-type SubjectPayload struct {
-	Subjects []*Subject `json:"subjects"`
-	Total    int        `json:"total"`
+type UpdateUserSubjectInput struct {
+	ID        string  `json:"id"`
+	UserID    *string `json:"userID"`
+	SubjectID *string `json:"subjectID"`
 }
 
 type User struct {
@@ -209,10 +197,6 @@ type UserCreateInput struct {
 	RoleID    *string `json:"roleId"`
 }
 
-type UserDeletePayload struct {
-	ID string `json:"id"`
-}
-
 type UserFilter struct {
 	Search *string    `json:"search"`
 	Where  *UserWhere `json:"where"`
@@ -221,10 +205,6 @@ type UserFilter struct {
 type UserPagination struct {
 	Limit int `json:"limit"`
 	Page  int `json:"page"`
-}
-
-type UserPayload struct {
-	User *User `json:"user"`
 }
 
 type UserSubject struct {
@@ -238,10 +218,6 @@ type UserUpdateInput struct {
 	Mobile    *string `json:"mobile"`
 	Phone     *string `json:"phone"`
 	Address   *string `json:"address"`
-}
-
-type UserUpdatePayload struct {
-	Ok bool `json:"ok"`
 }
 
 type UserWhere struct {
@@ -264,17 +240,4 @@ type UserWhere struct {
 	UpdatedAt          *IntFilter     `json:"updatedAt"`
 	Or                 *UserWhere     `json:"or"`
 	And                *UserWhere     `json:"and"`
-}
-
-type UsersCreateInput struct {
-	Users []*UserCreateInput `json:"users"`
-}
-
-type UsersDeletePayload struct {
-	Ids []string `json:"ids"`
-}
-
-type UsersPayload struct {
-	Users []*User `json:"users"`
-	Total int     `json:"total"`
 }

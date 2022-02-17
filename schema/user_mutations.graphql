@@ -1,5 +1,0 @@
-extend type Mutation {
-    createUser(input: UserCreateInput!): UserPayload!
-    updateUser(input: UserUpdateInput): UserUpdatePayload!
-    deleteUser: UserDeletePayload!
-}

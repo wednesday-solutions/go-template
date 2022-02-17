@@ -5,6 +5,7 @@ package resolver
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"github.com/wednesday-solutions/go-template/daos"
@@ -24,21 +25,17 @@ func (r *queryResolver) Me(ctx context.Context) (*graphql_models.User, error) {
 	return convert.UserToGraphQlUser(user), err
 }
 
-func (r *queryResolver) Users(ctx context.Context, pagination *graphql_models.UserPagination) (*graphql_models.UsersPayload, error) {
+func (r *queryResolver) Users(ctx context.Context, pagination *graphql_models.UserPagination) ([]*graphql_models.User, error) {
 	var queryMods []qm.QueryMod
+	fmt.Println("HIIII")
 	if pagination != nil {
 		if pagination.Limit != 0 {
 			queryMods = append(queryMods, qm.Limit(pagination.Limit), qm.Offset(pagination.Page*pagination.Limit))
 		}
 	}
-	users, count, err := daos.FindAllUsersWithCount(queryMods)
+	users, _, err := daos.FindAllUsersWithCount(queryMods)
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "data")
 	}
-	return &graphql_models.UsersPayload{Total: int(count), Users: convert.UsersToGraphQlUsers(users)}, nil
+	return convert.UsersToGraphQlUsers(users), nil
 }
-
-// Query returns graphql_models.QueryResolver implementation.
-func (r *Resolver) Query() graphql_models.QueryResolver { return &queryResolver{r} }
-
-type queryResolver struct{ *Resolver }

@@ -1,0 +1,22 @@
+input UserCreateInput {
+  firstName: String
+  lastName: String
+  username: String
+  password: String
+  email: String
+  roleId: ID
+}
+
+input UserUpdateInput {
+  firstName: String
+  lastName: String
+  mobile: String
+  phone: String
+  address: String
+}
+
+extend type Mutation {
+  createUser(createUserInput: UserCreateInput!): User!
+  updateUser(updateUserInput: UserUpdateInput): User!
+  deleteUser(id: ID!): ID!
+}

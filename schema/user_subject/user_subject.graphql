@@ -1,0 +1,4 @@
+type UserSubject {
+  user: User!
+  subject: Subject!
+}

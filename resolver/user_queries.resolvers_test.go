@@ -126,7 +126,7 @@ func TestUsers(t *testing.T) {
 			response, err := resolver1.Query().Users(ctx, tt.pagination)
 
 			if tt.wantResp != nil && response != nil {
-				assert.Equal(t, len(tt.wantResp), len(response.Users))
+				assert.Equal(t, len(tt.wantResp), len(response))
 			}
 			assert.Equal(t, tt.wantErr, err != nil)
 		})

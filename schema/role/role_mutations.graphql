@@ -1,0 +1,20 @@
+input RoleCreateInput {
+  accessLevel: Int!
+  name: String!
+}
+
+input RolesCreateInput {
+  roles: [RoleCreateInput!]!
+}
+
+input RoleUpdateInput {
+  accessLevel: Int
+  name: String
+  updatedAt: Int
+  deletedAt: Int
+  createdAt: Int
+}
+
+extend type Mutation {
+  createRole(input: RoleCreateInput!): Role!
+}
