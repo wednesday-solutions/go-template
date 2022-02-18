@@ -12,7 +12,7 @@ import (
 	"github.com/wednesday-solutions/go-template/graphql_models"
 	"github.com/wednesday-solutions/go-template/models"
 	"github.com/wednesday-solutions/go-template/pkg/utl/convert"
-	throttle "github.com/wednesday-solutions/go-template/pkg/utl/rate_throttle"
+	"github.com/wednesday-solutions/go-template/pkg/utl/rate_throttle"
 	resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
 )
 
@@ -34,9 +34,22 @@ func (r *mutationResolver) CreateSubject(ctx context.Context, createSubjectInput
 }
 
 func (r *mutationResolver) UpdateSubject(ctx context.Context, updateSubjectInput *graphql_models.UpdateSubjectInput) (*graphql_models.Subject, error) {
-	panic(fmt.Errorf("not implemented"))
+	err := throttle.Check(ctx, 5, 10*time.Second)
+	if err != nil {
+		return nil, err
+	}
+	subject := models.Subject{
+		ID:   updateSubjectInput.ID,
+		Name: updateSubjectInput.Name,
+	}
+	updatedSubject, err := daos.UpdateSubject(subject)
+	if err != nil {
+		return nil, resultwrapper.ResolverSQLError(err, "Could not Create a new Subject")
+	}
+	graphqlSubjectObject := convert.SubjectToGraphQlSubject(&updatedSubject)
+	return graphqlSubjectObject, nil
 }
 
-func (r *mutationResolver) DeleteSubject(ctx context.Context, deleteSubjectInput *graphql_models.DeleteSubjectInput) (string, error) {
+func (r *mutationResolver) DeleteSubject(ctx context.Context, deleteSubjectInput *graphql_models.DeleteSubjectInput) (int, error) {
 	panic(fmt.Errorf("not implemented"))
 }

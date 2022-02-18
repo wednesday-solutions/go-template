@@ -149,7 +149,7 @@ type MutationResolver interface {
 	CreateRole(ctx context.Context, input RoleCreateInput) (*Role, error)
 	CreateSubject(ctx context.Context, createSubjectInput *CreateSubjectInput) (*Subject, error)
 	UpdateSubject(ctx context.Context, updateSubjectInput *UpdateSubjectInput) (*Subject, error)
-	DeleteSubject(ctx context.Context, deleteSubjectInput *DeleteSubjectInput) (string, error)
+	DeleteSubject(ctx context.Context, deleteSubjectInput *DeleteSubjectInput) (int, error)
 	CreateUser(ctx context.Context, createUserInput UserCreateInput) (*User, error)
 	UpdateUser(ctx context.Context, updateUserInput *UserUpdateInput) (*User, error)
 	DeleteUser(ctx context.Context, id string) (string, error)
@@ -884,7 +884,7 @@ input RoleWhere {
 }
 `, BuiltIn: false},
 	{Name: "schema/subject/subject.graphql", Input: `type Subject {
-  id: ID!
+  id: Int!
   name: String!
 }
 `, BuiltIn: false},
@@ -893,18 +893,18 @@ input RoleWhere {
 }
 
 input UpdateSubjectInput {
-  id: ID!
+  id: Int!
   name: String!
 }
 
 input DeleteSubjectInput {
-  id: ID!
+  id: Int!
 }
 
 extend type Mutation {
   createSubject(createSubjectInput: CreateSubjectInput): Subject
   updateSubject(updateSubjectInput: UpdateSubjectInput): Subject
-  deleteSubject(deleteSubjectInput: DeleteSubjectInput): ID!
+  deleteSubject(deleteSubjectInput: DeleteSubjectInput): Int!
 }
 `, BuiltIn: false},
 	{Name: "schema/subject/subject_queries.graphql", Input: `input Pagination {
@@ -1757,9 +1757,9 @@ func (ec *executionContext) _Mutation_deleteSubject(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_createUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2714,9 +2714,9 @@ func (ec *executionContext) _Subject_id(ctx context.Context, field graphql.Colle
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Subject_name(ctx context.Context, field graphql.CollectedField, obj *Subject) (ret graphql.Marshaler) {
@@ -4644,7 +4644,7 @@ func (ec *executionContext) unmarshalInputDeleteSubjectInput(ctx context.Context
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalNID2string(ctx, v)
+			it.ID, err = ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -5304,7 +5304,7 @@ func (ec *executionContext) unmarshalInputUpdateSubjectInput(ctx context.Context
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalNID2string(ctx, v)
+			it.ID, err = ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}

@@ -3,16 +3,16 @@ input CreateSubjectInput {
 }
 
 input UpdateSubjectInput {
-  id: ID!
+  id: Int!
   name: String!
 }
 
 input DeleteSubjectInput {
-  id: ID!
+  id: Int!
 }
 
 extend type Mutation {
   createSubject(createSubjectInput: CreateSubjectInput): Subject
   updateSubject(updateSubjectInput: UpdateSubjectInput): Subject
-  deleteSubject(deleteSubjectInput: DeleteSubjectInput): ID!
+  deleteSubject(deleteSubjectInput: DeleteSubjectInput): Int!
 }

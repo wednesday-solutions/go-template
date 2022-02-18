@@ -22,7 +22,7 @@ type CreateUserSubjectInput struct {
 }
 
 type DeleteSubjectInput struct {
-	ID string `json:"id"`
+	ID int `json:"id"`
 }
 
 type FloatFilter struct {
@@ -153,12 +153,12 @@ type StringFilter struct {
 }
 
 type Subject struct {
-	ID   string `json:"id"`
+	ID   int    `json:"id"`
 	Name string `json:"name"`
 }
 
 type UpdateSubjectInput struct {
-	ID   string `json:"id"`
+	ID   int    `json:"id"`
 	Name string `json:"name"`
 }
 

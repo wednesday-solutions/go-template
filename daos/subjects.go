@@ -2,6 +2,7 @@ package daos
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -34,5 +35,12 @@ func CreateSubject(subject models.Subject) (models.Subject, error) {
 	contextExecutor := getContextExecutor(nil)
 
 	err := subject.Insert(context.Background(), contextExecutor, boil.Infer())
+	return subject, err
+}
+
+func UpdateSubject(subject models.Subject) (models.Subject, error) {
+	contextExecutor := getContextExecutor(nil)
+	s, err := subject.Update(context.Background(), contextExecutor, boil.Infer())
+	fmt.Printf("s = %v\n", s)
 	return subject, err
 }

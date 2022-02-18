@@ -103,7 +103,7 @@ func SubjectsToGraphQlSubjects(s models.SubjectSlice) []*graphql.Subject {
 }
 func SubjectToGraphQlSubject(s *models.Subject) *graphql.Subject {
 	return &graphql.Subject{
-		ID:   strconv.Itoa(s.ID),
+		ID:   s.ID,
 		Name: s.Name,
 	}
 }
