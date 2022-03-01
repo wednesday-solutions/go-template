@@ -5,12 +5,13 @@ import (
 	"regexp"
 	"testing"
 
+	"go-template/daos"
+	"go-template/models"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 	"github.com/volatiletech/sqlboiler/boil"
-	"go-template/daos"
-	"go-template/models"
 )
 
 func TestCreateRoleTx(t *testing.T) {

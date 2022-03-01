@@ -9,13 +9,14 @@ import (
 	"testing"
 	"time"
 
+	rediscache "go-template/pkg/utl/redis_cache"
+	"go-template/testutls"
+
 	"github.com/99designs/gqlgen/graphql"
 	. "github.com/agiledragon/gomonkey/v2"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
 	"github.com/vektah/gqlparser/v2/ast"
-	rediscache "go-template/pkg/utl/redis_cache"
-	"go-template/testutls"
 )
 
 func TestCheck(t *testing.T) {

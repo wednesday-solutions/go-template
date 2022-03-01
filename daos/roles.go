@@ -4,8 +4,9 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/volatiletech/sqlboiler/boil"
 	"go-template/models"
+
+	"github.com/volatiletech/sqlboiler/boil"
 )
 
 // CreateRoleTx ...

@@ -3,9 +3,10 @@ package convert
 import (
 	"strconv"
 
-	"github.com/volatiletech/null"
 	graphql "go-template/graphql_models"
 	"go-template/models"
+
+	"github.com/volatiletech/null"
 )
 
 // StringToPointerString returns pointer string value

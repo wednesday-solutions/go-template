@@ -8,10 +8,11 @@ import (
 	"os/signal"
 	"time"
 
+	"go-template/internal/middleware/secure"
+
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-	"go-template/internal/middleware/secure"
 )
 
 // New instantates new Echo server

@@ -4,8 +4,9 @@ import (
 	"crypto/sha1"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"go-template/pkg/utl/secure"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPassword(t *testing.T) {

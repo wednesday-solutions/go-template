@@ -7,14 +7,15 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/joho/godotenv"
-	"github.com/stretchr/testify/assert"
-	"github.com/volatiletech/sqlboiler/boil"
 	fm "go-template/graphql_models"
 	"go-template/pkg/utl/convert"
 	"go-template/resolver"
 	"go-template/testutls"
+
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/joho/godotenv"
+	"github.com/stretchr/testify/assert"
+	"github.com/volatiletech/sqlboiler/boil"
 )
 
 func TestCreateUser(t *testing.T) {

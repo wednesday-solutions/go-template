@@ -67,9 +67,11 @@ func (s Service) ParseToken(authHeader string) (*jwt.Token, error) {
 // GenerateToken generates new JWT token and populates it with user data
 func (s Service) GenerateToken(u *models.User) (string, error) {
 	role, err := u.Role().One(context.Background(), boil.GetContextDB())
+
 	if err != nil {
 		return "", err
 	}
+	fmt.Print(role)
 	return jwt.NewWithClaims(s.algo, jwt.MapClaims{
 		"id":   u.ID,
 		"u":    u.Username,

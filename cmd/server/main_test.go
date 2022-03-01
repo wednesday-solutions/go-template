@@ -4,14 +4,15 @@ import (
 	"log"
 	"testing"
 
-	. "github.com/agiledragon/gomonkey/v2"
-	"github.com/joho/godotenv"
-	"github.com/labstack/echo"
-	"github.com/stretchr/testify/assert"
 	main "go-template/cmd/server"
 	"go-template/internal/config"
 	"go-template/pkg/api"
 	"go-template/testutls"
+
+	. "github.com/agiledragon/gomonkey/v2"
+	"github.com/joho/godotenv"
+	"github.com/labstack/echo"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSetup(t *testing.T) {

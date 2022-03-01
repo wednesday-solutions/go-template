@@ -6,10 +6,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/labstack/echo"
-	"github.com/stretchr/testify/assert"
 	resultwrapper "go-template/pkg/utl/result_wrapper"
 	"go-template/testutls"
+
+	"github.com/labstack/echo"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSplitByLabel(t *testing.T) {

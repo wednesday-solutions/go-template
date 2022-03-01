@@ -6,10 +6,11 @@ import (
 	"math"
 	"time"
 
-	redigo "github.com/gomodule/redigo/redis"
 	"go-template/daos"
 	"go-template/models"
 	resultwrapper "go-template/pkg/utl/result_wrapper"
+
+	redigo "github.com/gomodule/redigo/redis"
 )
 
 // Service ...

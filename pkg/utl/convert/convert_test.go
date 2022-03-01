@@ -4,9 +4,10 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/volatiletech/null"
 	graphql "go-template/graphql_models"
 	"go-template/models"
+
+	"github.com/volatiletech/null"
 )
 
 func TestStringToPointerString(t *testing.T) {

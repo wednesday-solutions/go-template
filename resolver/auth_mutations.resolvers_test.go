@@ -58,7 +58,6 @@ func TestLogin(t *testing.T) {
 				boil.SetDB(oldDB)
 			}()
 			boil.SetDB(db)
-
 			if tt.name == "Fail on FindByUser" {
 				// get user by username
 				mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"users\" WHERE (username=$1) LIMIT 1;")).
@@ -66,11 +65,18 @@ func TestLogin(t *testing.T) {
 					WillReturnError(fmt.Errorf(""))
 			}
 			// get user by username
-			rows := sqlmock.NewRows([]string{"id", "password", "active"}).
-				AddRow(testutls.MockID, "$2a$10$dS5vK8hHmG5gzwV8f7TK5.WHviMBqmYQLYp30a3XvqhCW9Wvl2tOS", true)
+			rows := sqlmock.NewRows([]string{"id", "password", "active", "role_id"}).
+				AddRow(testutls.MockID, "$2a$10$dS5vK8hHmG5gzwV8f7TK5.WHviMBqmYQLYp30a3XvqhCW9Wvl2tOS", true, 1)
 			mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"users\" WHERE (username=$1) LIMIT 1;")).
 				WithArgs().
 				WillReturnRows(rows)
+
+			if tt.name == "Success" {
+				rows := sqlmock.NewRows([]string{"id", "name"}).AddRow(1, "ADMIN")
+				mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"roles\" WHERE (\"id\" = $1) LIMIT 1")).
+					WithArgs([]driver.Value{1}...).
+					WillReturnRows(rows)
+			}
 
 			// update users with token
 			result := driver.Result(driver.RowsAffected(1))
@@ -84,6 +90,7 @@ func TestLogin(t *testing.T) {
 				tt.wantResp.Token = response.Token
 				assert.Equal(t, tt.wantResp, response)
 			}
+
 			assert.Equal(t, tt.wantErr, err != nil)
 		})
 	}
@@ -215,10 +222,18 @@ func TestRefreshToken(t *testing.T) {
 					WillReturnError(fmt.Errorf(""))
 			}
 			// get user by token
-			rows := sqlmock.NewRows([]string{"id", "email", "token"}).AddRow(1, testutls.MockEmail, testutls.MockToken)
+			rows := sqlmock.NewRows([]string{"id", "email", "token", "role_id"}).
+				AddRow(1, testutls.MockEmail, testutls.MockToken, 1)
 			mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"users\" WHERE (token=$1) LIMIT 1;")).
 				WithArgs().
 				WillReturnRows(rows)
+
+			if tt.name == "Success" {
+				rows := sqlmock.NewRows([]string{"id", "name"}).AddRow(1, "ADMIN")
+				mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"roles\" WHERE (\"id\" = $1) LIMIT 1")).
+					WithArgs([]driver.Value{1}...).
+					WillReturnRows(rows)
+			}
 
 			c := context.Background()
 			ctx := context.

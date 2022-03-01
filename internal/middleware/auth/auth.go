@@ -78,15 +78,6 @@ func contains(s []string, e string) bool {
 	return false
 }
 
-func elementExists(arr []string, elem string) bool {
-	for _, a := range arr {
-		if a == elem {
-			return true
-		}
-	}
-	return false
-}
-
 // GraphQLMiddleware ...
 func GraphQLMiddleware(
 	ctx context.Context,
@@ -123,9 +114,8 @@ func GraphQLMiddleware(
 		if requiresSuperAdmin {
 
 			isSuperAdmin := false
-			admins := []string{"ADMIN", "SUPER_ADMIN"}
 
-			if elementExists(admins, claims["role"].(string)) {
+			if claims["role"].(string) == "ADMIN" {
 				isSuperAdmin = true
 			}
 			if !isSuperAdmin {

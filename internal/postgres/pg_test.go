@@ -3,8 +3,9 @@ package postgres_test
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"go-template/internal/postgres"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestConnect(t *testing.T) {

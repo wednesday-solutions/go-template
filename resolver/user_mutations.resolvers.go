@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/volatiletech/null"
 	"go-template/daos"
 	"go-template/graphql_models"
 	"go-template/internal/config"
@@ -18,6 +17,8 @@ import (
 	"go-template/pkg/utl/convert"
 	throttle "go-template/pkg/utl/rate_throttle"
 	resultwrapper "go-template/pkg/utl/result_wrapper"
+
+	"github.com/volatiletech/null"
 )
 
 func (r *mutationResolver) CreateUser(

@@ -7,6 +7,15 @@ import (
 	"os"
 	"time"
 
+	graphql "go-template/graphql_models"
+	"go-template/internal/config"
+	"go-template/internal/jwt"
+	authMw "go-template/internal/middleware/auth"
+	"go-template/internal/postgres"
+	"go-template/internal/server"
+	throttle "go-template/pkg/utl/rate_throttle"
+	"go-template/resolver"
+
 	graphql2 "github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
@@ -17,14 +26,6 @@ import (
 	"github.com/labstack/echo"
 	_ "github.com/lib/pq" // here
 	"github.com/volatiletech/sqlboiler/boil"
-	graphql "go-template/graphql_models"
-	"go-template/internal/config"
-	"go-template/internal/jwt"
-	authMw "go-template/internal/middleware/auth"
-	"go-template/internal/postgres"
-	"go-template/internal/server"
-	throttle "go-template/pkg/utl/rate_throttle"
-	"go-template/resolver"
 )
 
 // Start starts the API service

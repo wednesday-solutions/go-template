@@ -5,10 +5,11 @@ import (
 	"os"
 	"testing"
 
-	. "github.com/agiledragon/gomonkey/v2"
-	"github.com/stretchr/testify/assert"
 	"go-template/internal/config"
 	"go-template/testutls"
+
+	. "github.com/agiledragon/gomonkey/v2"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestLoad(t *testing.T) {
