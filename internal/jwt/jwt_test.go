@@ -1,15 +1,20 @@
 package jwt_test
 
 import (
+	"database/sql/driver"
 	"log"
+	"regexp"
 	"strings"
 	"testing"
 
+	"go-template/internal/jwt"
+	"go-template/models"
+	"go-template/testutls"
+
+	"github.com/DATA-DOG/go-sqlmock"
 	jwtgo "github.com/dgrijalva/jwt-go"
 	"github.com/stretchr/testify/assert"
 	"github.com/volatiletech/null"
-	"github.com/wednesday-solutions/go-template/internal/jwt"
-	"github.com/wednesday-solutions/go-template/models"
 )
 
 func TestNew(t *testing.T) {
@@ -98,6 +103,7 @@ func TestGenerateToken(t *testing.T) {
 			secret:       "g0r$kt3$t1ng",
 			minSecretLen: 1,
 			req: models.User{
+				RoleID:   null.IntFrom(1),
 				Username: null.StringFrom("johndoe"),
 				Email:    null.StringFrom("johndoe@mail.com"),
 			},
@@ -105,6 +111,15 @@ func TestGenerateToken(t *testing.T) {
 		},
 	}
 
+	mock, _, err := testutls.SetupEnvAndDB(t, testutls.Parameters{EnvFileLocation: "../../.env.local"})
+	if err != nil {
+		panic("failed to setup env and db")
+	}
+	rows := sqlmock.NewRows([]string{"id", "name"}).AddRow(1, "johndoe")
+
+	mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"roles\" WHERE (\"id\" = $1) LIMIT 1")).
+		WithArgs([]driver.Value{1}...).
+		WillReturnRows(rows)
 	for name, tt := range cases {
 		t.Run(name, func(t *testing.T) {
 			jwtSvc, err := jwt.New(tt.algo, tt.secret, 60, tt.minSecretLen)

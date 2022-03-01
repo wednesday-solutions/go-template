@@ -6,15 +6,16 @@ import (
 	"regexp"
 	"testing"
 
+	"go-template/daos"
+	"go-template/models"
+	"go-template/testutls"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 	"github.com/volatiletech/null"
 	"github.com/volatiletech/sqlboiler/boil"
 	"github.com/volatiletech/sqlboiler/queries/qm"
-	"github.com/wednesday-solutions/go-template/daos"
-	"github.com/wednesday-solutions/go-template/models"
-	"github.com/wednesday-solutions/go-template/testutls"
 )
 
 func TestCreateUserTx(t *testing.T) {

@@ -6,9 +6,10 @@ import (
 	"os"
 	"time"
 
+	rediscache "go-template/pkg/utl/redis_cache"
+
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/labstack/echo"
-	rediscache "github.com/wednesday-solutions/go-template/pkg/utl/redis_cache"
 )
 
 type key string
