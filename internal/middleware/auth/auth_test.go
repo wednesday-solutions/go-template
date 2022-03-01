@@ -57,7 +57,7 @@ func TestGraphQLMiddleware(t *testing.T) {
 			wantStatus:       http.StatusOK,
 			err:              "",
 			tokenParser: func(token string) (*jwt.Token, error) {
-				return testutls.MockJwt("ADMIN"), nil
+				return testutls.MockJwt("SUPER_ADMIN"), nil
 			},
 			operationHandler: func(ctx context.Context) graphql2.ResponseHandler {
 				user := ctx.Value(auth.UserCtxKey).(*models.User)
@@ -154,7 +154,7 @@ func TestGraphQLMiddleware(t *testing.T) {
 			wantStatus:       http.StatusOK,
 			err:              "No user found for this email address",
 			tokenParser: func(token string) (*jwt.Token, error) {
-				return testutls.MockJwt("ADMIN"), nil
+				return testutls.MockJwt("SUPER_ADMIN"), nil
 			},
 			operationHandler: func(ctx context.Context) graphql2.ResponseHandler {
 				return nil
