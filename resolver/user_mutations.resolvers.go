@@ -9,15 +9,15 @@ import (
 	"time"
 
 	"github.com/volatiletech/null"
-	"github.com/wednesday-solutions/go-template/daos"
-	"github.com/wednesday-solutions/go-template/graphql_models"
-	"github.com/wednesday-solutions/go-template/internal/config"
-	"github.com/wednesday-solutions/go-template/internal/middleware/auth"
-	"github.com/wednesday-solutions/go-template/internal/service"
-	"github.com/wednesday-solutions/go-template/models"
-	"github.com/wednesday-solutions/go-template/pkg/utl/convert"
-	throttle "github.com/wednesday-solutions/go-template/pkg/utl/rate_throttle"
-	resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
+	"go-template/daos"
+	"go-template/graphql_models"
+	"go-template/internal/config"
+	"go-template/internal/middleware/auth"
+	"go-template/internal/service"
+	"go-template/models"
+	"go-template/pkg/utl/convert"
+	throttle "go-template/pkg/utl/rate_throttle"
+	resultwrapper "go-template/pkg/utl/result_wrapper"
 )
 
 func (r *mutationResolver) CreateUser(

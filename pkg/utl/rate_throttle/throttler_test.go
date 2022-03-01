@@ -14,8 +14,8 @@ import (
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
 	"github.com/vektah/gqlparser/v2/ast"
-	rediscache "github.com/wednesday-solutions/go-template/pkg/utl/redis_cache"
-	"github.com/wednesday-solutions/go-template/testutls"
+	rediscache "go-template/pkg/utl/redis_cache"
+	"go-template/testutls"
 )
 
 func TestCheck(t *testing.T) {

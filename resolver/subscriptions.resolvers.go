@@ -7,8 +7,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/wednesday-solutions/go-template/graphql_models"
-	"github.com/wednesday-solutions/go-template/pkg/utl"
+	"go-template/graphql_models"
+	"go-template/pkg/utl"
 )
 
 func (r *subscriptionResolver) UserNotification(ctx context.Context) (<-chan *graphql_models.User, error) {

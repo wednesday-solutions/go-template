@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/wednesday-solutions/go-template/pkg/utl/convert"
+	"go-template/pkg/utl/convert"
 )
 
 // Load returns Configuration struct

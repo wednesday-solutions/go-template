@@ -4,12 +4,13 @@ import (
 	"context"
 	"reflect"
 
+	"go-template/daos"
+	"go-template/models"
+	resultwrapper "go-template/pkg/utl/result_wrapper"
+
 	graphql2 "github.com/99designs/gqlgen/graphql"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
-	"github.com/wednesday-solutions/go-template/daos"
-	"github.com/wednesday-solutions/go-template/models"
-	resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
 )
 
 type key string
@@ -77,6 +78,15 @@ func contains(s []string, e string) bool {
 	return false
 }
 
+func elementExists(arr []string, elem string) bool {
+	for _, a := range arr {
+		if a == elem {
+			return true
+		}
+	}
+	return false
+}
+
 // GraphQLMiddleware ...
 func GraphQLMiddleware(
 	ctx context.Context,
@@ -110,11 +120,12 @@ func GraphQLMiddleware(
 			return resultwrapper.HandleGraphQLError("Invalid authorization token")
 		}
 		claims := token.Claims.(jwt.MapClaims)
-
 		if requiresSuperAdmin {
 
 			isSuperAdmin := false
-			if claims["role"].(string) == "ADMIN" {
+			admins := []string{"ADMIN", "SUPER_ADMIN"}
+
+			if elementExists(admins, claims["role"].(string)) {
 				isSuperAdmin = true
 			}
 			if !isSuperAdmin {

@@ -9,7 +9,7 @@ import (
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
-	"github.com/wednesday-solutions/go-template/internal/server"
+	"go-template/internal/server"
 )
 
 type Req struct {

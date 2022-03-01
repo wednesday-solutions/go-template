@@ -11,8 +11,8 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/volatiletech/null"
 	"github.com/volatiletech/sqlboiler/boil"
-	"github.com/wednesday-solutions/go-template/internal/config"
-	"github.com/wednesday-solutions/go-template/models"
+	"go-template/internal/config"
+	"go-template/models"
 )
 
 type key string

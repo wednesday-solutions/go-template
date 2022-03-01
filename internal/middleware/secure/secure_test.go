@@ -7,7 +7,7 @@ import (
 
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
-	"github.com/wednesday-solutions/go-template/internal/middleware/secure"
+	"go-template/internal/middleware/secure"
 )
 
 func echoHandler(mw ...echo.MiddlewareFunc) *echo.Echo {

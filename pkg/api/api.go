@@ -17,14 +17,14 @@ import (
 	"github.com/labstack/echo"
 	_ "github.com/lib/pq" // here
 	"github.com/volatiletech/sqlboiler/boil"
-	graphql "github.com/wednesday-solutions/go-template/graphql_models"
-	"github.com/wednesday-solutions/go-template/internal/config"
-	"github.com/wednesday-solutions/go-template/internal/jwt"
-	authMw "github.com/wednesday-solutions/go-template/internal/middleware/auth"
-	"github.com/wednesday-solutions/go-template/internal/postgres"
-	"github.com/wednesday-solutions/go-template/internal/server"
-	throttle "github.com/wednesday-solutions/go-template/pkg/utl/rate_throttle"
-	"github.com/wednesday-solutions/go-template/resolver"
+	graphql "go-template/graphql_models"
+	"go-template/internal/config"
+	"go-template/internal/jwt"
+	authMw "go-template/internal/middleware/auth"
+	"go-template/internal/postgres"
+	"go-template/internal/server"
+	throttle "go-template/pkg/utl/rate_throttle"
+	"go-template/resolver"
 )
 
 // Start starts the API service

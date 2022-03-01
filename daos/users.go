@@ -5,9 +5,10 @@ import (
 	"database/sql"
 	"fmt"
 
+	"go-template/models"
+
 	"github.com/volatiletech/sqlboiler/boil"
 	"github.com/volatiletech/sqlboiler/queries/qm"
-	"github.com/wednesday-solutions/go-template/models"
 )
 
 // FindUserByUserName finds user by username
@@ -66,6 +67,7 @@ func FindAllUsersWithCount(queryMods []qm.QueryMod) (models.UserSlice, int64, er
 	if err != nil {
 		return models.UserSlice{}, 0, err
 	}
+	queryMods = append(queryMods, qm.Offset(0))
 	count, err := models.Users(queryMods...).Count(context.Background(), contextExecutor)
 	return users, count, err
 

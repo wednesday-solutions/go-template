@@ -1,14 +1,16 @@
 package jwt
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
 
-	"github.com/wednesday-solutions/go-template/models"
-	resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
+	"go-template/models"
+	resultwrapper "go-template/pkg/utl/result_wrapper"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/volatiletech/sqlboiler/boil"
 )
 
 // New generates new JWT service necessary for auth middleware
@@ -64,10 +66,15 @@ func (s Service) ParseToken(authHeader string) (*jwt.Token, error) {
 
 // GenerateToken generates new JWT token and populates it with user data
 func (s Service) GenerateToken(u *models.User) (string, error) {
+	role, err := u.Role().One(context.Background(), boil.GetContextDB())
+	if err != nil {
+		return "", err
+	}
 	return jwt.NewWithClaims(s.algo, jwt.MapClaims{
-		"id":  u.ID,
-		"u":   u.Username,
-		"e":   u.Email,
-		"exp": time.Now().Add(s.ttl).Unix(),
+		"id":   u.ID,
+		"u":    u.Username,
+		"e":    u.Email,
+		"exp":  time.Now().Add(s.ttl).Unix(),
+		"role": role.Name,
 	}).SignedString(s.key)
 }

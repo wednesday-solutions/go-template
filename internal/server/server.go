@@ -11,7 +11,7 @@ import (
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-	"github.com/wednesday-solutions/go-template/internal/middleware/secure"
+	"go-template/internal/middleware/secure"
 )
 
 // New instantates new Echo server

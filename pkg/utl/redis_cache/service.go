@@ -7,9 +7,9 @@ import (
 	"time"
 
 	redigo "github.com/gomodule/redigo/redis"
-	"github.com/wednesday-solutions/go-template/daos"
-	"github.com/wednesday-solutions/go-template/models"
-	resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
+	"go-template/daos"
+	"go-template/models"
+	resultwrapper "go-template/pkg/utl/result_wrapper"
 )
 
 // Service ...

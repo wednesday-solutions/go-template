@@ -10,14 +10,15 @@ import (
 	"testing"
 	"time"
 
+	"go-template/models"
+	"go-template/testutls"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	. "github.com/agiledragon/gomonkey/v2"
 	redigo "github.com/gomodule/redigo/redis"
 	redis "github.com/gomodule/redigo/redis"
 	redigomock "github.com/rafaeljusto/redigomock/v3"
 	"github.com/volatiletech/sqlboiler/boil"
-	"github.com/wednesday-solutions/go-template/models"
-	"github.com/wednesday-solutions/go-template/testutls"
 )
 
 var conn = redigomock.NewConn()
