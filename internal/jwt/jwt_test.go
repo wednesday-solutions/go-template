@@ -7,7 +7,7 @@ import (
 
 	jwtgo "github.com/dgrijalva/jwt-go"
 	"github.com/stretchr/testify/assert"
-	"github.com/volatiletech/null"
+	"github.com/volatiletech/null/v8"
 	"github.com/wednesday-solutions/go-template/internal/jwt"
 	"github.com/wednesday-solutions/go-template/models"
 )

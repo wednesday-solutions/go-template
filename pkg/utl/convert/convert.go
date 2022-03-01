@@ -3,7 +3,7 @@ package convert
 import (
 	"strconv"
 
-	"github.com/volatiletech/null"
+	"github.com/volatiletech/null/v8"
 	"github.com/wednesday-solutions/go-template/daos"
 	graphql "github.com/wednesday-solutions/go-template/graphql_models"
 	"github.com/wednesday-solutions/go-template/models"

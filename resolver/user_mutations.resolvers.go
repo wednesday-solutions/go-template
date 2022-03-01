@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/volatiletech/null"
+	"github.com/volatiletech/null/v8"
 	"github.com/wednesday-solutions/go-template/daos"
 	"github.com/wednesday-solutions/go-template/graphql_models"
 	"github.com/wednesday-solutions/go-template/internal/config"
@@ -16,7 +16,7 @@ import (
 	"github.com/wednesday-solutions/go-template/internal/service"
 	"github.com/wednesday-solutions/go-template/models"
 	"github.com/wednesday-solutions/go-template/pkg/utl/convert"
-	"github.com/wednesday-solutions/go-template/pkg/utl/rate_throttle"
+	throttle "github.com/wednesday-solutions/go-template/pkg/utl/rate_throttle"
 	resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
 )
 

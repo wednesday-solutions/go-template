@@ -3,7 +3,7 @@ package daos
 import (
 	"context"
 
-	"github.com/volatiletech/sqlboiler/queries/qm"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"github.com/wednesday-solutions/go-template/models"
 )
 
