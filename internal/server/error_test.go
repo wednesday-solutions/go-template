@@ -6,10 +6,11 @@ import (
 	"net/http"
 	"testing"
 
+	"go-template/testutls"
+
 	"github.com/go-playground/validator"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo"
-	"github.com/wednesday-solutions/go-template/testutls"
 )
 
 func Test_getVldErrorMsg(t *testing.T) {

@@ -6,16 +6,17 @@ import (
 	"regexp"
 	"testing"
 
+	fm "go-template/graphql_models"
+	"go-template/models"
+	"go-template/resolver"
+	"go-template/testutls"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/gomodule/redigo/redis"
 	"github.com/joho/godotenv"
 	"github.com/rafaeljusto/redigomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/volatiletech/sqlboiler/boil"
-	fm "github.com/wednesday-solutions/go-template/graphql_models"
-	"github.com/wednesday-solutions/go-template/models"
-	"github.com/wednesday-solutions/go-template/resolver"
-	"github.com/wednesday-solutions/go-template/testutls"
 )
 
 func TestMe(t *testing.T) {

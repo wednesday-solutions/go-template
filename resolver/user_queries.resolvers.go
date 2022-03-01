@@ -5,14 +5,16 @@ package resolver
 
 import (
 	"context"
+	"fmt"
+
+	"go-template/daos"
+	"go-template/graphql_models"
+	"go-template/internal/middleware/auth"
+	"go-template/pkg/utl/convert"
+	rediscache "go-template/pkg/utl/redis_cache"
+	resultwrapper "go-template/pkg/utl/result_wrapper"
 
 	"github.com/volatiletech/sqlboiler/queries/qm"
-	"github.com/wednesday-solutions/go-template/daos"
-	"github.com/wednesday-solutions/go-template/graphql_models"
-	"github.com/wednesday-solutions/go-template/internal/middleware/auth"
-	"github.com/wednesday-solutions/go-template/pkg/utl/convert"
-	rediscache "github.com/wednesday-solutions/go-template/pkg/utl/redis_cache"
-	resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
 )
 
 func (r *queryResolver) Me(ctx context.Context) (*graphql_models.User, error) {
@@ -33,10 +35,12 @@ func (r *queryResolver) Users(
 			queryMods = append(queryMods, qm.Limit(pagination.Limit), qm.Offset(pagination.Page*pagination.Limit))
 		}
 	}
+
 	users, count, err := daos.FindAllUsersWithCount(queryMods)
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "data")
 	}
+	fmt.Print(users)
 	return &graphql_models.UsersPayload{Total: int(count), Users: convert.UsersToGraphQlUsers(users)}, nil
 }
 

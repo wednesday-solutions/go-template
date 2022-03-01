@@ -15,6 +15,12 @@ import (
 	"testing"
 	"time"
 
+	graphql "go-template/graphql_models"
+	"go-template/internal/config"
+	"go-template/internal/server"
+	"go-template/resolver"
+	"go-template/testutls"
+
 	graphql2 "github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
@@ -24,11 +30,6 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
 	"github.com/volatiletech/sqlboiler/boil"
-	graphql "github.com/wednesday-solutions/go-template/graphql_models"
-	"github.com/wednesday-solutions/go-template/internal/config"
-	"github.com/wednesday-solutions/go-template/internal/server"
-	"github.com/wednesday-solutions/go-template/resolver"
-	"github.com/wednesday-solutions/go-template/testutls"
 )
 
 func TestStart(t *testing.T) {

@@ -4,12 +4,13 @@ import (
 	"context"
 	"reflect"
 
+	"go-template/daos"
+	"go-template/models"
+	resultwrapper "go-template/pkg/utl/result_wrapper"
+
 	graphql2 "github.com/99designs/gqlgen/graphql"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
-	"github.com/wednesday-solutions/go-template/daos"
-	"github.com/wednesday-solutions/go-template/models"
-	resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
 )
 
 type key string
@@ -110,10 +111,10 @@ func GraphQLMiddleware(
 			return resultwrapper.HandleGraphQLError("Invalid authorization token")
 		}
 		claims := token.Claims.(jwt.MapClaims)
-
 		if requiresSuperAdmin {
 
 			isSuperAdmin := false
+
 			if claims["role"].(string) == "ADMIN" {
 				isSuperAdmin = true
 			}

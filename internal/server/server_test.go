@@ -11,11 +11,12 @@ import (
 	"testing"
 	"time"
 
+	"go-template/internal/server"
+	"go-template/testutls"
+
 	. "github.com/agiledragon/gomonkey/v2"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
-	"github.com/wednesday-solutions/go-template/internal/server"
-	"github.com/wednesday-solutions/go-template/testutls"
 )
 
 // Improve tests

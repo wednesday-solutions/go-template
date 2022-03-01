@@ -7,12 +7,13 @@ import (
 	"regexp"
 	"testing"
 
+	fm "go-template/graphql_models"
+	"go-template/resolver"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 	"github.com/volatiletech/sqlboiler/boil"
-	fm "github.com/wednesday-solutions/go-template/graphql_models"
-	"github.com/wednesday-solutions/go-template/resolver"
 )
 
 func TestCreateRole(t *testing.T) {
