@@ -5,15 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"net/http/httptest"
 	"regexp"
 	"strings"
 
 	graphql2 "github.com/99designs/gqlgen/graphql"
-	"github.com/go-playground/validator"
 	"github.com/labstack/echo"
 	"github.com/vektah/gqlparser/v2/gqlerror"
-	"github.com/wednesday-solutions/go-template/internal/server"
+	// "github.com/wednesday-solutions/go-template/internal/server"
 )
 
 var (
@@ -179,22 +177,22 @@ func ResolverSQLError(err error, detail string) error {
 // ResolverWrapperFromMessage ...
 func ResolverWrapperFromMessage(errorCode int, err string) error {
 
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "", nil)
-	req.Header.Set("Content-Type", "application/json")
-	e := echo.New()
-	e.Validator = &server.CustomValidator{V: validator.New()}
-	e.Binder = server.NewBinder()
-	c := e.NewContext(req, w)
+	// w := httptest.NewRecorder()
+	// req, _ := http.NewRequest("GET", "", nil)
+	// req.Header.Set("Content-Type", "application/json")
+	// e := echo.New()
+	// e.Validator = &server.CustomValidator{V: validator.New()}
+	// e.Binder = server.NewBinder()
+	// c := e.NewContext(req, w)
 
-	errMessage := fmt.Sprint(err)
-	er := ErrorFormatter(errMessage)
+	// errMessage := fmt.Sprint(err)
+	// er := ErrorFormatter(errMessage)
 
-	c.Echo().Debug = true
+	// c.Echo().Debug = true
 
-	e1 := c.JSON(errorCode, er)
-	if e1 != nil {
-		return e1
-	}
-	return fmt.Errorf(errMessage)
+	// e1 := c.JSON(errorCode, er)
+	// if e1 != nil {
+	// 	return e1
+	// }
+	return fmt.Errorf("import cycles suck!")
 }

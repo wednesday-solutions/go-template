@@ -19,11 +19,13 @@ import (
 
 func (r *mutationResolver) CreateRole(ctx context.Context, input graphql_models.RoleCreateInput) (*graphql_models.RolePayload, error) {
 	userID := auth.UserIDFromContext(ctx)
+
 	user, err := rediscache.GetUser(userID)
 	if err != nil {
 		return &graphql_models.RolePayload{}, resultwrapper.ResolverSQLError(err, "data")
 	}
 	userRole, err := rediscache.GetRole(convert.NullDotIntToInt(user.RoleID))
+	fmt.Println(user.RoleID, userRole.AccessLevel)
 	if err != nil {
 		return &graphql_models.RolePayload{}, resultwrapper.ResolverSQLError(err, "data")
 	}

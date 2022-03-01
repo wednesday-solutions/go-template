@@ -5,11 +5,12 @@ set +a
 
 export DB_HOST=localhost
 # drop tables
-# sql-migrate down -env postgres -limit=0
+sql-migrate down -env postgres -limit=0
 
 # run migrations
 sql-migrate up -env postgres
-# sql-migrate status -env postgres
+
+sql-migrate status -env postgres
 
 # seed data
 

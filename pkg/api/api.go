@@ -3,6 +3,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -41,7 +42,7 @@ func Start(cfg *config.Configuration) (*echo.Echo, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	boil.DebugMode = true
 	boil.SetDB(db)
 
 	jwt, err := jwt.New(
@@ -66,9 +67,10 @@ func Start(cfg *config.Configuration) (*echo.Echo, error) {
 		Resolvers: &resolver.Resolver{Observers: observers},
 	}))
 
-	if os.Getenv("ENVIRONMENT_NAME") == "local" {
-		boil.DebugMode = true
-	}
+	fmt.Println("Setting Debug Mode")
+	// if os.Getenv("ENVIRONMENT_NAME") == "local" {
+	boil.DebugMode = true
+	// }
 	e.GET("/", healthCheck)
 
 	// graphql apis

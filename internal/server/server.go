@@ -11,6 +11,7 @@ import (
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+	"github.com/volatiletech/sqlboiler/boil"
 	"github.com/wednesday-solutions/go-template/internal/middleware/secure"
 )
 
@@ -42,6 +43,8 @@ func Start(e *echo.Echo, cfg *Config) {
 	}
 	e.Debug = cfg.Debug
 
+	boil.DebugMode = true
+	boil.DebugWriter = os.Stdout
 	// Start server
 	go func() {
 		fmt.Print("Warming up server... ")

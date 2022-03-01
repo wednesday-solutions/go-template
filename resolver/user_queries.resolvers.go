@@ -5,7 +5,9 @@ package resolver
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/volatiletech/sqlboiler/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"github.com/wednesday-solutions/go-template/daos"
 	"github.com/wednesday-solutions/go-template/graphql_models"
@@ -31,6 +33,8 @@ func (r *queryResolver) Users(ctx context.Context, pagination *graphql_models.Us
 			queryMods = append(queryMods, qm.Limit(pagination.Limit), qm.Offset(pagination.Page*pagination.Limit))
 		}
 	}
+	fmt.Println(boil.DebugMode)
+	// boil.DebugMode = true
 	users, count, err := daos.FindAllUsersWithCount(queryMods)
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "data")

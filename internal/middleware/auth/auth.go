@@ -114,7 +114,7 @@ func GraphQLMiddleware(
 		if requiresSuperAdmin {
 
 			isSuperAdmin := false
-			if claims["role"].(string) == "ADMIN" {
+			if claims["role"].(string) == "SUPER_ADMIN" {
 				isSuperAdmin = true
 			}
 			if !isSuperAdmin {

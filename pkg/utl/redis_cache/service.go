@@ -52,6 +52,7 @@ func GetUser(userID int) (*models.User, error) {
 func GetRole(roleID int) (*models.Role, error) {
 	// get role cache key
 	cachedRoleValue, err := GetKeyValue(fmt.Sprintf("role%d", roleID))
+	
 	if err != nil {
 		return nil, err
 	}
@@ -62,9 +63,12 @@ func GetRole(roleID int) (*models.Role, error) {
 		if err != nil {
 			return nil, fmt.Errorf("%s", err)
 		}
+		fmt.Println("Cached Role Value \n", role)
 		return role, err
 	}
+
 	role, err = daos.FindRoleByID(roleID)
+	fmt.Println(role.AccessLevel, role.ID)
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "data")
 	}

@@ -1,12 +1,16 @@
 package jwt
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
 
+	"github.com/volatiletech/sqlboiler/boil"
 	"github.com/wednesday-solutions/go-template/models"
-	resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
+
+	// resultwrapper "github.com/wednesday-solutions/go-template/pkg/utl/result_wrapper"
 
 	"github.com/dgrijalva/jwt-go"
 )
@@ -50,12 +54,14 @@ type Service struct {
 func (s Service) ParseToken(authHeader string) (*jwt.Token, error) {
 	parts := strings.SplitN(authHeader, " ", 2)
 	if !(len(parts) == 2 && strings.ToLower(parts[0]) == "bearer") {
-		return nil, resultwrapper.ErrGeneric
+		return nil, errors.New("Something wrong with the parse boi")
+		// return nil, resultwrapper.ErrGeneric
 	}
 
 	return jwt.Parse(parts[1], func(token *jwt.Token) (interface{}, error) {
 		if s.algo != token.Method {
-			return nil, resultwrapper.ErrGeneric
+			return nil, errors.New("Something wrong with the parse boi")
+			// return nil, resultwrapper.ErrGeneric
 		}
 		return s.key, nil
 	})
@@ -64,10 +70,12 @@ func (s Service) ParseToken(authHeader string) (*jwt.Token, error) {
 
 // GenerateToken generates new JWT token and populates it with user data
 func (s Service) GenerateToken(u *models.User) (string, error) {
+	role, _ := u.Role().One(context.Background(), boil.GetContextDB())
 	return jwt.NewWithClaims(s.algo, jwt.MapClaims{
-		"id":  u.ID,
-		"u":   u.Username,
-		"e":   u.Email,
-		"exp": time.Now().Add(s.ttl).Unix(),
+		"id":   u.ID,
+		"u":    u.Username,
+		"e":    u.Email,
+		"exp":  time.Now().Add(s.ttl).Unix(),
+		"role": role.Name,
 	}).SignedString(s.key)
 }

@@ -42,6 +42,7 @@ func CreateUserTx(user models.User, tx *sql.Tx) (models.User, error) {
 	contextExecutor := getContextExecutor(tx)
 
 	err := user.Insert(context.Background(), contextExecutor, boil.Infer())
+	fmt.Println(user)
 	return user, err
 }
 

@@ -3,9 +3,6 @@ package daos_test
 import (
 	"database/sql/driver"
 	"fmt"
-	"regexp"
-	"testing"
-
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
@@ -15,6 +12,8 @@ import (
 	"github.com/wednesday-solutions/go-template/daos"
 	"github.com/wednesday-solutions/go-template/models"
 	"github.com/wednesday-solutions/go-template/testutls"
+	"regexp"
+	"testing"
 )
 
 func TestCreateUserTx(t *testing.T) {
@@ -26,8 +25,21 @@ func TestCreateUserTx(t *testing.T) {
 	}{
 		{
 			name: "Passing user type value",
-			req:  models.User{},
-			err:  nil,
+			req: models.User{
+				ID:        0,
+				FirstName: null.StringFrom("Wednesday"),
+				LastName:  null.StringFrom("Solutions"),
+				Username:  null.StringFrom("wedensday-solutions"),
+				Password:  null.StringFrom("Abcd!1234"),
+				Email:     null.StringFrom("hello@wednesday.is"),
+				Mobile:    null.StringFrom("1000010000"),
+				Phone:     null.StringFrom("022100010"),
+				Address:   null.StringFrom("509, 510, Clover Hills Plaza, Khondwa"),
+				Active:    null.Bool{bool(true), true},
+				CreatedAt: null.Time{},
+				UpdatedAt: null.Time{},
+			},
+			err: nil,
 		},
 	}
 
@@ -49,16 +61,47 @@ func TestCreateUserTx(t *testing.T) {
 		}()
 		boil.SetDB(db)
 
-		rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
-		mock.ExpectQuery(regexp.QuoteMeta("INSERT INTO \"users\" (\"first_name\",\"last_name\"," +
-			"\"username\",\"password\",\"email\",\"mobile\",\"phone\",\"address\",\"active\",\"last_login\"," +
-			"\"last_password_change\",\"token\",\"role_id\",\"created_at\",\"updated_at\",\"deleted_at\") " +
-			"VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)")).
-			WithArgs().
-			WillReturnRows(rows)
-
+		rows := sqlmock.NewRows([]string{
+			"id",
+			//"first_name",
+			//"last_name",
+			//"username",
+			//"password",
+			//"email",
+			//"mobile",
+			//"phone",
+			//"address",
+			//"active",
+			//"created_at",
+			//"updated_at",
+			//"token",
+			"last_login",
+			"last_password_change",
+			"token",
+			"role_id",
+			"deleted_at",
+		}).AddRow(
+			1,
+			//null.StringFrom(tt.req.FirstName.String),
+			//null.StringFrom(tt.req.LastName.String),
+			//null.StringFrom(tt.req.Username.String),
+			//null.StringFrom(tt.req.Password.String),
+			//null.StringFrom(tt.req.Email.String),
+			//null.StringFrom(tt.req.Mobile.String),
+			//null.StringFrom(tt.req.Phone.String),
+			//null.StringFrom(tt.req.Address.String),
+			//null.Bool{tt.req.Active.Bool, true},
+			null.Time{},
+			null.Time{},
+			null.String{},
+			null.String{},
+			null.Time{},
+		)
+		mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "users" ("first_name","last_name","username","password","email","mobile","phone","address","active","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`)).
+			WithArgs().WillReturnRows(rows)
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := daos.CreateUserTx(tt.req, nil)
+			fmt.Println(err)
 			if err != nil {
 				assert.Equal(t, true, tt.err != nil)
 			} else {
