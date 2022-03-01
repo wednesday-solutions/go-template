@@ -40,7 +40,16 @@ func CreateSubject(subject models.Subject) (models.Subject, error) {
 
 func UpdateSubject(subject models.Subject) (models.Subject, error) {
 	contextExecutor := getContextExecutor(nil)
-	s, err := subject.Update(context.Background(), contextExecutor, boil.Infer())
-	fmt.Printf("s = %v\n", s)
+	_, err := subject.Update(context.Background(), contextExecutor, boil.Infer())
 	return subject, err
+}
+
+func DeleteSubject(subject models.Subject) (int, error) {
+	contextExecutor := getContextExecutor(nil)
+	s, err := subject.Delete(context.Background(), contextExecutor)
+	fmt.Printf("s", s)
+	if err != nil {
+		return -1, err
+	}
+	return int(s), err
 }

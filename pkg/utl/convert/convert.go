@@ -1,6 +1,7 @@
 package convert
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/volatiletech/null/v8"
@@ -117,6 +118,7 @@ func UserSubjectToGraphQlUserSubject(us *models.UserSubject) *graphql.UserSubjec
 		return &graphql.UserSubject{}
 	}
 	return &graphql.UserSubject{
+		ID: fmt.Sprint(us.ID),
 		Subject: SubjectToGraphQlSubject(subject),
 		User:    UserToGraphQlUser(user),
 	}

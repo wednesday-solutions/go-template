@@ -5,7 +5,6 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/wednesday-solutions/go-template/daos"
@@ -44,12 +43,19 @@ func (r *mutationResolver) UpdateSubject(ctx context.Context, updateSubjectInput
 	}
 	updatedSubject, err := daos.UpdateSubject(subject)
 	if err != nil {
-		return nil, resultwrapper.ResolverSQLError(err, "Could not Create a new Subject")
+		return nil, resultwrapper.ResolverSQLError(err, "Could not Update the Subject")
 	}
 	graphqlSubjectObject := convert.SubjectToGraphQlSubject(&updatedSubject)
 	return graphqlSubjectObject, nil
 }
 
 func (r *mutationResolver) DeleteSubject(ctx context.Context, deleteSubjectInput *graphql_models.DeleteSubjectInput) (int, error) {
-	panic(fmt.Errorf("not implemented"))
+	subjectToDelete := models.Subject{
+		ID: deleteSubjectInput.ID,
+	}
+	subjectId, err := daos.DeleteSubject(subjectToDelete)
+	if err != nil {
+		return -1, resultwrapper.ResolverSQLError(err, "Could not Delete the Subject")
+	}
+	return subjectId, nil
 }

@@ -137,6 +137,7 @@ type ComplexityRoot struct {
 	}
 
 	UserSubject struct {
+		ID      func(childComplexity int) int
 		Subject func(childComplexity int) int
 		User    func(childComplexity int) int
 	}
@@ -639,6 +640,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Username(childComplexity), true
 
+	case "UserSubject.id":
+		if e.complexity.UserSubject.ID == nil {
+			break
+		}
+
+		return e.complexity.UserSubject.ID(childComplexity), true
+
 	case "UserSubject.subject":
 		if e.complexity.UserSubject.Subject == nil {
 			break
@@ -1002,6 +1010,7 @@ extend type Query {
 }
 `, BuiltIn: false},
 	{Name: "schema/user_subject/user_subject.graphql", Input: `type UserSubject {
+  id: ID!
   user: User!
   subject: Subject!
 }
@@ -3344,6 +3353,41 @@ func (ec *executionContext) _User_updatedAt(ctx context.Context, field graphql.C
 	res := resTmp.(*int)
 	fc.Result = res
 	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _UserSubject_id(ctx context.Context, field graphql.CollectedField, obj *UserSubject) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "UserSubject",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _UserSubject_user(ctx context.Context, field graphql.CollectedField, obj *UserSubject) (ret graphql.Marshaler) {
@@ -6537,6 +6581,16 @@ func (ec *executionContext) _UserSubject(ctx context.Context, sel ast.SelectionS
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("UserSubject")
+		case "id":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._UserSubject_id(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "user":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._UserSubject_user(ctx, field, obj)

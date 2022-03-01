@@ -208,6 +208,7 @@ type UserPagination struct {
 }
 
 type UserSubject struct {
+	ID      string   `json:"id"`
 	User    *User    `json:"user"`
 	Subject *Subject `json:"subject"`
 }
