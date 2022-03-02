@@ -6,7 +6,7 @@ import (
 
 	"go-template/models"
 
-	"github.com/volatiletech/sqlboiler/boil"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 // CreateRoleTx ...

@@ -4,25 +4,35 @@ import (
 	"context"
 	"database/sql/driver"
 	"fmt"
-	"regexp"
-	"testing"
-
 	fm "go-template/graphql_models"
 	"go-template/pkg/utl/convert"
 	"go-template/resolver"
 	"go-template/testutls"
+	"regexp"
+	"testing"
+	"time"
+
+	. "github.com/agiledragon/gomonkey/v2"
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
-	"github.com/volatiletech/sqlboiler/boil"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
+type AnyTime struct{}
+
+// Match satisfies sqlmock.Argument interface
+func (a AnyTime) Match(v driver.Value) bool {
+	_, ok := v.(time.Time)
+	return ok
+}
 func TestCreateUser(t *testing.T) {
 	cases := []struct {
 		name     string
 		req      fm.UserCreateInput
-		wantResp *fm.UserPayload
+		wantResp *fm.User
 		wantErr  bool
 	}{
 		{
@@ -33,19 +43,26 @@ func TestCreateUser(t *testing.T) {
 		{
 			name: "Success",
 			req: fm.UserCreateInput{
-				FirstName: convert.StringToPointerString("First"),
-				LastName:  convert.StringToPointerString("Last"),
-				Username:  convert.StringToPointerString("username"),
-				Email:     convert.StringToPointerString(testutls.MockEmail),
+				FirstName: testutls.MockUser().FirstName.String,
+				LastName:  testutls.MockUser().LastName.String,
+				Username:  testutls.MockUser().Username.String,
+				Email:     testutls.MockUser().Email.String,
+				RoleID:    fmt.Sprint(testutls.MockUser().RoleID.Int),
 			},
-			wantResp: &fm.UserPayload{
-				User: &fm.User{
-					ID:        "1",
-					FirstName: convert.StringToPointerString("First"),
-					LastName:  convert.StringToPointerString("Last"),
-					Username:  convert.StringToPointerString("username"),
-					Email:     convert.StringToPointerString(testutls.MockEmail),
-				}},
+			wantResp: &fm.User{
+				ID:                 fmt.Sprint(testutls.MockUser().ID),
+				Email:              convert.NullDotStringToPointerString(testutls.MockUser().Email),
+				FirstName:          convert.NullDotStringToPointerString(testutls.MockUser().FirstName),
+				LastName:           convert.NullDotStringToPointerString(testutls.MockUser().LastName),
+				Username:           convert.NullDotStringToPointerString(testutls.MockUser().Username),
+				Mobile:             convert.NullDotStringToPointerString(testutls.MockUser().Mobile),
+				Address:            convert.NullDotStringToPointerString(testutls.MockUser().Address),
+				Active:             convert.NullDotBoolToPointerBool(testutls.MockUser().Active),
+				LastLogin:          convert.NullDotTimeToPointerInt(testutls.MockUser().LastLogin),
+				LastPasswordChange: convert.NullDotTimeToPointerInt(testutls.MockUser().LastPasswordChange),
+				DeletedAt:          convert.NullDotTimeToPointerInt(testutls.MockUser().DeletedAt),
+				UpdatedAt:          convert.NullDotTimeToPointerInt(testutls.MockUser().UpdatedAt),
+			},
 			wantErr: false,
 		},
 	}
@@ -53,14 +70,9 @@ func TestCreateUser(t *testing.T) {
 	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			err := godotenv.Load("../.env.local")
-			if err != nil {
-				fmt.Print("error loading .env file")
-			}
-			db, mock, err := sqlmock.New()
-			if err != nil {
-				t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-			}
+			mock, db, _ := testutls.SetupEnvAndDB(t, testutls.Parameters{
+				EnvFileLocation: "../.env.local",
+			})
 			oldDB := boil.GetDB()
 			defer func() {
 				db.Close()
@@ -70,21 +82,45 @@ func TestCreateUser(t *testing.T) {
 
 			if tt.name == "Fail on Create User" {
 				// insert new user
-				mock.ExpectQuery(regexp.QuoteMeta("INSERT INTO \"users\" (\"first_name\",\"last_name\"," +
-					"\"username\",\"password\",\"email\",\"mobile\",\"phone\",\"address\",\"active\",\"last_login\"," +
-					"\"last_password_change\",\"token\",\"role_id\",\"created_at\",\"updated_at\",\"deleted_at\") " +
-					"VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)")).
+				mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "users"`)).
 					WithArgs().
 					WillReturnError(fmt.Errorf(""))
 			}
 			// insert new user
-			rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
-			mock.ExpectQuery(regexp.QuoteMeta("INSERT INTO \"users\" (\"first_name\",\"last_name\"," +
-				"\"username\",\"password\",\"email\",\"mobile\",\"phone\",\"address\",\"active\",\"last_login\"," +
-				"\"last_password_change\",\"token\",\"role_id\",\"created_at\",\"updated_at\",\"deleted_at\") " +
-				"VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)")).
-				WithArgs().
-				WillReturnRows(rows)
+			rows := sqlmock.NewRows([]string{
+				"id",
+				"mobile",
+				"address",
+				"active",
+				"last_login",
+				"last_password_change",
+				"token",
+				"deleted_at",
+			}).AddRow(
+				testutls.MockUser().ID,
+				testutls.MockUser().Mobile,
+				testutls.MockUser().Address,
+				testutls.MockUser().Active,
+				testutls.MockUser().LastLogin,
+				testutls.MockUser().LastPasswordChange,
+				testutls.MockUser().Token,
+				testutls.MockUser().DeletedAt,
+			)
+			ApplyFunc(bcrypt.GenerateFromPassword, func([]uint8, int) ([]uint8, error) {
+				var a []uint8
+				return a, nil
+			})
+			mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "users"`)).
+				WithArgs(
+					testutls.MockUser().FirstName,
+					testutls.MockUser().LastName,
+					testutls.MockUser().Username,
+					"",
+					testutls.MockUser().Email,
+					testutls.MockUser().RoleID,
+					AnyTime{},
+					AnyTime{},
+				).WillReturnRows(rows)
 
 			c := context.Background()
 			response, err := resolver1.Mutation().CreateUser(c, tt.req)
@@ -100,7 +136,7 @@ func TestUpdateUser(t *testing.T) {
 	cases := []struct {
 		name     string
 		req      *fm.UserUpdateInput
-		wantResp *fm.UserUpdatePayload
+		wantResp *fm.User
 		wantErr  bool
 	}{
 		{
@@ -111,26 +147,26 @@ func TestUpdateUser(t *testing.T) {
 		{
 			name: "Success",
 			req: &fm.UserUpdateInput{
-				FirstName: convert.StringToPointerString("First"),
-				LastName:  convert.StringToPointerString("Last"),
-				Address:   convert.StringToPointerString("address"),
+				FirstName: &testutls.MockUser().FirstName.String,
+				LastName:  &testutls.MockUser().LastName.String,
+				Address:   &testutls.MockUser().Address.String,
 			},
-			wantResp: &fm.UserUpdatePayload{Ok: true},
-			wantErr:  false,
+			wantResp: &fm.User{
+				ID:        "0",
+				FirstName: &testutls.MockUser().FirstName.String,
+				LastName:  &testutls.MockUser().LastName.String,
+				Address:   &testutls.MockUser().Address.String,
+			},
+			wantErr: false,
 		},
 	}
 
 	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			err := godotenv.Load("../.env.local")
-			if err != nil {
-				fmt.Print("error loading .env file")
-			}
-			db, mock, err := sqlmock.New()
-			if err != nil {
-				t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-			}
+			mock, db, _ := testutls.SetupEnvAndDB(t, testutls.Parameters{
+				EnvFileLocation: "../.env.local",
+			})
 			oldDB := boil.GetDB()
 			defer func() {
 				db.Close()
@@ -139,26 +175,30 @@ func TestUpdateUser(t *testing.T) {
 			boil.SetDB(db)
 
 			if tt.name == "Fail on finding User" {
-				mock.ExpectQuery(regexp.QuoteMeta("UPDATE \"users\" SET \"first_name\"=$1," +
-					"\"last_name\"=$2,\"username\"=$3,\"password\"=$4,\"email\"=$5,\"mobile\"=$6," +
-					"\"phone\"=$7,\"address\"=$8,\"active\"=$9,\"last_login\"=$10,\"last_password_change\"=$11," +
-					"\"token\"=$12,\"role_id\"=$13,\"updated_at\"=$14,\"deleted_at\"=$15 WHERE \"id\"=$16")).
+				mock.ExpectQuery(regexp.QuoteMeta(`UPDATE "users"`)).
 					WithArgs().
 					WillReturnError(fmt.Errorf(""))
 			}
+
+			rows := sqlmock.NewRows([]string{
+				"first_name",
+			}).AddRow(
+				testutls.MockUser().FirstName,
+			)
+			mock.ExpectQuery(regexp.QuoteMeta(`select * from "users"`)).
+				WithArgs(0).
+				WillReturnRows(rows)
+
 			// update users with new information
 			result := driver.Result(driver.RowsAffected(1))
-			mock.ExpectExec(regexp.QuoteMeta("UPDATE \"users\" SET \"first_name\"=$1,\"last_name\"=$2," +
-				"\"username\"=$3,\"password\"=$4,\"email\"=$5,\"mobile\"=$6,\"phone\"=$7,\"address\"=$8," +
-				"\"active\"=$9,\"last_login\"=$10,\"last_password_change\"=$11,\"token\"=$12,\"role_id\"=$13," +
-				"\"updated_at\"=$14,\"deleted_at\"=$15 WHERE \"id\"=$16")).
+			mock.ExpectExec(regexp.QuoteMeta(`UPDATE "users"`)).
 				WillReturnResult(result)
 
 			c := context.Background()
 			ctx := context.WithValue(c, testutls.UserKey, testutls.MockUser())
 			response, err := resolver1.Mutation().UpdateUser(ctx, tt.req)
 			if tt.wantResp != nil && response != nil {
-				assert.Equal(t, tt.wantResp.Ok, response.Ok)
+				assert.Equal(t, tt.wantResp, response)
 			}
 			assert.Equal(t, tt.wantErr, err != nil)
 		})

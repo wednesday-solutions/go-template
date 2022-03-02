@@ -11,7 +11,8 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
-	"github.com/volatiletech/sqlboiler/boil"
+	"github.com/volatiletech/null/v8"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 func TestCreateRoleTx(t *testing.T) {
@@ -46,9 +47,8 @@ func TestCreateRoleTx(t *testing.T) {
 		}()
 		boil.SetDB(db)
 
-		rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
-		mock.ExpectQuery(regexp.QuoteMeta("INSERT INTO \"roles\" " +
-			"(\"access_level\",\"name\",\"created_at\",\"updated_at\",\"deleted_at\") VALUES ($1,$2,$3,$4,$5)")).
+		rows := sqlmock.NewRows([]string{"id", "deleted_at"}).AddRow(1, null.Time{})
+		mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "roles"`)).
 			WithArgs().
 			WillReturnRows(rows)
 

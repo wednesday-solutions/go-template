@@ -146,7 +146,6 @@ type User struct {
 	Password           *string `json:"password"`
 	Email              *string `json:"email"`
 	Mobile             *string `json:"mobile"`
-	Phone              *string `json:"phone"`
 	Address            *string `json:"address"`
 	Active             *bool   `json:"active"`
 	LastLogin          *int    `json:"lastLogin"`
@@ -159,12 +158,15 @@ type User struct {
 }
 
 type UserCreateInput struct {
-	FirstName *string `json:"firstName"`
-	LastName  *string `json:"lastName"`
-	Username  *string `json:"username"`
-	Password  *string `json:"password"`
-	Email     *string `json:"email"`
-	RoleID    *string `json:"roleId"`
+	FirstName string  `json:"firstName"`
+	LastName  string  `json:"lastName"`
+	Username  string  `json:"username"`
+	Password  string  `json:"password"`
+	Email     string  `json:"email"`
+	RoleID    string  `json:"roleId"`
+	Mobile    string  `json:"mobile"`
+	Address   *string `json:"address"`
+	Active    *bool   `json:"active"`
 }
 
 type UserDeletePayload struct {
@@ -186,15 +188,11 @@ type UserPayload struct {
 }
 
 type UserUpdateInput struct {
+	ID        string  `json:"id"`
 	FirstName *string `json:"firstName"`
 	LastName  *string `json:"lastName"`
 	Mobile    *string `json:"mobile"`
-	Phone     *string `json:"phone"`
 	Address   *string `json:"address"`
-}
-
-type UserUpdatePayload struct {
-	Ok bool `json:"ok"`
 }
 
 type UserWhere struct {
@@ -205,7 +203,6 @@ type UserWhere struct {
 	Password           *StringFilter  `json:"password"`
 	Email              *StringFilter  `json:"email"`
 	Mobile             *StringFilter  `json:"mobile"`
-	Phone              *StringFilter  `json:"phone"`
 	Address            *StringFilter  `json:"address"`
 	Active             *BooleanFilter `json:"active"`
 	LastLogin          *IntFilter     `json:"lastLogin"`
@@ -221,10 +218,6 @@ type UserWhere struct {
 
 type UsersCreateInput struct {
 	Users []*UserCreateInput `json:"users"`
-}
-
-type UsersDeletePayload struct {
-	Ids []string `json:"ids"`
 }
 
 type UsersPayload struct {

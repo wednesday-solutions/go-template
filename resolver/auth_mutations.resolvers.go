@@ -6,7 +6,6 @@ package resolver
 import (
 	"context"
 	"fmt"
-
 	"go-template/daos"
 	"go-template/graphql_models"
 	"go-template/internal/config"
@@ -15,14 +14,11 @@ import (
 	"go-template/pkg/utl/convert"
 	resultwrapper "go-template/pkg/utl/result_wrapper"
 
-	"github.com/volatiletech/null"
+	null "github.com/volatiletech/null/v8"
 )
 
-func (r *mutationResolver) Login(
-	ctx context.Context,
-	username string,
-	password string) (*graphql_models.LoginResponse, error) {
-
+func (r *mutationResolver) Login(ctx context.Context, username string, password string) (
+	*graphql_models.LoginResponse, error) {
 	u, err := daos.FindUserByUserName(username)
 	if err != nil {
 		return nil, err
@@ -62,11 +58,9 @@ func (r *mutationResolver) Login(
 	return &graphql_models.LoginResponse{Token: token, RefreshToken: refreshToken}, nil
 }
 
-func (r *mutationResolver) ChangePassword(
-	ctx context.Context,
-	oldPassword string,
-	newPassword string) (*graphql_models.ChangePasswordResponse, error) {
-
+func (r *mutationResolver) ChangePassword(ctx context.Context, oldPassword string, newPassword string) (
+	*graphql_models.ChangePasswordResponse, error,
+) {
 	userID := auth.UserIDFromContext(ctx)
 	u, err := daos.FindUserByID(userID)
 	if err != nil {
@@ -100,9 +94,9 @@ func (r *mutationResolver) ChangePassword(
 	return &graphql_models.ChangePasswordResponse{Ok: true}, err
 }
 
-func (r *mutationResolver) RefreshToken(
-	ctx context.Context,
-	token string) (*graphql_models.RefreshTokenResponse, error) {
+func (r *mutationResolver) RefreshToken(ctx context.Context, token string) (
+	*graphql_models.RefreshTokenResponse, error,
+) {
 	user, err := daos.FindUserByToken(token)
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "token")

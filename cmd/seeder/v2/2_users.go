@@ -9,7 +9,7 @@ import (
 	"go-template/models"
 	"go-template/pkg/utl/secure"
 
-	"github.com/volatiletech/sqlboiler/queries/qm"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 func main() {

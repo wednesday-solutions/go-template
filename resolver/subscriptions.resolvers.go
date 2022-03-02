@@ -6,7 +6,6 @@ package resolver
 import (
 	"context"
 	"fmt"
-
 	"go-template/graphql_models"
 	"go-template/pkg/utl"
 )

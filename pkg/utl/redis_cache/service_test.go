@@ -15,10 +15,9 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	. "github.com/agiledragon/gomonkey/v2"
-	redigo "github.com/gomodule/redigo/redis"
-	redis "github.com/gomodule/redigo/redis"
+	"github.com/gomodule/redigo/redis"
 	redigomock "github.com/rafaeljusto/redigomock/v3"
-	"github.com/volatiletech/sqlboiler/boil"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 var conn = redigomock.NewConn()
@@ -53,15 +52,29 @@ func TestGetUser(t *testing.T) {
 						Actions: &[]driver.Value{testutls.MockID},
 						Query:   "select * from \"users\" where \"id\"=$1",
 						DbResponse: sqlmock.NewRows([]string{
-							"first_name", "last_name", "username", "email", "mobile", "phone", "address",
+							"id",
+							"first_name",
+							"last_name",
+							"username",
+							"email",
+							"mobile",
+							"address",
+							"token",
+							"password",
+							"role_id",
+							"active",
 						}).AddRow(
+							testutls.MockUser().ID,
 							testutls.MockUser().FirstName,
 							testutls.MockUser().LastName,
 							testutls.MockUser().Username,
 							testutls.MockUser().Email,
 							testutls.MockUser().Mobile,
-							testutls.MockUser().Phone,
 							testutls.MockUser().Address,
+							testutls.MockUser().Token,
+							testutls.MockUser().Password,
+							testutls.MockUser().RoleID,
+							testutls.MockUser().Active,
 						),
 					},
 				},
@@ -70,7 +83,7 @@ func TestGetUser(t *testing.T) {
 		},
 	}
 
-	ApplyFunc(redigo.Dial, func(string, string, ...redis.DialOption) (redis.Conn, error) {
+	ApplyFunc(redisDial, func() (redis.Conn, error) {
 		return conn, nil
 	})
 
@@ -156,7 +169,7 @@ func TestGetRole(t *testing.T) {
 			want: role,
 		},
 	}
-	ApplyFunc(redigo.Dial, func(string, string, ...redis.DialOption) (redis.Conn, error) {
+	ApplyFunc(redisDial, func() (redis.Conn, error) {
 		return conn, nil
 	})
 
@@ -212,7 +225,8 @@ func TestIncVisits(t *testing.T) {
 			want: 10,
 		},
 	}
-	ApplyFunc(redigo.Dial, func(string, string, ...redis.DialOption) (redis.Conn, error) {
+
+	ApplyFunc(redisDial, func() (redis.Conn, error) {
 		return conn, nil
 	})
 	for _, tt := range tests {
@@ -249,14 +263,17 @@ func TestStartVisits(t *testing.T) {
 			want: 10,
 		},
 	}
-	ApplyFunc(redigo.Dial, func(string, string, ...redis.DialOption) (redis.Conn, error) {
+	ApplyFunc(redisDial, func() (redis.Conn, error) {
 		return conn, nil
 	})
+
+	testutls.SetupEnvAndDB(t, testutls.Parameters{EnvFileLocation: "../../../.env.local"}) //nolint
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
 			conn.Command("SETEX", tt.args.path, int(math.Ceil(time.Second.Seconds())), 1).Expect(1)
 			err := StartVisits(tt.args.path, time.Second)
+
 			if (err != nil) != tt.wantErr {
 				t.Errorf("StartVisits() error = %v, wantErr %v", err, tt.wantErr)
 				return
