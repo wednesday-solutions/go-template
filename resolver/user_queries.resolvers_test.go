@@ -16,7 +16,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/rafaeljusto/redigomock"
 	"github.com/stretchr/testify/assert"
-	"github.com/volatiletech/sqlboiler/boil"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 func TestMe(t *testing.T) {
@@ -103,7 +103,7 @@ func TestUsers(t *testing.T) {
 
 			// get user by id
 			rows := sqlmock.
-				NewRows([]string{"id", "email", "first_name", "last_name", "mobile", "username", "phone", "address"}).
+				NewRows([]string{"id", "email", "first_name", "last_name", "mobile", "username", "address"}).
 				AddRow(
 					testutls.MockID,
 					testutls.MockEmail,
@@ -111,7 +111,6 @@ func TestUsers(t *testing.T) {
 					"Last",
 					"+911234567890",
 					"username",
-					"05943-1123",
 					"22 Jump Street",
 				)
 			mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"users\";")).

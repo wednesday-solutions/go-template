@@ -6,7 +6,7 @@ import (
 	graphql "go-template/graphql_models"
 	"go-template/models"
 
-	"github.com/volatiletech/null"
+	"github.com/volatiletech/null/v8"
 )
 
 // StringToPointerString returns pointer string value
@@ -89,8 +89,16 @@ func UserToGraphQlUser(u *models.User) *graphql.User {
 		Username:  NullDotStringToPointerString(u.Username),
 		Email:     NullDotStringToPointerString(u.Email),
 		Mobile:    NullDotStringToPointerString(u.Mobile),
-		Phone:     NullDotStringToPointerString(u.Phone),
 		Address:   NullDotStringToPointerString(u.Address),
 		Active:    NullDotBoolToPointerBool(u.Active),
 	}
+}
+
+func NullDotTimeToPointerInt(t null.Time) *int {
+	var i int
+	if t.Valid {
+		i = int(t.Time.UnixMilli())
+		return &i
+	}
+	return nil
 }

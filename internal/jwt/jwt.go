@@ -10,7 +10,7 @@ import (
 	resultwrapper "go-template/pkg/utl/result_wrapper"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/volatiletech/sqlboiler/boil"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 // New generates new JWT service necessary for auth middleware

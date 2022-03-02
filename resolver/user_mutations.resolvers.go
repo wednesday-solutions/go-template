@@ -6,8 +6,6 @@ package resolver
 import (
 	"context"
 	"fmt"
-	"time"
-
 	"go-template/daos"
 	"go-template/graphql_models"
 	"go-template/internal/config"
@@ -17,25 +15,28 @@ import (
 	"go-template/pkg/utl/convert"
 	throttle "go-template/pkg/utl/rate_throttle"
 	resultwrapper "go-template/pkg/utl/result_wrapper"
+	"strconv"
+	"time"
 
-	"github.com/volatiletech/null"
+	null "github.com/volatiletech/null/v8"
 )
 
-func (r *mutationResolver) CreateUser(
-	ctx context.Context,
-	input graphql_models.UserCreateInput) (*graphql_models.UserPayload, error) {
+func (r *mutationResolver) CreateUser(ctx context.Context, input graphql_models.UserCreateInput) (
+	*graphql_models.User, error,
+) {
 	err := throttle.Check(ctx, 5, 10*time.Second)
 	if err != nil {
 		return nil, err
 	}
 
+	roleId, _ := strconv.Atoi(input.RoleID)
 	user := models.User{
-		Username:  null.StringFromPtr(input.Username),
-		Password:  null.StringFromPtr(input.Password),
-		Email:     null.StringFromPtr(input.Email),
-		FirstName: null.StringFromPtr(input.FirstName),
-		LastName:  null.StringFromPtr(input.LastName),
-		RoleID:    convert.PointerStringToNullDotInt(input.RoleID),
+		Username:  null.StringFrom(input.Username),
+		Password:  null.StringFrom(input.Password),
+		Email:     null.StringFrom(input.Email),
+		FirstName: null.StringFrom(input.FirstName),
+		LastName:  null.StringFrom(input.LastName),
+		RoleID:    null.IntFrom(roleId),
 	}
 	// loading configurations
 	cfg, err := config.Load()
@@ -57,21 +58,31 @@ func (r *mutationResolver) CreateUser(
 	}
 	r.Unlock()
 
-	return &graphql_models.UserPayload{User: graphUser}, err
+	return graphUser, err
 }
 
-func (r *mutationResolver) UpdateUser(
-	ctx context.Context,
-	input *graphql_models.UserUpdateInput) (*graphql_models.UserUpdatePayload, error) {
-
+func (r *mutationResolver) UpdateUser(ctx context.Context, input *graphql_models.UserUpdateInput) (
+	*graphql_models.User, error,
+) {
 	userID := auth.UserIDFromContext(ctx)
-	u := models.User{
-		ID:        userID,
-		FirstName: null.StringFromPtr(input.FirstName),
-		LastName:  null.StringFromPtr(input.LastName),
-		Mobile:    null.StringFromPtr(input.Mobile),
-		Phone:     null.StringFromPtr(input.Phone),
-		Address:   null.StringFromPtr(input.Address),
+	user, _ := daos.FindUserByID(userID)
+	var u models.User
+	if user != nil {
+		u = *user
+	} else {
+		return nil, resultwrapper.ResolverWrapperFromMessage(404, "user not found")
+	}
+	if input.FirstName != nil {
+		u.FirstName = null.StringFromPtr(input.FirstName)
+	}
+	if input.LastName != nil {
+		u.LastName = null.StringFromPtr(input.LastName)
+	}
+	if input.Mobile != nil {
+		u.Mobile = null.StringFromPtr(input.Mobile)
+	}
+	if input.Address != nil {
+		u.Address = null.StringFromPtr(input.Address)
 	}
 	_, err := daos.UpdateUserTx(u, nil)
 	if err != nil {
@@ -85,7 +96,7 @@ func (r *mutationResolver) UpdateUser(
 	}
 	r.Unlock()
 
-	return &graphql_models.UserUpdatePayload{Ok: true}, nil
+	return graphUser, nil
 }
 
 func (r *mutationResolver) DeleteUser(ctx context.Context) (*graphql_models.UserDeletePayload, error) {

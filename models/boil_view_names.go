@@ -3,12 +3,5 @@
 
 package models
 
-var TableNames = struct {
-	GorpMigrations string
-	Roles          string
-	Users          string
-}{
-	GorpMigrations: "gorp_migrations",
-	Roles:          "roles",
-	Users:          "users",
-}
+var ViewNames = struct {
+}{}

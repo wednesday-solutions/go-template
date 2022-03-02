@@ -6,7 +6,6 @@ type User {
     password: String
     email: String
     mobile: String
-    phone: String
     address: String
     active: Boolean
     lastLogin: Int
@@ -36,7 +35,6 @@ input UserWhere {
     password: StringFilter
     email: StringFilter
     mobile: StringFilter
-    phone: StringFilter
     address: StringFilter
     active: BooleanFilter
     lastLogin: IntFilter
@@ -50,19 +48,22 @@ input UserWhere {
     and: UserWhere
 }
 input UserCreateInput {
-    firstName: String
-    lastName: String
-    username: String
-    password: String
-    email: String
-    roleId: ID
+    firstName: String!
+    lastName: String!
+    username: String!
+    password: String!
+    email: String!
+    roleId: ID!
+    mobile: String!
+    address: String
+    active: Boolean
 }
 
 input UserUpdateInput {
+    id: ID!
     firstName: String
     lastName: String
     mobile: String
-    phone: String
     address: String
 }
 
@@ -81,14 +82,6 @@ type UserDeletePayload {
 type UsersPayload {
     users: [User!]!
     total: Int!   
-}
-
-type UsersDeletePayload {
-    ids: [ID!]!
-}
-
-type UserUpdatePayload {
-    ok: Boolean!
 }
 
 type LoginResponse {

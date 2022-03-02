@@ -1,8 +1,10 @@
 {
     "go.lintTool":"golangci-lint",
-    "go.lintFlags": [
-    "--fast"
-    ],
+"go.lintFlags": [
+    "--config=${workspaceFolder}/.golangci.yml",
+        "--fast"
+],
+
     "go.coverOnSave": true,
     "go.coverageDecorator": {
         "type": "gutter",
@@ -11,5 +13,10 @@
         "coveredGutterStyle": "blockgreen",
         "uncoveredGutterStyle": "blockred"
     },
-    "go.coverOnSingleTest": true
+    "go.coverOnSingleTest": true,
+    "[go]": {
+        "editor.insertSpaces": true,
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "golang.go"
+    },
 }
