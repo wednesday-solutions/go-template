@@ -1,14 +1,12 @@
 exclude: '^gqlgen'
 fail_fast: true
 repos:
-  - repo: git://github.com/dnephin/pre-commit-golang
-    rev: v0.4.0
+-   repo: https://github.com/tekwizely/pre-commit-golang
+    rev: master
     hooks:
-      - id: go-fmt
-      - id: go-vet
-      - id: golangci-lint
-      - id: go-imports
-      - id: validate-toml
-      - id: no-go-testing
-      - id: go-mod-tidy
-      - id: go-build
+    -   id: golangci-lint-mod
+    -   id: go-build-repo-mod
+    -   id: go-mod-tidy
+    -   id: go-mod-tidy-repo
+    -   id: go-vet-mod
+    -   id: go-fmt

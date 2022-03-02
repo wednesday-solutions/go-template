@@ -5,6 +5,7 @@ import (
 	"database/sql/driver"
 	"fmt"
 	"testing"
+	"time"
 
 	"go-template/internal/config"
 	"go-template/models"
@@ -12,8 +13,8 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/joho/godotenv"
-	"github.com/volatiletech/null"
-	"github.com/volatiletech/sqlboiler/boil"
+	"github.com/volatiletech/null/v8"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 type key string
@@ -33,13 +34,21 @@ var MockWhitelistedQuery = `{"query":"query Schema {  __schema { queryType { kin
 
 func MockUser() *models.User {
 	return &models.User{
-		FirstName: null.StringFrom("First"),
-		LastName:  null.StringFrom("Last"),
-		Username:  null.StringFrom("username"),
-		Email:     null.StringFrom(MockEmail),
-		Mobile:    null.StringFrom("+911234567890"),
-		Phone:     null.StringFrom("05943-1123"),
-		Address:   null.StringFrom("22 Jump Street"),
+		ID:                 MockID,
+		FirstName:          null.StringFrom("First"),
+		LastName:           null.StringFrom("Last"),
+		Username:           null.StringFrom("username"),
+		Email:              null.StringFrom(MockEmail),
+		Mobile:             null.StringFrom("+911234567890"),
+		Address:            null.StringFrom("22 Jump Street"),
+		Password:           null.StringFrom(`!@#!@12ASa3123`),
+		Active:             null.BoolFrom(false),
+		LastLogin:          null.NewTime(time.Time{}, false),
+		LastPasswordChange: null.NewTime(time.Time{}, false),
+		Token:              null.StringFrom("asd"),
+		DeletedAt:          null.NewTime(time.Time{}, false),
+		UpdatedAt:          null.NewTime(time.Time{}, false),
+		RoleID:             null.IntFrom(1),
 	}
 }
 func MockUsers() []*models.User {
@@ -50,7 +59,6 @@ func MockUsers() []*models.User {
 			Username:  null.StringFrom("username"),
 			Email:     null.StringFrom(MockEmail),
 			Mobile:    null.StringFrom("+911234567890"),
-			Phone:     null.StringFrom("05943-1123"),
 			Address:   null.StringFrom("22 Jump Street"),
 		},
 	}

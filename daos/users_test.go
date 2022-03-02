@@ -13,9 +13,9 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
-	"github.com/volatiletech/null"
-	"github.com/volatiletech/sqlboiler/boil"
-	"github.com/volatiletech/sqlboiler/queries/qm"
+	"github.com/volatiletech/null/v8"
+	"github.com/volatiletech/sqlboiler/v4/boil"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 func TestCreateUserTx(t *testing.T) {
@@ -27,22 +27,18 @@ func TestCreateUserTx(t *testing.T) {
 	}{
 		{
 			name: "Passing user type value",
-			req:  models.User{},
-			err:  nil,
+			req: models.User{
+				ID:       testutls.MockUser().ID,
+				Email:    testutls.MockUser().Email,
+				Password: testutls.MockUser().Password,
+			},
+			err: nil,
 		},
 	}
 
 	for _, tt := range cases {
-		err := godotenv.Load("../.env.local")
-		if err != nil {
-			fmt.Print("error loading .env file")
-		}
-
-		db, mock, err := sqlmock.New()
-		if err != nil {
-			t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-		}
 		// Inject mock instance into boil.
+		mock, db, _ := testutls.SetupEnvAndDB(t, testutls.Parameters{EnvFileLocation: "../.env.local"})
 		oldDB := boil.GetDB()
 		defer func() {
 			db.Close()
@@ -50,11 +46,32 @@ func TestCreateUserTx(t *testing.T) {
 		}()
 		boil.SetDB(db)
 
-		rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
-		mock.ExpectQuery(regexp.QuoteMeta("INSERT INTO \"users\" (\"first_name\",\"last_name\"," +
-			"\"username\",\"password\",\"email\",\"mobile\",\"phone\",\"address\",\"active\",\"last_login\"," +
-			"\"last_password_change\",\"token\",\"role_id\",\"created_at\",\"updated_at\",\"deleted_at\") " +
-			"VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)")).
+		rows := sqlmock.NewRows([]string{
+			"first_name",
+			"last_name",
+			"username",
+			"mobile",
+			"address",
+			"active",
+			"last_login",
+			"last_password_change",
+			"token",
+			"role_id",
+			"deleted_at",
+		}).AddRow(
+			testutls.MockUser().FirstName,
+			testutls.MockUser().LastName,
+			testutls.MockUser().Username,
+			testutls.MockUser().Mobile,
+			testutls.MockUser().Address,
+			testutls.MockUser().Active,
+			testutls.MockUser().LastLogin,
+			testutls.MockUser().LastPasswordChange,
+			testutls.MockUser().Token,
+			testutls.MockUser().RoleID,
+			testutls.MockUser().DeletedAt,
+		)
+		mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "users"`)).
 			WithArgs().
 			WillReturnRows(rows)
 
@@ -237,67 +254,6 @@ func TestFindUserByUserName(t *testing.T) {
 	}
 }
 
-func TestFindUserByToken(t *testing.T) {
-
-	type args struct {
-		Token string
-	}
-	cases := []struct {
-		name string
-		req  args
-		err  error
-	}{
-		{
-			name: "Fail on finding user token",
-			req:  args{Token: "tokenString"},
-			err:  fmt.Errorf("sql: no rows in sql"),
-		},
-		{
-			name: "Passing an email",
-			req:  args{Token: testutls.MockToken},
-			err:  nil,
-		},
-	}
-
-	for _, tt := range cases {
-		err := godotenv.Load("../.env.local")
-		if err != nil {
-			fmt.Print("error loading .env file")
-		}
-
-		db, mock, err := sqlmock.New()
-		if err != nil {
-			t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-		}
-		// Inject mock instance into boil.
-		oldDB := boil.GetDB()
-		defer func() {
-			db.Close()
-			boil.SetDB(oldDB)
-		}()
-		boil.SetDB(db)
-
-		if tt.name == "Fail on finding user token" {
-			mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"users\" WHERE (token=$1) LIMIT 1;")).
-				WithArgs().
-				WillReturnError(fmt.Errorf(""))
-		}
-		rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
-		mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"users\" WHERE (token=$1) LIMIT 1;")).
-			WithArgs().
-			WillReturnRows(rows)
-
-		t.Run(tt.name, func(t *testing.T) {
-			_, err := daos.FindUserByToken(tt.req.Token)
-			if err != nil {
-				assert.Equal(t, true, tt.err != nil)
-			} else {
-				assert.Equal(t, err, tt.err)
-			}
-		})
-	}
-}
-
 func TestUpdateUserTx(t *testing.T) {
 
 	cases := []struct {
@@ -449,4 +405,64 @@ func TestFindAllUsersWithCount(t *testing.T) {
 	}
 	boil.SetDB(oldDB)
 	db.Close()
+}
+func TestFindUserByToken(t *testing.T) {
+
+	type args struct {
+		Token string
+	}
+	cases := []struct {
+		name string
+		req  args
+		err  error
+	}{
+		{
+			name: "Fail on finding user token",
+			req:  args{Token: "tokenString"},
+			err:  fmt.Errorf("sql: no rows in sql"),
+		},
+		{
+			name: "Passing an email",
+			req:  args{Token: testutls.MockToken},
+			err:  nil,
+		},
+	}
+
+	for _, tt := range cases {
+		err := godotenv.Load("../.env.local")
+		if err != nil {
+			fmt.Print("error loading .env file")
+		}
+
+		db, mock, err := sqlmock.New()
+		if err != nil {
+			t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+		}
+		// Inject mock instance into boil.
+		oldDB := boil.GetDB()
+		defer func() {
+			db.Close()
+			boil.SetDB(oldDB)
+		}()
+		boil.SetDB(db)
+
+		if tt.name == "Fail on finding user token" {
+			mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"users\" WHERE (token=$1) LIMIT 1;")).
+				WithArgs().
+				WillReturnError(fmt.Errorf(""))
+		}
+		rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
+		mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"users\" WHERE (token=$1) LIMIT 1;")).
+			WithArgs().
+			WillReturnRows(rows)
+
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := daos.FindUserByToken(tt.req.Token)
+			if err != nil {
+				assert.Equal(t, true, tt.err != nil)
+			} else {
+				assert.Equal(t, err, tt.err)
+			}
+		})
+	}
 }

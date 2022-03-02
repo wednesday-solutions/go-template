@@ -3,7 +3,7 @@ package daos
 import (
 	"database/sql"
 
-	"github.com/volatiletech/sqlboiler/boil"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 func getContextExecutor(tx *sql.Tx) (contextExecutor boil.ContextExecutor) {

@@ -25,7 +25,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
 	_ "github.com/lib/pq" // here
-	"github.com/volatiletech/sqlboiler/boil"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 // Start starts the API service

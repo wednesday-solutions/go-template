@@ -6,7 +6,6 @@ package resolver
 import (
 	"context"
 	"fmt"
-
 	"go-template/daos"
 	"go-template/graphql_models"
 	"go-template/internal/middleware/auth"
@@ -14,7 +13,7 @@ import (
 	rediscache "go-template/pkg/utl/redis_cache"
 	resultwrapper "go-template/pkg/utl/result_wrapper"
 
-	"github.com/volatiletech/sqlboiler/queries/qm"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 func (r *queryResolver) Me(ctx context.Context) (*graphql_models.User, error) {
@@ -26,9 +25,9 @@ func (r *queryResolver) Me(ctx context.Context) (*graphql_models.User, error) {
 	return convert.UserToGraphQlUser(user), err
 }
 
-func (r *queryResolver) Users(
-	ctx context.Context,
-	pagination *graphql_models.UserPagination) (*graphql_models.UsersPayload, error) {
+func (r *queryResolver) Users(ctx context.Context, pagination *graphql_models.UserPagination) (
+	*graphql_models.UsersPayload, error,
+) {
 	var queryMods []qm.QueryMod
 	if pagination != nil {
 		if pagination.Limit != 0 {

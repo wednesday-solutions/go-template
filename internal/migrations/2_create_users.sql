@@ -7,7 +7,6 @@ CREATE TABLE public.users (
 				password TEXT,
 				email TEXT UNIQUE,
 				mobile TEXT,
-				phone TEXT,
 				address TEXT,
 				active BOOLEAN,
 				last_login TIMESTAMP WITH TIME ZONE,

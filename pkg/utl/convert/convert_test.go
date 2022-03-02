@@ -7,7 +7,7 @@ import (
 	graphql "go-template/graphql_models"
 	"go-template/models"
 
-	"github.com/volatiletech/null"
+	"github.com/volatiletech/null/v8"
 )
 
 func TestStringToPointerString(t *testing.T) {

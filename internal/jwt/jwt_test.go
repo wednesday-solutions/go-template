@@ -14,7 +14,7 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	jwtgo "github.com/dgrijalva/jwt-go"
 	"github.com/stretchr/testify/assert"
-	"github.com/volatiletech/null"
+	"github.com/volatiletech/null/v8"
 )
 
 func TestNew(t *testing.T) {

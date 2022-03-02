@@ -13,7 +13,7 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
-	"github.com/volatiletech/sqlboiler/boil"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 func TestCreateRole(t *testing.T) {
@@ -65,15 +65,13 @@ func TestCreateRole(t *testing.T) {
 
 			if tt.name == "Fail on Create role" {
 				// insert new user
-				mock.ExpectQuery(regexp.QuoteMeta("INSERT INTO \"roles\" (\"access_level\"," +
-					"\"name\",\"created_at\",\"updated_at\",\"deleted_at\") VALUES ($1,$2,$3,$4,$5)")).
+				mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "roles"`)).
 					WithArgs().
 					WillReturnError(fmt.Errorf(""))
 			}
 			// insert new user
 			rows = sqlmock.NewRows([]string{"id"}).AddRow(1)
-			mock.ExpectQuery(regexp.QuoteMeta("INSERT INTO \"roles\" (\"access_level\"," +
-				"\"name\",\"created_at\",\"updated_at\",\"deleted_at\") VALUES ($1,$2,$3,$4,$5)")).
+			mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "roles"`)).
 				WithArgs().
 				WillReturnRows(rows)
 
