@@ -19,3 +19,7 @@ const (
 	// LocationAdmin has admin specific permissions
 	LOCATION_ADMIN AccessRole = 130
 )
+
+const (
+	MaxDepth = 4
+)
