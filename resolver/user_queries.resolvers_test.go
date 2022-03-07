@@ -2,8 +2,10 @@ package resolver_test
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"regexp"
+	"strconv"
 	"testing"
 
 	fm "go-template/graphql_models"
@@ -26,27 +28,26 @@ func TestMe(t *testing.T) {
 		wantErr  bool
 	}{
 		{
-			name:     "Success",
-			wantResp: &fm.User{},
+			name: "Success",
+			wantResp: &fm.User{
+				ID: strconv.Itoa(testutls.MockUser().ID),
+			},
 		},
 	}
 
 	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			err := godotenv.Load("../.env.local")
+
+			mock, db, err := testutls.SetupEnvAndDB(t, testutls.Parameters{EnvFileLocation: `../.env.local`})
 			if err != nil {
-				fmt.Print("error loading .env file")
+				t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 			}
 			conn := redigomock.NewConn()
 			_ = &redis.Pool{
 				// Return the same connection mock for each Get() call.
 				Dial:    func() (redis.Conn, error) { return conn, nil },
 				MaxIdle: 10,
-			}
-			db, mock, err := sqlmock.New()
-			if err != nil {
-				t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 			}
 			// Inject mock instance into boil.
 			oldDB := boil.GetDB()
@@ -56,13 +57,18 @@ func TestMe(t *testing.T) {
 			}()
 			boil.SetDB(db)
 
+			rows := mock.NewRows([]string{"id"}).
+				AddRow(
+					1,
+				)
 			// get user by id
-			mock.ExpectQuery(regexp.QuoteMeta("select * from \"users\" where \"id\"=$1")).
-				WithArgs()
+			mock.ExpectQuery(regexp.QuoteMeta(`select * from "users"`)).
+				WithArgs([]driver.Value{1}).WillReturnRows(rows)
 
 			c := context.Background()
 			ctx := context.WithValue(c, testutls.UserKey, testutls.MockUser())
 			response, _ := resolver1.Query().Me(ctx)
+			fmt.Println("\n\nresponse:::::", response)
 			assert.Equal(t, tt.wantResp, response)
 		})
 	}

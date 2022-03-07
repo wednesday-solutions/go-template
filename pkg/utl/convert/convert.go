@@ -1,12 +1,14 @@
 package convert
 
 import (
+	"context"
 	"strconv"
 
 	graphql "go-template/graphql_models"
 	"go-template/models"
 
 	"github.com/volatiletech/null/v8"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 // StringToPointerString returns pointer string value
@@ -82,6 +84,14 @@ func UsersToGraphQlUsers(u models.UserSlice) []*graphql.User {
 
 // UserToGraphQlUser converts type models.User into pointer type graphql.User
 func UserToGraphQlUser(u *models.User) *graphql.User {
+	if u == nil {
+		return nil
+	}
+	var role *models.Role
+	u.L.LoadRole(context.Background(), boil.GetContextDB(), true, u, nil) //nolint:errcheck
+	if u.R != nil {
+		role = u.R.Role
+	}
 	return &graphql.User{
 		ID:        strconv.Itoa(u.ID),
 		FirstName: NullDotStringToPointerString(u.FirstName),
@@ -91,9 +101,23 @@ func UserToGraphQlUser(u *models.User) *graphql.User {
 		Mobile:    NullDotStringToPointerString(u.Mobile),
 		Address:   NullDotStringToPointerString(u.Address),
 		Active:    NullDotBoolToPointerBool(u.Active),
+		Role:      RoleToGraphqlRole(role),
 	}
 }
 
+func RoleToGraphqlRole(r *models.Role) *graphql.Role {
+	if r == nil {
+		return nil
+	}
+	return &graphql.Role{
+		ID:          strconv.Itoa(r.ID),
+		AccessLevel: r.AccessLevel,
+		Name:        r.Name,
+		UpdatedAt:   NullDotTimeToPointerInt(r.UpdatedAt),
+		CreatedAt:   NullDotTimeToPointerInt(r.CreatedAt),
+		DeletedAt:   NullDotTimeToPointerInt(r.DeletedAt),
+	}
+}
 func NullDotTimeToPointerInt(t null.Time) *int {
 	var i int
 	if t.Valid {
