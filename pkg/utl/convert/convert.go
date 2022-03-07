@@ -1,6 +1,7 @@
 package convert
 
 import (
+	"fmt"
 	"strconv"
 
 	graphql "go-template/graphql_models"
@@ -71,6 +72,14 @@ func PointerStringToNullDotInt(s *string) null.Int {
 	return null.IntFrom(i)
 }
 
+func RoleToGraphQlRole(r *models.Role) *graphql.Role {
+	return &graphql.Role{
+		ID:          fmt.Sprint(r.ID),
+		Name:        r.Name,
+		AccessLevel: r.AccessLevel,
+	}
+}
+
 // UsersToGraphQlUsers converts array of type models.User into array of pointer type graphql.User
 func UsersToGraphQlUsers(u models.UserSlice) []*graphql.User {
 	var r []*graphql.User
@@ -91,6 +100,7 @@ func UserToGraphQlUser(u *models.User) *graphql.User {
 		Mobile:    NullDotStringToPointerString(u.Mobile),
 		Address:   NullDotStringToPointerString(u.Address),
 		Active:    NullDotBoolToPointerBool(u.Active),
+		Role:      RoleToGraphQlRole(u.R.Role),
 	}
 }
 

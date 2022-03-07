@@ -31,10 +31,13 @@ func (r *queryResolver) Users(ctx context.Context, pagination *graphql_models.Us
 	var queryMods []qm.QueryMod
 	if pagination != nil {
 		if pagination.Limit != 0 {
-			queryMods = append(queryMods, qm.Limit(pagination.Limit), qm.Offset(pagination.Page*pagination.Limit))
+			queryMods = append(
+				queryMods, qm.Limit(pagination.Limit),
+				qm.Offset(pagination.Page*pagination.Limit),
+			)
 		}
 	}
-
+	queryMods = append(queryMods, qm.Load("Role", queryMods...))
 	users, count, err := daos.FindAllUsersWithCount(queryMods)
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "data")
