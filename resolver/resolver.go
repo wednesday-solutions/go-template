@@ -3,7 +3,7 @@ package resolver
 import (
 	"sync"
 
-	fm "go-template/graphql_models"
+	fm "go-template/gqlmodels"
 )
 
 // This file will not be regenerated automatically.

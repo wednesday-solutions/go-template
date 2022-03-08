@@ -15,7 +15,7 @@ import (
 	"testing"
 	"time"
 
-	graphql "go-template/graphql_models"
+	graphql "go-template/gqlmodels"
 	"go-template/internal/config"
 	"go-template/internal/server"
 	"go-template/resolver"

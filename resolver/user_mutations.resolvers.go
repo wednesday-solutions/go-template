@@ -7,7 +7,7 @@ import (
 	"context"
 	"fmt"
 	"go-template/daos"
-	"go-template/graphql_models"
+	"go-template/gqlmodels"
 	"go-template/internal/config"
 	"go-template/internal/middleware/auth"
 	"go-template/internal/service"
@@ -21,8 +21,8 @@ import (
 	null "github.com/volatiletech/null/v8"
 )
 
-func (r *mutationResolver) CreateUser(ctx context.Context, input graphql_models.UserCreateInput) (
-	*graphql_models.User, error,
+func (r *mutationResolver) CreateUser(ctx context.Context, input gqlmodels.UserCreateInput) (
+	*gqlmodels.User, error,
 ) {
 	err := throttle.Check(ctx, 5, 10*time.Second)
 	if err != nil {
@@ -50,7 +50,7 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input graphql_models.
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "user information")
 	}
-	graphUser := convert.UserToGraphQlUser(&newUser)
+	graphUser := convert.UserToGraphQlUser(&newUser, 1)
 
 	r.Lock()
 	for _, observer := range r.Observers {
@@ -61,8 +61,8 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input graphql_models.
 	return graphUser, err
 }
 
-func (r *mutationResolver) UpdateUser(ctx context.Context, input *graphql_models.UserUpdateInput) (
-	*graphql_models.User, error,
+func (r *mutationResolver) UpdateUser(ctx context.Context, input *gqlmodels.UserUpdateInput) (
+	*gqlmodels.User, error,
 ) {
 	userID := auth.UserIDFromContext(ctx)
 	user, _ := daos.FindUserByID(userID)
@@ -89,7 +89,7 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, input *graphql_models
 		return nil, resultwrapper.ResolverSQLError(err, "new information")
 	}
 
-	graphUser := convert.UserToGraphQlUser(&u)
+	graphUser := convert.UserToGraphQlUser(&u, 1)
 	r.Lock()
 	for _, observer := range r.Observers {
 		observer <- graphUser
@@ -99,7 +99,7 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, input *graphql_models
 	return graphUser, nil
 }
 
-func (r *mutationResolver) DeleteUser(ctx context.Context) (*graphql_models.UserDeletePayload, error) {
+func (r *mutationResolver) DeleteUser(ctx context.Context) (*gqlmodels.UserDeletePayload, error) {
 	userID := auth.UserIDFromContext(ctx)
 	u, err := daos.FindUserByID(userID)
 	if err != nil {
@@ -109,5 +109,5 @@ func (r *mutationResolver) DeleteUser(ctx context.Context) (*graphql_models.User
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "user")
 	}
-	return &graphql_models.UserDeletePayload{ID: fmt.Sprint(userID)}, nil
+	return &gqlmodels.UserDeletePayload{ID: fmt.Sprint(userID)}, nil
 }

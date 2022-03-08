@@ -1,12 +1,15 @@
 package convert
 
 import (
+	"context"
 	"strconv"
 
-	graphql "go-template/graphql_models"
+	gotemplate "go-template"
+	graphql "go-template/gqlmodels"
 	"go-template/models"
 
 	"github.com/volatiletech/null/v8"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 // StringToPointerString returns pointer string value
@@ -72,16 +75,28 @@ func PointerStringToNullDotInt(s *string) null.Int {
 }
 
 // UsersToGraphQlUsers converts array of type models.User into array of pointer type graphql.User
-func UsersToGraphQlUsers(u models.UserSlice) []*graphql.User {
+func UsersToGraphQlUsers(u models.UserSlice, count int) []*graphql.User {
 	var r []*graphql.User
 	for _, e := range u {
-		r = append(r, UserToGraphQlUser(e))
+		r = append(r, UserToGraphQlUser(e, count))
 	}
 	return r
 }
 
 // UserToGraphQlUser converts type models.User into pointer type graphql.User
-func UserToGraphQlUser(u *models.User) *graphql.User {
+func UserToGraphQlUser(u *models.User, count int) *graphql.User {
+	count++
+	if u == nil {
+		return nil
+	}
+	var role *models.Role
+	if count <= gotemplate.MaxDepth {
+		u.L.LoadRole(context.Background(), boil.GetContextDB(), true, u, nil) //nolint:errcheck
+		if u.R != nil {
+			role = u.R.Role
+		}
+	}
+
 	return &graphql.User{
 		ID:        strconv.Itoa(u.ID),
 		FirstName: NullDotStringToPointerString(u.FirstName),
@@ -91,9 +106,33 @@ func UserToGraphQlUser(u *models.User) *graphql.User {
 		Mobile:    NullDotStringToPointerString(u.Mobile),
 		Address:   NullDotStringToPointerString(u.Address),
 		Active:    NullDotBoolToPointerBool(u.Active),
+		Role:      RoleToGraphqlRole(role, count),
 	}
 }
 
+func RoleToGraphqlRole(r *models.Role, count int) *graphql.Role {
+	count++
+	if r == nil {
+		return nil
+	}
+	var users models.UserSlice
+	if count <= gotemplate.MaxDepth {
+		r.L.LoadUsers(context.Background(), boil.GetContextDB(), true, r, nil) //nolint:errcheck
+		if r.R != nil {
+			users = r.R.Users
+		}
+	}
+
+	return &graphql.Role{
+		ID:          strconv.Itoa(r.ID),
+		AccessLevel: r.AccessLevel,
+		Name:        r.Name,
+		UpdatedAt:   NullDotTimeToPointerInt(r.UpdatedAt),
+		CreatedAt:   NullDotTimeToPointerInt(r.CreatedAt),
+		DeletedAt:   NullDotTimeToPointerInt(r.DeletedAt),
+		Users:       UsersToGraphQlUsers(users, count),
+	}
+}
 func NullDotTimeToPointerInt(t null.Time) *int {
 	var i int
 	if t.Valid {

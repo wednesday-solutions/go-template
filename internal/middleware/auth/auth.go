@@ -9,7 +9,7 @@ import (
 	resultwrapper "go-template/pkg/utl/result_wrapper"
 
 	graphql2 "github.com/99designs/gqlgen/graphql"
-	"github.com/dgrijalva/jwt-go"
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 )
 

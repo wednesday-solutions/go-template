@@ -7,7 +7,7 @@ import (
 	"context"
 	"fmt"
 	"go-template/daos"
-	"go-template/graphql_models"
+	"go-template/gqlmodels"
 	"go-template/internal/config"
 	"go-template/internal/middleware/auth"
 	"go-template/internal/service"
@@ -18,7 +18,7 @@ import (
 )
 
 func (r *mutationResolver) Login(ctx context.Context, username string, password string) (
-	*graphql_models.LoginResponse, error) {
+	*gqlmodels.LoginResponse, error) {
 	u, err := daos.FindUserByUserName(username)
 	if err != nil {
 		return nil, err
@@ -55,11 +55,11 @@ func (r *mutationResolver) Login(ctx context.Context, username string, password 
 		return nil, err
 	}
 
-	return &graphql_models.LoginResponse{Token: token, RefreshToken: refreshToken}, nil
+	return &gqlmodels.LoginResponse{Token: token, RefreshToken: refreshToken}, nil
 }
 
 func (r *mutationResolver) ChangePassword(ctx context.Context, oldPassword string, newPassword string) (
-	*graphql_models.ChangePasswordResponse, error,
+	*gqlmodels.ChangePasswordResponse, error,
 ) {
 	userID := auth.UserIDFromContext(ctx)
 	u, err := daos.FindUserByID(userID)
@@ -91,11 +91,11 @@ func (r *mutationResolver) ChangePassword(ctx context.Context, oldPassword strin
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "new information")
 	}
-	return &graphql_models.ChangePasswordResponse{Ok: true}, err
+	return &gqlmodels.ChangePasswordResponse{Ok: true}, err
 }
 
 func (r *mutationResolver) RefreshToken(ctx context.Context, token string) (
-	*graphql_models.RefreshTokenResponse, error,
+	*gqlmodels.RefreshTokenResponse, error,
 ) {
 	user, err := daos.FindUserByToken(token)
 	if err != nil {
@@ -115,10 +115,10 @@ func (r *mutationResolver) RefreshToken(ctx context.Context, token string) (
 	if err != nil {
 		return nil, err
 	}
-	return &graphql_models.RefreshTokenResponse{Token: resp}, nil
+	return &gqlmodels.RefreshTokenResponse{Token: resp}, nil
 }
 
-// Mutation returns graphql_models.MutationResolver implementation.
-func (r *Resolver) Mutation() graphql_models.MutationResolver { return &mutationResolver{r} }
+// Mutation returns gqlmodels.MutationResolver implementation.
+func (r *Resolver) Mutation() gqlmodels.MutationResolver { return &mutationResolver{r} }
 
 type mutationResolver struct{ *Resolver }

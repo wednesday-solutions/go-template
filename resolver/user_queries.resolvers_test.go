@@ -2,67 +2,68 @@ package resolver_test
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"regexp"
 	"testing"
 
-	fm "go-template/graphql_models"
+	fm "go-template/gqlmodels"
 	"go-template/models"
+	"go-template/pkg/utl/convert"
 	"go-template/resolver"
 	"go-template/testutls"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	. "github.com/agiledragon/gomonkey/v2"
 	"github.com/gomodule/redigo/redis"
 	"github.com/joho/godotenv"
+	"github.com/volatiletech/sqlboiler/v4/boil"
+
 	"github.com/rafaeljusto/redigomock"
 	"github.com/stretchr/testify/assert"
-	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 func TestMe(t *testing.T) {
+	type args struct {
+		user *models.User
+	}
 	cases := []struct {
 		name     string
 		wantResp *fm.User
 		wantErr  bool
+		args     args
 	}{
 		{
 			name:     "Success",
-			wantResp: &fm.User{},
+			args:     args{user: testutls.MockUser()},
+			wantResp: convert.UserToGraphQlUser(testutls.MockUser(), 4),
 		},
 	}
 
+	_, db, err := testutls.SetupEnvAndDB(t, testutls.Parameters{EnvFileLocation: `../.env.local`})
+	if err != nil {
+		panic("failed to setup env and db")
+	}
+	oldDb := boil.GetDB()
+	boil.SetDB(db)
+	defer func() {
+		db.Close()
+		boil.SetDB(oldDb)
+	}()
+	conn := redigomock.NewConn()
+	ApplyFunc(redis.Dial, func(network string, address string, options ...redis.DialOption) (redis.Conn, error) {
+		return conn, nil
+	})
 	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			err := godotenv.Load("../.env.local")
-			if err != nil {
-				fmt.Print("error loading .env file")
-			}
-			conn := redigomock.NewConn()
-			_ = &redis.Pool{
-				// Return the same connection mock for each Get() call.
-				Dial:    func() (redis.Conn, error) { return conn, nil },
-				MaxIdle: 10,
-			}
-			db, mock, err := sqlmock.New()
-			if err != nil {
-				t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-			}
-			// Inject mock instance into boil.
-			oldDB := boil.GetDB()
-			defer func() {
-				db.Close()
-				boil.SetDB(oldDB)
-			}()
-			boil.SetDB(db)
 
-			// get user by id
-			mock.ExpectQuery(regexp.QuoteMeta("select * from \"users\" where \"id\"=$1")).
-				WithArgs()
-
+			b, _ := json.Marshal(tt.args.user)
+			conn.Command("GET", "user0").Expect(b)
 			c := context.Background()
 			ctx := context.WithValue(c, testutls.UserKey, testutls.MockUser())
 			response, _ := resolver1.Query().Me(ctx)
+			fmt.Println("\n\nresponse:::::", response)
 			assert.Equal(t, tt.wantResp, response)
 		})
 	}

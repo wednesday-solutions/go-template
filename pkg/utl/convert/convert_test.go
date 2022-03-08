@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	graphql "go-template/graphql_models"
+	graphql "go-template/gqlmodels"
 	"go-template/models"
 
 	"github.com/volatiletech/null/v8"
@@ -286,7 +286,7 @@ func TestUsersToGraphQlUsers(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := UsersToGraphQlUsers(tt.args.u); !reflect.DeepEqual(got, tt.want) {
+			if got := UsersToGraphQlUsers(tt.args.u, 1); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("UsersToGraphQlUsers() = %v, want %v", got, tt.want)
 			}
 		})
