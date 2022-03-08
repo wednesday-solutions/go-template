@@ -5,7 +5,6 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 	"go-template/daos"
 	"go-template/graphql_models"
 	"go-template/internal/middleware/auth"
@@ -22,7 +21,8 @@ func (r *queryResolver) Me(ctx context.Context) (*graphql_models.User, error) {
 	if err != nil {
 		return &graphql_models.User{}, resultwrapper.ResolverSQLError(err, "data")
 	}
-	return convert.UserToGraphQlUser(user), err
+
+	return convert.UserToGraphQlUser(user, 1), err
 }
 
 func (r *queryResolver) Users(ctx context.Context, pagination *graphql_models.UserPagination) (
@@ -39,8 +39,7 @@ func (r *queryResolver) Users(ctx context.Context, pagination *graphql_models.Us
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "data")
 	}
-	fmt.Print(users)
-	return &graphql_models.UsersPayload{Total: int(count), Users: convert.UsersToGraphQlUsers(users)}, nil
+	return &graphql_models.UsersPayload{Total: int(count), Users: convert.UsersToGraphQlUsers(users, 1)}, nil
 }
 
 // Query returns graphql_models.QueryResolver implementation.

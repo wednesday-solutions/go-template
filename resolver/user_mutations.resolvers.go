@@ -50,7 +50,7 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input graphql_models.
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "user information")
 	}
-	graphUser := convert.UserToGraphQlUser(&newUser)
+	graphUser := convert.UserToGraphQlUser(&newUser, 1)
 
 	r.Lock()
 	for _, observer := range r.Observers {
@@ -89,7 +89,7 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, input *graphql_models
 		return nil, resultwrapper.ResolverSQLError(err, "new information")
 	}
 
-	graphUser := convert.UserToGraphQlUser(&u)
+	graphUser := convert.UserToGraphQlUser(&u, 1)
 	r.Lock()
 	for _, observer := range r.Observers {
 		observer <- graphUser
