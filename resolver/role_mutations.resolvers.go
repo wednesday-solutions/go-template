@@ -17,8 +17,7 @@ import (
 )
 
 func (r *mutationResolver) CreateRole(ctx context.Context, input gqlmodels.RoleCreateInput) (
-	*gqlmodels.RolePayload, error,
-) {
+	*gqlmodels.RolePayload, error) {
 	userID := auth.UserIDFromContext(ctx)
 	user, err := rediscache.GetUser(userID)
 	if err != nil {

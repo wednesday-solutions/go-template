@@ -27,8 +27,6 @@ func (r *subscriptionResolver) UserNotification(ctx context.Context) (<-chan *gq
 }
 
 // Subscription returns gqlmodels.SubscriptionResolver implementation.
-func (r *Resolver) Subscription() gqlmodels.SubscriptionResolver {
-	return &subscriptionResolver{r}
-}
+func (r *Resolver) Subscription() gqlmodels.SubscriptionResolver { return &subscriptionResolver{r} }
 
 type subscriptionResolver struct{ *Resolver }

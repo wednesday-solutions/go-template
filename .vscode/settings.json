@@ -1,9 +1,9 @@
 {
     "go.lintTool":"golangci-lint",
-"go.lintFlags": [
-    "--config=${workspaceFolder}/.golangci.yml",
+    "go.lintFlags": [
+        "--config=${workspaceFolder}/.golangci.yml",
         "--fast"
-],
+    ],
 
     "go.coverOnSave": true,
     "go.coverageDecorator": {

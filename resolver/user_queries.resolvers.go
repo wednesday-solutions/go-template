@@ -26,8 +26,7 @@ func (r *queryResolver) Me(ctx context.Context) (*gqlmodels.User, error) {
 }
 
 func (r *queryResolver) Users(ctx context.Context, pagination *gqlmodels.UserPagination) (
-	*gqlmodels.UsersPayload, error,
-) {
+	*gqlmodels.UsersPayload, error) {
 	var queryMods []qm.QueryMod
 	if pagination != nil {
 		if pagination.Limit != 0 {

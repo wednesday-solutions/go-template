@@ -59,8 +59,7 @@ func (r *mutationResolver) Login(ctx context.Context, username string, password 
 }
 
 func (r *mutationResolver) ChangePassword(ctx context.Context, oldPassword string, newPassword string) (
-	*gqlmodels.ChangePasswordResponse, error,
-) {
+	*gqlmodels.ChangePasswordResponse, error) {
 	userID := auth.UserIDFromContext(ctx)
 	u, err := daos.FindUserByID(userID)
 	if err != nil {
@@ -94,9 +93,7 @@ func (r *mutationResolver) ChangePassword(ctx context.Context, oldPassword strin
 	return &gqlmodels.ChangePasswordResponse{Ok: true}, err
 }
 
-func (r *mutationResolver) RefreshToken(ctx context.Context, token string) (
-	*gqlmodels.RefreshTokenResponse, error,
-) {
+func (r *mutationResolver) RefreshToken(ctx context.Context, token string) (*gqlmodels.RefreshTokenResponse, error) {
 	user, err := daos.FindUserByToken(token)
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "token")

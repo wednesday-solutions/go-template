@@ -107,7 +107,6 @@ func TestStart(t *testing.T) {
 				ApplyMethod(reflect.TypeOf(graphqlHandler), "AddTransport", func(s *handler.Server, t graphql2.Transport) {
 
 					transportGET := transport.GET{}
-					transportOptions := transport.Options{}
 					transportMultipartForm := transport.MultipartForm{}
 					transportPOST := transport.POST{}
 					transportWebsocket := transport.Websocket{
@@ -124,9 +123,6 @@ func TestStart(t *testing.T) {
 
 					if t == transportGET {
 						tt.getTransportCalled = true
-					}
-					if t == transportOptions {
-						tt.optionsTransportCalled = true
 					}
 					if t == transportMultipartForm {
 						tt.multipartFormTransportCalled = true
@@ -146,7 +142,6 @@ func TestStart(t *testing.T) {
 				}
 
 				assert.Equal(t, tt.getTransportCalled, true)
-				assert.Equal(t, tt.optionsTransportCalled, true)
 				assert.Equal(t, tt.multipartFormTransportCalled, true)
 				assert.Equal(t, tt.postTransportCalled, true)
 				assert.Equal(t, tt.websocketTransportCalled, true)
@@ -186,7 +181,7 @@ func TestStart(t *testing.T) {
 				bodyBytes, _ := io.ReadAll(res.Body)
 
 				// check if the playground is returned
-				assert.Contains(t, string(bodyBytes), "GraphQLPlayground.init")
+				assert.Contains(t, string(bodyBytes), "GraphiQL.createFetcher")
 				ts := httptest.NewServer(e)
 				u := "ws" + strings.TrimPrefix(ts.URL+"/graphql", "http")
 

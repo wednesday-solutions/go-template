@@ -13,7 +13,7 @@ import (
 	"go-template/internal/service"
 	"go-template/models"
 	"go-template/pkg/utl/convert"
-	throttle "go-template/pkg/utl/rate_throttle"
+	"go-template/pkg/utl/rate_throttle"
 	resultwrapper "go-template/pkg/utl/result_wrapper"
 	"strconv"
 	"time"
@@ -21,9 +21,7 @@ import (
 	null "github.com/volatiletech/null/v8"
 )
 
-func (r *mutationResolver) CreateUser(ctx context.Context, input gqlmodels.UserCreateInput) (
-	*gqlmodels.User, error,
-) {
+func (r *mutationResolver) CreateUser(ctx context.Context, input gqlmodels.UserCreateInput) (*gqlmodels.User, error) {
 	err := throttle.Check(ctx, 5, 10*time.Second)
 	if err != nil {
 		return nil, err
@@ -61,9 +59,7 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input gqlmodels.UserC
 	return graphUser, err
 }
 
-func (r *mutationResolver) UpdateUser(ctx context.Context, input *gqlmodels.UserUpdateInput) (
-	*gqlmodels.User, error,
-) {
+func (r *mutationResolver) UpdateUser(ctx context.Context, input *gqlmodels.UserUpdateInput) (*gqlmodels.User, error) {
 	userID := auth.UserIDFromContext(ctx)
 	user, _ := daos.FindUserByID(userID)
 	var u models.User
