@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql/driver"
 	"fmt"
-	fm "go-template/graphql_models"
+	fm "go-template/gqlmodels"
 	"go-template/pkg/utl/convert"
 	"go-template/resolver"
 	"go-template/testutls"

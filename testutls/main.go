@@ -11,7 +11,7 @@ import (
 	"go-template/models"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/dgrijalva/jwt-go"
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/joho/godotenv"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"

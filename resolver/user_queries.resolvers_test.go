@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"testing"
 
-	fm "go-template/graphql_models"
+	fm "go-template/gqlmodels"
 	"go-template/models"
 	"go-template/pkg/utl/convert"
 	"go-template/resolver"

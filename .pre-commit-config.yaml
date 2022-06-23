@@ -1,8 +1,8 @@
-exclude: '^gqlgen'
+exclude: '^(gqlgen)'
 fail_fast: true
 repos:
 -   repo: https://github.com/tekwizely/pre-commit-golang
-    rev: master
+    rev: v1.0.0-beta.5
     hooks:
     -   id: golangci-lint-mod
     -   id: go-build-repo-mod

@@ -7,13 +7,13 @@ import (
 	"context"
 	"fmt"
 	"go-template/daos"
-	"go-template/graphql_models"
+	"go-template/gqlmodels"
 	"go-template/internal/config"
 	"go-template/internal/middleware/auth"
 	"go-template/internal/service"
 	"go-template/models"
 	"go-template/pkg/utl/convert"
-	throttle "go-template/pkg/utl/rate_throttle"
+	"go-template/pkg/utl/rate_throttle"
 	resultwrapper "go-template/pkg/utl/result_wrapper"
 	"strconv"
 	"time"
@@ -21,9 +21,7 @@ import (
 	null "github.com/volatiletech/null/v8"
 )
 
-func (r *mutationResolver) CreateUser(ctx context.Context, input graphql_models.UserCreateInput) (
-	*graphql_models.User, error,
-) {
+func (r *mutationResolver) CreateUser(ctx context.Context, input gqlmodels.UserCreateInput) (*gqlmodels.User, error) {
 	err := throttle.Check(ctx, 5, 10*time.Second)
 	if err != nil {
 		return nil, err
@@ -61,9 +59,7 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input graphql_models.
 	return graphUser, err
 }
 
-func (r *mutationResolver) UpdateUser(ctx context.Context, input *graphql_models.UserUpdateInput) (
-	*graphql_models.User, error,
-) {
+func (r *mutationResolver) UpdateUser(ctx context.Context, input *gqlmodels.UserUpdateInput) (*gqlmodels.User, error) {
 	userID := auth.UserIDFromContext(ctx)
 	user, _ := daos.FindUserByID(userID)
 	var u models.User
@@ -99,7 +95,7 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, input *graphql_models
 	return graphUser, nil
 }
 
-func (r *mutationResolver) DeleteUser(ctx context.Context) (*graphql_models.UserDeletePayload, error) {
+func (r *mutationResolver) DeleteUser(ctx context.Context) (*gqlmodels.UserDeletePayload, error) {
 	userID := auth.UserIDFromContext(ctx)
 	u, err := daos.FindUserByID(userID)
 	if err != nil {
@@ -109,5 +105,5 @@ func (r *mutationResolver) DeleteUser(ctx context.Context) (*graphql_models.User
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "user")
 	}
-	return &graphql_models.UserDeletePayload{ID: fmt.Sprint(userID)}, nil
+	return &gqlmodels.UserDeletePayload{ID: fmt.Sprint(userID)}, nil
 }

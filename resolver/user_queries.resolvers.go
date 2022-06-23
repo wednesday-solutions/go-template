@@ -6,7 +6,7 @@ package resolver
 import (
 	"context"
 	"go-template/daos"
-	"go-template/graphql_models"
+	"go-template/gqlmodels"
 	"go-template/internal/middleware/auth"
 	"go-template/pkg/utl/convert"
 	rediscache "go-template/pkg/utl/redis_cache"
@@ -15,19 +15,18 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-func (r *queryResolver) Me(ctx context.Context) (*graphql_models.User, error) {
+func (r *queryResolver) Me(ctx context.Context) (*gqlmodels.User, error) {
 	userID := auth.UserIDFromContext(ctx)
 	user, err := rediscache.GetUser(userID)
 	if err != nil {
-		return &graphql_models.User{}, resultwrapper.ResolverSQLError(err, "data")
+		return &gqlmodels.User{}, resultwrapper.ResolverSQLError(err, "data")
 	}
 
 	return convert.UserToGraphQlUser(user, 1), err
 }
 
-func (r *queryResolver) Users(ctx context.Context, pagination *graphql_models.UserPagination) (
-	*graphql_models.UsersPayload, error,
-) {
+func (r *queryResolver) Users(ctx context.Context, pagination *gqlmodels.UserPagination) (
+	*gqlmodels.UsersPayload, error) {
 	var queryMods []qm.QueryMod
 	if pagination != nil {
 		if pagination.Limit != 0 {
@@ -39,10 +38,10 @@ func (r *queryResolver) Users(ctx context.Context, pagination *graphql_models.Us
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "data")
 	}
-	return &graphql_models.UsersPayload{Total: int(count), Users: convert.UsersToGraphQlUsers(users, 1)}, nil
+	return &gqlmodels.UsersPayload{Total: int(count), Users: convert.UsersToGraphQlUsers(users, 1)}, nil
 }
 
-// Query returns graphql_models.QueryResolver implementation.
-func (r *Resolver) Query() graphql_models.QueryResolver { return &queryResolver{r} }
+// Query returns gqlmodels.QueryResolver implementation.
+func (r *Resolver) Query() gqlmodels.QueryResolver { return &queryResolver{r} }
 
 type queryResolver struct{ *Resolver }

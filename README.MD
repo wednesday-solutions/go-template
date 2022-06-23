@@ -137,7 +137,7 @@ go-template/
 │  │  └──v2/2_users.go              # seed file to load users into DB
 │  └──server/main.go                # this is the starting point of the go server
 └──daos/                            # this directory will hold info about the DB transactions
-└──graphql_models/                  # this directory contain modules for gqlgen and is mostly auto-generated
+└──gqlmodels/                       # this directory contain modules for gqlgen and is mostly auto-generated
 └──internal/
 │  └──config/                       # this package loads env variables into a config object
 │  └──jwt/                          # this package has JWT related middlewares and convertors

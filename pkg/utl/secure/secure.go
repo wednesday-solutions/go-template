@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/nbutton23/zxcvbn-go"
+	zxcvbn "github.com/nbutton23/zxcvbn-go"
 	"golang.org/x/crypto/bcrypt"
 )
 

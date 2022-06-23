@@ -13,7 +13,7 @@ import (
 	"regexp"
 	"testing"
 
-	graphql "go-template/graphql_models"
+	graphql "go-template/gqlmodels"
 	"go-template/internal/middleware/auth"
 	"go-template/models"
 	"go-template/resolver"
@@ -23,7 +23,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/dgrijalva/jwt-go"
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
 	"github.com/volatiletech/sqlboiler/v4/boil"
