@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	graphql "go-template/graphql_models"
+	graphql "go-template/gqlmodels"
 	"go-template/internal/config"
 	"go-template/internal/jwt"
 	authMw "go-template/internal/middleware/auth"

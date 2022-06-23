@@ -9,7 +9,7 @@ import (
 	"go-template/models"
 	resultwrapper "go-template/pkg/utl/result_wrapper"
 
-	"github.com/dgrijalva/jwt-go"
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 

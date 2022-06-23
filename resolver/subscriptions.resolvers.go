@@ -6,13 +6,13 @@ package resolver
 import (
 	"context"
 	"fmt"
-	"go-template/graphql_models"
+	"go-template/gqlmodels"
 	"go-template/pkg/utl"
 )
 
-func (r *subscriptionResolver) UserNotification(ctx context.Context) (<-chan *graphql_models.User, error) {
+func (r *subscriptionResolver) UserNotification(ctx context.Context) (<-chan *gqlmodels.User, error) {
 	id := utl.RandomSequence(5)
-	event := make(chan *graphql_models.User, 1)
+	event := make(chan *gqlmodels.User, 1)
 	go func() {
 		<-ctx.Done()
 		r.Lock()
@@ -26,9 +26,7 @@ func (r *subscriptionResolver) UserNotification(ctx context.Context) (<-chan *gr
 	return event, nil
 }
 
-// Subscription returns graphql_models.SubscriptionResolver implementation.
-func (r *Resolver) Subscription() graphql_models.SubscriptionResolver {
-	return &subscriptionResolver{r}
-}
+// Subscription returns gqlmodels.SubscriptionResolver implementation.
+func (r *Resolver) Subscription() gqlmodels.SubscriptionResolver { return &subscriptionResolver{r} }
 
 type subscriptionResolver struct{ *Resolver }

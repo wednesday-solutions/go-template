@@ -8,7 +8,7 @@ import (
 	"fmt"
 	gotemplate "go-template"
 	"go-template/daos"
-	"go-template/graphql_models"
+	"go-template/gqlmodels"
 	"go-template/internal/middleware/auth"
 	"go-template/models"
 	"go-template/pkg/utl/convert"
@@ -16,31 +16,30 @@ import (
 	resultwrapper "go-template/pkg/utl/result_wrapper"
 )
 
-func (r *mutationResolver) CreateRole(ctx context.Context, input graphql_models.RoleCreateInput) (
-	*graphql_models.RolePayload, error,
-) {
+func (r *mutationResolver) CreateRole(ctx context.Context, input gqlmodels.RoleCreateInput) (
+	*gqlmodels.RolePayload, error) {
 	userID := auth.UserIDFromContext(ctx)
 	user, err := rediscache.GetUser(userID)
 	if err != nil {
-		return &graphql_models.RolePayload{}, resultwrapper.ResolverSQLError(err, "data")
+		return &gqlmodels.RolePayload{}, resultwrapper.ResolverSQLError(err, "data")
 	}
 	userRole, err := rediscache.GetRole(convert.NullDotIntToInt(user.RoleID))
 	if err != nil {
-		return &graphql_models.RolePayload{}, resultwrapper.ResolverSQLError(err, "data")
+		return &gqlmodels.RolePayload{}, resultwrapper.ResolverSQLError(err, "data")
 	}
 	role := models.Role{
 		AccessLevel: input.AccessLevel,
 		Name:        input.Name,
 	}
 	if userRole.AccessLevel != int(gotemplate.SuperAdminRole) {
-		return &graphql_models.RolePayload{}, fmt.Errorf("You don't appear to have enough access level for this request ")
+		return &gqlmodels.RolePayload{}, fmt.Errorf("You don't appear to have enough access level for this request ")
 	}
 
 	newRole, err := daos.CreateRoleTx(role, nil)
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "role")
 	}
-	return &graphql_models.RolePayload{Role: &graphql_models.Role{
+	return &gqlmodels.RolePayload{Role: &gqlmodels.Role{
 		AccessLevel: newRole.AccessLevel,
 		Name:        newRole.Name,
 	},

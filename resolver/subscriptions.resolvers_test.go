@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	fm "go-template/graphql_models"
+	fm "go-template/gqlmodels"
 	"go-template/resolver"
 	"go-template/testutls"
 

@@ -2,7 +2,7 @@ FROM golang
 
 RUN mkdir -p /go/src/github.com/wednesday-solutions/go-template
 
-RUN go get -v github.com/rubenv/sql-migrate/... \
+RUN go install github.com/rubenv/sql-migrate/... \
   github.com/volatiletech/sqlboiler \
   github.com/99designs/gqlgen
 
