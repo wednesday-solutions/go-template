@@ -1,4 +1,4 @@
-postgres:
-  dialect: postgres
-  datasource: host=${DB_HOST} dbname=${DB_NAME} user=${DB_USER} password=${DB_PASS} sslmode=${DB_SSL}
+mysql_env:
+  dialect: mysql
+  datasource: root:password@tcp(localhost:3306)/test_db?parseTime=true
   dir: internal/migrations

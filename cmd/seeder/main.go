@@ -5,12 +5,12 @@ import (
 	"log"
 	"strings"
 
-	"go-template/internal/postgres"
+	"go-template/internal/mysql"
 )
 
 // SeedData ...
 func SeedData(tableName string, rawQuery string) error {
-	db, _ := postgres.Connect()
+	db, _ := ms.Connect()
 
 	fmt.Printf("\n-------------------------------\n***Seeding %s\n", tableName)
 

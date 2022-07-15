@@ -2,6 +2,7 @@
 package api
 
 import (
+	"fmt"
 	"context"
 	"net/http"
 	"os"
@@ -30,6 +31,8 @@ import (
 
 // Start starts the API service
 func Start(cfg *config.Configuration) (*echo.Echo, error) {
+	fmt.Printf("connection started")
+
 	db, err := postgres.Connect()
 	if err != nil {
 		return nil, err

@@ -6,18 +6,15 @@ import (
 	"os"
 
 	// DB adapter
-	_ "github.com/lib/pq"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 // Connect ...
 func Connect() (*sql.DB, error) {
-	psqlInfo := fmt.Sprintf("dbname=%s host=%s user=%s password=%s port=%s sslmode=%s",
-		os.Getenv("DB_NAME"),
-		os.Getenv("DB_HOST"),
+	mysql := fmt.Sprintf("user=%spassword@/dbname=%s",
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_PASS"),
-		os.Getenv("DB_PORT"),
-		os.Getenv("DB_SSL"))
-	fmt.Println("Connecting to DB\n", psqlInfo)
-	return sql.Open("postgres", psqlInfo)
+		os.Getenv("DB_NAME"))
+	fmt.Println("Connecting to DB\n", mysql)
+	return sql.Open("mysql", mysql)
 }

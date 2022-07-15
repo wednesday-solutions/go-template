@@ -1,25 +1,25 @@
 -- +migrate Up
-CREATE TABLE public.users (
+CREATE TABLE users (
 				id SERIAL UNIQUE PRIMARY KEY,
 				first_name TEXT,
 				last_name TEXT,
-				username TEXT UNIQUE,
+				username VARCHAR(100) UNIQUE,
 				password TEXT,
-				email TEXT UNIQUE,
+				email VARCHAR(100) UNIQUE,
 				mobile TEXT,
 				address TEXT,
 				active BOOLEAN,
-				last_login TIMESTAMP WITH TIME ZONE,
-				last_password_change TIMESTAMP WITH TIME ZONE,
+				last_login TIMESTAMP ,
+				last_password_change TIMESTAMP,
 				token TEXT,
 				role_id int REFERENCES roles(id),
-				created_at TIMESTAMP WITH TIME ZONE,
-				updated_at TIMESTAMP WITH TIME ZONE,
-				deleted_at TIMESTAMP WITH TIME ZONE
+				created_at TIMESTAMP,
+				updated_at TIMESTAMP,
+				deleted_at TIMESTAMP
 			);
-CREATE INDEX users_username_idx ON users(username);
-CREATE INDEX users_email_idx ON users(email);
-CREATE INDEX users_role_id_idx ON users(role_id);
+CREATE INDEX username_idx ON users(username);
+CREATE INDEX email_idx ON users(email);
+CREATE INDEX role_id_idx ON users(role_id);
 
 -- +migrate Down
 DROP TABLE users;

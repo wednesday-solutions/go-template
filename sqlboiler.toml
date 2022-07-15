@@ -1,8 +1,7 @@
-[psql]
-  dbname = "go_template"
+[mysql]
+  dbname = "test_db"
   host   = "localhost"
-  port   = 5432
-  user   = "go_template_role"
-  pass   = "go_template_role456"
-  sslmode = "disable"
-  blacklist = ["gopg_migrations"]
+  port   = 3306
+  user   = "root"
+  pass   = "password"
+  sslmode = "false"
