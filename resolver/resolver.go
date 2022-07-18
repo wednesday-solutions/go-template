@@ -6,9 +6,17 @@ import (
 	fm "go-template/gqlmodels"
 )
 
-// This file will not be regenerated automatically.
+// This file will
+// not be
+// regenerated
+// automatically.
 //
-// It serves as dependency injection for your app, add any dependencies you require here.
+// It serves as
+// dependency
+// injection for
+// your app, add any
+// dependencies you
+// require here.
 
 // Resolver ...
 type Resolver struct {
