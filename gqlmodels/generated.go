@@ -5338,7 +5338,12 @@ func (ec *executionContext) unmarshalInputBooleanFilter(ctx context.Context, obj
 		asMap[k] = v
 	}
 
-	for k, v := range asMap {
+	fieldsInOrder := [...]string{"isTrue", "isFalse", "isNull"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
 		switch k {
 		case "isTrue":
 			var err error
@@ -5377,7 +5382,12 @@ func (ec *executionContext) unmarshalInputFloatFilter(ctx context.Context, obj i
 		asMap[k] = v
 	}
 
-	for k, v := range asMap {
+	fieldsInOrder := [...]string{"equalTo", "notEqualTo", "lessThan", "lessThanOrEqualTo", "moreThan", "moreThanOrEqualTo", "in", "notIn"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
 		switch k {
 		case "equalTo":
 			var err error
@@ -5456,7 +5466,12 @@ func (ec *executionContext) unmarshalInputIDFilter(ctx context.Context, obj inte
 		asMap[k] = v
 	}
 
-	for k, v := range asMap {
+	fieldsInOrder := [...]string{"equalTo", "notEqualTo", "in", "notIn"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
 		switch k {
 		case "equalTo":
 			var err error
@@ -5503,7 +5518,12 @@ func (ec *executionContext) unmarshalInputIntFilter(ctx context.Context, obj int
 		asMap[k] = v
 	}
 
-	for k, v := range asMap {
+	fieldsInOrder := [...]string{"equalTo", "notEqualTo", "lessThan", "lessThanOrEqualTo", "moreThan", "moreThanOrEqualTo", "in", "notIn"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
 		switch k {
 		case "equalTo":
 			var err error
@@ -5582,7 +5602,12 @@ func (ec *executionContext) unmarshalInputRoleCreateInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	for k, v := range asMap {
+	fieldsInOrder := [...]string{"accessLevel", "name"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
 		switch k {
 		case "accessLevel":
 			var err error
@@ -5613,7 +5638,12 @@ func (ec *executionContext) unmarshalInputRoleFilter(ctx context.Context, obj in
 		asMap[k] = v
 	}
 
-	for k, v := range asMap {
+	fieldsInOrder := [...]string{"search", "where"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
 		switch k {
 		case "search":
 			var err error
@@ -5644,7 +5674,12 @@ func (ec *executionContext) unmarshalInputRolePagination(ctx context.Context, ob
 		asMap[k] = v
 	}
 
-	for k, v := range asMap {
+	fieldsInOrder := [...]string{"limit", "page"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
 		switch k {
 		case "limit":
 			var err error
@@ -5675,7 +5710,12 @@ func (ec *executionContext) unmarshalInputRoleUpdateInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	for k, v := range asMap {
+	fieldsInOrder := [...]string{"accessLevel", "name", "updatedAt", "deletedAt", "createdAt"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
 		switch k {
 		case "accessLevel":
 			var err error
@@ -5730,7 +5770,12 @@ func (ec *executionContext) unmarshalInputRoleWhere(ctx context.Context, obj int
 		asMap[k] = v
 	}
 
-	for k, v := range asMap {
+	fieldsInOrder := [...]string{"id", "accessLevel", "name", "updatedAt", "deletedAt", "createdAt", "users", "or", "and"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
 		switch k {
 		case "id":
 			var err error
@@ -5817,7 +5862,12 @@ func (ec *executionContext) unmarshalInputRolesCreateInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	for k, v := range asMap {
+	fieldsInOrder := [...]string{"roles"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
 		switch k {
 		case "roles":
 			var err error
@@ -5840,7 +5890,12 @@ func (ec *executionContext) unmarshalInputStringFilter(ctx context.Context, obj 
 		asMap[k] = v
 	}
 
-	for k, v := range asMap {
+	fieldsInOrder := [...]string{"equalTo", "notEqualTo", "in", "notIn", "startWith", "notStartWith", "endWith", "notEndWith", "contain", "notContain", "startWithStrict", "notStartWithStrict", "endWithStrict", "notEndWithStrict", "containStrict", "notContainStrict"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
 		switch k {
 		case "equalTo":
 			var err error
@@ -5983,7 +6038,12 @@ func (ec *executionContext) unmarshalInputUserCreateInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	for k, v := range asMap {
+	fieldsInOrder := [...]string{"firstName", "lastName", "username", "password", "email", "roleId", "mobile", "address", "active"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
 		switch k {
 		case "firstName":
 			var err error
@@ -6070,7 +6130,12 @@ func (ec *executionContext) unmarshalInputUserFilter(ctx context.Context, obj in
 		asMap[k] = v
 	}
 
-	for k, v := range asMap {
+	fieldsInOrder := [...]string{"search", "where"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
 		switch k {
 		case "search":
 			var err error
@@ -6101,7 +6166,12 @@ func (ec *executionContext) unmarshalInputUserPagination(ctx context.Context, ob
 		asMap[k] = v
 	}
 
-	for k, v := range asMap {
+	fieldsInOrder := [...]string{"limit", "page"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
 		switch k {
 		case "limit":
 			var err error
@@ -6132,7 +6202,12 @@ func (ec *executionContext) unmarshalInputUserUpdateInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	for k, v := range asMap {
+	fieldsInOrder := [...]string{"id", "firstName", "lastName", "mobile", "address"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
 		switch k {
 		case "id":
 			var err error
@@ -6187,7 +6262,12 @@ func (ec *executionContext) unmarshalInputUserWhere(ctx context.Context, obj int
 		asMap[k] = v
 	}
 
-	for k, v := range asMap {
+	fieldsInOrder := [...]string{"id", "firstName", "lastName", "username", "password", "email", "mobile", "address", "active", "lastLogin", "lastPasswordChange", "token", "role", "createdAt", "deletedAt", "updatedAt", "or", "and"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
 		switch k {
 		case "id":
 			var err error
@@ -6346,7 +6426,12 @@ func (ec *executionContext) unmarshalInputUsersCreateInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	for k, v := range asMap {
+	fieldsInOrder := [...]string{"users"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
 		switch k {
 		case "users":
 			var err error

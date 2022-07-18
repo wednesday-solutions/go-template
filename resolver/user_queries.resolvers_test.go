@@ -23,7 +23,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestMe(t *testing.T) {
+func TestMe(
+	t *testing.T,
+) {
 	type args struct {
 		user *models.User
 	}
@@ -34,42 +36,79 @@ func TestMe(t *testing.T) {
 		args     args
 	}{
 		{
-			name:     "Success",
-			args:     args{user: testutls.MockUser()},
-			wantResp: convert.UserToGraphQlUser(testutls.MockUser(), 4),
+			name: "Success",
+			args: args{
+				user: testutls.MockUser(),
+			},
+			wantResp: convert.UserToGraphQlUser(
+				testutls.MockUser(),
+				4,
+			),
 		},
 	}
 
-	_, db, err := testutls.SetupEnvAndDB(t, testutls.Parameters{EnvFileLocation: `../.env.local`})
+	_, db, err := testutls.SetupEnvAndDB(
+		t,
+		testutls.Parameters{
+			EnvFileLocation: `../.env.local`,
+		},
+	)
 	if err != nil {
-		panic("failed to setup env and db")
+		panic(
+			"failed to setup env and db",
+		)
 	}
 	oldDb := boil.GetDB()
 	boil.SetDB(db)
 	defer func() {
 		db.Close()
-		boil.SetDB(oldDb)
+		boil.SetDB(
+			oldDb,
+		)
 	}()
 	conn := redigomock.NewConn()
-	ApplyFunc(redis.Dial, func(network string, address string, options ...redis.DialOption) (redis.Conn, error) {
-		return conn, nil
-	})
+	ApplyFunc(
+		redis.Dial,
+		func(network string, address string, options ...redis.DialOption) (redis.Conn, error) {
+			return conn, nil
+		},
+	)
 	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(
+			tt.name,
+			func(t *testing.T) {
 
-			b, _ := json.Marshal(tt.args.user)
-			conn.Command("GET", "user0").Expect(b)
-			c := context.Background()
-			ctx := context.WithValue(c, testutls.UserKey, testutls.MockUser())
-			response, _ := resolver1.Query().Me(ctx)
-			fmt.Println("\n\nresponse:::::", response)
-			assert.Equal(t, tt.wantResp, response)
-		})
+				b, _ := json.Marshal(
+					tt.args.user,
+				)
+				conn.Command("GET", "user0").
+					Expect(b)
+				c := context.Background()
+				ctx := context.WithValue(
+					c,
+					testutls.UserKey,
+					testutls.MockUser(),
+				)
+				response, _ := resolver1.Query().
+					Me(ctx)
+				fmt.Println(
+					"\n\nresponse:::::",
+					response,
+				)
+				assert.Equal(
+					t,
+					tt.wantResp,
+					response,
+				)
+			},
+		)
 	}
 }
 
-func TestUsers(t *testing.T) {
+func TestUsers(
+	t *testing.T,
+) {
 	cases := []struct {
 		name       string
 		pagination *fm.UserPagination
@@ -85,51 +124,101 @@ func TestUsers(t *testing.T) {
 
 	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
-			err := godotenv.Load("../.env.local")
-			if err != nil {
-				fmt.Print("error loading .env file")
-			}
-			db, mock, err := sqlmock.New()
-			if err != nil {
-				t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-			}
-			// Inject mock instance into boil.
-			oldDB := boil.GetDB()
-			defer func() {
-				db.Close()
-				boil.SetDB(oldDB)
-			}()
-			boil.SetDB(db)
-
-			// get user by id
-			rows := sqlmock.
-				NewRows([]string{"id", "email", "first_name", "last_name", "mobile", "username", "address"}).
-				AddRow(
-					testutls.MockID,
-					testutls.MockEmail,
-					"First",
-					"Last",
-					"+911234567890",
-					"username",
-					"22 Jump Street",
+		t.Run(
+			tt.name,
+			func(t *testing.T) {
+				err := godotenv.Load(
+					"../.env.local",
 				)
-			mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"users\";")).
-				WithArgs().
-				WillReturnRows(rows)
-			rowCount := sqlmock.NewRows([]string{"count"}).AddRow(1)
-			mock.ExpectQuery(regexp.QuoteMeta("SELECT COUNT(*) FROM \"users\";")).
-				WithArgs().
-				WillReturnRows(rowCount)
+				if err != nil {
+					fmt.Print(
+						"error loading .env file",
+					)
+				}
+				db, mock, err := sqlmock.New()
+				if err != nil {
+					t.Fatalf(
+						"an error '%s' was not expected when opening a stub database connection",
+						err,
+					)
+				}
+				// Inject
+				// mock
+				// instance
+				// into
+				// boil.
+				oldDB := boil.GetDB()
+				defer func() {
+					db.Close()
+					boil.SetDB(
+						oldDB,
+					)
+				}()
+				boil.SetDB(
+					db,
+				)
 
-			c := context.Background()
-			ctx := context.WithValue(c, testutls.UserKey, testutls.MockUser())
-			response, err := resolver1.Query().Users(ctx, tt.pagination)
+				// get
+				// user
+				// by
+				// id
+				rows := sqlmock.
+					NewRows(
+						[]string{
+							"id",
+							"email",
+							"first_name",
+							"last_name",
+							"mobile",
+							"username",
+							"address",
+						},
+					).
+					AddRow(
+						testutls.MockID,
+						testutls.MockEmail,
+						"First",
+						"Last",
+						"+911234567890",
+						"username",
+						"22 Jump Street",
+					)
+				mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"users\";")).
+					WithArgs().
+					WillReturnRows(rows)
+				rowCount := sqlmock.NewRows([]string{"count"}).
+					AddRow(1)
+				mock.ExpectQuery(regexp.QuoteMeta("SELECT COUNT(*) FROM \"users\";")).
+					WithArgs().
+					WillReturnRows(rowCount)
 
-			if tt.wantResp != nil && response != nil {
-				assert.Equal(t, len(tt.wantResp), len(response.Users))
-			}
-			assert.Equal(t, tt.wantErr, err != nil)
-		})
+				c := context.Background()
+				ctx := context.WithValue(
+					c,
+					testutls.UserKey,
+					testutls.MockUser(),
+				)
+				response, err := resolver1.Query().
+					Users(ctx, tt.pagination)
+
+				if tt.wantResp != nil &&
+					response != nil {
+					assert.Equal(
+						t,
+						len(
+							tt.wantResp,
+						),
+						len(
+							response.Users,
+						),
+					)
+				}
+				assert.Equal(
+					t,
+					tt.wantErr,
+					err != nil,
+				)
+			},
+		)
 	}
 }
