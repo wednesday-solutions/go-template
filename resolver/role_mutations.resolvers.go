@@ -6,9 +6,9 @@ package resolver
 import (
 	"context"
 	"fmt"
-	gotemplate "go-template"
 	"go-template/daos"
 	"go-template/gqlmodels"
+	"go-template/internal/constants"
 	"go-template/internal/middleware/auth"
 	"go-template/models"
 	"go-template/pkg/utl/convert"
@@ -31,7 +31,7 @@ func (r *mutationResolver) CreateRole(ctx context.Context, input gqlmodels.RoleC
 		AccessLevel: input.AccessLevel,
 		Name:        input.Name,
 	}
-	if userRole.AccessLevel != int(gotemplate.SuperAdminRole) {
+	if userRole.AccessLevel != int(constants.SuperAdminRole) {
 		return &gqlmodels.RolePayload{}, fmt.Errorf("You don't appear to have enough access level for this request ")
 	}
 

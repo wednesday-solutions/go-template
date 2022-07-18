@@ -4,8 +4,8 @@ import (
 	"context"
 	"strconv"
 
-	gotemplate "go-template"
 	graphql "go-template/gqlmodels"
+	constants "go-template/internal/constants"
 	"go-template/models"
 
 	"github.com/volatiletech/null/v8"
@@ -90,7 +90,7 @@ func UserToGraphQlUser(u *models.User, count int) *graphql.User {
 		return nil
 	}
 	var role *models.Role
-	if count <= gotemplate.MaxDepth {
+	if count <= constants.MaxDepth {
 		u.L.LoadRole(context.Background(), boil.GetContextDB(), true, u, nil) //nolint:errcheck
 		if u.R != nil {
 			role = u.R.Role
@@ -116,7 +116,7 @@ func RoleToGraphqlRole(r *models.Role, count int) *graphql.Role {
 		return nil
 	}
 	var users models.UserSlice
-	if count <= gotemplate.MaxDepth {
+	if count <= constants.MaxDepth {
 		r.L.LoadUsers(context.Background(), boil.GetContextDB(), true, r, nil) //nolint:errcheck
 		if r.R != nil {
 			users = r.R.Users
