@@ -1,6 +1,12 @@
 exclude: '^(gqlgen)'
 fail_fast: true
 repos:
+-   repo: local
+    hooks:
+    -   id: golines
+        name: golines
+        entry: ./line-formatter.sh
+        language: script
 -   repo: https://github.com/tekwizely/pre-commit-golang
     rev: v1.0.0-beta.5
     hooks:

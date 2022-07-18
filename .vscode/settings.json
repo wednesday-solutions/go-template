@@ -19,4 +19,12 @@
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "golang.go"
     },
+    "emeraldwalk.runonsave": {
+        "commands": [
+            {
+                "match": "\\.go$",
+                "cmd": "golines ${file} -w --shorten-comments --reformat-tags -m 128"
+            }
+        ]
+    },
 }

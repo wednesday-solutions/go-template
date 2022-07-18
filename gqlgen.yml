@@ -4,7 +4,7 @@ exec:
   filename: gqlmodels/generated.go
   package: gqlmodels
 model:
-  filename: gqlmodels/generated_models.go
+  filename: gqlmodels/generatedmodels.go
   package: gqlmodels
 resolver:
   layout: follow-schema
