@@ -1,6 +1,6 @@
 linters-settings:
   lll: 
-    line-length: 140
+    line-length: 128
     tab-width: 2
     autofix: true
 linters:
