@@ -5,11 +5,11 @@ set +a
 
 export DB_HOST=localhost
 # drop tables
-sql-migrate down -env postgres -limit=0
+sql-migrate down -env mysql -limit=0
 
 # run migrations
-sql-migrate up -env postgres
-sql-migrate status -env postgres
+sql-migrate up -env mysql
+sql-migrate status -env mysql
 
 # seed data
 
@@ -20,10 +20,10 @@ cd ./cmd/seeder/
 seeders=($(ls -d ./*))
 for i in "${seeders[@]}"
 do
-  # shellcheck disable=SC2207
-  file=($(ls -d "$i"/*))
-   :
-   # shellcheck disable=SC2128
-   go run "$file"
+    # shellcheck disable=SC2207
+    file=($(ls -d "$i"/*))
+    :
+    # shellcheck disable=SC2128
+    go run "$file"
 done
 cd  ../../

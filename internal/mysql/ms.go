@@ -6,5 +6,5 @@ import (
 
 // ...
 func Connect() (*sql.DB, error) {
-	return sql.Open("mysql", "root:password@/test_db")
+	return sql.Open("mysql", "root:password@/erp_local")
 }

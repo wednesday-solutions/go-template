@@ -20,6 +20,7 @@ import (
 func (r *mutationResolver) Login(ctx context.Context, username string, password string) (
 	*gqlmodels.LoginResponse, error) {
 	u, err := daos.FindUserByUserName(username)
+	fmt.Println("error::", err)
 	if err != nil {
 		return nil, err
 	}

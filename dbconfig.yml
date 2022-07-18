@@ -1,4 +1,4 @@
-mysql_env:
+mysql:
   dialect: mysql
-  datasource: root:password@tcp(localhost:3306)/test_db?parseTime=true
+  datasource: root:password@tcp(localhost:3306)/erp_local?parseTime=true
   dir: internal/migrations

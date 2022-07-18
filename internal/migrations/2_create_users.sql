@@ -1,6 +1,6 @@
 -- +migrate Up
 CREATE TABLE users (
-				id SERIAL UNIQUE PRIMARY KEY,
+				id INT AUTO_INCREMENT PRIMARY KEY,
 				first_name TEXT,
 				last_name TEXT,
 				username VARCHAR(100) UNIQUE,
@@ -12,10 +12,11 @@ CREATE TABLE users (
 				last_login TIMESTAMP ,
 				last_password_change TIMESTAMP,
 				token TEXT,
-				role_id int REFERENCES roles(id),
+				role_id int,
 				created_at TIMESTAMP,
-				updated_at TIMESTAMP,
-				deleted_at TIMESTAMP
+				updated_at TIMESTAMP DEFAULT NOW(),
+				deleted_at TIMESTAMP,
+				CONSTRAINT fk__role_users FOREIGN KEY (role_id) REFERENCES roles(id)
 			);
 CREATE INDEX username_idx ON users(username);
 CREATE INDEX email_idx ON users(email);
