@@ -16,8 +16,8 @@ import (
 	resultwrapper "go-template/pkg/utl/result_wrapper"
 )
 
-func (r *mutationResolver) CreateRole(ctx context.Context, input gqlmodels.RoleCreateInput) (
-	*gqlmodels.RolePayload, error) {
+// CreateRole is the resolver for the createRole field.
+func (r *mutationResolver) CreateRole(ctx context.Context, input gqlmodels.RoleCreateInput) (*gqlmodels.RolePayload, error) {
 	userID := auth.UserIDFromContext(ctx)
 	user, err := rediscache.GetUser(userID)
 	if err != nil {

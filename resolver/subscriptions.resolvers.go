@@ -10,6 +10,7 @@ import (
 	"go-template/pkg/utl"
 )
 
+// UserNotification is the resolver for the userNotification field.
 func (r *subscriptionResolver) UserNotification(ctx context.Context) (<-chan *gqlmodels.User, error) {
 	id := utl.RandomSequence(5)
 	event := make(chan *gqlmodels.User, 1)

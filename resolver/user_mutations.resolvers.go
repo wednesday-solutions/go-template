@@ -21,6 +21,7 @@ import (
 	null "github.com/volatiletech/null/v8"
 )
 
+// CreateUser is the resolver for the createUser field.
 func (r *mutationResolver) CreateUser(ctx context.Context, input gqlmodels.UserCreateInput) (*gqlmodels.User, error) {
 	err := throttle.Check(ctx, 5, 10*time.Second)
 	if err != nil {
@@ -59,6 +60,7 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input gqlmodels.UserC
 	return graphUser, err
 }
 
+// UpdateUser is the resolver for the updateUser field.
 func (r *mutationResolver) UpdateUser(ctx context.Context, input *gqlmodels.UserUpdateInput) (*gqlmodels.User, error) {
 	userID := auth.UserIDFromContext(ctx)
 	user, _ := daos.FindUserByID(userID)
@@ -95,6 +97,7 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, input *gqlmodels.User
 	return graphUser, nil
 }
 
+// DeleteUser is the resolver for the deleteUser field.
 func (r *mutationResolver) DeleteUser(ctx context.Context) (*gqlmodels.UserDeletePayload, error) {
 	userID := auth.UserIDFromContext(ctx)
 	u, err := daos.FindUserByID(userID)
