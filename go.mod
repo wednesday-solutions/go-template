@@ -7,6 +7,7 @@ require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/agiledragon/gomonkey/v2 v2.2.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/friendsofgo/errors v0.9.2
 	github.com/go-playground/universal-translator v0.17.0
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/go-sql-driver/mysql v1.6.0
@@ -14,6 +15,7 @@ require (
 	github.com/gomodule/redigo v1.8.3
 	github.com/gorilla/websocket v1.5.0
 	github.com/joho/godotenv v1.3.0
+	github.com/kat-co/vala v0.0.0-20170210184112-42e1d8b61f12
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/lib/pq v1.10.0
 	github.com/nbutton23/zxcvbn-go v0.0.0-20180912185939-ae427f1e4c1d
@@ -21,11 +23,14 @@ require (
 	github.com/rafaeljusto/redigomock/v3 v3.0.1
 	github.com/rs/zerolog v1.18.0
 	github.com/rubenv/sql-migrate v1.1.2
+	github.com/spf13/viper v1.10.0
 	github.com/stretchr/testify v1.7.1
 	github.com/vektah/gqlparser/v2 v2.4.5
 	github.com/volatiletech/null/v8 v8.1.2
+	github.com/volatiletech/randomize v0.0.1
 	github.com/volatiletech/sqlboiler v3.7.1+incompatible
 	github.com/volatiletech/sqlboiler/v4 v4.11.0
+	github.com/volatiletech/strmangle v0.0.4
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 )
 
@@ -33,7 +38,6 @@ require (
 	github.com/agnivade/levenshtein v1.1.1 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/friendsofgo/errors v0.9.2 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/go-gorp/gorp/v3 v3.0.2 // indirect
 	github.com/go-playground/locales v0.13.0 // indirect
@@ -56,14 +60,11 @@ require (
 	github.com/spf13/cobra v1.2.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/spf13/viper v1.10.0 // indirect
 	github.com/subosito/gotenv v1.2.0 // indirect
 	github.com/urfave/cli/v2 v2.8.1 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.1.0 // indirect
 	github.com/volatiletech/inflect v0.0.1 // indirect
-	github.com/volatiletech/randomize v0.0.1 // indirect
-	github.com/volatiletech/strmangle v0.0.4 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220106191415-9b9b3d81d5e3 // indirect
 	golang.org/x/net v0.0.0-20211015210444-4f30a5c0130f // indirect
