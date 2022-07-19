@@ -62,7 +62,7 @@ The Go Template is a template/starter go project.
 
 Using go-template requires having Go 1.7 or above. Once you download go-template (either using Git or go get) you need to configure the following:
 
-1. Run the `pre-commit-setup.sh` script to install the pre-commit hooks locally.
+1. Run the `./scripts/setup-pre-commit.sh` script to install the pre-commit hooks locally.
 
 2. Set the ("ENVIRONMENT_NAME") environment variable, either using terminal or os.Setenv("ENVIRONMENT_NAME","dev").
 
@@ -73,7 +73,7 @@ Using go-template requires having Go 1.7 or above. Once you download go-template
   github.com/99designs/gqlgen
   ```
 
-4. To run all the migrations using the script setup-local.sh as follows `./setup-local.sh`.
+4. To run all the migrations using the script setup-local.sh as follows `./scripts/setup-local.sh`.
 
 5. Generate the graphql models using `gqlgen generate`
 
@@ -145,7 +145,7 @@ go-template/
 │     └──auth/
 │     └──secure/
 │  └──migrations/                   # these are the migrations to be applied
-│  └──postgres/                      # this takes care of connecting to postgre
+│  └──postgres/                     # this takes care of connecting to postgre
 │  └──server/                       # this package have functionality to start a echo server
 │  └──services/                     # this will have services used in the server
 └──models/
@@ -154,12 +154,18 @@ go-template/
 │  └──utl/
 │     └──convert/                   # this package has functionality for type conversions
 │     └──mock/                      # this package has mock related to passwords and JWTs
-│     └──throttle/             # this package has functionality for request rate throttling
-│     └──rediscache/               # this package has functionality for accessing and using redis
+│     └──throttle/                  # this package has functionality for request rate throttling
+│     └──rediscache/                # this package has functionality for accessing and using redis
 │     └──resultwrapper/             # this package exports the custom errors produced by application
 │     └──secure/                    # this package has password related functionalities
 │     └──zlog/                      # this package has setup for zerolog logger
 └──resolver/                        # this directory will contain resolvers to populate info for graphQL queries, mutations and subscriptions
+└──scripts/                         # this directory will contain different utility scripts
+│  └──setup-local.sh                # script to set up database and run the app locally
+│  └──setup-ecs.sh                  # script to provision the ECS infrastructure in the cloud
+│  └──update-ecs.sh                 # script to deploy new version of the app to the provisioned ECS
+│  └──setup-pre-commit.sh           # script to setup the pre-commit hooks and the enviornment
+│  └──line-formatter.sh             # auto format to adhere to the lll.line-length criteria
 └──schema/                          # this directory will have all the .graphql files which make the graphql api
 └──.env.local                       # a sample .env file for reference
 └──.pre-commit-config.yaml          # config to run pre-commit utility
