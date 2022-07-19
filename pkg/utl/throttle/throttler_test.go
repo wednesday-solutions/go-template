@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	rediscache "go-template/pkg/utl/redis_cache"
+	rediscache "go-template/pkg/utl/rediscache"
 	"go-template/testutls"
 
 	"github.com/99designs/gqlgen/graphql"

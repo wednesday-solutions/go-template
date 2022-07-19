@@ -154,9 +154,9 @@ go-template/
 │  └──utl/
 │     └──convert/                   # this package has functionality for type conversions
 │     └──mock/                      # this package has mock related to passwords and JWTs
-│     └──rate_throttle/             # this package has functionality for request rate throttling
-│     └──redis_cache/               # this package has functionality for accessing and using redis
-│     └──result_wrapper/            # this package exports the custom errors produced by application
+│     └──throttle/             # this package has functionality for request rate throttling
+│     └──rediscache/               # this package has functionality for accessing and using redis
+│     └──resultwrapper/             # this package exports the custom errors produced by application
 │     └──secure/                    # this package has password related functionalities
 │     └──zlog/                      # this package has setup for zerolog logger
 └──resolver/                        # this directory will contain resolvers to populate info for graphQL queries, mutations and subscriptions

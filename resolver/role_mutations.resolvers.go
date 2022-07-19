@@ -12,8 +12,8 @@ import (
 	"go-template/internal/middleware/auth"
 	"go-template/models"
 	"go-template/pkg/utl/convert"
-	rediscache "go-template/pkg/utl/redis_cache"
-	resultwrapper "go-template/pkg/utl/result_wrapper"
+	rediscache "go-template/pkg/utl/rediscache"
+	resultwrapper "go-template/pkg/utl/resultwrapper"
 )
 
 // CreateRole is the resolver for the createRole field.
