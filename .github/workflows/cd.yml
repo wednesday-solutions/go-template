@@ -36,4 +36,4 @@ jobs:
 
       - name: Deploy ECS
         run: |
-          ./update-ecs.sh gotemplate ${{ env.ENVIRONMENT_NAME }}
+          ./scripts/update-ecs.sh gotemplate ${{ env.ENVIRONMENT_NAME }}

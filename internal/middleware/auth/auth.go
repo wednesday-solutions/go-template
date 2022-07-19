@@ -6,7 +6,7 @@ import (
 
 	"go-template/daos"
 	"go-template/models"
-	resultwrapper "go-template/pkg/utl/result_wrapper"
+	resultwrapper "go-template/pkg/utl/resultwrapper"
 
 	graphql2 "github.com/99designs/gqlgen/graphql"
 	jwt "github.com/dgrijalva/jwt-go"
@@ -55,7 +55,11 @@ func UserIDFromContext(ctx context.Context) int {
 func GqlMiddleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			ctx := context.WithValue(c.Request().Context(), authorization, c.Request().Header.Get(string(authorization)))
+			ctx := context.WithValue(
+				c.Request().Context(),
+				authorization,
+				c.Request().Header.Get(string(authorization)),
+			)
 			c.SetRequest(c.Request().WithContext(ctx))
 			cc := &CustomContext{c, ctx}
 			return next(cc)
@@ -64,7 +68,7 @@ func GqlMiddleware() echo.MiddlewareFunc {
 }
 
 // WhiteListedQueries ...
-var WhiteListedQueries = []string{"__schema", "introspectionquery", "login"}
+var WhiteListedQueries = []string{"__schema", "introspectionquery", "login", "userNotification"}
 
 // AdminQueries ...
 var AdminQueries = []string{"users"}
@@ -119,7 +123,9 @@ func GraphQLMiddleware(
 				isSuperAdmin = true
 			}
 			if !isSuperAdmin {
-				return resultwrapper.HandleGraphQLError("Unauthorized! \n Only admins are authorized to make this request.")
+				return resultwrapper.HandleGraphQLError(
+					"Unauthorized! \n Only admins are authorized to make this request.",
+				)
 			}
 		}
 

@@ -9,12 +9,13 @@ import (
 	"go-template/gqlmodels"
 	"go-template/internal/middleware/auth"
 	"go-template/pkg/utl/convert"
-	rediscache "go-template/pkg/utl/redis_cache"
-	resultwrapper "go-template/pkg/utl/result_wrapper"
+	rediscache "go-template/pkg/utl/rediscache"
+	resultwrapper "go-template/pkg/utl/resultwrapper"
 
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
+// Me is the resolver for the me field.
 func (r *queryResolver) Me(ctx context.Context) (*gqlmodels.User, error) {
 	userID := auth.UserIDFromContext(ctx)
 	user, err := rediscache.GetUser(userID)
@@ -25,8 +26,8 @@ func (r *queryResolver) Me(ctx context.Context) (*gqlmodels.User, error) {
 	return convert.UserToGraphQlUser(user, 1), err
 }
 
-func (r *queryResolver) Users(ctx context.Context, pagination *gqlmodels.UserPagination) (
-	*gqlmodels.UsersPayload, error) {
+// Users is the resolver for the users field.
+func (r *queryResolver) Users(ctx context.Context, pagination *gqlmodels.UserPagination) (*gqlmodels.UsersPayload, error) {
 	var queryMods []qm.QueryMod
 	if pagination != nil {
 		if pagination.Limit != 0 {

@@ -5,7 +5,7 @@ import (
 	"log"
 	"strings"
 
-	"go-template/internal/mysql"
+	ms "go-template/internal/mysql"
 )
 
 // SeedData ...

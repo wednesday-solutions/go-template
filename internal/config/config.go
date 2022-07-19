@@ -65,19 +65,19 @@ type Database struct {
 
 // Server holds data necessary for server configuration
 type Server struct {
-	Port         string `json:"port" validate:"required"`
-	Debug        bool   `json:"debug" validate:"required"`
-	ReadTimeout  int    `json:"read_timeout_seconds" validate:"required"`
+	Port         string `json:"port"                  validate:"required"`
+	Debug        bool   `json:"debug"                 validate:"required"`
+	ReadTimeout  int    `json:"read_timeout_seconds"  validate:"required"`
 	WriteTimeout int    `json:"write_timeout_seconds" validate:"required"`
 }
 
 // JWT holds data necessary for JWT configuration
 type JWT struct {
-	MinSecretLength  int    `json:"min_secret_length" validate:"required"`
+	MinSecretLength  int    `json:"min_secret_length"                  validate:"required"`
 	DurationMinutes  int    `json:"duration_minutes,omitempty"`
 	RefreshDuration  int    `json:"refresh_duration_minutes,omitempty"`
 	MaxRefresh       int    `json:"max_refresh_minutes,omitempty"`
-	SigningAlgorithm string `json:"signing_algorithm" validate:"required"`
+	SigningAlgorithm string `json:"signing_algorithm"                  validate:"required"`
 }
 
 // Application holds application configuration details

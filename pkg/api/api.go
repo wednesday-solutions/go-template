@@ -2,8 +2,8 @@
 package api
 
 import (
-	"fmt"
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -14,7 +14,7 @@ import (
 	authMw "go-template/internal/middleware/auth"
 	"go-template/internal/postgres"
 	"go-template/internal/server"
-	throttle "go-template/pkg/utl/rate_throttle"
+	throttle "go-template/pkg/utl/throttle"
 	"go-template/resolver"
 
 	graphql2 "github.com/99designs/gqlgen/graphql"

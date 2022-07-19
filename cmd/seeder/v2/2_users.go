@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	seeders "go-template/cmd/seeder"
-	"go-template/internal/mysql"
+	ms "go-template/internal/mysql"
 	"go-template/models"
 	"go-template/pkg/utl/secure"
 )

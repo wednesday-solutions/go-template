@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	rediscache "go-template/pkg/utl/redis_cache"
+	rediscache "go-template/pkg/utl/rediscache"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/labstack/echo"

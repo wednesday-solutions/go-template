@@ -12,13 +12,13 @@ import (
 	"go-template/internal/middleware/auth"
 	"go-template/internal/service"
 	"go-template/pkg/utl/convert"
-	resultwrapper "go-template/pkg/utl/result_wrapper"
+	resultwrapper "go-template/pkg/utl/resultwrapper"
 
 	null "github.com/volatiletech/null/v8"
 )
 
-func (r *mutationResolver) Login(ctx context.Context, username string, password string) (
-	*gqlmodels.LoginResponse, error) {
+// Login is the resolver for the login field.
+func (r *mutationResolver) Login(ctx context.Context, username string, password string) (*gqlmodels.LoginResponse, error) {
 	u, err := daos.FindUserByUserName(username)
 	fmt.Println("error::", err)
 	if err != nil {
@@ -59,8 +59,12 @@ func (r *mutationResolver) Login(ctx context.Context, username string, password 
 	return &gqlmodels.LoginResponse{Token: token, RefreshToken: refreshToken}, nil
 }
 
-func (r *mutationResolver) ChangePassword(ctx context.Context, oldPassword string, newPassword string) (
-	*gqlmodels.ChangePasswordResponse, error) {
+// ChangePassword is the resolver for the changePassword field.
+func (r *mutationResolver) ChangePassword(
+	ctx context.Context,
+	oldPassword string,
+	newPassword string,
+) (*gqlmodels.ChangePasswordResponse, error) {
 	userID := auth.UserIDFromContext(ctx)
 	u, err := daos.FindUserByID(userID)
 	if err != nil {
@@ -94,6 +98,7 @@ func (r *mutationResolver) ChangePassword(ctx context.Context, oldPassword strin
 	return &gqlmodels.ChangePasswordResponse{Ok: true}, err
 }
 
+// RefreshToken is the resolver for the refreshToken field.
 func (r *mutationResolver) RefreshToken(ctx context.Context, token string) (*gqlmodels.RefreshTokenResponse, error) {
 	user, err := daos.FindUserByToken(token)
 	if err != nil {
