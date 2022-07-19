@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	resultwrapper "go-template/pkg/utl/result_wrapper"
+	resultwrapper "go-template/pkg/utl/resultwrapper"
 	"go-template/testutls"
 
 	"github.com/labstack/echo"
