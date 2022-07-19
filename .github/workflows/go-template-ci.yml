@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - master
+      - feat/mysql
   push:
     branches:
       - master

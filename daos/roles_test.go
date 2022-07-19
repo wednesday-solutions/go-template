@@ -7,11 +7,12 @@ import (
 
 	"go-template/daos"
 	"go-template/models"
+	"go-template/testutls"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
-	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
@@ -47,17 +48,19 @@ func TestCreateRoleTx(t *testing.T) {
 		}()
 		boil.SetDB(db)
 
-		rows := sqlmock.NewRows([]string{"id", "deleted_at"}).AddRow(1, null.Time{})
-		mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "roles"`)).
-			WithArgs().
-			WillReturnRows(rows)
+		query := regexp.QuoteMeta("INSERT INTO `roles` (`access_level`,`name`,`created_at`,`updated_at`,`deleted_at`)" +
+			" VALUES (?,?,?,?,?)")
+		mock.ExpectExec(query).
+			WithArgs(tt.req.AccessLevel, tt.req.Name, testutls.AnyTime{}, testutls.AnyTime{}, nil).
+			WillReturnResult(sqlmock.NewResult(1, 1))
 
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := daos.CreateRoleTx(tt.req, nil)
+			res, err := daos.CreateRoleTx(tt.req, nil)
 			if err != nil {
 				assert.Equal(t, true, tt.err != nil)
 			} else {
 				assert.Equal(t, err, tt.err)
+				assert.Equal(t, true, tt.req.ID != res.ID)
 			}
 		})
 	}
@@ -96,9 +99,10 @@ func TestFindRoleByID(t *testing.T) {
 		boil.SetDB(db)
 
 		rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
-
-		mock.ExpectQuery(regexp.QuoteMeta("select * from \"roles\" where \"id\"=$1")).
-			WithArgs().
+		query := regexp.
+			QuoteMeta("select * from `roles` where `id`=?")
+		mock.ExpectQuery(query).
+			WithArgs(tt.req).
 			WillReturnRows(rows)
 
 		t.Run(tt.name, func(t *testing.T) {

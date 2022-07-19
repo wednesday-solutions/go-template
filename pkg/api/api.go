@@ -12,7 +12,7 @@ import (
 	"go-template/internal/config"
 	"go-template/internal/jwt"
 	authMw "go-template/internal/middleware/auth"
-	"go-template/internal/postgres"
+	"go-template/internal/mysql"
 	"go-template/internal/server"
 	throttle "go-template/pkg/utl/throttle"
 	"go-template/resolver"
@@ -33,7 +33,7 @@ import (
 func Start(cfg *config.Configuration) (*echo.Echo, error) {
 	fmt.Printf("connection started")
 
-	db, err := postgres.Connect()
+	db, err := mysql.Connect()
 	if err != nil {
 		return nil, err
 	}

@@ -83,15 +83,14 @@ Using go-template requires having Go 1.7 or above. Once you download go-template
 go run cmd/server/main.go
 ```
 
-# Setting up database (postgres)
+# Setting up database (mysql)
 
 - Requirement [postgresql](https://www.postgresql.org/)
   
 Steps to set up database with ```username``` and ```role``` using terminal
 
-  - Enter postgres terminal ```psql postgres```
+  - Enter mysql terminal ``mysql -uroot -p```
   - Create new database ```CREATE DATABASE go_template;```
-  - Create a new role with password ```CREATE ROLE go_template_role WITH LOGIN PASSWORD 'go_template_role456';```
 
 **NOTE:** Replace these credentials in ```.env``` file of the project
 
@@ -107,19 +106,19 @@ To ease the development process a make file is provided
 
 Migrations are present in ```internal/migrations``` package. Run below command to run all migrations at once:
 ```
-sql-migrate up -env postgres
+sql-migrate up -env mysql
 ```
 To drop migration use following
 ```
-sql-migrate down -env postgres -limit=0
+sql-migrate down -env mysql -limit=0
 ```
 To check status of migration use following
 ```
-sql-migrate new -env postgres <name>
+sql-migrate new -env mysql <name>
 ```
 To add new migration use following, it creates a new empty migration template with pattern `<current time>-<name>.sql`
 ```
-sql-migrate new -env postgres <name>
+sql-migrate new -env mysql <name>
 ```
 append query to above file
 
@@ -145,7 +144,7 @@ go-template/
 │     └──auth/
 │     └──secure/
 │  └──migrations/                   # these are the migrations to be applied
-│  └──postgres/                     # this takes care of connecting to postgre
+│  └──mysql/                     # this takes care of connecting to postgre
 │  └──server/                       # this package have functionality to start a echo server
 │  └──services/                     # this will have services used in the server
 └──models/

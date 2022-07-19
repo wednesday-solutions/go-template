@@ -1,15 +1,15 @@
-package postgres_test
+package mysql_test
 
 import (
 	"testing"
 
-	"go-template/internal/postgres"
+	"go-template/internal/mysql"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestConnect(t *testing.T) {
-	db, err := postgres.Connect()
+	db, err := mysql.Connect()
 	if err != nil {
 		assert.NotNil(t, db)
 	}

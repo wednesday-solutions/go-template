@@ -63,7 +63,11 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input gqlmodels.UserC
 // UpdateUser is the resolver for the updateUser field.
 func (r *mutationResolver) UpdateUser(ctx context.Context, input *gqlmodels.UserUpdateInput) (*gqlmodels.User, error) {
 	userID := auth.UserIDFromContext(ctx)
-	user, _ := daos.FindUserByID(userID)
+	user, err := daos.FindUserByID(userID)
+	if err != nil {
+		return nil, resultwrapper.ResolverWrapperFromMessage(404, "user not found")
+	}
+
 	var u models.User
 	if user != nil {
 		u = *user
@@ -82,7 +86,7 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, input *gqlmodels.User
 	if input.Address != nil {
 		u.Address = null.StringFromPtr(input.Address)
 	}
-	_, err := daos.UpdateUserTx(u, nil)
+	_, err = daos.UpdateUserTx(u, nil)
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "new information")
 	}

@@ -136,3 +136,29 @@ func MockConfig() *config.Configuration {
 		},
 	}
 }
+
+type AnyTime struct{}
+type AnyInt64 struct{}
+type AnyString struct{}
+
+// Match satisfies sqlmock.Argument interface
+func (a AnyTime) Match(
+	v driver.Value,
+) bool {
+	_, ok := v.(time.Time)
+	return ok
+}
+
+func (a AnyInt64) Match(
+	v driver.Value,
+) bool {
+	_, ok := v.(int64)
+	return ok
+}
+
+func (a AnyString) Match(
+	v driver.Value,
+) bool {
+	_, ok := v.(string)
+	return ok
+}

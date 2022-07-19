@@ -20,12 +20,12 @@
       "mode": "auto",
       "program": "${cwd}/cmd/server/main.go",
       "env": {
-        "DB_NAME": "go_template",
-        "DB_HOST": "localhost",
-        "DB_PASS": "go_template_role456",
-        "DB_USER": "go_template_role",
+        "MYSQL_DBNAME": "go_template",
+        "MYSQL_HOST": "localhost",
+        "MYSQL_ROOT_PASSWORD": "go_template_role456",
+        "MYSQL_USER": "go_template_role",
         "DB_SSL": "disable",
-        "DB_PORT": "5432",
+        "MYSQL_PORT": "3306",
         "ENVIRONMENT_NAME": "dev",
         "JWT_SECRET": "aa60b52e-7974-11ea-bc55-0242ac130003b08d6654-7974-11ea-bc55-0242ac130003-b08d6654-7974-11ea-bc55-0242ac130003"
       },

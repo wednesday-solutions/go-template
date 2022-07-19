@@ -46,9 +46,7 @@ func TestCreateRole(
 		t.Run(
 			tt.name,
 			func(t *testing.T) {
-				err := godotenv.Load(
-					"../.env.local",
-				)
+				err := godotenv.Load("../.env.local")
 				if err != nil {
 					fmt.Print(
 						"error loading .env file",
@@ -64,13 +62,9 @@ func TestCreateRole(
 				oldDB := boil.GetDB()
 				defer func() {
 					db.Close()
-					boil.SetDB(
-						oldDB,
-					)
+					boil.SetDB(oldDB)
 				}()
-				boil.SetDB(
-					db,
-				)
+				boil.SetDB(db)
 				rows := sqlmock.NewRows([]string{"id"}).
 					AddRow(1)
 

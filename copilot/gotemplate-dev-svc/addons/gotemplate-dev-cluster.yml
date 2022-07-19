@@ -56,8 +56,8 @@ Resources:
     Properties:
       GroupDescription: The Security Group for the database cluster.
       SecurityGroupIngress:
-        - ToPort: 5432
-          FromPort: 5432
+        - ToPort: 3306
+          FromPort: 3306
           IpProtocol: tcp
           Description: !Sub 'From the Aurora Security Group of the workload ${Name}.'
           SourceSecurityGroupId: !Ref gotemplatedevclusterSecurityGroup
@@ -71,7 +71,7 @@ Resources:
     Properties:
       Description: !Sub Aurora main user secret for ${AWS::StackName}
       GenerateSecretString:
-        SecretStringTemplate: '{"username": "postgres"}'
+        SecretStringTemplate: '{"username": "mysql"}'
         GenerateStringKey: "password"
         ExcludePunctuation: true
         IncludeSpace: false

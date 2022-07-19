@@ -117,7 +117,7 @@ func TestGenerateToken(t *testing.T) {
 	}
 	rows := sqlmock.NewRows([]string{"id", "name"}).AddRow(1, "johndoe")
 
-	mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"roles\" WHERE (\"id\" = $1) LIMIT 1")).
+	mock.ExpectQuery(regexp.QuoteMeta("SELECT `roles`.* FROM `roles` WHERE (`id` = ?) LIMIT 1;")).
 		WithArgs([]driver.Value{1}...).
 		WillReturnRows(rows)
 	for name, tt := range cases {

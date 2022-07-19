@@ -2,15 +2,16 @@ version: '3.8'
 
 services:
   db:
-    image: postgres:13
+    image: mysql
+    ports:
+      - '${MYSQL_PORT}:${MYSQL_PORT}'
     restart: always
-    env_file:
-      - .env.docker
+    env_file: 
+      - ".env.docker"
     environment:
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASS}
-      - POSTGRES_PORT=${DB_PORT}
-      - POSTGRES_DB=${DB_NAME}
+      MYSQL_DATABASE: ${MYSQL_DBNAME}
+      MYSQL_PASSWORD: ${MYSQL_PASS}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
 
   redis:
     image: redis:6-alpine
@@ -20,13 +21,11 @@ services:
     build: .
     restart: always
     env_file:
-      - ./.env.docker
+      - ".env.docker"
     depends_on:
       - db
       - redis
     ports:
       - ${SERVER_PORT}:${SERVER_PORT}
-    environment:
-      ENVIRONMENT_NAME: 'docker'
 
    

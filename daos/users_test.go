@@ -46,34 +46,9 @@ func TestCreateUserTx(t *testing.T) {
 		}()
 		boil.SetDB(db)
 
-		rows := sqlmock.NewRows([]string{
-			"first_name",
-			"last_name",
-			"username",
-			"mobile",
-			"address",
-			"active",
-			"last_login",
-			"last_password_change",
-			"token",
-			"role_id",
-			"deleted_at",
-		}).AddRow(
-			testutls.MockUser().FirstName,
-			testutls.MockUser().LastName,
-			testutls.MockUser().Username,
-			testutls.MockUser().Mobile,
-			testutls.MockUser().Address,
-			testutls.MockUser().Active,
-			testutls.MockUser().LastLogin,
-			testutls.MockUser().LastPasswordChange,
-			testutls.MockUser().Token,
-			testutls.MockUser().RoleID,
-			testutls.MockUser().DeletedAt,
-		)
-		mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "users"`)).
+		mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `users`")).
 			WithArgs().
-			WillReturnRows(rows)
+			WillReturnResult(sqlmock.NewResult(1, 1))
 
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := daos.CreateUserTx(tt.req, nil)
@@ -120,7 +95,7 @@ func TestFindUserByID(t *testing.T) {
 
 		rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
 
-		mock.ExpectQuery(regexp.QuoteMeta("select * from \"users\" where \"id\"=$1")).
+		mock.ExpectQuery(regexp.QuoteMeta("select * from `users` where `id`=?")).
 			WithArgs().
 			WillReturnRows(rows)
 
@@ -172,13 +147,13 @@ func TestFindUserByEmail(t *testing.T) {
 		}()
 		boil.SetDB(db)
 
-		if tt.name == "Fail on finding user" {
-			mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"users\" WHERE (email=$1) LIMIT 1;")).
-				WithArgs().
+		if tt.err != nil {
+			mock.ExpectQuery(regexp.QuoteMeta("SELECT `users`.* FROM `users` WHERE (email=?) LIMIT 1;")).
+				WithArgs(tt.req.email).
 				WillReturnError(fmt.Errorf(""))
 		}
 		rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
-		mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"users\" WHERE (email=$1) LIMIT 1;")).
+		mock.ExpectQuery(regexp.QuoteMeta("SELECT `users`.* FROM `users` WHERE (email=?) LIMIT 1;")).
 			WithArgs().
 			WillReturnRows(rows)
 
@@ -214,7 +189,7 @@ func TestFindUserByUserName(t *testing.T) {
 			err:  nil,
 		},
 	}
-
+	query := regexp.QuoteMeta("SELECT `users`.* FROM `users` WHERE (username=?) LIMIT 1;")
 	for _, tt := range cases {
 		err := godotenv.Load("../.env.local")
 		if err != nil {
@@ -234,12 +209,12 @@ func TestFindUserByUserName(t *testing.T) {
 		boil.SetDB(db)
 
 		if tt.name == "Fail on finding user username" {
-			mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"users\" WHERE (username=$1) LIMIT 1;")).
+			mock.ExpectQuery(query).
 				WithArgs().
 				WillReturnError(fmt.Errorf(""))
 		}
 		rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
-		mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"users\" WHERE (username=$1) LIMIT 1;")).
+		mock.ExpectQuery(query).
 			WithArgs().
 			WillReturnRows(rows)
 
@@ -286,10 +261,10 @@ func TestUpdateUserTx(t *testing.T) {
 		}()
 		boil.SetDB(db)
 
-		result := driver.Result(driver.RowsAffected(1))
-		// get access_token
-		mock.ExpectExec(regexp.QuoteMeta("UPDATE \"users\" ")).
-			WillReturnResult(result)
+		mock.ExpectExec(regexp.QuoteMeta("UPDATE `users` SET `first_name`=?,`last_name`=?,`username`=?,`password`=?,`email`=?," +
+			"`mobile`=?,`address`=?,`active`=?,`last_login`=?,`last_password_change`=?,`token`=?,`role_id`=?,`updated_at`=?," +
+			"`deleted_at`=? WHERE `id`=?")).
+			WillReturnResult(sqlmock.NewResult(1, 1))
 
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := daos.UpdateUserTx(tt.req, nil)
@@ -332,7 +307,7 @@ func TestDeleteUser(t *testing.T) {
 
 		// delete user
 		result := driver.Result(driver.RowsAffected(1))
-		mock.ExpectExec(regexp.QuoteMeta("DELETE FROM \"users\" WHERE \"id\"=$1")).
+		mock.ExpectExec(regexp.QuoteMeta("DELETE FROM `users` WHERE `id`=?")).
 			WillReturnResult(result)
 
 		t.Run(tt.name, func(t *testing.T) {
@@ -347,6 +322,7 @@ func TestFindAllUsersWithCount(t *testing.T) {
 	oldDB := boil.GetDB()
 	mock, db, _ := testutls.SetupEnvAndDB(t, testutls.Parameters{})
 
+	query := regexp.QuoteMeta("SELECT `users`.* FROM `users`;")
 	cases := []struct {
 		name      string
 		err       error
@@ -361,14 +337,14 @@ func TestFindAllUsersWithCount(t *testing.T) {
 			err:  nil,
 			dbQueries: []testutls.QueryData{
 				{
-					Query: "SELECT * FROM \"users\";",
+					Query: query,
 					DbResponse: sqlmock.NewRows([]string{"id", "email", "token"}).AddRow(
 						testutls.MockID,
 						testutls.MockEmail,
 						testutls.MockToken),
 				},
 				{
-					Query:      "SELECT COUNT(*) FROM \"users\";",
+					Query:      regexp.QuoteMeta("SELECT COUNT(*) FROM `users`;"),
 					DbResponse: sqlmock.NewRows([]string{"count"}).AddRow(testutls.MockCount),
 				},
 			},
@@ -378,13 +354,13 @@ func TestFindAllUsersWithCount(t *testing.T) {
 	for _, tt := range cases {
 
 		if tt.err != nil {
-			mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"users\";")).
+			mock.ExpectQuery(query).
 				WithArgs().
 				WillReturnError(fmt.Errorf("this is some error"))
 		}
 
 		for _, dbQuery := range tt.dbQueries {
-			mock.ExpectQuery(regexp.QuoteMeta(dbQuery.Query)).
+			mock.ExpectQuery(dbQuery.Query).
 				WithArgs().
 				WillReturnRows(dbQuery.DbResponse)
 		}
@@ -428,6 +404,7 @@ func TestFindUserByToken(t *testing.T) {
 		},
 	}
 
+	query := regexp.QuoteMeta("SELECT `users`.* FROM `users` WHERE (token=?) LIMIT 1;")
 	for _, tt := range cases {
 		err := godotenv.Load("../.env.local")
 		if err != nil {
@@ -447,12 +424,12 @@ func TestFindUserByToken(t *testing.T) {
 		boil.SetDB(db)
 
 		if tt.name == "Fail on finding user token" {
-			mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"users\" WHERE (token=$1) LIMIT 1;")).
+			mock.ExpectQuery(query).
 				WithArgs().
 				WillReturnError(fmt.Errorf(""))
 		}
 		rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
-		mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"users\" WHERE (token=$1) LIMIT 1;")).
+		mock.ExpectQuery(query).
 			WithArgs().
 			WillReturnRows(rows)
 

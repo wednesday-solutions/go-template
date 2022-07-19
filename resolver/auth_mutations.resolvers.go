@@ -20,7 +20,7 @@ import (
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, username string, password string) (*gqlmodels.LoginResponse, error) {
 	u, err := daos.FindUserByUserName(username)
-	fmt.Println("error::", err)
+
 	if err != nil {
 		return nil, err
 	}
@@ -32,6 +32,7 @@ func (r *mutationResolver) Login(ctx context.Context, username string, password 
 	// creating new secure and token generation service
 	sec := service.Secure(cfg)
 	tg, err := service.JWT(cfg)
+
 	if err != nil {
 		return nil, fmt.Errorf("error in creating auth service ")
 	}

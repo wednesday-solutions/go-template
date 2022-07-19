@@ -1,4 +1,4 @@
 mysql:
   dialect: mysql
-  datasource: root:password@tcp(localhost:3306)/erp_local?parseTime=true
+  datasource: ${MYSQL_USER}:${MYSQL_ROOT_PASSWORD}@tcp(${MYSQL_HOST}:${MYSQL_PORT})/${MYSQL_DBNAME}?parseTime=true
   dir: internal/migrations

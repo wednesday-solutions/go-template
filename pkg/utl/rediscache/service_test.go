@@ -50,7 +50,7 @@ func TestGetUser(t *testing.T) {
 				dbQueries: []testutls.QueryData{
 					{
 						Actions: &[]driver.Value{testutls.MockID},
-						Query:   "select * from \"users\" where \"id\"=$1",
+						Query:   "select * from `users` where `id`=?",
 						DbResponse: sqlmock.NewRows([]string{
 							"id",
 							"first_name",
@@ -155,7 +155,7 @@ func TestGetRole(t *testing.T) {
 				dbQueries: []testutls.QueryData{
 					{
 						Actions: &[]driver.Value{role.ID},
-						Query:   "select * from \"roles\" where \"id\"=$1",
+						Query:   "select * from `roles` where `id`=?",
 						DbResponse: sqlmock.NewRows([]string{
 							"id", "access_level", "name",
 						}).AddRow(
