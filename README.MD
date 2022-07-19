@@ -49,7 +49,7 @@ The Go Template is a template/starter go project.
 
 ## Out of the box support for
 
-- GraphQL
+- GraphQL Relay
 - Dockerization
 - Authorization middleware
 - Redis Cache
