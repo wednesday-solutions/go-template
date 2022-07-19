@@ -12,7 +12,7 @@ import (
 	"go-template/internal/middleware/auth"
 	"go-template/internal/service"
 	"go-template/pkg/utl/convert"
-	resultwrapper "go-template/pkg/utl/result_wrapper"
+	resultwrapper "go-template/pkg/utl/resultwrapper"
 
 	null "github.com/volatiletech/null/v8"
 )

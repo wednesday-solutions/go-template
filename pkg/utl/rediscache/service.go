@@ -8,7 +8,7 @@ import (
 
 	"go-template/daos"
 	"go-template/models"
-	resultwrapper "go-template/pkg/utl/result_wrapper"
+	resultwrapper "go-template/pkg/utl/resultwrapper"
 
 	redigo "github.com/gomodule/redigo/redis"
 )
