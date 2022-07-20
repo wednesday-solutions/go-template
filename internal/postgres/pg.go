@@ -12,12 +12,12 @@ import (
 // Connect ...
 func Connect() (*sql.DB, error) {
 	psqlInfo := fmt.Sprintf("dbname=%s host=%s user=%s password=%s port=%s sslmode=%s",
-		os.Getenv("DB_NAME"),
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASS"),
-		os.Getenv("DB_PORT"),
-		os.Getenv("DB_SSL"))
+		os.Getenv("PSQL_DBNAME"),
+		os.Getenv("PSQL_HOST"),
+		os.Getenv("PSQL_USER"),
+		os.Getenv("PSQL_PASS"),
+		os.Getenv("PSQL_PORT"),
+		os.Getenv("PSQL_SSLMODE"))
 	fmt.Println("Connecting to DB\n", psqlInfo)
 	return sql.Open("postgres", psqlInfo)
 }

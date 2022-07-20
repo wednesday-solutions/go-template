@@ -7,10 +7,10 @@ services:
     env_file:
       - .env.docker
     environment:
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASS}
-      - POSTGRES_PORT=${DB_PORT}
-      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${PSQL_USER}
+      - POSTGRES_PASSWORD=${PSQL_PASS}
+      - POSTGRES_PORT=${PSQL_PORT}
+      - POSTGRES_DB=${PSQL_DBNAME}
 
   redis:
     image: redis:6-alpine
