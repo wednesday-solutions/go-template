@@ -11,7 +11,7 @@ go install golang.org/x/tools/cmd/goimports@latest
 go install github.com/go-critic/go-critic/cmd/gocritic@latest
 go install golang.org/x/lint/golint@latest
 go install github.com/BurntSushi/toml/cmd/tomlv@latest
-go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.43.0
+go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 go install github.com/segmentio/golines@latest
 
 touch  .git/hooks/commit-msg
