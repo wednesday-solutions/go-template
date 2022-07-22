@@ -1,7 +1,5 @@
 #!/bin/bash
-set -a
-source .env.local
-set +a
+source ./scripts/source-local.sh
 
 export PSQL_HOST=localhost
 # drop tables

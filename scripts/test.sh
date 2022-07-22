@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
 
-set -a && source .env.local && set +a 
+source ./scripts/source-local.sh
+
 go test -gcflags=all=-l $(go list ./... | grep -v models | grep -v testutls | grep -v gqlmodels | grep -v cmd/seeder)  -coverprofile=coverage.out
