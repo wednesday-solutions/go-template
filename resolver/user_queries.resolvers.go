@@ -18,7 +18,7 @@ import (
 // Me is the resolver for the me field.
 func (r *queryResolver) Me(ctx context.Context) (*gqlmodels.User, error) {
 	userID := auth.UserIDFromContext(ctx)
-	user, err := rediscache.GetUser(userID)
+	user, err := rediscache.GetUser(userID, ctx)
 	if err != nil {
 		return &gqlmodels.User{}, resultwrapper.ResolverSQLError(err, "data")
 	}
@@ -35,7 +35,7 @@ func (r *queryResolver) Users(ctx context.Context, pagination *gqlmodels.UserPag
 		}
 	}
 
-	users, count, err := daos.FindAllUsersWithCount(queryMods)
+	users, count, err := daos.FindAllUsersWithCount(queryMods, ctx)
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "data")
 	}

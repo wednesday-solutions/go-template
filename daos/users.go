@@ -12,63 +12,73 @@ import (
 )
 
 // FindUserByUserName finds user by username
-func FindUserByUserName(username string) (*models.User, error) {
+func FindUserByUserName(username string, ctx context.Context) (*models.User, error) {
 	contextExecutor := getContextExecutor(nil)
 	return models.Users(qm.Where(fmt.Sprintf("%s=?", models.UserColumns.Username), username)).
-		One(context.Background(), contextExecutor)
+		One(ctx, contextExecutor)
 }
 
 // FindUserByEmail ...
-func FindUserByEmail(email string) (*models.User, error) {
+func FindUserByEmail(email string, ctx context.Context) (*models.User, error) {
 	contextExecutor := getContextExecutor(nil)
 	return models.Users(qm.Where(fmt.Sprintf("%s=?", models.UserColumns.Email), email)).
-		One(context.Background(), contextExecutor)
+		One(ctx, contextExecutor)
 }
 
 // FindUserByToken ...
-func FindUserByToken(token string) (*models.User, error) {
+func FindUserByToken(token string, ctx context.Context) (*models.User, error) {
 	contextExecutor := getContextExecutor(nil)
 	return models.Users(qm.Where(fmt.Sprintf("%s=?", models.UserColumns.Token), token)).
-		One(context.Background(), contextExecutor)
+		One(ctx, contextExecutor)
 }
 
 // FindUserByID ...
-func FindUserByID(userID int) (*models.User, error) {
+func FindUserByID(userID int, ctx context.Context) (*models.User, error) {
 	contextExecutor := getContextExecutor(nil)
-	return models.FindUser(context.Background(), contextExecutor, userID)
+	return models.FindUser(ctx, contextExecutor, userID)
 }
 
 // CreateUserTx ...
-func CreateUserTx(user models.User, tx *sql.Tx) (models.User, error) {
+func CreateUserTx(user models.User, ctx context.Context, tx *sql.Tx) (models.User, error) {
 	contextExecutor := getContextExecutor(tx)
 
-	err := user.Insert(context.Background(), contextExecutor, boil.Infer())
+	err := user.Insert(ctx, contextExecutor, boil.Infer())
+	return user, err
+}
+
+// CreateUser
+func CreateUser(user models.User, ctx context.Context) (models.User, error) {
+	return CreateUserTx(user, ctx, nil)
+}
+
+// UpdateUserTx ...
+func UpdateUserTx(user models.User, ctx context.Context, tx *sql.Tx) (models.User, error) {
+	contextExecutor := getContextExecutor(tx)
+	_, err := user.Update(ctx, contextExecutor, boil.Infer())
 	return user, err
 }
 
 // UpdateUserTx ...
-func UpdateUserTx(user models.User, tx *sql.Tx) (models.User, error) {
-	contextExecutor := getContextExecutor(tx)
-	_, err := user.Update(context.Background(), contextExecutor, boil.Infer())
-	return user, err
+func UpdateUser(user models.User, ctx context.Context) (models.User, error) {
+	return UpdateUserTx(user, ctx, nil)
 }
 
 // DeleteUser ...
-func DeleteUser(user models.User) (int64, error) {
+func DeleteUser(user models.User, ctx context.Context) (int64, error) {
 	contextExecutor := getContextExecutor(nil)
-	rowsAffected, err := user.Delete(context.Background(), contextExecutor)
+	rowsAffected, err := user.Delete(ctx, contextExecutor)
 	return rowsAffected, err
 }
 
 // FindAllUsersWithCount ... This will get all the users that match the queryMod filter and also return the count
-func FindAllUsersWithCount(queryMods []qm.QueryMod) (models.UserSlice, int64, error) {
+func FindAllUsersWithCount(queryMods []qm.QueryMod, ctx context.Context) (models.UserSlice, int64, error) {
 	contextExecutor := getContextExecutor(nil)
-	users, err := models.Users(queryMods...).All(context.Background(), contextExecutor)
+	users, err := models.Users(queryMods...).All(ctx, contextExecutor)
 	if err != nil {
 		return models.UserSlice{}, 0, err
 	}
 	queryMods = append(queryMods, qm.Offset(0))
-	count, err := models.Users(queryMods...).Count(context.Background(), contextExecutor)
+	count, err := models.Users(queryMods...).Count(ctx, contextExecutor)
 	return users, count, err
 
 }

@@ -9,7 +9,7 @@ import (
 	rediscache "go-template/pkg/utl/rediscache"
 
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 type key string

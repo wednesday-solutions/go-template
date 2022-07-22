@@ -3,6 +3,7 @@ package api
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -13,6 +14,7 @@ import (
 	authMw "go-template/internal/middleware/auth"
 	"go-template/internal/postgres"
 	"go-template/internal/server"
+	"go-template/internal/service/tracer"
 	throttle "go-template/pkg/utl/throttle"
 	"go-template/resolver"
 
@@ -23,13 +25,22 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gorilla/websocket"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq" // here
+
 	"github.com/volatiletech/sqlboiler/v4/boil"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
 )
 
 // Start starts the API service
 func Start(cfg *config.Configuration) (*echo.Echo, error) {
+	tp := tracer.Init()
+	defer func() {
+		if err := tp.Shutdown(context.Background()); err != nil {
+			log.Printf("Error shutting down tracer provider: %v", err)
+		}
+	}()
+
 	db, err := postgres.Connect()
 	if err != nil {
 		return nil, err
@@ -47,7 +58,7 @@ func Start(cfg *config.Configuration) (*echo.Echo, error) {
 	}
 
 	e := server.New()
-
+	e.Use(otelecho.Middleware(os.Getenv("SERVICE_NAME")))
 	gqlMiddleware := authMw.GqlMiddleware()
 	// throttlerMiddleware puts the current user's IP address into context of gqlgen
 	throttlerMiddleware := throttle.GqlMiddleware()
@@ -62,6 +73,7 @@ func Start(cfg *config.Configuration) (*echo.Echo, error) {
 	if os.Getenv("ENVIRONMENT_NAME") == "local" {
 		boil.DebugMode = true
 	}
+
 	// graphql apis
 	graphqlHandler.AroundOperations(func(ctx context.Context, next graphql2.OperationHandler) graphql2.ResponseHandler {
 		return authMw.GraphQLMiddleware(ctx, jwt, next)

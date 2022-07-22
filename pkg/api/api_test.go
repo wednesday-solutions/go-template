@@ -26,7 +26,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	. "github.com/agiledragon/gomonkey/v2"
 	"github.com/gorilla/websocket"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
 	"github.com/volatiletech/sqlboiler/v4/boil"

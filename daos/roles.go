@@ -10,15 +10,20 @@ import (
 )
 
 // CreateRoleTx ...
-func CreateRoleTx(role models.Role, tx *sql.Tx) (models.Role, error) {
+func CreateRoleTx(role models.Role, ctx context.Context, tx *sql.Tx) (models.Role, error) {
 	contextExecutor := getContextExecutor(tx)
 
-	err := role.Insert(context.Background(), contextExecutor, boil.Infer())
+	err := role.Insert(ctx, contextExecutor, boil.Infer())
 	return role, err
 }
 
+// CreateRoleTx ...
+func CreateRole(role models.Role, ctx context.Context) (models.Role, error) {
+	return CreateRoleTx(role, ctx, nil)
+}
+
 // FindRoleByID ...
-func FindRoleByID(roleID int) (*models.Role, error) {
+func FindRoleByID(roleID int, ctx context.Context) (*models.Role, error) {
 	contextExecutor := getContextExecutor(nil)
-	return models.FindRole(context.Background(), contextExecutor, roleID)
+	return models.FindRole(ctx, contextExecutor, roleID)
 }
