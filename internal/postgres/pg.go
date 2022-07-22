@@ -3,6 +3,7 @@ package postgres
 import (
 	"database/sql"
 	"fmt"
+	"go-template/testutls"
 	"os"
 
 	otelsql "github.com/uptrace/opentelemetry-go-extra/otelsql"
@@ -16,6 +17,9 @@ import (
 func Connect() (*sql.DB, error) {
 	dsn := GetDSN()
 	fmt.Println("Connecting to DB\n", dsn)
+	if testutls.IsInTests() {
+		return sql.Open("postgres", dsn)
+	}
 	return otelsql.Open("postgres", dsn, otelsql.WithAttributes(semconv.DBSystemPostgreSQL))
 }
 

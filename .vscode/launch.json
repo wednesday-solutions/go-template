@@ -18,6 +18,7 @@
       "type": "go",
       "request": "launch",
       "mode": "auto",
+      "cwd": "./",
       "program": "${cwd}/cmd/server/main.go",
       "env": {
         "PSQL_DBNAME": "go_template",
@@ -26,7 +27,7 @@
         "PSQL_USER": "go_template_role",
         "PSQL_SSLMODE": "disable",
         "PSQL_PORT": "5432",
-        "ENVIRONMENT_NAME": "dev",
+        "ENVIRONMENT_NAME": "local",
         "JWT_SECRET": "aa60b52e-7974-11ea-bc55-0242ac130003b08d6654-7974-11ea-bc55-0242ac130003-b08d6654-7974-11ea-bc55-0242ac130003"
       },
       "args": []

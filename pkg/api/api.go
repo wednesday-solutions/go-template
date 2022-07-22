@@ -3,7 +3,7 @@ package api
 
 import (
 	"context"
-	"log"
+	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -14,7 +14,6 @@ import (
 	authMw "go-template/internal/middleware/auth"
 	"go-template/internal/postgres"
 	"go-template/internal/server"
-	"go-template/internal/service/tracer"
 	throttle "go-template/pkg/utl/throttle"
 	"go-template/resolver"
 
@@ -29,19 +28,14 @@ import (
 	_ "github.com/lib/pq" // here
 
 	"github.com/volatiletech/sqlboiler/v4/boil"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
 )
 
 // Start starts the API service
 func Start(cfg *config.Configuration) (*echo.Echo, error) {
-	tp := tracer.Init()
-	defer func() {
-		if err := tp.Shutdown(context.Background()); err != nil {
-			log.Printf("Error shutting down tracer provider: %v", err)
-		}
-	}()
 
+	fmt.Println("in here")
 	db, err := postgres.Connect()
+	fmt.Println("in here2")
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +52,7 @@ func Start(cfg *config.Configuration) (*echo.Echo, error) {
 	}
 
 	e := server.New()
-	e.Use(otelecho.Middleware(os.Getenv("SERVICE_NAME")))
+
 	gqlMiddleware := authMw.GqlMiddleware()
 	// throttlerMiddleware puts the current user's IP address into context of gqlgen
 	throttlerMiddleware := throttle.GqlMiddleware()

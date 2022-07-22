@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"fmt"
+	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -135,4 +137,12 @@ func MockConfig() *config.Configuration {
 			MinPasswordStr: 1,
 		},
 	}
+}
+func IsInTests() bool {
+	for _, arg := range os.Args {
+		if strings.HasPrefix(arg, "-test.paniconexit0") {
+			return true
+		}
+	}
+	return false
 }
