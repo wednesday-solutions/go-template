@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 set -a
 source .env.local
 set +a

@@ -1,7 +1,6 @@
 package secure
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -30,7 +29,7 @@ func Headers() echo.MiddlewareFunc {
 
 // CORS adds Cross-Origin Resource Sharing support
 func CORS() echo.MiddlewareFunc {
-	cors := middleware.CORSWithConfig(middleware.CORSConfig{
+	return middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"},
 		MaxAge:       86400,
 		AllowMethods: []string{
@@ -45,6 +44,4 @@ func CORS() echo.MiddlewareFunc {
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	})
-	fmt.Println("cors:::", cors)
-	return cors
 }

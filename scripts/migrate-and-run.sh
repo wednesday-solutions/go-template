@@ -1,3 +1,5 @@
+#!/bin/sh
+
 set -a
 source .env.$ENVIRONMENT_NAME
 set +a
@@ -15,7 +17,9 @@ sql-migrate status -env postgres
 
 if [[ $ENVIRONMENT_NAME == "docker" ]]; then
     echo "seeding"
-    ./scripts/seed.sh
+    /app/scripts/seed.sh
 fi
 
-./main
+ls -a app
+
+/app/main
