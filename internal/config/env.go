@@ -66,7 +66,7 @@ func LoadEnv() error {
 		return err
 	}
 
-	if env != "local" && env == "docker" {
+	if env != "local" && env != "docker" {
 		type copilotSecrets struct {
 			Username string `json:"username"`
 			Host     string `json:"host"`

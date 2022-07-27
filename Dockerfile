@@ -20,13 +20,11 @@ ARG ENVIRONMENT_NAME
 RUN apk add build-base
 RUN mkdir -p /app
 
-ADD scripts/ /app/scripts
-ADD internal/migrations /app/internal/migrations
-ADD .env.* /app/
+ADD .  /app
 
 WORKDIR /app
 
-COPY --from=0 /go/src/github.com/wednesday-solutions/go-template/output /app
+COPY --from=0 /go/src/github.com/wednesday-solutions/go-template/output /app/
 
 CMD ["sh", "/app/scripts/migrate-and-run.sh"]
 EXPOSE 9000

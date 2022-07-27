@@ -1,28 +1,42 @@
-package seeders
+package main
 
 import (
 	"fmt"
+	"go-template/internal/config"
 	"log"
-	"strings"
+	"os"
+	"os/exec"
 
-	"go-template/internal/postgres"
+	"golang.org/x/exp/slices"
 )
 
-// SeedData ...
-func SeedData(tableName string, rawQuery string) error {
-	db, _ := postgres.Connect()
+func main() {
+	err := config.LoadEnv()
+	if err != nil {
+		fmt.Println("erorr while loading the env")
+		return
+	}
+	base := "./cmd/seeder"
+	files, err := os.ReadDir(base)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	fmt.Printf("\n-------------------------------\n***Seeding %s\n", tableName)
+	for _, file := range files {
+		if slices.Contains([]string{"main.go", "utls"}, file.Name()) {
+			continue
+		}
 
-	queries := strings.Split(rawQuery, ";")
-
-	for _, v := range queries[0 : len(queries)-1] {
-		_, err := db.Exec(v)
+		filepath := base + "/" + file.Name()
+		files, err := os.ReadDir(filepath)
 		if err != nil {
 			log.Fatal(err)
-			return err
 		}
+		for _, file := range files {
+			fmt.Println(filepath + "/" + file.Name())
+			err := exec.Command("go", "run", filepath+"/"+file.Name()).Run()
+			fmt.Println(err)
+		}
+
 	}
-	fmt.Printf("***Done seeding %s\n-------------------------------\n", tableName)
-	return nil
 }

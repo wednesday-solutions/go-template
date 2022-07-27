@@ -93,11 +93,14 @@ type Parameters struct {
 	EnvFileLocation string `default:"../.env.local"`
 }
 
-func SetupEnvAndDB(t *testing.T, parameters Parameters) (mock sqlmock.Sqlmock, db *sql.DB, err error) {
-	err = godotenv.Load(parameters.EnvFileLocation)
+func SetupEnv(envfile string) {
+	err := godotenv.Load(envfile)
 	if err != nil {
 		fmt.Print("error loading .env file")
 	}
+}
+func SetupEnvAndDB(t *testing.T, parameters Parameters) (mock sqlmock.Sqlmock, db *sql.DB, err error) {
+	SetupEnv(parameters.EnvFileLocation)
 	db, mock, err = sqlmock.New()
 	if err != nil {
 		if err != nil {

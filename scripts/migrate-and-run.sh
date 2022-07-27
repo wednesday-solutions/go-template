@@ -1,10 +1,15 @@
 #!/bin/sh
 
-go run /app/cmd/migrations/main.go
+echo $ENVIRONMENT_NAME
+
+./scripts/install-tooling.sh
+go run ./cmd/migrations/main.go
 
 if [[ $ENVIRONMENT_NAME == "docker" ]]; then
     echo "seeding"
-    /app/scripts/seed.sh
+    go run ./cmd/seeder/main.go
 fi
 
-/app/main
+
+
+./main
