@@ -23,12 +23,10 @@ RUN mkdir -p /app
 ADD scripts/ /app/scripts
 ADD internal/migrations /app/internal/migrations
 ADD .env.* /app/
-ADD dbconfig.yml /app/
 
 WORKDIR /app
 
 COPY --from=0 /go/src/github.com/wednesday-solutions/go-template/output /app
 
-# RUN /app/scripts/install-tooling.sh
 CMD ["sh", "/app/scripts/migrate-and-run.sh"]
 EXPOSE 9000

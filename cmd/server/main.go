@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/joho/godotenv"
 	"github.com/rs/zerolog"
 
 	"go-template/internal/config"
+
 	"go-template/pkg/api"
 )
 
@@ -15,13 +15,7 @@ func main() {
 	Setup()
 }
 func Setup() {
-	envName := os.Getenv("ENVIRONMENT_NAME")
-
-	if envName == "" {
-		envName = "local"
-	}
-
-	err := godotenv.Load(fmt.Sprintf(".env.%s", envName))
+	err := config.LoadEnv()
 	if err != nil {
 		fmt.Print("error loading .env file")
 		checkErr(err)

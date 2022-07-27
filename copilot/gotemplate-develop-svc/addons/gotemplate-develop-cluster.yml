@@ -9,18 +9,18 @@ Parameters:
     Type: String
     Description: The name of the service, job, or workflow being deployed.
   # Customize your Aurora Serverless cluster by setting the default value of the following parameters.
-  gotemplatedevclusterDBName:
+  gotemplatedevelopclusterDBName:
     Type: String
     Description: The name of the initial database to be created in the DB cluster.
-    Default: gotemplate_dev_db
+    Default: gotemplate_develop_db
     # Cannot have special characters
     # Naming constraints: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_Limits.html#RDS_Limits.Constraints
-  gotemplatedevclusterDBAutoPauseSeconds:
+  gotemplatedevelopclusterDBAutoPauseSeconds:
     Type: Number
     Description: The duration in seconds before the cluster pauses.
     Default: 1000
 Mappings:
-  gotemplatedevclusterEnvScalingConfigurationMap: 
+  gotemplatedevelopclusterEnvScalingConfigurationMap: 
     dev:
       "DBMinCapacity": 2 # AllowedValues: [2, 4, 8, 16, 32, 64, 192, 384]
       "DBMaxCapacity": 8 # AllowedValues: [2, 4, 8, 16, 32, 64, 192, 384]
@@ -31,27 +31,27 @@ Mappings:
       
 
 Resources:
-  gotemplatedevclusterDBSubnetGroup:
+  gotemplatedevelopclusterDBSubnetGroup:
     Type: 'AWS::RDS::DBSubnetGroup'
     Properties:
       DBSubnetGroupDescription: Group of Copilot private subnets for Aurora cluster.
       SubnetIds:
         !Split [',', { 'Fn::ImportValue': !Sub '${App}-${Env}-PrivateSubnets' }]
-  gotemplatedevclusterSecurityGroup:
+  gotemplatedevelopclusterSecurityGroup:
     Metadata:
-      'aws:copilot:description': 'A security group for your workload to access the DB cluster gotemplatedevcluster'
+      'aws:copilot:description': 'A security group for your workload to access the DB cluster gotemplatedevelopcluster'
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
-      GroupDescription: !Sub 'The Security Group for ${Name} to access DB cluster gotemplatedevcluster.'
+      GroupDescription: !Sub 'The Security Group for ${Name} to access DB cluster gotemplatedevelopcluster.'
       VpcId:
         Fn::ImportValue:
           !Sub '${App}-${Env}-VpcId'
       Tags:
         - Key: Name
           Value: !Sub 'copilot-${App}-${Env}-${Name}-Aurora'
-  gotemplatedevclusterDBClusterSecurityGroup:
+  gotemplatedevelopclusterDBClusterSecurityGroup:
     Metadata:
-      'aws:copilot:description': 'A security group for your DB cluster gotemplatedevcluster'
+      'aws:copilot:description': 'A security group for your DB cluster gotemplatedevelopcluster'
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: The Security Group for the database cluster.
@@ -60,11 +60,11 @@ Resources:
           FromPort: 5432
           IpProtocol: tcp
           Description: !Sub 'From the Aurora Security Group of the workload ${Name}.'
-          SourceSecurityGroupId: !Ref gotemplatedevclusterSecurityGroup
+          SourceSecurityGroupId: !Ref gotemplatedevelopclusterSecurityGroup
       VpcId:
         Fn::ImportValue:
           !Sub '${App}-${Env}-VpcId'
-  gotemplatedevclusterAuroraSecret:
+  gotemplatedevelopclusterAuroraSecret:
     Metadata:
       'aws:copilot:description': 'A Secrets Manager secret to store your DB credentials'
     Type: AWS::SecretsManager::Secret
@@ -76,7 +76,7 @@ Resources:
         ExcludePunctuation: true
         IncludeSpace: false
         PasswordLength: 16
-  gotemplatedevclusterDBClusterParameterGroup:
+  gotemplatedevelopclusterDBClusterParameterGroup:
     Metadata:
       'aws:copilot:description': 'A DB parameter group for engine configuration values'
     Type: 'AWS::RDS::DBClusterParameterGroup'
@@ -85,39 +85,39 @@ Resources:
       Family: 'aurora-postgresql10'
       Parameters:
         client_encoding: 'UTF8'
-  gotemplatedevclusterDBCluster:
+  gotemplatedevelopclusterDBCluster:
     Metadata:
-      'aws:copilot:description': 'The gotemplatedevcluster Aurora Serverless database cluster'
+      'aws:copilot:description': 'The gotemplatedevelopcluster Aurora Serverless database cluster'
     Type: 'AWS::RDS::DBCluster'
     Properties:
       MasterUsername:
-        !Join [ "",  [ '{{resolve:secretsmanager:', !Ref gotemplatedevclusterAuroraSecret, ":SecretString:username}}" ]]
+        !Join [ "",  [ '{{resolve:secretsmanager:', !Ref gotemplatedevelopclusterAuroraSecret, ":SecretString:username}}" ]]
       MasterUserPassword:
-        !Join [ "",  [ '{{resolve:secretsmanager:', !Ref gotemplatedevclusterAuroraSecret, ":SecretString:password}}" ]]
-      DatabaseName: !Ref gotemplatedevclusterDBName
+        !Join [ "",  [ '{{resolve:secretsmanager:', !Ref gotemplatedevelopclusterAuroraSecret, ":SecretString:password}}" ]]
+      DatabaseName: !Ref gotemplatedevelopclusterDBName
       Engine: 'aurora-postgresql'
       EngineVersion: '10.12'
       EngineMode: serverless
-      DBClusterParameterGroupName: !Ref gotemplatedevclusterDBClusterParameterGroup
-      DBSubnetGroupName: !Ref gotemplatedevclusterDBSubnetGroup
+      DBClusterParameterGroupName: !Ref gotemplatedevelopclusterDBClusterParameterGroup
+      DBSubnetGroupName: !Ref gotemplatedevelopclusterDBSubnetGroup
       VpcSecurityGroupIds:
-        - !Ref gotemplatedevclusterDBClusterSecurityGroup
+        - !Ref gotemplatedevelopclusterDBClusterSecurityGroup
       ScalingConfiguration:
         AutoPause: true
         # Replace "All" below with "!Ref Env" to set different autoscaling limits per environment.
-        MinCapacity: !FindInMap [gotemplatedevclusterEnvScalingConfigurationMap, All, DBMinCapacity]
-        MaxCapacity: !FindInMap [gotemplatedevclusterEnvScalingConfigurationMap, All, DBMaxCapacity]
-        SecondsUntilAutoPause: !Ref gotemplatedevclusterDBAutoPauseSeconds
-  gotemplatedevclusterSecretAuroraClusterAttachment:
+        MinCapacity: !FindInMap [gotemplatedevelopclusterEnvScalingConfigurationMap, All, DBMinCapacity]
+        MaxCapacity: !FindInMap [gotemplatedevelopclusterEnvScalingConfigurationMap, All, DBMaxCapacity]
+        SecondsUntilAutoPause: !Ref gotemplatedevelopclusterDBAutoPauseSeconds
+  gotemplatedevelopclusterSecretAuroraClusterAttachment:
     Type: AWS::SecretsManager::SecretTargetAttachment
     Properties:
-      SecretId: !Ref gotemplatedevclusterAuroraSecret
-      TargetId: !Ref gotemplatedevclusterDBCluster
+      SecretId: !Ref gotemplatedevelopclusterAuroraSecret
+      TargetId: !Ref gotemplatedevelopclusterDBCluster
       TargetType: AWS::RDS::DBCluster
 Outputs:
-  gotemplatedevclusterSecret: # injected as GOTEMPLATEDEVCLUSTER_SECRET environment variable by Copilot.
+  gotemplatedevelopclusterSecret: # injected as GOTEMPLATEDEVELOPCLUSTER_SECRET environment variable by Copilot.
     Description: "The JSON secret that holds the database username and password. Fields are 'host', 'port', 'dbname', 'username', 'password', 'dbClusterIdentifier' and 'engine'"
-    Value: !Ref gotemplatedevclusterAuroraSecret
-  gotemplatedevclusterSecurityGroup:
+    Value: !Ref gotemplatedevelopclusterAuroraSecret
+  gotemplatedevelopclusterSecurityGroup:
     Description: "The security group to attach to the workload."
-    Value: !Ref gotemplatedevclusterSecurityGroup
+    Value: !Ref gotemplatedevelopclusterSecurityGroup

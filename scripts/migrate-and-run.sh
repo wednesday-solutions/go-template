@@ -1,25 +1,10 @@
 #!/bin/sh
 
-set -a
-source .env.$ENVIRONMENT_NAME
-set +a
-sleep 20
-echo $ENVIRONMENT_NAME
-sql-migrate status -env postgres
-
-# dropping existing tables
-# sql-migrate down -env postgres -limit=0
-
-# running migrations
-sql-migrate up -env postgres
-sql-migrate status -env postgres
-
+go run /app/cmd/migrations/main.go
 
 if [[ $ENVIRONMENT_NAME == "docker" ]]; then
     echo "seeding"
     /app/scripts/seed.sh
 fi
-
-ls -a app
 
 /app/main
