@@ -70,12 +70,13 @@ func TestStart(t *testing.T) {
 		},
 	}
 
-	ApplyFunc(os.Getenv, func(key string) (value string) {
+	patches := ApplyFunc(os.Getenv, func(key string) (value string) {
 		if key == "JWT_SECRET" {
 			return testutls.MockJWTSecret
 		}
 		return ""
 	})
+	defer patches.Reset()
 	ApplyFunc(sql.Open, func(driverName string, dataSourceName string) (*sql.DB, error) {
 		fmt.Print("sql.Open called\n")
 		return nil, nil

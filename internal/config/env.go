@@ -65,7 +65,6 @@ func LoadEnv() error {
 	if err != nil {
 		return err
 	}
-
 	if env != "local" && env != "docker" {
 		type copilotSecrets struct {
 			Username string `json:"username"`
@@ -75,7 +74,8 @@ func LoadEnv() error {
 			Port     int    `json:"port"`
 		}
 		secrets := &copilotSecrets{}
-		err := json.Unmarshal([]byte(os.Getenv(os.Getenv("DB_SECRET"))), secrets)
+
+		err := json.Unmarshal([]byte(os.Getenv("DB_SECRET")), secrets)
 		if err != nil {
 			return err
 		}

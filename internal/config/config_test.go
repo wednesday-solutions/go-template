@@ -65,12 +65,13 @@ func TestLoad(t *testing.T) {
 			}
 
 			if tt.wantErr == true {
-				ApplyFunc(os.Getenv, func(key string) string {
+				patches := ApplyFunc(os.Getenv, func(key string) string {
 					if key == tt.errKey {
 						return ""
 					}
 					return key
 				})
+				defer patches.Reset()
 			}
 
 			config, err := config.Load()

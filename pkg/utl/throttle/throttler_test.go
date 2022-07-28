@@ -110,7 +110,7 @@ func TestCheck(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.args.ctx = context.WithValue(tt.args.ctx, userIPAdress, tt.args.ip)
 
-			ApplyFunc(os.Getenv, func(key string) string {
+			patches := ApplyFunc(os.Getenv, func(key string) string {
 				if key == "ENVIRONMENT_NAME" {
 					if tt.args.isLocal {
 						return "local"
@@ -119,6 +119,7 @@ func TestCheck(t *testing.T) {
 				}
 				return ""
 			})
+			defer patches.Reset()
 			ApplyFunc(rediscache.IncVisits, func(path string) (int, error) {
 				if tt.args.visitsErr != nil {
 					return 0, tt.args.visitsErr
