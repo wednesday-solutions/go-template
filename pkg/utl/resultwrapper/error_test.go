@@ -9,7 +9,7 @@ import (
 	resultwrapper "go-template/pkg/utl/resultwrapper"
 	"go-template/testutls"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
 

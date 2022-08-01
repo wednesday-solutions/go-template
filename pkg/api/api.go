@@ -23,8 +23,9 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gorilla/websocket"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq" // here
+
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
@@ -62,6 +63,7 @@ func Start(cfg *config.Configuration) (*echo.Echo, error) {
 	if os.Getenv("ENVIRONMENT_NAME") == "local" {
 		boil.DebugMode = true
 	}
+
 	// graphql apis
 	graphqlHandler.AroundOperations(func(ctx context.Context, next graphql2.OperationHandler) graphql2.ResponseHandler {
 		return authMw.GraphQLMiddleware(ctx, jwt, next)

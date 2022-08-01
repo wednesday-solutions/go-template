@@ -45,7 +45,7 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input gqlmodels.UserC
 	// creating new secure service
 	sec := service.Secure(cfg)
 	user.Password = null.StringFrom(sec.Hash(user.Password.String))
-	newUser, err := daos.CreateUserTx(user, nil)
+	newUser, err := daos.CreateUser(user, ctx)
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "user information")
 	}
@@ -63,7 +63,7 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input gqlmodels.UserC
 // UpdateUser is the resolver for the updateUser field.
 func (r *mutationResolver) UpdateUser(ctx context.Context, input *gqlmodels.UserUpdateInput) (*gqlmodels.User, error) {
 	userID := auth.UserIDFromContext(ctx)
-	user, _ := daos.FindUserByID(userID)
+	user, _ := daos.FindUserByID(userID, ctx)
 	var u models.User
 	if user != nil {
 		u = *user
@@ -82,7 +82,7 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, input *gqlmodels.User
 	if input.Address != nil {
 		u.Address = null.StringFromPtr(input.Address)
 	}
-	_, err := daos.UpdateUserTx(u, nil)
+	_, err := daos.UpdateUser(u, ctx)
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "new information")
 	}
@@ -100,11 +100,11 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, input *gqlmodels.User
 // DeleteUser is the resolver for the deleteUser field.
 func (r *mutationResolver) DeleteUser(ctx context.Context) (*gqlmodels.UserDeletePayload, error) {
 	userID := auth.UserIDFromContext(ctx)
-	u, err := daos.FindUserByID(userID)
+	u, err := daos.FindUserByID(userID, ctx)
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "data")
 	}
-	_, err = daos.DeleteUser(*u)
+	_, err = daos.DeleteUser(*u, ctx)
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "user")
 	}

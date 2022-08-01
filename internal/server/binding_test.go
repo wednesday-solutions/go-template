@@ -9,7 +9,7 @@ import (
 	"go-template/internal/server"
 
 	"github.com/go-playground/validator"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
 

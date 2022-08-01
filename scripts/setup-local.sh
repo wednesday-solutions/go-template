@@ -1,15 +1,12 @@
-#!/bin/bash
-set -a
-source .env.local
-set +a
+#!/bin/sh
+set -a && source .env.local && set +a
 
 export PSQL_HOST=localhost
-# drop tables
-sql-migrate down -env postgres -limit=0
+# drop first
+go run ./cmd/migrations/main.go down
 
 # run migrations
-sql-migrate up -env postgres
-sql-migrate status -env postgres
+go run ./cmd/migrations/main.go
 
 # seed data
-./scripts/seed.sh
+go run ./cmd/seeder/main.go

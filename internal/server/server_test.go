@@ -15,7 +15,7 @@ import (
 	"go-template/testutls"
 
 	. "github.com/agiledragon/gomonkey/v2"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
 

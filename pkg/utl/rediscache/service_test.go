@@ -1,6 +1,7 @@
 package rediscache
 
 import (
+	"context"
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
@@ -108,7 +109,7 @@ func TestGetUser(t *testing.T) {
 				conn.Command("GET", fmt.Sprintf("user%d", tt.args.userID)).Expect(b)
 			}
 
-			got, err := GetUser(tt.args.userID)
+			got, err := GetUser(tt.args.userID, context.Background())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetUser() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -193,7 +194,7 @@ func TestGetRole(t *testing.T) {
 				b, _ := json.Marshal(tt.want)
 				conn.Command("GET", fmt.Sprintf("role%d", tt.args.roleID)).Expect(b)
 			}
-			got, err := GetRole(tt.args.roleID)
+			got, err := GetRole(tt.args.roleID, context.Background())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetRole() error = %v, wantErr %v", err, tt.wantErr)
 				return

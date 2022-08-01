@@ -1,6 +1,7 @@
 package rediscache
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"math"
@@ -15,14 +16,14 @@ import (
 
 // Service ...
 type Service interface {
-	GetUser(id int) (models.User, error)
-	GetRole(id int) (models.Role, error)
+	GetUser(id int, ctx context.Context) (models.User, error)
+	GetRole(id int, ctx context.Context) (models.Role, error)
 	IncVisits(path string) (int, error)
 	StartVisits(path string, exp time.Duration) error
 }
 
 // GetUser gets user from redis, if present, else from the database
-func GetUser(userID int) (*models.User, error) {
+func GetUser(userID int, ctx context.Context) (*models.User, error) {
 	// get user cache key
 	cachedUserValue, err := GetKeyValue(fmt.Sprintf("user%d", userID))
 	if err != nil {
@@ -37,7 +38,7 @@ func GetUser(userID int) (*models.User, error) {
 		}
 		return user, err
 	}
-	user, err = daos.FindUserByID(userID)
+	user, err = daos.FindUserByID(userID, ctx)
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "data")
 	}
@@ -50,7 +51,7 @@ func GetUser(userID int) (*models.User, error) {
 }
 
 // GetRole gets role from redis, if present, else from the database
-func GetRole(roleID int) (*models.Role, error) {
+func GetRole(roleID int, ctx context.Context) (*models.Role, error) {
 	// get role cache key
 	cachedRoleValue, err := GetKeyValue(fmt.Sprintf("role%d", roleID))
 	if err != nil {
@@ -65,7 +66,7 @@ func GetRole(roleID int) (*models.Role, error) {
 		}
 		return role, err
 	}
-	role, err = daos.FindRoleByID(roleID)
+	role, err = daos.FindRoleByID(roleID, ctx)
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "data")
 	}

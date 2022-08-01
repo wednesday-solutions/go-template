@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-playground/validator"
 	"github.com/golang/mock/gomock"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 func Test_getVldErrorMsg(t *testing.T) {

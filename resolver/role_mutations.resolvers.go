@@ -19,11 +19,11 @@ import (
 // CreateRole is the resolver for the createRole field.
 func (r *mutationResolver) CreateRole(ctx context.Context, input gqlmodels.RoleCreateInput) (*gqlmodels.RolePayload, error) {
 	userID := auth.UserIDFromContext(ctx)
-	user, err := rediscache.GetUser(userID)
+	user, err := rediscache.GetUser(userID, ctx)
 	if err != nil {
 		return &gqlmodels.RolePayload{}, resultwrapper.ResolverSQLError(err, "data")
 	}
-	userRole, err := rediscache.GetRole(convert.NullDotIntToInt(user.RoleID))
+	userRole, err := rediscache.GetRole(convert.NullDotIntToInt(user.RoleID), ctx)
 	if err != nil {
 		return &gqlmodels.RolePayload{}, resultwrapper.ResolverSQLError(err, "data")
 	}
@@ -35,7 +35,7 @@ func (r *mutationResolver) CreateRole(ctx context.Context, input gqlmodels.RoleC
 		return &gqlmodels.RolePayload{}, fmt.Errorf("You don't appear to have enough access level for this request ")
 	}
 
-	newRole, err := daos.CreateRoleTx(role, nil)
+	newRole, err := daos.CreateRole(role, ctx)
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "role")
 	}

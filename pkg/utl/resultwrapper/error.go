@@ -13,7 +13,7 @@ import (
 
 	graphql2 "github.com/99designs/gqlgen/graphql"
 	"github.com/go-playground/validator"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 

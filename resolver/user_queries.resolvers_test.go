@@ -92,10 +92,6 @@ func TestMe(
 				)
 				response, _ := resolver1.Query().
 					Me(ctx)
-				fmt.Println(
-					"\n\nresponse:::::",
-					response,
-				)
 				assert.Equal(
 					t,
 					tt.wantResp,
