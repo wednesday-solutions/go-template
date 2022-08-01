@@ -57,6 +57,9 @@ The Go Template is a template/starter go project.
 - Paginated endpoints
 - Simplified support for migrations and seeders
 - DAO layer for all database interactions
+- Distributed tracing
+- Monitoring
+- Alerts
 
 ## Getting started
 
@@ -99,10 +102,13 @@ Steps to set up database with ```username``` and ```role``` using terminal
 
 To ease the development process a make file is provided
 
-- **`make local`**  
+- **`make docker`**  
   Requires `.env.local` file to be present and set  
   This starts the containers in `local` stage, bind the `current directory` to `/go/src/server` inside the `go-template_server_1` container and then starts the `terminal` inside `go-template_server_1`. Once the development is over, `exit` the terminal and call `make tear env=local` to stop all the containers
 
+# Setting up Signoz
+
+Set up signoz locally by following the steps [here](https://signoz.io/docs/install/docker)
 # Running migrations
 
 Migrations are present in ```internal/migrations``` package. Run below command to run all migrations at once:

@@ -19,7 +19,7 @@ import (
 
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, username string, password string) (*gqlmodels.LoginResponse, error) {
-	u, err := daos.FindUserByUserName(username)
+	u, err := daos.FindUserByUserName(username, ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (r *mutationResolver) Login(ctx context.Context, username string, password 
 
 	refreshToken := sec.Token(token)
 	u.Token = null.StringFrom(refreshToken)
-	_, err = daos.UpdateUserTx(*u, nil)
+	_, err = daos.UpdateUser(*u, ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +65,7 @@ func (r *mutationResolver) ChangePassword(
 	newPassword string,
 ) (*gqlmodels.ChangePasswordResponse, error) {
 	userID := auth.UserIDFromContext(ctx)
-	u, err := daos.FindUserByID(userID)
+	u, err := daos.FindUserByID(userID, ctx)
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "data")
 	}
@@ -90,7 +90,7 @@ func (r *mutationResolver) ChangePassword(
 	}
 
 	u.Password = null.StringFrom(sec.Hash(newPassword))
-	_, err = daos.UpdateUserTx(*u, nil)
+	_, err = daos.UpdateUser(*u, ctx)
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "new information")
 	}
@@ -99,7 +99,7 @@ func (r *mutationResolver) ChangePassword(
 
 // RefreshToken is the resolver for the refreshToken field.
 func (r *mutationResolver) RefreshToken(ctx context.Context, token string) (*gqlmodels.RefreshTokenResponse, error) {
-	user, err := daos.FindUserByToken(token)
+	user, err := daos.FindUserByToken(token, ctx)
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "token")
 	}

@@ -4,3 +4,4 @@ vendor
 .DS_Store
 profile.out
 coverage.out
+output

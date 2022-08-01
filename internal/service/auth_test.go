@@ -51,9 +51,10 @@ func TestJWT(t *testing.T) {
 			},
 		},
 	}
-	ApplyFunc(os.Getenv, func(s string) string {
+	patches := ApplyFunc(os.Getenv, func(s string) string {
 		return testutls.MockJWTSecret
 	})
+	defer patches.Reset()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := service.JWT(tt.args.cfg)

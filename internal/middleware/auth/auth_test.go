@@ -24,7 +24,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/DATA-DOG/go-sqlmock"
 	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )

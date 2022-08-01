@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	seeders "go-template/cmd/seeder"
+	"go-template/cmd/seeder/utls"
 	"go-template/internal/postgres"
 	"go-template/models"
 	"go-template/pkg/utl/secure"
@@ -22,5 +22,5 @@ func main() {
 	var insertQuery = fmt.Sprintf("INSERT INTO public.users (first_name, last_name, username, password, "+
 		"email, active, role_id) VALUES ('Admin', 'Admin', 'admin', '%s', 'johndoe@mail.com', true, %d);",
 		sec.Hash("adminuser"), role.ID)
-	_ = seeders.SeedData("users", insertQuery)
+	_ = utls.SeedData("users", insertQuery)
 }

@@ -10,7 +10,7 @@ import (
 
 	graphql2 "github.com/99designs/gqlgen/graphql"
 	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 type key string
@@ -130,7 +130,7 @@ func GraphQLMiddleware(
 		}
 
 		email := claims["e"].(string)
-		user, err := daos.FindUserByEmail(email)
+		user, err := daos.FindUserByEmail(email, ctx)
 
 		if err != nil {
 			return resultwrapper.HandleGraphQLError("No user found for this email address")

@@ -1,6 +1,7 @@
 package daos_test
 
 import (
+	"context"
 	"database/sql/driver"
 	"fmt"
 	"regexp"
@@ -76,7 +77,7 @@ func TestCreateUserTx(t *testing.T) {
 			WillReturnRows(rows)
 
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := daos.CreateUserTx(tt.req, nil)
+			_, err := daos.CreateUser(tt.req, context.Background())
 			if err != nil {
 				assert.Equal(t, true, tt.err != nil)
 			} else {
@@ -125,7 +126,7 @@ func TestFindUserByID(t *testing.T) {
 			WillReturnRows(rows)
 
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := daos.FindUserByID(tt.req)
+			_, err := daos.FindUserByID(tt.req, context.Background())
 			assert.Equal(t, err, tt.err)
 
 		})
@@ -183,7 +184,7 @@ func TestFindUserByEmail(t *testing.T) {
 			WillReturnRows(rows)
 
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := daos.FindUserByEmail(tt.req.email)
+			_, err := daos.FindUserByEmail(tt.req.email, context.Background())
 			if err != nil {
 				assert.Equal(t, true, tt.err != nil)
 			} else {
@@ -244,7 +245,7 @@ func TestFindUserByUserName(t *testing.T) {
 			WillReturnRows(rows)
 
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := daos.FindUserByUserName(tt.req.Username)
+			_, err := daos.FindUserByUserName(tt.req.Username, context.Background())
 			if err != nil {
 				assert.Equal(t, true, tt.err != nil)
 			} else {
@@ -292,7 +293,7 @@ func TestUpdateUserTx(t *testing.T) {
 			WillReturnResult(result)
 
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := daos.UpdateUserTx(tt.req, nil)
+			_, err := daos.UpdateUser(tt.req, context.Background())
 			assert.Equal(t, err, tt.err)
 		})
 	}
@@ -336,7 +337,7 @@ func TestDeleteUser(t *testing.T) {
 			WillReturnResult(result)
 
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := daos.DeleteUser(tt.req)
+			_, err := daos.DeleteUser(tt.req, context.Background())
 			assert.Equal(t, err, tt.err)
 		})
 	}
@@ -390,7 +391,7 @@ func TestFindAllUsersWithCount(t *testing.T) {
 		}
 
 		t.Run(tt.name, func(t *testing.T) {
-			res, c, err := daos.FindAllUsersWithCount([]qm.QueryMod{})
+			res, c, err := daos.FindAllUsersWithCount([]qm.QueryMod{}, context.Background())
 			if err != nil {
 				assert.Equal(t, true, tt.err != nil)
 			} else {
@@ -457,7 +458,7 @@ func TestFindUserByToken(t *testing.T) {
 			WillReturnRows(rows)
 
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := daos.FindUserByToken(tt.req.Token)
+			_, err := daos.FindUserByToken(tt.req.Token, context.Background())
 			if err != nil {
 				assert.Equal(t, true, tt.err != nil)
 			} else {

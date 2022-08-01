@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 if ! [[ $GITHUB_ACTION ]]; then
     echo "formatting"
