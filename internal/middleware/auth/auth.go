@@ -11,6 +11,7 @@ import (
 	graphql2 "github.com/99designs/gqlgen/graphql"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
+	"github.com/vektah/gqlparser/v2/ast"
 )
 
 type key string
@@ -86,64 +87,60 @@ func contains(s []string, e string) bool {
 	return false
 }
 
+func getAccessNeeds(operation *ast.OperationDefinition) (needsAuthAccess bool, needsSuperAdminAccess bool) {
+	operationName := string(operation.Operation)
+	for _, selectionSet := range operation.SelectionSet {
+
+		selection := reflect.ValueOf(selectionSet).Elem()
+		if !contains(WhiteListedOperations[operationName], selection.FieldByName("Name").Interface().(string)) {
+			needsAuthAccess = true
+		}
+		if contains(AdminQueries, selection.FieldByName("Name").Interface().(string)) {
+			needsSuperAdminAccess = true
+		}
+	}
+	return needsAuthAccess, needsSuperAdminAccess
+}
+
 // GraphQLMiddleware ...
 func GraphQLMiddleware(
 	ctx context.Context,
 	tokenParser TokenParser,
 	next graphql2.OperationHandler) graphql2.ResponseHandler {
 
-	operationContext := graphql2.GetOperationContext(ctx)
-	var needsAuth = false
-	var requiresSuperAdmin = false
-	operation := string(operationContext.Operation.Operation)
-	for _, selectionSet := range operationContext.Operation.SelectionSet {
-
-		selection := reflect.ValueOf(selectionSet).Elem()
-		if !contains(WhiteListedOperations[operation], selection.FieldByName("Name").Interface().(string)) {
-			needsAuth = true
-		}
-		if contains(AdminQueries, selection.FieldByName("Name").Interface().(string)) {
-			requiresSuperAdmin = true
-		}
-	}
-
-	if needsAuth || requiresSuperAdmin {
-		// strip token
-		var tokenStr = ctx.Value(authorization).(string)
-		if len(tokenStr) == 0 {
-			return resultwrapper.HandleGraphQLError("Authorization header is missing")
-		}
-
-		token, err := tokenParser.ParseToken(tokenStr)
-
-		if err != nil || !token.Valid {
-			return resultwrapper.HandleGraphQLError("Invalid authorization token")
-		}
-		claims := token.Claims.(jwt.MapClaims)
-		if requiresSuperAdmin {
-
-			isSuperAdmin := false
-
-			if claims["role"].(string) == "SUPER_ADMIN" {
-				isSuperAdmin = true
-			}
-			if !isSuperAdmin {
-				return resultwrapper.HandleGraphQLError(
-					"Unauthorized! \n Only admins are authorized to make this request.",
-				)
-			}
-		}
-
-		email := claims["e"].(string)
-		user, err := daos.FindUserByEmail(email, ctx)
-
-		if err != nil {
-			return resultwrapper.HandleGraphQLError("No user found for this email address")
-		}
-
-		ctx = context.WithValue(ctx, UserCtxKey, user)
+	operation := graphql2.GetOperationContext(ctx).Operation
+	needsAuthAccess, needsSuperAdminAccess := getAccessNeeds(operation)
+	if !needsAuthAccess && !needsSuperAdminAccess {
 		return next(ctx)
 	}
 
+	// strip token
+	var tokenStr = ctx.Value(authorization).(string)
+	if len(tokenStr) == 0 {
+		return resultwrapper.HandleGraphQLError("Authorization header is missing")
+	}
+
+	token, err := tokenParser.ParseToken(tokenStr)
+
+	if err != nil || !token.Valid {
+		return resultwrapper.HandleGraphQLError("Invalid authorization token")
+	}
+	claims := token.Claims.(jwt.MapClaims)
+
+	if needsSuperAdminAccess && claims["role"].(string) != "SUPER_ADMIN" {
+		return resultwrapper.HandleGraphQLError(
+			"Unauthorized! \n Only admins are authorized to make this request.",
+		)
+	}
+
+	email := claims["e"].(string)
+	user, err := daos.FindUserByEmail(email, ctx)
+
+	if err != nil {
+		return resultwrapper.HandleGraphQLError("No user found for this email address")
+	}
+
+	ctx = context.WithValue(ctx, UserCtxKey, user)
 	return next(ctx)
+
 }
