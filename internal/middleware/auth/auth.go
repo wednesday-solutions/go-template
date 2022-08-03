@@ -70,13 +70,15 @@ func GqlMiddleware() echo.MiddlewareFunc {
 
 // WhiteListedOperations...
 var WhiteListedOperations = map[string][]string{
-	"query":        []string{"__schema", "introspectionquery", "login", "userNotification"},
-	"mutation":     []string{"login"},
-	"subscription": []string{"userNotification"},
+	"query":        {"__schema", "introspectionquery", "login", "userNotification"},
+	"mutation":     {"login"},
+	"subscription": {"userNotification"},
 }
 
-// AdminQueries ...
-var AdminQueries = []string{"users"}
+// AdminOperations...
+var AdminOperations = map[string][]string{
+	"query": {"users"},
+}
 
 func contains(s []string, e string) bool {
 	for _, a := range s {
@@ -95,7 +97,7 @@ func getAccessNeeds(operation *ast.OperationDefinition) (needsAuthAccess bool, n
 		if !contains(WhiteListedOperations[operationName], selection.FieldByName("Name").Interface().(string)) {
 			needsAuthAccess = true
 		}
-		if contains(AdminQueries, selection.FieldByName("Name").Interface().(string)) {
+		if contains(AdminOperations[operationName], selection.FieldByName("Name").Interface().(string)) {
 			needsSuperAdminAccess = true
 		}
 	}
