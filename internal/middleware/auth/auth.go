@@ -67,8 +67,12 @@ func GqlMiddleware() echo.MiddlewareFunc {
 	}
 }
 
-// WhiteListedQueries ...
-var WhiteListedQueries = []string{"__schema", "introspectionquery", "login", "userNotification"}
+// WhiteListedOperations...
+var WhiteListedOperations = map[string][]string{
+	"query":        []string{"__schema", "introspectionquery", "login", "userNotification"},
+	"mutation":     []string{"login"},
+	"subscription": []string{"userNotification"},
+}
 
 // AdminQueries ...
 var AdminQueries = []string{"users"}
@@ -91,10 +95,11 @@ func GraphQLMiddleware(
 	operationContext := graphql2.GetOperationContext(ctx)
 	var needsAuth = false
 	var requiresSuperAdmin = false
+	operation := string(operationContext.Operation.Operation)
 	for _, selectionSet := range operationContext.Operation.SelectionSet {
 
 		selection := reflect.ValueOf(selectionSet).Elem()
-		if !contains(WhiteListedQueries, selection.FieldByName("Name").Interface().(string)) {
+		if !contains(WhiteListedOperations[operation], selection.FieldByName("Name").Interface().(string)) {
 			needsAuth = true
 		}
 		if contains(AdminQueries, selection.FieldByName("Name").Interface().(string)) {
