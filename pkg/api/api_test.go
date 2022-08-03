@@ -32,6 +32,8 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
+var graphQLPathname = "/graphql"
+
 func TestStart(t *testing.T) {
 	type args struct {
 		cfg *config.Configuration
@@ -154,7 +156,7 @@ func TestStart(t *testing.T) {
 				}
 				jsonRes, err := testutls.MakeRequest(testutls.RequestParameters{
 					E:           e,
-					Pathname:    "/graphql",
+					Pathname:    graphQLPathname,
 					HttpMethod:  "POST",
 					RequestBody: testutls.MockWhitelistedQuery,
 					IsGraphQL:   false,
@@ -184,7 +186,7 @@ func TestStart(t *testing.T) {
 				// check if the playground is returned
 				assert.Contains(t, string(bodyBytes), "GraphiQL.createFetcher")
 				ts := httptest.NewServer(e)
-				u := "ws" + strings.TrimPrefix(ts.URL+"/graphql", "http")
+				u := "ws" + strings.TrimPrefix(ts.URL+graphQLPathname, "http")
 
 				// Connect to the server
 				fmt.Print(u)
