@@ -70,7 +70,7 @@ func GqlMiddleware() echo.MiddlewareFunc {
 
 // WhiteListedOperations...
 var WhiteListedOperations = map[string][]string{
-	"query":        {"__schema", "introspectionquery", "login", "userNotification"},
+	"query":        {"__schema", "introspectionquery", "userNotification"},
 	"mutation":     {"login"},
 	"subscription": {"userNotification"},
 }
