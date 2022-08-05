@@ -1,45 +1,38 @@
 package zlog
 
 import (
+	"context"
 	"os"
 
-	"github.com/labstack/echo/v4"
-
-	"github.com/rs/zerolog"
+	echo "github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 )
 
-// Log represents zerolog logger
-type Log struct {
-	logger *zerolog.Logger
+var Logger = initLogger()
+
+type logger struct {
+	*zap.SugaredLogger
+	// error occurred during creation of logger
+	InitError error
 }
 
-// New instantiates new zero logger
-func New() *Log {
-	z := zerolog.New(os.Stdout)
-	return &Log{
-		logger: &z,
-	}
+func Info(c context.Context, msg ...string) {
+	Logger.Info("\nRequest-ID: ", c.Value(echo.HeaderXRequestID), "\n", msg)
 }
-
-// Log logs using zerolog
-func (z *Log) Log(ctx echo.Context, source, msg string, err error, params map[string]interface{}) {
-
-	if params == nil {
-		params = make(map[string]interface{})
+func Debug(c context.Context, msg ...string) {
+	Logger.Debug(c.Value(echo.HeaderXRequestID), msg)
+}
+func initLogger() *logger {
+	var zapLogger *zap.Logger
+	var err error
+	if os.Getenv("ENVIRONMENT_NAME") == "production" {
+		zapLogger, err = zap.NewProduction()
+	} else {
+		zapLogger, err = zap.NewDevelopment()
 	}
 
-	params["source"] = source
-
-	if id, ok := ctx.Get("id").(int); ok {
-		params["id"] = id
-		params["user"] = ctx.Get("username").(string)
+	return &logger{
+		zapLogger.Sugar(),
+		err,
 	}
-
-	if err != nil {
-		params["error"] = err
-		z.logger.Error().Fields(params).Msg(msg)
-		return
-	}
-
-	z.logger.Info().Fields(params).Msg(msg)
 }
