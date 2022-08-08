@@ -71,7 +71,6 @@ func (s Service) GenerateToken(u *models.User) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	fmt.Print(role)
 	return jwt.NewWithClaims(s.algo, jwt.MapClaims{
 		"id":   u.ID,
 		"u":    u.Username,
