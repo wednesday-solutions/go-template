@@ -16,6 +16,7 @@ require (
 	github.com/joho/godotenv v1.3.0
 	github.com/kat-co/vala v0.0.0-20170210184112-42e1d8b61f12
 	github.com/labstack/echo/v4 v4.7.2
+	github.com/labstack/gommon v0.3.1
 	github.com/lib/pq v1.10.0
 	github.com/masahiro331/go-commitlinter v0.0.0-20220207112004-c66fa942bad3
 	github.com/nbutton23/zxcvbn-go v0.0.0-20180912185939-ae427f1e4c1d
@@ -45,6 +46,7 @@ require (
 
 require (
 	github.com/agnivade/levenshtein v1.1.1 // indirect
+	github.com/benbjohnson/clock v1.3.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -61,7 +63,6 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/kr/pretty v0.3.0 // indirect
-	github.com/labstack/gommon v0.3.1 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect

@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -11,7 +10,7 @@ import (
 
 	"go-template/internal/middleware/secure"
 	"go-template/internal/service/tracer"
-	"go-template/pkg/utl/zlog"
+	"go-template/pkg/utl/zaplog"
 
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
@@ -41,16 +40,15 @@ func New() *echo.Echo {
 					rid = random.String(32)
 				}
 				res.Header().Set(echo.HeaderXRequestID, rid)
-				ctx := context.WithValue(c.Request().Context(), echo.HeaderXRequestID, rid)
-
+				ctx := context.WithValue(c.Request().Context(), zaplog.RequestIdCtxKey, rid)
 				c.SetRequest(c.Request().WithContext(ctx))
 				cc := &CustomContext{c, ctx}
 				return next(cc)
 			}
 		},
 		middleware.BodyDump(func(c echo.Context, reqBody, resBody []byte) {
-			zlog.Info(c.Request().Context(), string(reqBody))
-			zlog.Info(c.Request().Context(), string(resBody))
+			zaplog.Info(c.Request().Context(), string(reqBody))
+			zaplog.Info(c.Request().Context(), string(resBody))
 		}),
 		secure.Headers(),
 		secure.CORS(),
@@ -91,7 +89,7 @@ func Start(e *echo.Echo, cfg *Config) {
 
 	// Start server
 	go func() {
-		fmt.Print("Warming up server... ")
+		zaplog.Logger.Info("Warming up server... ")
 		if err := e.StartServer(s); err != nil {
 			e.Logger.Info("Shutting down the server")
 		}

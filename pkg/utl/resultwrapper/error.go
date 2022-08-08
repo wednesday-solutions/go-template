@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"go-template/internal/server"
+	"go-template/pkg/utl/zaplog"
 
 	graphql2 "github.com/99designs/gqlgen/graphql"
 	"github.com/go-playground/validator"
@@ -158,7 +159,7 @@ func HandleGraphQLError(errMsg string) graphql2.ResponseHandler {
 
 // ResolverSQLError ...
 func ResolverSQLError(err error, detail string) error {
-	fmt.Print(err.Error(), detail)
+	zaplog.Logger.Info(err.Error(), detail)
 	if strings.Contains(fmt.Sprint(err), "no rows in result") {
 		return ResolverWrapperFromMessage(http.StatusBadRequest, fmt.Sprint("No data found with provided ", detail))
 	}
