@@ -3,6 +3,7 @@ package postgres
 import (
 	"database/sql"
 	"fmt"
+	"go-template/pkg/utl/zaplog"
 	"go-template/testutls"
 	"os"
 
@@ -16,7 +17,7 @@ import (
 // Connect ...
 func Connect() (*sql.DB, error) {
 	dsn := GetDSN()
-	fmt.Println("Connecting to DB\n", dsn)
+	zaplog.Logger.Info("Connecting to DB\n", dsn)
 	if testutls.IsInTests() {
 		return sql.Open("postgres", dsn)
 	}

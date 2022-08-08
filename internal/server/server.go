@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -11,12 +10,19 @@ import (
 
 	"go-template/internal/middleware/secure"
 	"go-template/internal/service/tracer"
+	"go-template/pkg/utl/zaplog"
 
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/gommon/random"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
 )
+
+type CustomContext struct {
+	echo.Context
+	ctx context.Context
+}
 
 // New instantates new Echo server
 func New() *echo.Echo {
@@ -25,6 +31,25 @@ func New() *echo.Echo {
 		otelecho.Middleware(os.Getenv("SERVICE_NAME")),
 		middleware.Logger(),
 		middleware.Recover(),
+		func(next echo.HandlerFunc) echo.HandlerFunc {
+			return func(c echo.Context) error {
+				req := c.Request()
+				res := c.Response()
+				rid := req.Header.Get(echo.HeaderXRequestID)
+				if rid == "" {
+					rid = random.String(32)
+				}
+				res.Header().Set(echo.HeaderXRequestID, rid)
+				ctx := context.WithValue(c.Request().Context(), zaplog.RequestIdCtxKey, rid)
+				c.SetRequest(c.Request().WithContext(ctx))
+				cc := &CustomContext{c, ctx}
+				return next(cc)
+			}
+		},
+		middleware.BodyDump(func(c echo.Context, reqBody, resBody []byte) {
+			zaplog.Info(c.Request().Context(), string(reqBody))
+			zaplog.Info(c.Request().Context(), string(resBody))
+		}),
 		secure.Headers(),
 		secure.CORS(),
 	)
@@ -64,7 +89,7 @@ func Start(e *echo.Echo, cfg *Config) {
 
 	// Start server
 	go func() {
-		fmt.Print("Warming up server... ")
+		zaplog.Logger.Info("Warming up server... ")
 		if err := e.StartServer(s); err != nil {
 			e.Logger.Info("Shutting down the server")
 		}

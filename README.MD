@@ -164,7 +164,7 @@ go-template/
 │     └──rediscache/                # this package has functionality for accessing and using redis
 │     └──resultwrapper/             # this package exports the custom errors produced by application
 │     └──secure/                    # this package has password related functionalities
-│     └──zlog/                      # this package has setup for zerolog logger
+│     └──zap/                       # this package has setup for uber-go zap logger
 └──resolver/                        # this directory will contain resolvers to populate info for graphQL queries, mutations and subscriptions
 └──scripts/                         # this directory will contain different utility scripts
 │  └──setup-local.sh                # script to set up database and run the app locally
