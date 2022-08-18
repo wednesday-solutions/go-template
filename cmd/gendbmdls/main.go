@@ -62,33 +62,26 @@ func main() {
 	}
 
 	cmdState, err := boilingcore.New(&boilingcore.Config{
-		DriverName:        driverName,
-		DriverConfig:      cfg,
-		NoHooks:           true,
-		OutFolder:         "models",
-		PkgName:           "models",
-		NoContext:         false,
-		NoTests:           false,
-		NoRowsAffected:    false,
-		NoAutoTimestamps:  false,
-		NoDriverTemplates: false,
-		NoBackReferencing: false,
-		AlwaysWrapErrors:  false,
-		AddGlobal:         false,
-		AddPanic:          false,
-		AddSoftDeletes:    false,
-		AddEnumTypes:      false,
-		EnumNullPrefix:    "Null",
-		Wipe:              false,
-		StructTagCasing:   "snake",
-		RelationTag:       "-",
-		Imports:           configureImports(),
+		DriverName:      driverName,
+		DriverConfig:    cfg,
+		NoHooks:         true,
+		OutFolder:       "models",
+		PkgName:         "models",
+		StructTagCasing: "snake",
+		RelationTag:     "-",
+		Imports:         configureImports(),
 	})
 	if err != nil {
 		panic(err)
 	}
-	cmdState.Run()
-	cmdState.Cleanup()
+	err = cmdState.Run()
+	if err != nil {
+		panic(err)
+	}
+	err = cmdState.Cleanup()
+	if err != nil {
+		panic(err)
+	}
 }
 
 func configureImports() importers.Collection {
