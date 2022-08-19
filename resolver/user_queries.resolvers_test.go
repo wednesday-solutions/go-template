@@ -9,7 +9,7 @@ import (
 
 	fm "go-template/gqlmodels"
 	"go-template/models"
-	"go-template/pkg/utl/convert"
+	"go-template/pkg/utl/cnvrttogql"
 	"go-template/resolver"
 	"go-template/testutls"
 
@@ -40,7 +40,7 @@ func TestMe(
 			args: args{
 				user: testutls.MockUser(),
 			},
-			wantResp: convert.UserToGraphQlUser(
+			wantResp: cnvrttogql.UserToGraphQlUser(
 				testutls.MockUser(),
 				4,
 			),

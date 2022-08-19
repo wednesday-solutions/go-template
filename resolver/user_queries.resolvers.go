@@ -8,7 +8,7 @@ import (
 	"go-template/daos"
 	"go-template/gqlmodels"
 	"go-template/internal/middleware/auth"
-	"go-template/pkg/utl/convert"
+	"go-template/pkg/utl/cnvrttogql"
 	rediscache "go-template/pkg/utl/rediscache"
 	resultwrapper "go-template/pkg/utl/resultwrapper"
 
@@ -23,7 +23,7 @@ func (r *queryResolver) Me(ctx context.Context) (*gqlmodels.User, error) {
 		return &gqlmodels.User{}, resultwrapper.ResolverSQLError(err, "data")
 	}
 
-	return convert.UserToGraphQlUser(user, 1), err
+	return cnvrttogql.UserToGraphQlUser(user, 1), err
 }
 
 // Users is the resolver for the users field.
@@ -39,7 +39,7 @@ func (r *queryResolver) Users(ctx context.Context, pagination *gqlmodels.UserPag
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "data")
 	}
-	return &gqlmodels.UsersPayload{Total: int(count), Users: convert.UsersToGraphQlUsers(users, 1)}, nil
+	return &gqlmodels.UsersPayload{Total: int(count), Users: cnvrttogql.UsersToGraphQlUsers(users, 1)}, nil
 }
 
 // Query returns gqlmodels.QueryResolver implementation.
