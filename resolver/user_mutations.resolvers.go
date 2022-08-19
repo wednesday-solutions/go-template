@@ -12,7 +12,7 @@ import (
 	"go-template/internal/middleware/auth"
 	"go-template/internal/service"
 	"go-template/models"
-	"go-template/pkg/utl/convert"
+	"go-template/pkg/utl/cnvrttogql"
 	resultwrapper "go-template/pkg/utl/resultwrapper"
 	throttle "go-template/pkg/utl/throttle"
 	"strconv"
@@ -49,7 +49,7 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input gqlmodels.UserC
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "user information")
 	}
-	graphUser := convert.UserToGraphQlUser(&newUser, 1)
+	graphUser := cnvrttogql.UserToGraphQlUser(&newUser, 1)
 
 	r.Lock()
 	for _, observer := range r.Observers {
@@ -87,7 +87,7 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, input *gqlmodels.User
 		return nil, resultwrapper.ResolverSQLError(err, "new information")
 	}
 
-	graphUser := convert.UserToGraphQlUser(&u, 1)
+	graphUser := cnvrttogql.UserToGraphQlUser(&u, 1)
 	r.Lock()
 	for _, observer := range r.Observers {
 		observer <- graphUser
