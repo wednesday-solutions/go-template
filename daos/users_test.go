@@ -121,7 +121,7 @@ func TestFindUserByID(t *testing.T) {
 
 		rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
 
-		mock.ExpectQuery(regexp.QuoteMeta("select * from \"users\" where \"id\"=$1")).
+		mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
 			WithArgs().
 			WillReturnRows(rows)
 
@@ -174,12 +174,12 @@ func TestFindUserByEmail(t *testing.T) {
 		boil.SetDB(db)
 
 		if tt.name == "Fail on finding user" {
-			mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"users\" WHERE (email=$1) LIMIT 1;")).
+			mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users" WHERE (email=$1) LIMIT 1;`)).
 				WithArgs().
 				WillReturnError(fmt.Errorf(""))
 		}
 		rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
-		mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"users\" WHERE (email=$1) LIMIT 1;")).
+		mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users" WHERE (email=$1) LIMIT 1;`)).
 			WithArgs().
 			WillReturnRows(rows)
 
@@ -235,12 +235,12 @@ func TestFindUserByUserName(t *testing.T) {
 		boil.SetDB(db)
 
 		if tt.name == "Fail on finding user username" {
-			mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"users\" WHERE (username=$1) LIMIT 1;")).
+			mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users" WHERE (username=$1) LIMIT 1;`)).
 				WithArgs().
 				WillReturnError(fmt.Errorf(""))
 		}
 		rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
-		mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"users\" WHERE (username=$1) LIMIT 1;")).
+		mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users" WHERE (username=$1) LIMIT 1;`)).
 			WithArgs().
 			WillReturnRows(rows)
 
@@ -289,7 +289,7 @@ func TestUpdateUserTx(t *testing.T) {
 
 		result := driver.Result(driver.RowsAffected(1))
 		// get access_token
-		mock.ExpectExec(regexp.QuoteMeta("UPDATE \"users\" ")).
+		mock.ExpectExec(regexp.QuoteMeta(`UPDATE "users" `)).
 			WillReturnResult(result)
 
 		t.Run(tt.name, func(t *testing.T) {
@@ -333,7 +333,7 @@ func TestDeleteUser(t *testing.T) {
 
 		// delete user
 		result := driver.Result(driver.RowsAffected(1))
-		mock.ExpectExec(regexp.QuoteMeta("DELETE FROM \"users\" WHERE \"id\"=$1")).
+		mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "users" WHERE "id"=$1`)).
 			WillReturnResult(result)
 
 		t.Run(tt.name, func(t *testing.T) {
@@ -362,14 +362,14 @@ func TestFindAllUsersWithCount(t *testing.T) {
 			err:  nil,
 			dbQueries: []testutls.QueryData{
 				{
-					Query: "SELECT * FROM \"users\";",
+					Query: `SELECT "users".* FROM "users";`,
 					DbResponse: sqlmock.NewRows([]string{"id", "email", "token"}).AddRow(
 						testutls.MockID,
 						testutls.MockEmail,
 						testutls.MockToken),
 				},
 				{
-					Query:      "SELECT COUNT(*) FROM \"users\";",
+					Query:      `SELECT COUNT(*) FROM "users";`,
 					DbResponse: sqlmock.NewRows([]string{"count"}).AddRow(testutls.MockCount),
 				},
 			},
@@ -379,7 +379,7 @@ func TestFindAllUsersWithCount(t *testing.T) {
 	for _, tt := range cases {
 
 		if tt.err != nil {
-			mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"users\";")).
+			mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users";`)).
 				WithArgs().
 				WillReturnError(fmt.Errorf("this is some error"))
 		}
@@ -448,12 +448,12 @@ func TestFindUserByToken(t *testing.T) {
 		boil.SetDB(db)
 
 		if tt.name == "Fail on finding user token" {
-			mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"users\" WHERE (token=$1) LIMIT 1;")).
+			mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users" WHERE (token=$1) LIMIT 1;`)).
 				WithArgs().
 				WillReturnError(fmt.Errorf(""))
 		}
 		rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
-		mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"users\" WHERE (token=$1) LIMIT 1;")).
+		mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users" WHERE (token=$1) LIMIT 1;`)).
 			WithArgs().
 			WillReturnRows(rows)
 
