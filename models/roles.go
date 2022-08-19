@@ -125,6 +125,13 @@ func (*roleR) NewStruct() *roleR {
 	return &roleR{}
 }
 
+func (r *roleR) GetUsers() UserSlice {
+	if r == nil {
+		return nil
+	}
+	return r.Users
+}
+
 // roleL is where Load methods for each relationship are stored.
 type roleL struct{}
 
@@ -175,7 +182,7 @@ func (q roleQuery) One(ctx context.Context, exec boil.ContextExecutor) (*Role, e
 
 	err := q.Bind(ctx, exec, o)
 	if err != nil {
-		if errors.Cause(err) == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, sql.ErrNoRows
 		}
 		return nil, errors.Wrap(err, "models: failed to execute a one query for roles")
@@ -238,14 +245,7 @@ func (o *Role) Users(mods ...qm.QueryMod) userQuery {
 		qm.Where("\"users\".\"role_id\"=?", o.ID),
 	)
 
-	query := Users(queryMods...)
-	queries.SetFrom(query.Query, "\"users\"")
-
-	if len(queries.GetSelect(query.Query)) == 0 {
-		queries.SetSelect(query.Query, []string{"\"users\".*"})
-	}
-
-	return query
+	return Users(queryMods...)
 }
 
 // LoadUsers allows an eager lookup of values, cached into the
@@ -420,9 +420,9 @@ func (o *Role) SetUsers(ctx context.Context, exec boil.ContextExecutor, insert b
 
 			rel.R.Role = nil
 		}
-
 		o.R.Users = nil
 	}
+
 	return o.AddUsers(ctx, exec, insert, related...)
 }
 
@@ -469,7 +469,12 @@ func (o *Role) RemoveUsers(ctx context.Context, exec boil.ContextExecutor, relat
 // Roles retrieves all the records using an executor.
 func Roles(mods ...qm.QueryMod) roleQuery {
 	mods = append(mods, qm.From("\"roles\""))
-	return roleQuery{NewQuery(mods...)}
+	q := NewQuery(mods...)
+	if len(queries.GetSelect(q)) == 0 {
+		queries.SetSelect(q, []string{"\"roles\".*"})
+	}
+
+	return roleQuery{q}
 }
 
 // FindRole retrieves a single record by ID with an executor.
@@ -489,7 +494,7 @@ func FindRole(ctx context.Context, exec boil.ContextExecutor, iD int, selectCols
 
 	err := q.Bind(ctx, exec, roleObj)
 	if err != nil {
-		if errors.Cause(err) == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, sql.ErrNoRows
 		}
 		return nil, errors.Wrap(err, "models: unable to select from roles")

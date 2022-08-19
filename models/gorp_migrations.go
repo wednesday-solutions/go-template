@@ -167,7 +167,7 @@ func (q gorpMigrationQuery) One(ctx context.Context, exec boil.ContextExecutor) 
 
 	err := q.Bind(ctx, exec, o)
 	if err != nil {
-		if errors.Cause(err) == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, sql.ErrNoRows
 		}
 		return nil, errors.Wrap(err, "models: failed to execute a one query for gorp_migrations")
@@ -222,7 +222,12 @@ func (q gorpMigrationQuery) Exists(ctx context.Context, exec boil.ContextExecuto
 // GorpMigrations retrieves all the records using an executor.
 func GorpMigrations(mods ...qm.QueryMod) gorpMigrationQuery {
 	mods = append(mods, qm.From("\"gorp_migrations\""))
-	return gorpMigrationQuery{NewQuery(mods...)}
+	q := NewQuery(mods...)
+	if len(queries.GetSelect(q)) == 0 {
+		queries.SetSelect(q, []string{"\"gorp_migrations\".*"})
+	}
+
+	return gorpMigrationQuery{q}
 }
 
 // FindGorpMigration retrieves a single record by ID with an executor.
@@ -242,7 +247,7 @@ func FindGorpMigration(ctx context.Context, exec boil.ContextExecutor, iD string
 
 	err := q.Bind(ctx, exec, gorpMigrationObj)
 	if err != nil {
-		if errors.Cause(err) == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, sql.ErrNoRows
 		}
 		return nil, errors.Wrap(err, "models: unable to select from gorp_migrations")

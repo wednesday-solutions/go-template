@@ -98,7 +98,7 @@ func TestFindRoleByID(t *testing.T) {
 
 		rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
 
-		mock.ExpectQuery(regexp.QuoteMeta("select * from \"roles\" where \"id\"=$1")).
+		mock.ExpectQuery(regexp.QuoteMeta(`select * from "roles" where "id"=$1`)).
 			WithArgs().
 			WillReturnRows(rows)
 
