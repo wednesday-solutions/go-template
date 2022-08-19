@@ -78,7 +78,7 @@ func TestGraphQLMiddleware(t *testing.T) {
 			dbQueries: []testutls.QueryData{
 				{
 					Actions: &[]driver.Value{testutls.MockEmail},
-					Query:   "SELECT * FROM \"users\" WHERE (email=$1) LIMIT 1",
+					Query:   `SELECT "users".* FROM "users" WHERE (email=$1) LIMIT 1`,
 					DbResponse: sqlmock.NewRows([]string{
 						"id", "email", "token",
 					}).AddRow(

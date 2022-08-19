@@ -36,35 +36,21 @@ func TestMe(
 		args     args
 	}{
 		{
-			name: "Success",
-			args: args{
-				user: testutls.MockUser(),
-			},
-			wantResp: cnvrttogql.UserToGraphQlUser(
-				testutls.MockUser(),
-				4,
-			),
+			name:     "Success",
+			args:     args{user: testutls.MockUser()},
+			wantResp: cnvrttogql.UserToGraphQlUser(testutls.MockUser(), 4),
 		},
 	}
 
-	_, db, err := testutls.SetupEnvAndDB(
-		t,
-		testutls.Parameters{
-			EnvFileLocation: `../.env.local`,
-		},
-	)
+	_, db, err := testutls.SetupEnvAndDB(t, testutls.Parameters{EnvFileLocation: `../.env.local`})
 	if err != nil {
-		panic(
-			"failed to setup env and db",
-		)
+		panic("failed to setup env and db")
 	}
 	oldDb := boil.GetDB()
 	boil.SetDB(db)
 	defer func() {
 		db.Close()
-		boil.SetDB(
-			oldDb,
-		)
+		boil.SetDB(oldDb)
 	}()
 	conn := redigomock.NewConn()
 	ApplyFunc(
@@ -79,24 +65,12 @@ func TestMe(
 			tt.name,
 			func(t *testing.T) {
 
-				b, _ := json.Marshal(
-					tt.args.user,
-				)
-				conn.Command("GET", "user0").
-					Expect(b)
+				b, _ := json.Marshal(tt.args.user)
+				conn.Command("GET", "user0").Expect(b)
 				c := context.Background()
-				ctx := context.WithValue(
-					c,
-					testutls.UserKey,
-					testutls.MockUser(),
-				)
-				response, _ := resolver1.Query().
-					Me(ctx)
-				assert.Equal(
-					t,
-					tt.wantResp,
-					response,
-				)
+				ctx := context.WithValue(c, testutls.UserKey, testutls.MockUser())
+				response, _ := resolver1.Query().Me(ctx)
+				assert.Equal(t, tt.wantResp, response)
 			},
 		)
 	}
@@ -127,93 +101,43 @@ func TestUsers(
 					"../.env.local",
 				)
 				if err != nil {
-					fmt.Print(
-						"error loading .env file",
-					)
+					fmt.Print("error loading .env file")
 				}
 				db, mock, err := sqlmock.New()
 				if err != nil {
-					t.Fatalf(
-						"an error '%s' was not expected when opening a stub database connection",
-						err,
-					)
+					t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 				}
-				// Inject
-				// mock
-				// instance
-				// into
-				// boil.
+				// Inject mock instance into boil.
 				oldDB := boil.GetDB()
 				defer func() {
 					db.Close()
-					boil.SetDB(
-						oldDB,
-					)
+					boil.SetDB(oldDB)
 				}()
-				boil.SetDB(
-					db,
-				)
+				boil.SetDB(db)
 
-				// get
-				// user
-				// by
-				// id
+				// get user by id
 				rows := sqlmock.
-					NewRows(
-						[]string{
-							"id",
-							"email",
-							"first_name",
-							"last_name",
-							"mobile",
-							"username",
-							"address",
-						},
-					).
-					AddRow(
-						testutls.MockID,
-						testutls.MockEmail,
-						"First",
-						"Last",
-						"+911234567890",
-						"username",
-						"22 Jump Street",
-					)
-				mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM \"users\";")).
+					NewRows([]string{"id", "email", "first_name", "last_name", "mobile", "username", "address"}).
+					AddRow(testutls.MockID, testutls.MockEmail, "First", "Last", "+911234567890", "username", "22 Jump Street")
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users";`)).
 					WithArgs().
 					WillReturnRows(rows)
 				rowCount := sqlmock.NewRows([]string{"count"}).
 					AddRow(1)
-				mock.ExpectQuery(regexp.QuoteMeta("SELECT COUNT(*) FROM \"users\";")).
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT COUNT(*) FROM "users";`)).
 					WithArgs().
 					WillReturnRows(rowCount)
 
 				c := context.Background()
-				ctx := context.WithValue(
-					c,
-					testutls.UserKey,
-					testutls.MockUser(),
-				)
+				ctx := context.WithValue(c, testutls.UserKey, testutls.MockUser())
 				response, err := resolver1.Query().
 					Users(ctx, tt.pagination)
 
 				if tt.wantResp != nil &&
 					response != nil {
-					assert.Equal(
-						t,
-						len(
-							tt.wantResp,
-						),
-						len(
-							response.Users,
-						),
-					)
+					assert.Equal(t, len(tt.wantResp), len(response.Users))
 				}
-				assert.Equal(
-					t,
-					tt.wantErr,
-					err != nil,
-				)
+				assert.Equal(t, tt.wantErr, err != nil)
 			},
 		)
 	}

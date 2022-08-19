@@ -244,6 +244,13 @@ func (*userR) NewStruct() *userR {
 	return &userR{}
 }
 
+func (r *userR) GetRole() *Role {
+	if r == nil {
+		return nil
+	}
+	return r.Role
+}
+
 // userL is where Load methods for each relationship are stored.
 type userL struct{}
 
@@ -294,7 +301,7 @@ func (q userQuery) One(ctx context.Context, exec boil.ContextExecutor) (*User, e
 
 	err := q.Bind(ctx, exec, o)
 	if err != nil {
-		if errors.Cause(err) == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, sql.ErrNoRows
 		}
 		return nil, errors.Wrap(err, "models: failed to execute a one query for users")
@@ -354,10 +361,7 @@ func (o *User) Role(mods ...qm.QueryMod) roleQuery {
 
 	queryMods = append(queryMods, mods...)
 
-	query := Roles(queryMods...)
-	queries.SetFrom(query.Query, "\"roles\"")
-
-	return query
+	return Roles(queryMods...)
 }
 
 // LoadRole allows an eager lookup of values, cached into the
@@ -509,7 +513,7 @@ func (o *User) SetRole(ctx context.Context, exec boil.ContextExecutor, insert bo
 
 // RemoveRole relationship.
 // Sets o.R.Role to nil.
-// Removes o from all passed in related items' relationships struct (Optional).
+// Removes o from all passed in related items' relationships struct.
 func (o *User) RemoveRole(ctx context.Context, exec boil.ContextExecutor, related *Role) error {
 	var err error
 
@@ -543,7 +547,12 @@ func (o *User) RemoveRole(ctx context.Context, exec boil.ContextExecutor, relate
 // Users retrieves all the records using an executor.
 func Users(mods ...qm.QueryMod) userQuery {
 	mods = append(mods, qm.From("\"users\""))
-	return userQuery{NewQuery(mods...)}
+	q := NewQuery(mods...)
+	if len(queries.GetSelect(q)) == 0 {
+		queries.SetSelect(q, []string{"\"users\".*"})
+	}
+
+	return userQuery{q}
 }
 
 // FindUser retrieves a single record by ID with an executor.
@@ -563,7 +572,7 @@ func FindUser(ctx context.Context, exec boil.ContextExecutor, iD int, selectCols
 
 	err := q.Bind(ctx, exec, userObj)
 	if err != nil {
-		if errors.Cause(err) == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, sql.ErrNoRows
 		}
 		return nil, errors.Wrap(err, "models: unable to select from users")

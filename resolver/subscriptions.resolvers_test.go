@@ -39,37 +39,19 @@ func TestUserNotification(
 		t.Run(
 			tt.name,
 			func(t *testing.T) {
-				err := godotenv.Load(
-					"../.env.local",
-				)
+				err := godotenv.Load("../.env.local")
 				if err != nil {
-					fmt.Print(
-						"error loading .env file",
-					)
+					fmt.Print("error loading .env file")
 				}
 
 				c := context.Background()
-				ctx := context.
-					WithValue(
-						c,
-						testutls.UserKey,
-						testutls.MockUser(),
-					)
-				response, err := resolver1.Subscription().
-					UserNotification(ctx)
+				ctx := context.WithValue(c, testutls.UserKey, testutls.MockUser())
+				response, err := resolver1.Subscription().UserNotification(ctx)
 				if tt.wantResp != nil {
 					tt.wantResp = response
-					assert.Equal(
-						t,
-						tt.wantResp,
-						response,
-					)
+					assert.Equal(t, tt.wantResp, response)
 				}
-				assert.Equal(
-					t,
-					tt.wantErr,
-					err != nil,
-				)
+				assert.Equal(t, tt.wantErr, err != nil)
 			},
 		)
 	}
