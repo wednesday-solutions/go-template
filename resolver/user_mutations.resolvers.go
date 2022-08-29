@@ -29,6 +29,10 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input gqlmodels.UserC
 	}
 
 	roleId, _ := strconv.Atoi(input.RoleID)
+	active := null.NewBool(false, false)
+	if input.Active != nil {
+		active = null.BoolFrom(*input.Active)
+	}
 	user := models.User{
 		Username:  null.StringFrom(input.Username),
 		Password:  null.StringFrom(input.Password),
@@ -36,6 +40,7 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input gqlmodels.UserC
 		FirstName: null.StringFrom(input.FirstName),
 		LastName:  null.StringFrom(input.LastName),
 		RoleID:    null.IntFrom(roleId),
+		Active:    active,
 	}
 	// loading configurations
 	cfg, err := config.Load()
