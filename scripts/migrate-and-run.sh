@@ -2,13 +2,11 @@
 
 echo $ENVIRONMENT_NAME
 
-go run ./cmd/migrations/main.go
+./migrations
 
 if [[ $ENVIRONMENT_NAME == "docker" ]]; then
     echo "seeding"
-    go run ./cmd/seeder/main.go
+    ./seeder
 fi
-
-
 
 ./main

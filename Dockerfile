@@ -13,6 +13,8 @@ RUN GOARCH=amd64 \
     go mod vendor
 RUN mkdir -p /go/src/github.com/wednesday-solutions/go-template/output
 RUN go build -o ./output/main ./cmd/server/main.go
+RUN go build -o ./output/seeder ./cmd/seeder/main.go
+RUN go build -o ./output/migrations ./cmd/migrations/main.go
 
 
 FROM golang:1.18-alpine3.16
