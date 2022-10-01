@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"time"
 
+	controller "go-template/internal/controller"
 	"go-template/internal/middleware/secure"
 	"go-template/internal/service/tracer"
 	"go-template/pkg/utl/zaplog"
@@ -53,20 +54,12 @@ func New() *echo.Echo {
 		secure.Headers(),
 		secure.CORS(),
 	)
-	e.GET("/", healthCheck)
+	e.GET("/", controller.HealthCheckHandler)
 	e.Validator = &CustomValidator{V: validator.New()}
 	custErr := &customErrHandler{e: e}
 	e.HTTPErrorHandler = custErr.handler
 	e.Binder = &CustomBinder{b: &echo.DefaultBinder{}}
 	return e
-}
-
-type response struct {
-	Data string `json:"data"`
-}
-
-func healthCheck(c echo.Context) error {
-	return c.JSON(http.StatusOK, response{Data: "Go template at your service!🍲"})
 }
 
 // Config represents server specific config
