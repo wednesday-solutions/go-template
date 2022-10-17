@@ -19,9 +19,7 @@ RUN go build -o ./output/migrations ./cmd/migrations/main.go
 
 FROM golang:1.18-alpine3.16
 ARG ENVIRONMENT_NAME
-RUN apk add build-base
-RUN mkdir -p /app
-
+RUN mkdir -p /app/
 ADD .  /app
 
 WORKDIR /app
