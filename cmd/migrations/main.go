@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go-template/internal/config"
 	"go-template/internal/postgres"
+	"go-template/pkg/utl/zaplog"
 	"os"
 
 	migrate "github.com/rubenv/sql-migrate"
@@ -17,7 +18,8 @@ func main() {
 	}
 	db, err := postgres.Connect()
 	if err != nil {
-		fmt.Println("failed while fetching db connection")
+		fmt.Println("failed while fetching db connection", err)
+		zaplog.Logger.Error(err)
 	}
 
 	for _, arg := range os.Args {
@@ -35,6 +37,8 @@ func runMigration(db *sql.DB, direction migrate.MigrationDirection) {
 	n, err := migrate.Exec(db, "postgres", migrations, direction)
 	if err != nil {
 		fmt.Println("failed while executing migration")
+		zaplog.Logger.Error(err)
+		return
 	}
 	fmt.Printf("Applied %d migrations!\n", n)
 }

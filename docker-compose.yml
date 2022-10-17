@@ -11,10 +11,18 @@ services:
       - POSTGRES_PASSWORD=${PSQL_PASS}
       - POSTGRES_PORT=${PSQL_PORT}
       - POSTGRES_DB=${PSQL_DBNAME}
+    depends_on:
+      - redis
 
   redis:
     image: redis:6-alpine
     restart: always
+
+  wait-for-db:
+    image: atkrad/wait4x
+    depends_on:
+      - db
+    command: tcp db:5432 -t 30s -i 250ms
 
   app:
     build: .
@@ -22,8 +30,8 @@ services:
     env_file:
       - ./.env.docker
     depends_on:
-      - db
-      - redis
+      wait-for-db:
+        condition: service_completed_successfully
     ports:
       - ${SERVER_PORT}:${SERVER_PORT}
     environment:
