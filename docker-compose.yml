@@ -7,19 +7,16 @@ services:
     env_file:
       - .env.docker
     environment:
-      - POSTGRES_USER=go_template_role
-      - POSTGRES_PASSWORD=go_template_role456
-      - POSTGRES_PORT=5432
-      - POSTGRES_DB=go_template
+      - POSTGRES_USER=${PSQL_USER}
+      - POSTGRES_PASSWORD=${PSQL_PASS}
+      - POSTGRES_PORT=${PSQL_PORT}
+      - POSTGRES_DB=${PSQL_DBNAME}
     depends_on:
       - redis
-    ports:
-      - "5432:5432"
+
   redis:
     image: redis:6-alpine
     restart: always
-    ports:
-      - "6379:6379"
 
   wait-for-db:
     image: atkrad/wait4x
@@ -36,8 +33,6 @@ services:
       wait-for-db:
         condition: service_completed_successfully
     ports:
-      - "9000:9000"
+      - ${SERVER_PORT}:${SERVER_PORT}
     environment:
       ENVIRONMENT_NAME: 'docker'
-
-   
