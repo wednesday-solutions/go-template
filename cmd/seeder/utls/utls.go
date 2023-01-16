@@ -2,6 +2,7 @@ package utls
 
 import (
 	"fmt"
+	"go-template/internal/config"
 	"go-template/internal/postgres"
 	"go-template/pkg/utl/zaplog"
 	"log"
@@ -10,6 +11,10 @@ import (
 
 // SeedData ...
 func SeedData(tableName string, rawQuery string) error {
+	err := config.LoadEnv()
+	if err != nil {
+		fmt.Print(err)
+	}
 	db, err := postgres.Connect()
 
 	if err != nil {

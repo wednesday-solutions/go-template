@@ -9,4 +9,4 @@ if [[ $ENVIRONMENT_NAME == "docker" ]]; then
     ./seeder
 fi
 
-./main
+./server
