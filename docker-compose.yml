@@ -36,5 +36,3 @@ services:
       - ${SERVER_PORT}:${SERVER_PORT}
     environment:
       ENVIRONMENT_NAME: 'docker'
-
-   

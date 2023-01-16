@@ -1,6 +1,15 @@
 version: '2'
 
 tasks:
+  migrate:
+    cmds:
+      - go run ./cmd/migrations/main.go
+  seedBuild:
+    cmds:
+      - go run ./cmd/seeder/main.go
+  seedRun:
+    cmds:
+      - go run ./cmd/seeder/exec/seed.go    
   test:
     cmds:
       - echo " *** Running Coverage Tests ***"
