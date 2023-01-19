@@ -10,8 +10,7 @@
   </p>
   <p>
 An enterprise go template application showcasing - Testing strategies, middleware support, and Continuous integration.
-  </p>
-  
+  </p>  
   ___
 
 
@@ -230,12 +229,39 @@ gqlgen generate
 
 ### Create infrastructure
 
+### Precautions
+1. Please ensure the maximum limit of number of vpc's in a region has not reached it's limit.
+2. The maximum limit of number of buckets has not reached it's limits.
+3. Please make the changes to the manifest file of the service.
+4. Ensure that the aws cli has been installed and configured with the appropriate credentials and profiles.
+
+
+
 Application name should container only lowercase letters. No hyphens and underscores or any other special characters.
+
+
 
 ```
 ./scripts/setup-ecs.sh gotemplate dev
 ```
 
+
+
+Also add the environment variables to the task,add this block of yml code in ${service name}/manifest.yaml:
+```
+
+variables:                   
+ ENVIRONMENT_NAME: develop
+
+ #to inject our .env file from aws s3 inside the container
+
+taskdef_overrides:
+  - path: ContainerDefinitions[0].EnvironmentFiles[0]
+    value:
+      type: 's3'
+      value: 'arn:aws:s3:::gotemplate-dev-bucket/develop/.env' 
+ 
+```
 Make sure that the manifest.yml has http.path: '/'
 
 ```
@@ -247,6 +273,12 @@ http:
   # healthcheck: '/'
 
 ```
+### To deploy
+
+```
+./scripts/deploy-ecs.sh gotemplate dev
+```
+
 
 ### Update infrastructure
 
