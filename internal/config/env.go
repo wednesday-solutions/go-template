@@ -61,9 +61,11 @@ func LoadEnv() error {
 		env = "local"
 	}
 
-	err := godotenv.Load(fmt.Sprintf(".env.%s", env))
-	if err != nil {
-		return err
+	if env != "develop" {
+		err := godotenv.Load(fmt.Sprintf(".env.%s", env))
+		if err != nil {
+			return err
+		}
 	}
 	if env != "local" && env != "docker" {
 		type copilotSecrets struct {
