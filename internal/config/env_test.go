@@ -181,7 +181,7 @@ func TestLoadEnv(t *testing.T) {
 			name:    "Fail to load develop env",
 			wantErr: true,
 			args: args{
-				env:    "develop",
+				env:    "production",
 				tapped: false,
 			},
 		},
@@ -189,7 +189,7 @@ func TestLoadEnv(t *testing.T) {
 			name:    "Successfully load develop env",
 			wantErr: false,
 			args: args{
-				env:    "develop",
+				env:    "production",
 				tapped: false,
 				dbSecret: fmt.Sprintf(`{"username":"%s",`+
 					`"host":"%s","dbname":"%s","password":"%s",`+

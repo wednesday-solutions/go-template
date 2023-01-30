@@ -273,6 +273,7 @@ http:
   # healthcheck: '/'
 
 ```
+Also make sure the execution role has an appropriate policy attached to it so it can access our .env file inside the s3 bucket, and inject it as environment variables.
 ### To deploy
 
 ```
