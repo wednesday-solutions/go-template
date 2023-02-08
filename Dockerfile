@@ -19,6 +19,10 @@ RUN go build  -o ./output/seeder ./cmd/seeder/exec/seed.go
 
 
 FROM alpine:latest
+RUN addgroup -S nonroot \
+    && adduser -S nonroot -G nonroot
+
+USER nonroot
 ARG ENVIRONMENT_NAME
 RUN apk add --no-cache libc6-compat 
 RUN apk add --no-cache --upgrade bash
