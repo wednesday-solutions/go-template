@@ -6,6 +6,7 @@ services:
     restart: always
     env_file:
       - .env.docker
+    
     environment:
       - POSTGRES_USER=${PSQL_USER}
       - POSTGRES_PASSWORD=${PSQL_PASS}

@@ -9,8 +9,8 @@ import (
 	"go-template/gqlmodels"
 	"go-template/internal/middleware/auth"
 	"go-template/pkg/utl/cnvrttogql"
-	rediscache "go-template/pkg/utl/rediscache"
-	resultwrapper "go-template/pkg/utl/resultwrapper"
+	"go-template/pkg/utl/rediscache"
+	"go-template/pkg/utl/resultwrapper"
 
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )

@@ -13,8 +13,8 @@ import (
 	"go-template/internal/service"
 	"go-template/models"
 	"go-template/pkg/utl/cnvrttogql"
-	resultwrapper "go-template/pkg/utl/resultwrapper"
-	throttle "go-template/pkg/utl/throttle"
+	"go-template/pkg/utl/resultwrapper"
+	"go-template/pkg/utl/throttle"
 	"strconv"
 	"time"
 
