@@ -59,7 +59,11 @@ func (r *mutationResolver) Login(ctx context.Context, username string, password 
 }
 
 // ChangePassword is the resolver for the changePassword field.
-func (r *mutationResolver) ChangePassword(ctx context.Context, oldPassword string, newPassword string) (*gqlmodels.ChangePasswordResponse, error) {
+func (r *mutationResolver) ChangePassword(
+	ctx context.Context,
+	oldPassword string,
+	newPassword string,
+) (*gqlmodels.ChangePasswordResponse, error) {
 	userID := auth.UserIDFromContext(ctx)
 	u, err := daos.FindUserByID(userID, ctx)
 	if err != nil {
