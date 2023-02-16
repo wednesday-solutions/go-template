@@ -3,7 +3,7 @@ module go-template
 go 1.18
 
 require (
-	github.com/99designs/gqlgen v0.17.22
+	github.com/99designs/gqlgen v0.17.24
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/agiledragon/gomonkey/v2 v2.2.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
@@ -17,13 +17,13 @@ require (
 	github.com/kat-co/vala v0.0.0-20170210184112-42e1d8b61f12
 	github.com/labstack/echo/v4 v4.7.2
 	github.com/labstack/gommon v0.3.1
-	github.com/lib/pq v1.10.0
+	github.com/lib/pq v1.10.7
 	github.com/masahiro331/go-commitlinter v0.0.0-20220207112004-c66fa942bad3
 	github.com/nbutton23/zxcvbn-go v0.0.0-20180912185939-ae427f1e4c1d
 	github.com/rafaeljusto/redigomock v2.4.0+incompatible
 	github.com/rafaeljusto/redigomock/v3 v3.0.1
 	github.com/rs/zerolog v1.18.0
-	github.com/rubenv/sql-migrate v1.3.0
+	github.com/rubenv/sql-migrate v1.3.1
 	github.com/spf13/viper v1.10.0
 	github.com/stretchr/testify v1.8.0
 	github.com/uptrace/opentelemetry-go-extra/otelsql v0.1.14
@@ -54,7 +54,7 @@ require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
-	github.com/go-gorp/gorp/v3 v3.0.2 // indirect
+	github.com/go-gorp/gorp/v3 v3.0.5 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
