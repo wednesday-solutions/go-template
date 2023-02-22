@@ -58,7 +58,7 @@ func LoadEnv() error {
 
 	err := godotenv.Load(".env.base")
 	if err != nil {
-		return fmt.Errorf("cannot read base env file", err)
+		return err
 	}
 	envVarInjection := os.Getenv("ENV_INJECTION")
 	if envVarInjection == "" {
