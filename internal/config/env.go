@@ -55,19 +55,19 @@ func FileName() string {
 
 func LoadEnv() error {
 	envName := "ENVIRONMENT_NAME"
-	env := os.Getenv(envName)
 
+	env := os.Getenv(envName)
+	fmt.Println("envName", envName, env)
 	if env == "" {
 		env = "local"
 	}
 
-	if env != "develop" {
-		err := godotenv.Load(fmt.Sprintf(".env.%s", env))
-		if err != nil {
-			return err
-		}
+	err := godotenv.Load(fmt.Sprintf(".env.%s", env))
+	if err != nil {
+		return err
 	}
-	if env != "local" && env != "docker" {
+
+	if env == "USING_SSM_FOR_DB_CREDS" {
 		type copilotSecrets struct {
 			Username string `json:"username"`
 			Host     string `json:"host"`

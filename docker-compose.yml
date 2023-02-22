@@ -23,17 +23,17 @@ services:
     image: atkrad/wait4x
     depends_on:
       - db
-    command: tcp db:5432 -t 30s -i 250ms
+    command: tcp db:${PSQL_PORT} -t 30s -i 250ms
 
   app:
     build: .
     restart: always
     env_file:
-      - ./.env.docker
+      - ./.env.${ENVIRONMENT_NAME}
     depends_on:
       wait-for-db:
         condition: service_completed_successfully
     ports:
       - ${SERVER_PORT}:${SERVER_PORT}
     environment:
-      ENVIRONMENT_NAME: 'docker'
+      ENVIRONMENT_NAME:  ${ENVIRONMENT_NAME}
