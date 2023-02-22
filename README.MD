@@ -85,6 +85,8 @@ Using go-template requires having Go 1.7 or above. Once you download go-template
 go run cmd/server/main.go
 ```
 
+**NOTE:** Please do not delete ```.env.base``` file of the project and rebuild the using docker-compose everytime you make changes to it
+
 # Setting up database (postgres)
 
 - Requirement [postgresql](https://www.postgresql.org/)
@@ -173,6 +175,7 @@ go-template/
 │  └──line-formatter.sh             # auto format to adhere to the lll.line-length criteria
 └──schema/                          # this directory will have all the .graphql files which make the graphql api
 └──.env.local                       # a sample .env file for reference
+└──.env.base                        # a base .env file should be included in all environments 
 └──.pre-commit-config.yaml          # config to run pre-commit utility
 └──dbconfig.yml
 └──docker-compose.*.yml             # docker-compose file corresponding to the state of project (local, prod, test)
@@ -246,8 +249,10 @@ Application name should container only lowercase letters. No hyphens and undersc
 ```
 
 
+Please change the ENV_INJECTION variable as true in .env.base file to true, so it will not try to find a local .env file
 
 Also add the environment variables to the task,add this block of yml code in ${service name}/manifest.yaml:
+
 ```
 
 variables:                   
