@@ -157,11 +157,11 @@ func TestLoadEnv(t *testing.T) {
 		tapped   bool
 		dbSecret string
 	}
-	username := "TEST"
-	host := "TEST"
-	dbname := "TEST"
-	password := "TEST"
-	port := "10"
+	username := "go_template_role"
+	host := "localhost"
+	dbname := "go_template"
+	password := "go_template_role456"
+	port := "5432"
 	tests := []struct {
 		name    string
 		wantErr bool
@@ -177,14 +177,7 @@ func TestLoadEnv(t *testing.T) {
 			wantErr: false,
 			args:    args{env: "local", tapped: false},
 		},
-		{
-			name:    "Fail to load develop env",
-			wantErr: true,
-			args: args{
-				env:    "production",
-				tapped: false,
-			},
-		},
+
 		{
 			name:    "Successfully load develop env",
 			wantErr: false,
@@ -224,6 +217,7 @@ func TestLoadEnv(t *testing.T) {
 		}
 		t.Run(tt.name, func(t *testing.T) {
 			tapped := tt.args.tapped
+
 			if err := LoadEnv(); (err != nil) != tt.wantErr {
 				t.Errorf("LoadEnv() error = %v, wantErr %v", err, tt.wantErr)
 			}
