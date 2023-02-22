@@ -28,7 +28,7 @@ func main() {
 
 		log.Println(file.Name())
 		if slices.Contains([]string{"seed.go", ".env.docker"}, file.Name()) {
-			continue
+			continue;
 		}
 		cmd := exec.
 			Command(fmt.Sprintf("%s/%s", base, file.Name()))

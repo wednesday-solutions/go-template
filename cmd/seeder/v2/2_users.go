@@ -10,17 +10,12 @@ import (
 	"go-template/models"
 	"go-template/pkg/utl/secure"
 
-	"github.com/joho/godotenv"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 func main() {
 
 	sec := secure.New(1, nil)
-	err := godotenv.Load("./.env.local")
-	if err != nil {
-		fmt.Print(err)
-	}
 	db, err := postgres.Connect()
 	if err != nil {
 		log.Fatal(err, "pop")
