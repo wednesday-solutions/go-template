@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"go-template/pkg/utl/convert"
+	"log"
 	"os"
 	"strconv"
 
@@ -54,20 +55,31 @@ func FileName() string {
 }
 
 func LoadEnv() error {
-	envName := "ENVIRONMENT_NAME"
 
-	env := os.Getenv(envName)
-	fmt.Println("envName", envName, env)
-	if env == "" {
-		env = "local"
-	}
-
-	err := godotenv.Load(fmt.Sprintf(".env.%s", env))
+	err := godotenv.Load(".env.base")
 	if err != nil {
+		return fmt.Errorf("cannot read base env file", err)
+	}
+	envVarInjection := os.Getenv("ENV_INJECTION")
+	if envVarInjection == "" {
+		envVarInjection = "false"
+	}
+	envName := os.Getenv("ENVIRONMENT_NAME")
+	if envName == "" {
+		envName = "local"
+	}
+	log.Println(envName)
+
+	err = godotenv.Load(fmt.Sprintf(".env.%s", envName))
+
+	if err != nil {
+		fmt.Printf(".env.%s\n", envName)
+		log.Println(err)
 		return err
 	}
 
-	if env == "USING_SSM_FOR_DB_CREDS" {
+	if envVarInjection == "true" {
+		log.Println("&&&&&&&&")
 		type copilotSecrets struct {
 			Username string `json:"username"`
 			Host     string `json:"host"`

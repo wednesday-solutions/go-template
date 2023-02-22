@@ -14,7 +14,11 @@ import (
 )
 
 func main() {
+	// err := config.LoadEnv()
+	// if err != nil {
+	// 	log.Println(err)
 
+	// }
 	sec := secure.New(1, nil)
 	db, err := postgres.Connect()
 	if err != nil {
