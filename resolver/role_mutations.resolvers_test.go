@@ -8,10 +8,10 @@ import (
 	"testing"
 
 	fm "go-template/gqlmodels"
+	"go-template/internal/config"
 	"go-template/resolver"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
@@ -46,7 +46,7 @@ func TestCreateRole(
 		t.Run(
 			tt.name,
 			func(t *testing.T) {
-				err := godotenv.Load("../.env.local")
+				err := config.LoadEnv()
 				if err != nil {
 					fmt.Print("error loading .env file")
 				}

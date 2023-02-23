@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strings"
 
 	"golang.org/x/exp/slices"
 )
@@ -27,7 +28,7 @@ func main() {
 	for _, file := range files {
 
 		log.Println(file.Name())
-		if slices.Contains([]string{"seed.go", ".env.docker"}, file.Name()) {
+		if slices.Contains([]string{"seed.go"}, file.Name()) && strings.Contains(file.Name(), "env") {
 			continue
 		}
 		cmd := exec.

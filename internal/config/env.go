@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"go-template/pkg/utl/convert"
+	"log"
 	"os"
 	"strconv"
 
@@ -53,21 +54,36 @@ func FileName() string {
 	return envFileName
 }
 
-func LoadEnv() error {
-	envName := "ENVIRONMENT_NAME"
-	env := os.Getenv(envName)
-
-	if env == "" {
-		env = "local"
+func LoadEnvWithFilePrefix(fileprefix *string) error {
+	prefix := ""
+	if fileprefix != nil {
+		prefix = *fileprefix
+	}
+	err := godotenv.Load(fmt.Sprintf("%s.env.base", prefix))
+	if err != nil {
+		return err
 	}
 
-	if env != "develop" {
-		err := godotenv.Load(fmt.Sprintf(".env.%s", env))
+	envName := os.Getenv("ENVIRONMENT_NAME")
+	if envName == "" {
+		envName = "local"
+	}
+	log.Println(envName)
+
+	envVarInjection := GetBool("ENV_INJECTION")
+	if !envVarInjection || envName == "local" {
+		err = godotenv.Load(fmt.Sprintf("%s.env.%s", prefix, envName))
+
 		if err != nil {
+			fmt.Printf(".env.%s\n", envName)
+			log.Println(err)
 			return err
 		}
 	}
-	if env != "local" && env != "docker" {
+
+	dbCredsInjected := GetBool("COPILOT_DB_CREDS_VIA_SECRETS_MANAGER")
+
+	if dbCredsInjected {
 		type copilotSecrets struct {
 			Username string `json:"username"`
 			Host     string `json:"host"`
@@ -91,4 +107,7 @@ func LoadEnv() error {
 	}
 
 	return nil
+}
+func LoadEnv() error {
+	return LoadEnvWithFilePrefix(nil)
 }

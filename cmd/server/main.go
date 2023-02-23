@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/rs/zerolog"
@@ -17,6 +18,7 @@ func main() {
 func Setup() {
 	err := config.LoadEnv()
 	if err != nil {
+		log.Println(err)
 		fmt.Print("error loading .env file")
 		checkErr(err)
 		os.Exit(1)
