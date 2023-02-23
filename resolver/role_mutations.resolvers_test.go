@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 	"go-template/daos"
+	"go-template/internal/constants"
 	"go-template/internal/middleware/auth"
 	"go-template/models"
 	"go-template/pkg/utl/rediscache"
 	"go-template/resolver"
-	"log"
 	"testing"
 
 	"github.com/volatiletech/null/v8"
@@ -20,9 +20,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// TestCreateRole tests the CreateRole mutation function.
 func TestCreateRole(
 	t *testing.T,
 ) {
+
+	// Define test cases, each case has a name, request input, expected response, and error.
 	cases := []struct {
 		name     string
 		req      fm.RoleCreateInput
@@ -30,61 +33,68 @@ func TestCreateRole(
 		wantErr  bool
 	}{
 		{
-			name:     "RedisCache Error",
+			name:     constants.ErrorFromRedisCache,
 			req:      fm.RoleCreateInput{},
 			wantResp: &fm.RolePayload{},
 			wantErr:  true,
 		},
 		{
-			name:     "RedisCache GetRole Error",
+			name:     constants.ErrorFromGetRole,
 			req:      fm.RoleCreateInput{},
 			wantResp: &fm.RolePayload{},
 			wantErr:  true,
 		},
 		{
-			name: "Unauthorized",
+			name: constants.ErrorUnauthorizedUser,
 			req: fm.RoleCreateInput{
 				Name:        "Role",
-				AccessLevel: 200,
+				AccessLevel: int(constants.UserRole),
 			},
 			wantResp: &fm.RolePayload{},
 		},
 
 		{
-			name: "Success",
+			name: constants.SuccessCase,
 			req: fm.RoleCreateInput{
 				Name:        "Role",
-				AccessLevel: 200,
+				AccessLevel: int(constants.UserRole),
 			},
 			wantResp: &fm.RolePayload{Role: &fm.Role{
 
-				AccessLevel: 200,
+				AccessLevel: int(constants.UserRole),
 				Name:        "Role",
 			}},
 		},
 		{
-			name: "CreateRole Error",
+			name: constants.ErrorFromCreateRole,
 			req: fm.RoleCreateInput{
 				Name:        "UserRole",
-				AccessLevel: 200,
+				AccessLevel: int(constants.UserRole),
 			},
 			wantErr: true,
 		},
 	}
-
+	// Create a new resolver instance.
 	resolver1 := resolver.Resolver{}
+
+	// Loop through each test case.
 	for _, tt := range cases {
 
+		// Mocking rediscache.GetUserID function
 		patchUserID := gomonkey.ApplyFunc(auth.UserIDFromContext,
 			func(ctx context.Context) int {
 				return 1
 			})
+
+		// Mocking rediscache.GetUser function
 		patchGetUser := gomonkey.ApplyFunc(rediscache.GetUser,
 			func(userID int, ctx context.Context) (*models.User, error) {
 				return &models.User{
 					RoleID: null.IntFrom(1),
 				}, nil
 			})
+
+		// Mocking rediscache.GetRole function
 		patchGetRole := gomonkey.ApplyFunc(rediscache.GetRole,
 			func(roleID int, ctx context.Context) (*models.Role, error) {
 				return &models.Role{
@@ -92,14 +102,17 @@ func TestCreateRole(
 					Name:        "SuperAdminRole",
 				}, nil
 			})
+
+		// Mocking daos.CreateRole function
 		patchCreateRole := gomonkey.ApplyFunc(daos.CreateRole,
 			func(role models.Role, ctx context.Context) (models.Role, error) {
 				return models.Role{
-					AccessLevel: 200,
+					AccessLevel: int(constants.UserRole),
 					Name:        "Role",
 				}, nil
 			})
-		//defer patchDaos1.Reset()
+
+		// Defer resetting of the monkey patches.
 		defer patchUserID.Reset()
 		defer patchGetUser.Reset()
 		defer patchGetRole.Reset()
@@ -107,7 +120,8 @@ func TestCreateRole(
 		t.Run(tt.name,
 			func(t *testing.T) {
 
-				if tt.name == "RedisCache Error" {
+				// Apply additional monkey patches based on test case name.
+				if tt.name == constants.ErrorFromRedisCache {
 					patchGetUser := gomonkey.ApplyFunc(rediscache.GetUser,
 						func(userID int, ctx context.Context) (*models.User, error) {
 							return nil, errors.New("redis cache")
@@ -115,25 +129,25 @@ func TestCreateRole(
 					defer patchGetUser.Reset()
 				}
 
-				if tt.name == "RedisCache GetRole Error" {
+				if tt.name == constants.ErrorFromGetRole {
 					patchGetRole := gomonkey.ApplyFunc(rediscache.GetRole,
 						func(roleID int, ctx context.Context) (*models.Role, error) {
 							return nil, errors.New("data")
 						})
 					defer patchGetRole.Reset()
 				}
-				if tt.name == "Unauthorized" {
+				if tt.name == constants.ErrorUnauthorizedUser {
 					patchGetRole := gomonkey.ApplyFunc(rediscache.GetRole,
 						func(roleID int, ctx context.Context) (*models.Role, error) {
 							return &models.Role{
-								AccessLevel: 200,
+								AccessLevel: int(constants.UserRole),
 								Name:        "Role",
 							}, nil
 						})
 					defer patchGetRole.Reset()
 				}
 
-				if tt.name == "CreateRole Error" {
+				if tt.name == constants.ErrorFromCreateRole {
 					patchCreateRole := gomonkey.ApplyFunc(daos.CreateRole,
 						func(role models.Role, ctx context.Context) (models.Role, error) {
 							return models.Role{}, errors.New("error")
@@ -141,53 +155,21 @@ func TestCreateRole(
 
 					defer patchCreateRole.Reset()
 				}
-				//		err := godotenv.Load("../.env.local")
-				//		if err != nil {
-				//			fmt.Print("error loading .env file")
-				//		}
-				//		db, mock, err := sqlmock.New()
-				//		if err != nil {
-				//			t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-				//		}
-				//		oldDB := boil.GetDB()
-				//		defer func() {
-				//			db.Close()
-				//			boil.SetDB(oldDB)
-				//		}()
-				//		boil.SetDB(db)
-				//		rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
-				//
-				//		mock.ExpectQuery(`select * from "roles" where "id"=$1`).
-				//			WithArgs([]driver.Value{0}...).
-				//			WillReturnRows(rows)
-				//
-				//		mock.ExpectQuery(`select * from "users" where "id"=$1`).
-				//			WithArgs([]driver.Value{0}...).
-				//			WillReturnRows(rows)
-				//
-				//		if tt.name == "Fail on Create role" {
-				//			// insert new user
-				//			mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "roles"`)).
-				//				WithArgs().
-				//				WillReturnError(fmt.Errorf(""))
-				//		}
-				//		// insert new user
-				//		rows = sqlmock.NewRows([]string{"id"}).AddRow(1)
-				//		mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "roles"`)).
-				//			WithArgs().
-				//			WillReturnRows(rows)
-				//
+
+				// Create a new context
 				c := context.Background()
+
+				// Call the resolver function
 				response, err := resolver1.Mutation().CreateRole(c, tt.req)
 
+				// Check if the error matches the expected error
 				if tt.wantErr {
 					assert.NotNil(t, err)
 				}
-				log.Println(tt.wantResp)
+
+				// Check if the response matches the expected response
 				assert.Equal(t, tt.wantResp, response)
 
-				//	},
-				//)
 			})
 	}
 }
