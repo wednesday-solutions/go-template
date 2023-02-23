@@ -57,13 +57,9 @@ func TestCreateRole(
 				AccessLevel: 200,
 			},
 			wantResp: &fm.RolePayload{&fm.Role{
-				ID:          "",
+
 				AccessLevel: 200,
 				Name:        "Role",
-				UpdatedAt:   nil,
-				DeletedAt:   nil,
-				CreatedAt:   nil,
-				Users:       nil,
 			}},
 		},
 		{
