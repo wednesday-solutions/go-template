@@ -60,26 +60,27 @@ func LoadEnv() error {
 	if err != nil {
 		return err
 	}
-	envVarInjection := os.Getenv("ENV_INJECTION")
-	if envVarInjection == "" {
-		envVarInjection = "false"
-	}
+
 	envName := os.Getenv("ENVIRONMENT_NAME")
 	if envName == "" {
 		envName = "local"
 	}
 	log.Println(envName)
 
-	err = godotenv.Load(fmt.Sprintf(".env.%s", envName))
+	envVarInjection := GetBool("ENV_INJECTION")
+	if !envVarInjection || envName == "local" {
+		err = godotenv.Load(fmt.Sprintf(".env.%s", envName))
 
-	if err != nil {
-		fmt.Printf(".env.%s\n", envName)
-		log.Println(err)
-		return err
+		if err != nil {
+			fmt.Printf(".env.%s\n", envName)
+			log.Println(err)
+			return err
+		}
 	}
 
-	if envVarInjection == "true" {
-		log.Println("&&&&&&&&")
+	dbCredsInjected := GetBool("COPILOT_DB_CREDS_VIA_SECRETS_MANAGER")
+
+	if dbCredsInjected {
 		type copilotSecrets struct {
 			Username string `json:"username"`
 			Host     string `json:"host"`
