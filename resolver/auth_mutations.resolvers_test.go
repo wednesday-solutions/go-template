@@ -9,6 +9,7 @@ import (
 
 	fm "go-template/gqlmodels"
 	"go-template/internal/config"
+	"go-template/pkg/utl/convert"
 	"go-template/resolver"
 	"go-template/testutls"
 
@@ -56,7 +57,8 @@ func TestLogin(
 		t.Run(
 			tt.name,
 			func(t *testing.T) {
-				err := config.LoadEnv()
+
+				err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../"))
 				if err != nil {
 					fmt.Print("error loading .env file")
 				}

@@ -72,7 +72,7 @@ func LoadEnvWithFilePrefix(fileprefix *string) error {
 
 	envVarInjection := GetBool("ENV_INJECTION")
 	if !envVarInjection || envName == "local" {
-		err = godotenv.Load(fmt.Sprintf(".env.%s", envName))
+		err = godotenv.Load(fmt.Sprintf("%s.env.%s", prefix, envName))
 
 		if err != nil {
 			fmt.Printf(".env.%s\n", envName)
