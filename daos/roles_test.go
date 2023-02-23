@@ -7,10 +7,10 @@ import (
 	"testing"
 
 	"go-template/daos"
+	"go-template/internal/config"
 	"go-template/models"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -31,7 +31,7 @@ func TestCreateRoleTx(t *testing.T) {
 	}
 
 	for _, tt := range cases {
-		err := godotenv.Load("../.env.local")
+		err := config.LoadEnv()
 		if err != nil {
 			fmt.Print("error loading .env file")
 		}
@@ -79,7 +79,7 @@ func TestFindRoleByID(t *testing.T) {
 	}
 
 	for _, tt := range cases {
-		err := godotenv.Load("../.env.local")
+		err := config.LoadEnv()
 		if err != nil {
 			fmt.Print("error loading .env file")
 		}

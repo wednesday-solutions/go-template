@@ -5,3 +5,4 @@ vendor
 profile.out
 coverage.out
 output
+cmd/seeder/exec/build
