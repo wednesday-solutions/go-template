@@ -86,6 +86,10 @@ func TestUsers(
 		wantErr    bool
 	}{
 		{
+			name:    "Fail on finding user",
+			wantErr: true,
+		},
+		{
 			name:     "Success",
 			wantErr:  false,
 			wantResp: testutls.MockUsers(),
@@ -115,6 +119,12 @@ func TestUsers(
 				}()
 				boil.SetDB(db)
 
+				//fail on finding user case
+				if tt.name == "Fail on finding user" {
+					mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
+						WithArgs().
+						WillReturnError(fmt.Errorf(""))
+				}
 				// get user by id
 				rows := sqlmock.
 					NewRows([]string{"id", "email", "first_name", "last_name", "mobile", "username", "address"}).

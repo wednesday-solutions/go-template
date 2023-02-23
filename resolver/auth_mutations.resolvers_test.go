@@ -39,6 +39,22 @@ func TestLogin(
 			wantErr: true,
 		},
 		{
+			name: "Fail on PasswordValidation",
+			req: args{
+				UserName: testutls.MockEmail,
+				Password: "pass123",
+			},
+			wantErr: true,
+		},
+		{
+			name: "Fail on ActiveStatus",
+			req: args{
+				UserName: testutls.MockEmail,
+				Password: "adminuser",
+			},
+			wantErr: true,
+		},
+		{
 			name: "Success",
 			req: args{
 				UserName: testutls.MockEmail,
@@ -76,6 +92,22 @@ func TestLogin(
 					mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users" WHERE (username=$1) LIMIT 1;`)).
 						WithArgs().
 						WillReturnError(fmt.Errorf(""))
+				}
+				if tt.name == "Fail on PasswordValidation" {
+					// get user by username
+					rows := sqlmock.NewRows([]string{"id", "password", "active", "role_id"}).
+						AddRow(testutls.MockID, "$2a$10$dS5vK8hHmG5", true, 1)
+					mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users"  WHERE (username=$1) LIMIT 1;`)).
+						WithArgs().
+						WillReturnRows(rows)
+				}
+				if tt.name == "Fail on ActiveStatus" {
+					// get user by username
+					rows := sqlmock.NewRows([]string{"id", "password", "active", "role_id"}).
+						AddRow(testutls.MockID, "$2a$10$dS5vK8hHmG5gzwV8f7TK5.WHviMBqmYQLYp30a3XvqhCW9Wvl2tOS", false, 1)
+					mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users"  WHERE (username=$1) LIMIT 1;`)).
+						WithArgs().
+						WillReturnRows(rows)
 				}
 				// get user by username
 				rows := sqlmock.NewRows([]string{"id", "password", "active", "role_id"}).
@@ -138,6 +170,14 @@ func TestChangePassword(
 			req: changeReq{
 				OldPassword: "admin",
 				NewPassword: "adminuser!A9@",
+			},
+			wantErr: true,
+		},
+		{
+			name: "Insecure password",
+			req: changeReq{
+				OldPassword: "adminuser",
+				NewPassword: "mac@wednesday.is",
 			},
 			wantErr: true,
 		},
