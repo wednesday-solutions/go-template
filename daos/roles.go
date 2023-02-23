@@ -11,7 +11,7 @@ import (
 
 // CreateRoleTx ...
 func CreateRoleTx(role models.Role, ctx context.Context, tx *sql.Tx) (models.Role, error) {
-	contextExecutor := getContextExecutor(tx)
+	contextExecutor := GetContextExecutor(tx)
 
 	err := role.Insert(ctx, contextExecutor, boil.Infer())
 	return role, err
@@ -24,6 +24,6 @@ func CreateRole(role models.Role, ctx context.Context) (models.Role, error) {
 
 // FindRoleByID ...
 func FindRoleByID(roleID int, ctx context.Context) (*models.Role, error) {
-	contextExecutor := getContextExecutor(nil)
+	contextExecutor := GetContextExecutor(nil)
 	return models.FindRole(ctx, contextExecutor, roleID)
 }

@@ -2,6 +2,7 @@ package resolver_test
 
 import (
 	"context"
+	"errors"
 	"go-template/daos"
 	"go-template/internal/middleware/auth"
 	"go-template/models"
@@ -29,10 +30,24 @@ func TestCreateRole(
 		wantErr  bool
 	}{
 		{
-			name:     "Fail on Create role",
+			name:     "RedisCache Error",
 			req:      fm.RoleCreateInput{},
 			wantResp: &fm.RolePayload{},
 			wantErr:  true,
+		},
+		{
+			name:     "RedisCache GetRole Error",
+			req:      fm.RoleCreateInput{},
+			wantResp: &fm.RolePayload{},
+			wantErr:  true,
+		},
+		{
+			name: "Unauthorized",
+			req: fm.RoleCreateInput{
+				Name:        "Role",
+				AccessLevel: 200,
+			},
+			wantResp: &fm.RolePayload{},
 		},
 
 		{
@@ -41,40 +56,47 @@ func TestCreateRole(
 				Name:        "Role",
 				AccessLevel: 200,
 			},
-			wantResp: &fm.RolePayload{},
+			wantResp: &fm.RolePayload{&fm.Role{
+				ID:          "",
+				AccessLevel: 200,
+				Name:        "Role",
+				UpdatedAt:   nil,
+				DeletedAt:   nil,
+				CreatedAt:   nil,
+				Users:       nil,
+			}},
 		},
 		{
-			name: "Fail on Create role",
+			name: "CreateRole Error",
 			req: fm.RoleCreateInput{
 				Name:        "UserRole",
-				AccessLevel: 100,
+				AccessLevel: 200,
 			},
-			wantResp: &fm.RolePayload{},
-			wantErr:  true,
+			wantErr: true,
 		},
 	}
 
 	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
 
-		patchDaos2 := gomonkey.ApplyFunc(auth.UserIDFromContext,
+		patchUserID := gomonkey.ApplyFunc(auth.UserIDFromContext,
 			func(ctx context.Context) int {
 				return 1
 			})
-		patchDaos3 := gomonkey.ApplyFunc(rediscache.GetUser,
+		patchGetUser := gomonkey.ApplyFunc(rediscache.GetUser,
 			func(userID int, ctx context.Context) (*models.User, error) {
 				return &models.User{
 					RoleID: null.IntFrom(1),
 				}, nil
 			})
-		patchDaos4 := gomonkey.ApplyFunc(rediscache.GetRole,
+		patchGetRole := gomonkey.ApplyFunc(rediscache.GetRole,
 			func(roleID int, ctx context.Context) (*models.Role, error) {
 				return &models.Role{
 					AccessLevel: 100,
 					Name:        "SuperAdminRole",
 				}, nil
 			})
-		patchDaos5 := gomonkey.ApplyFunc(daos.CreateRole,
+		patchCreateRole := gomonkey.ApplyFunc(daos.CreateRole,
 			func(role models.Role, ctx context.Context) (models.Role, error) {
 				return models.Role{
 					AccessLevel: 200,
@@ -82,12 +104,47 @@ func TestCreateRole(
 				}, nil
 			})
 		//defer patchDaos1.Reset()
-		defer patchDaos2.Reset()
-		defer patchDaos3.Reset()
-		defer patchDaos4.Reset()
-		defer patchDaos5.Reset()
+		defer patchUserID.Reset()
+		defer patchGetUser.Reset()
+		defer patchGetRole.Reset()
+		defer patchCreateRole.Reset()
 		t.Run(tt.name,
 			func(t *testing.T) {
+
+				if tt.name == "RedisCache Error" {
+					patchGetUser := gomonkey.ApplyFunc(rediscache.GetUser,
+						func(userID int, ctx context.Context) (*models.User, error) {
+							return nil, errors.New("redis cache")
+						})
+					defer patchGetUser.Reset()
+				}
+
+				if tt.name == "RedisCache GetRole Error" {
+					patchGetRole := gomonkey.ApplyFunc(rediscache.GetRole,
+						func(roleID int, ctx context.Context) (*models.Role, error) {
+							return nil, errors.New("data")
+						})
+					defer patchGetRole.Reset()
+				}
+				if tt.name == "Unauthorized" {
+					patchGetRole := gomonkey.ApplyFunc(rediscache.GetRole,
+						func(roleID int, ctx context.Context) (*models.Role, error) {
+							return &models.Role{
+								AccessLevel: 200,
+								Name:        "Role",
+							}, nil
+						})
+					defer patchGetRole.Reset()
+				}
+
+				if tt.name == "CreateRole Error" {
+					patchCreateRole := gomonkey.ApplyFunc(daos.CreateRole,
+						func(role models.Role, ctx context.Context) (models.Role, error) {
+							return models.Role{}, errors.New("error")
+						})
+
+					defer patchCreateRole.Reset()
+				}
 				//		err := godotenv.Load("../.env.local")
 				//		if err != nil {
 				//			fmt.Print("error loading .env file")
@@ -126,11 +183,11 @@ func TestCreateRole(
 				//
 				c := context.Background()
 				response, err := resolver1.Mutation().CreateRole(c, tt.req)
-				log.Println(tt.wantResp)
-				log.Println(response)
+
 				if tt.wantErr {
 					assert.NotNil(t, err)
 				}
+				log.Println(tt.wantResp)
 				assert.Equal(t, tt.wantResp, response)
 
 				//	},

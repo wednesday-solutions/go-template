@@ -2,9 +2,13 @@ package daos_test
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
+	"log"
 	"regexp"
 	"testing"
+
+	"github.com/agiledragon/gomonkey/v2"
 
 	"go-template/daos"
 	"go-template/models"
@@ -104,6 +108,38 @@ func TestFindRoleByID(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := daos.FindRoleByID(tt.req, context.Background())
+			assert.Equal(t, err, tt.err)
+
+		})
+	}
+}
+func TestGetContextExecutor(t *testing.T) {
+
+	cases := []struct {
+		name string
+
+		err error
+	}{
+		{
+			name: "Passing role type value",
+			err:  nil,
+		},
+	}
+
+	for _, tt := range cases {
+
+		patchDaos2 := gomonkey.ApplyFunc(daos.GetContextExecutor,
+			func(tx *sql.Tx) (contextExecutor boil.ContextExecutor) {
+
+				return boil.ContextExecutor(tx)
+			})
+
+		defer patchDaos2.Reset()
+		t.Run(tt.name, func(t *testing.T) {
+			_ = daos.GetContextExecutor(&sql.Tx{})
+
+			err := error(nil)
+			log.Println(&sql.Tx{})
 			assert.Equal(t, err, tt.err)
 
 		})
