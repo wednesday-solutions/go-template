@@ -111,6 +111,17 @@ func SetupEnvAndDB(t *testing.T, parameters Parameters) (mock sqlmock.Sqlmock, d
 	return mock, db, nil
 }
 
+func SetupMockDB(t *testing.T) (mock sqlmock.Sqlmock, db *sql.DB, err error) {
+	db, mock, err = sqlmock.New()
+	if err != nil {
+		if err != nil {
+			t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+		}
+	}
+	boil.SetDB(db)
+	return mock, db, nil
+}
+
 type QueryData struct {
 	Actions    *[]driver.Value
 	Query      string

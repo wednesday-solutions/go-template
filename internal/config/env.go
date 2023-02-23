@@ -54,9 +54,12 @@ func FileName() string {
 	return envFileName
 }
 
-func LoadEnv() error {
-
-	err := godotenv.Load(".env.base")
+func LoadEnvWithFilePrefix(fileprefix *string) error {
+	prefix := ""
+	if fileprefix != nil {
+		prefix = *fileprefix
+	}
+	err := godotenv.Load(fmt.Sprintf("%s.env.base", prefix))
 	if err != nil {
 		return err
 	}
@@ -104,4 +107,7 @@ func LoadEnv() error {
 	}
 
 	return nil
+}
+func LoadEnv() error {
+	return LoadEnvWithFilePrefix(nil)
 }
