@@ -56,7 +56,7 @@ func TestCreateRole(
 				Name:        "Role",
 				AccessLevel: 200,
 			},
-			wantResp: &fm.RolePayload{&fm.Role{
+			wantResp: &fm.RolePayload{Role: &fm.Role{
 
 				AccessLevel: 200,
 				Name:        "Role",
