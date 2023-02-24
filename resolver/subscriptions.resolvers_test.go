@@ -6,11 +6,11 @@ import (
 	"testing"
 
 	fm "go-template/gqlmodels"
+	"go-template/internal/config"
 	"go-template/internal/constants"
 	"go-template/resolver"
 	"go-template/testutls"
 
-	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -40,7 +40,7 @@ func TestUserNotification(
 		t.Run(
 			tt.name,
 			func(t *testing.T) {
-				err := godotenv.Load("../.env.local")
+				err := config.LoadEnv()
 				if err != nil {
 					fmt.Print("error loading .env file")
 				}

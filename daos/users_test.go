@@ -9,11 +9,11 @@ import (
 	"testing"
 
 	"go-template/daos"
+	"go-template/internal/config"
 	"go-template/models"
 	"go-template/testutls"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -103,7 +103,7 @@ func TestFindUserByID(t *testing.T) {
 	}
 
 	for _, tt := range cases {
-		err := godotenv.Load("../.env.local")
+		err := config.LoadEnv()
 		if err != nil {
 			fmt.Print("error loading .env file")
 		}
@@ -157,7 +157,7 @@ func TestFindUserByEmail(t *testing.T) {
 	}
 
 	for _, tt := range cases {
-		err := godotenv.Load("../.env.local")
+		err := config.LoadEnv()
 		if err != nil {
 			fmt.Print("error loading .env file")
 		}
@@ -218,7 +218,7 @@ func TestFindUserByUserName(t *testing.T) {
 	}
 
 	for _, tt := range cases {
-		err := godotenv.Load("../.env.local")
+		err := config.LoadEnv()
 		if err != nil {
 			fmt.Print("error loading .env file")
 		}
@@ -271,7 +271,7 @@ func TestUpdateUserTx(t *testing.T) {
 	}
 
 	for _, tt := range cases {
-		err := godotenv.Load("../.env.local")
+		err := config.LoadEnv()
 		if err != nil {
 			fmt.Print("error loading .env file")
 		}
@@ -315,7 +315,7 @@ func TestDeleteUser(t *testing.T) {
 	}
 
 	for _, tt := range cases {
-		err := godotenv.Load("../.env.local")
+		err := config.LoadEnv()
 		if err != nil {
 			fmt.Print("error loading .env file")
 		}
@@ -431,7 +431,7 @@ func TestFindUserByToken(t *testing.T) {
 	}
 
 	for _, tt := range cases {
-		err := godotenv.Load("../.env.local")
+		err := config.LoadEnv()
 		if err != nil {
 			fmt.Print("error loading .env file")
 		}

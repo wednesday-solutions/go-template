@@ -6,6 +6,7 @@ import (
 	"go-template/internal/config"
 	"go-template/internal/postgres"
 	"go-template/pkg/utl/zaplog"
+	"log"
 	"os"
 
 	migrate "github.com/rubenv/sql-migrate"
@@ -14,7 +15,9 @@ import (
 func main() {
 	err := config.LoadEnv()
 	if err != nil {
-		fmt.Println("failed while loading env")
+		log.Println("&&&&")
+		log.Println(err)
+		return
 	}
 	db, err := postgres.Connect()
 	if err != nil {
