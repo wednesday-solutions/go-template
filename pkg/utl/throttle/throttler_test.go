@@ -9,7 +9,6 @@ import (
 	"testing"
 	"time"
 
-	"go-template/internal/constants"
 	rediscache "go-template/pkg/utl/rediscache"
 	"go-template/testutls"
 
@@ -148,7 +147,7 @@ func TestGqlMiddleware(t *testing.T) {
 		args args
 	}{
 		{
-			name: constants.SuccessCase,
+			name: "Success",
 			want: func(h echo.HandlerFunc) echo.HandlerFunc {
 				return nil
 			},

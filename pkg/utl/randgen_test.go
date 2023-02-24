@@ -1,7 +1,6 @@
 package utl
 
 import (
-	"go-template/internal/constants"
 	"testing"
 )
 
@@ -15,7 +14,7 @@ func TestRandomSequence(t *testing.T) {
 		want string
 	}{
 		{
-			name: constants.SuccessCase,
+			name: "Success",
 			args: args{
 				n: 1,
 			},

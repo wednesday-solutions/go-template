@@ -6,13 +6,14 @@ import (
 	"testing"
 
 	"go-template/internal/config"
-	"go-template/internal/constants"
 	"go-template/internal/service"
 	"go-template/testutls"
 
 	. "github.com/agiledragon/gomonkey/v2"
 	"github.com/stretchr/testify/assert"
 )
+
+const SuccessCase = "Success"
 
 func TestSecure(t *testing.T) {
 	type args struct {
@@ -23,7 +24,7 @@ func TestSecure(t *testing.T) {
 		args args
 	}{
 		{
-			name: constants.SuccessCase,
+			name: SuccessCase,
 			args: args{
 				cfg: testutls.MockConfig(),
 			},
@@ -46,7 +47,7 @@ func TestJWT(t *testing.T) {
 		args args
 	}{
 		{
-			name: constants.SuccessCase,
+			name: SuccessCase,
 			args: args{
 				cfg: testutls.MockConfig(),
 			},

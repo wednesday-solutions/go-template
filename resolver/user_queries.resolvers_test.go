@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"go-template/internal/constants"
 	"regexp"
 	"testing"
 
@@ -37,7 +36,7 @@ func TestMe(
 		args     args
 	}{
 		{
-			name:     constants.SuccessCase,
+			name:     SuccessCase,
 			args:     args{user: testutls.MockUser()},
 			wantResp: cnvrttogql.UserToGraphQlUser(testutls.MockUser(), 4),
 		},
@@ -88,11 +87,11 @@ func TestUsers(
 		wantErr    bool
 	}{
 		{
-			name:    constants.ErrorFindingUser,
+			name:    ErrorFindingUser,
 			wantErr: true,
 		},
 		{
-			name:     constants.SuccessCase,
+			name:     SuccessCase,
 			wantErr:  false,
 			wantResp: testutls.MockUsers(),
 		},
@@ -127,7 +126,7 @@ func TestUsers(
 				boil.SetDB(db)
 
 				//fail on finding user case
-				if tt.name == constants.ErrorFindingUser {
+				if tt.name == ErrorFindingUser {
 					mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
 						WithArgs().
 						WillReturnError(fmt.Errorf(""))

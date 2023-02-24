@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"go-template/internal/constants"
 	"go-template/internal/jwt"
 	"go-template/models"
 	"go-template/testutls"
@@ -17,6 +16,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/volatiletech/null/v8"
 )
+
+const SuccessCase = "Success"
 
 func TestNew(t *testing.T) {
 	cases := map[string]struct {
@@ -48,7 +49,7 @@ func TestNew(t *testing.T) {
 			wantErr:      true,
 			error:        "jwt secret length is 3, which is less than required 4",
 		},
-		constants.SuccessCase: {
+		SuccessCase: {
 			algo:         "HS256",
 			secret:       "g0r$kt3$t1ng",
 			minSecretLen: 1,
@@ -99,7 +100,7 @@ func TestGenerateToken(t *testing.T) {
 			secret:       "123",
 			wantErr:      true,
 		},
-		constants.SuccessCase: {
+		SuccessCase: {
 			algo:         "HS256",
 			secret:       "g0r$kt3$t1ng",
 			minSecretLen: 1,
@@ -156,7 +157,7 @@ func TestParseToken(t *testing.T) {
 			algo:  "ES256",
 			error: "generic error",
 		},
-		constants.SuccessCase: {
+		SuccessCase: {
 			authHeader: "bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIi" +
 				"wibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
 			algo: algo,

@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql/driver"
 	"fmt"
-	"go-template/internal/constants"
 	"regexp"
 	"testing"
 
@@ -19,6 +18,8 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
+
+const ErrorFindingUser = "Fail on finding user"
 
 func TestCreateUserTx(t *testing.T) {
 
@@ -145,7 +146,7 @@ func TestFindUserByEmail(t *testing.T) {
 		err  error
 	}{
 		{
-			name: constants.ErrorFindingUser,
+			name: ErrorFindingUser,
 			req:  args{email: "abc"},
 			err:  fmt.Errorf("sql: no rows in sql"),
 		},
@@ -174,7 +175,7 @@ func TestFindUserByEmail(t *testing.T) {
 		}()
 		boil.SetDB(db)
 
-		if tt.name == constants.ErrorFindingUser {
+		if tt.name == ErrorFindingUser {
 			mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users" WHERE (email=$1) LIMIT 1;`)).
 				WithArgs().
 				WillReturnError(fmt.Errorf(""))

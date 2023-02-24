@@ -11,7 +11,6 @@ import (
 	"testing"
 	"time"
 
-	"go-template/internal/constants"
 	"go-template/internal/server"
 	"go-template/testutls"
 
@@ -68,7 +67,7 @@ func TestStart(t *testing.T) {
 	cases := map[string]struct {
 		args args
 	}{
-		constants.SuccessCase: {
+		"Success": {
 			args: initValues(false, func(e *echo.Echo, s *http.Server) (err error) {
 				return nil
 			}),

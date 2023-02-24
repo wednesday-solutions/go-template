@@ -1,12 +1,13 @@
 package convert
 
 import (
-	"go-template/internal/constants"
 	"reflect"
 	"testing"
 
 	"github.com/volatiletech/null/v8"
 )
+
+const SuccessCase = "Success"
 
 func TestStringToPointerString(t *testing.T) {
 	type args struct {
@@ -18,7 +19,7 @@ func TestStringToPointerString(t *testing.T) {
 		want *string
 	}{
 		{
-			name: constants.SuccessCase,
+			name: SuccessCase,
 			args: args{
 				v: "test",
 			},
@@ -44,7 +45,7 @@ func TestStringToInt(t *testing.T) {
 		want int
 	}{
 		{
-			name: constants.SuccessCase,
+			name: SuccessCase,
 			args: args{
 				v: "1",
 			},
@@ -77,7 +78,7 @@ func TestStringToBool(t *testing.T) {
 		want bool
 	}{
 		{
-			name: constants.SuccessCase,
+			name: SuccessCase,
 			args: args{
 				v: "true",
 			},
@@ -110,7 +111,7 @@ func TestNullDotStringToPointerString(t *testing.T) {
 		want *string
 	}{
 		{
-			name: constants.SuccessCase,
+			name: SuccessCase,
 			args: args{
 				v: null.StringFrom("true"),
 			},
@@ -136,7 +137,7 @@ func TestNullDotStringToString(t *testing.T) {
 		want string
 	}{
 		{
-			name: constants.SuccessCase,
+			name: SuccessCase,
 			args: args{
 				v: null.StringFrom("true"),
 			},
@@ -169,7 +170,7 @@ func TestNullDotIntToInt(t *testing.T) {
 		want int
 	}{
 		{
-			name: constants.SuccessCase,
+			name: SuccessCase,
 			args: args{
 				v: null.IntFrom(1),
 			},
@@ -203,7 +204,7 @@ func TestNullDotBoolToPointerBool(t *testing.T) {
 		want *bool
 	}{
 		{
-			name: constants.SuccessCase,
+			name: SuccessCase,
 			args: args{
 				v: boolean,
 			},
@@ -229,7 +230,7 @@ func TestPointerStringToNullDotInt(t *testing.T) {
 		want null.Int
 	}{
 		{
-			name: constants.SuccessCase,
+			name: SuccessCase,
 			args: args{
 				s: null.StringFrom("1").Ptr(),
 			},

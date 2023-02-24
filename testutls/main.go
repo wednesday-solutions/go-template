@@ -25,6 +25,13 @@ var (
 	UserKey key = "user"
 )
 
+const (
+	UserRoleName       = "UserRole"
+	SuperAdminRoleName = "SuperAdminRole"
+	SuccessCase        = "Success"
+	ErrorFindingUser   = "Fail on finding user"
+)
+
 var MockIpAddress = "0.0.0.0"
 var MockEmail = "mac@wednesday.is"
 var MockToken = "token_string"

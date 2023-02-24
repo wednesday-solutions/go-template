@@ -6,13 +6,14 @@ import (
 	"testing"
 
 	"go-template/internal/config"
-	"go-template/internal/constants"
 	"go-template/pkg/utl/convert"
 	"go-template/testutls"
 
 	. "github.com/agiledragon/gomonkey/v2"
 	"github.com/stretchr/testify/assert"
 )
+
+const SuccessCase = "Success"
 
 func TestLoad(t *testing.T) {
 	cases := []struct {
@@ -23,7 +24,7 @@ func TestLoad(t *testing.T) {
 		error    string
 	}{
 		{
-			name:     constants.SuccessCase,
+			name:     SuccessCase,
 			wantErr:  false,
 			wantData: testutls.MockConfig(),
 		},

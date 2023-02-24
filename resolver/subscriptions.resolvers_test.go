@@ -7,7 +7,6 @@ import (
 
 	fm "go-template/gqlmodels"
 	"go-template/internal/config"
-	"go-template/internal/constants"
 	"go-template/resolver"
 	"go-template/testutls"
 
@@ -23,7 +22,7 @@ func TestUserNotification(
 		wantErr  bool
 	}{
 		{
-			name: constants.SuccessCase,
+			name: SuccessCase,
 			wantResp: make(
 				chan *fm.User,
 				1,

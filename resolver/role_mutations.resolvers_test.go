@@ -33,42 +33,42 @@ func TestCreateRole(
 		wantErr  bool
 	}{
 		{
-			name:     constants.ErrorFromRedisCache,
+			name:     ErrorFromRedisCache,
 			req:      fm.RoleCreateInput{},
 			wantResp: &fm.RolePayload{},
 			wantErr:  true,
 		},
 		{
-			name:     constants.ErrorFromGetRole,
+			name:     ErrorFromGetRole,
 			req:      fm.RoleCreateInput{},
 			wantResp: &fm.RolePayload{},
 			wantErr:  true,
 		},
 		{
-			name: constants.ErrorUnauthorizedUser,
+			name: ErrorUnauthorizedUser,
 			req: fm.RoleCreateInput{
-				Name:        constants.UserRoleName,
+				Name:        UserRoleName,
 				AccessLevel: int(constants.UserRole),
 			},
 			wantResp: &fm.RolePayload{},
 		},
 
 		{
-			name: constants.SuccessCase,
+			name: SuccessCase,
 			req: fm.RoleCreateInput{
-				Name:        constants.UserRoleName,
+				Name:        UserRoleName,
 				AccessLevel: int(constants.UserRole),
 			},
 			wantResp: &fm.RolePayload{Role: &fm.Role{
 
 				AccessLevel: int(constants.UserRole),
-				Name:        constants.UserRoleName,
+				Name:        UserRoleName,
 			}},
 		},
 		{
-			name: constants.ErrorFromCreateRole,
+			name: ErrorFromCreateRole,
 			req: fm.RoleCreateInput{
-				Name:        constants.UserRoleName,
+				Name:        UserRoleName,
 				AccessLevel: int(constants.UserRole),
 			},
 			wantErr: true,
@@ -99,7 +99,7 @@ func TestCreateRole(
 			func(roleID int, ctx context.Context) (*models.Role, error) {
 				return &models.Role{
 					AccessLevel: int(constants.SuperAdminRole),
-					Name:        constants.SuperAdminRoleName,
+					Name:        SuperAdminRoleName,
 				}, nil
 			})
 
@@ -108,7 +108,7 @@ func TestCreateRole(
 			func(role models.Role, ctx context.Context) (models.Role, error) {
 				return models.Role{
 					AccessLevel: int(constants.UserRole),
-					Name:        constants.UserRoleName,
+					Name:        UserRoleName,
 				}, nil
 			})
 
@@ -121,7 +121,7 @@ func TestCreateRole(
 			func(t *testing.T) {
 
 				// Apply additional monkey patches based on test case name.
-				if tt.name == constants.ErrorFromRedisCache {
+				if tt.name == ErrorFromRedisCache {
 					patchGetUser := gomonkey.ApplyFunc(rediscache.GetUser,
 						func(userID int, ctx context.Context) (*models.User, error) {
 							return nil, errors.New("redis cache")
@@ -129,7 +129,7 @@ func TestCreateRole(
 					defer patchGetUser.Reset()
 				}
 
-				if tt.name == constants.ErrorFromGetRole {
+				if tt.name == ErrorFromGetRole {
 					patchGetRole := gomonkey.ApplyFunc(rediscache.GetRole,
 						func(roleID int, ctx context.Context) (*models.Role, error) {
 							return nil, errors.New("data")
@@ -137,18 +137,18 @@ func TestCreateRole(
 					defer patchGetRole.Reset()
 				}
 
-				if tt.name == constants.ErrorUnauthorizedUser {
+				if tt.name == ErrorUnauthorizedUser {
 					patchGetRole := gomonkey.ApplyFunc(rediscache.GetRole,
 						func(roleID int, ctx context.Context) (*models.Role, error) {
 							return &models.Role{
 								AccessLevel: int(constants.UserRole),
-								Name:        constants.UserRoleName,
+								Name:        UserRoleName,
 							}, nil
 						})
 					defer patchGetRole.Reset()
 				}
 
-				if tt.name == constants.ErrorFromCreateRole {
+				if tt.name == ErrorFromCreateRole {
 					patchCreateRole := gomonkey.ApplyFunc(daos.CreateRole,
 						func(role models.Role, ctx context.Context) (models.Role, error) {
 							return models.Role{}, errors.New("error")

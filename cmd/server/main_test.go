@@ -6,7 +6,6 @@ import (
 
 	main "go-template/cmd/server"
 	"go-template/internal/config"
-	"go-template/internal/constants"
 	"go-template/pkg/api"
 	"go-template/testutls"
 
@@ -15,6 +14,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
+
+const SuccessCase = "Success"
 
 func TestSetup(t *testing.T) {
 
@@ -38,7 +39,7 @@ func TestSetup(t *testing.T) {
 			error:   "open .env.local: no such file or directory",
 			isPanic: true,
 		},
-		constants.SuccessCase: {
+		SuccessCase: {
 			isPanic: false,
 			init:    initEnv,
 		},

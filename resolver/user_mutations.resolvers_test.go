@@ -5,7 +5,6 @@ import (
 	"database/sql/driver"
 	"fmt"
 	fm "go-template/gqlmodels"
-	"go-template/internal/constants"
 	"go-template/pkg/utl/convert"
 	"go-template/resolver"
 	"go-template/testutls"
@@ -47,7 +46,7 @@ func TestCreateUser(
 			wantErr: true,
 		},
 		{
-			name: constants.SuccessCase,
+			name: SuccessCase,
 			req: fm.UserCreateInput{
 				FirstName: testutls.MockUser().FirstName.String,
 				LastName:  testutls.MockUser().LastName.String,
@@ -145,12 +144,12 @@ func TestUpdateUser(
 		wantErr  bool
 	}{
 		{
-			name:    constants.ErrorFindingUser,
+			name:    ErrorFindingUser,
 			req:     &fm.UserUpdateInput{},
 			wantErr: true,
 		},
 		{
-			name: constants.SuccessCase,
+			name: SuccessCase,
 			req: &fm.UserUpdateInput{
 				FirstName: &testutls.MockUser().FirstName.String,
 				LastName:  &testutls.MockUser().LastName.String,
@@ -179,7 +178,7 @@ func TestUpdateUser(
 				}()
 				boil.SetDB(db)
 
-				if tt.name == constants.ErrorFindingUser {
+				if tt.name == ErrorFindingUser {
 					mock.ExpectQuery(regexp.QuoteMeta(`UPDATE "users"`)).WithArgs().WillReturnError(fmt.Errorf(""))
 				}
 
@@ -212,11 +211,11 @@ func TestDeleteUser(
 		wantErr  bool
 	}{
 		{
-			name:    constants.ErrorFindingUser,
+			name:    ErrorFindingUser,
 			wantErr: true,
 		},
 		{
-			name: constants.SuccessCase,
+			name: SuccessCase,
 			wantResp: &fm.UserDeletePayload{
 				ID: "0",
 			},
@@ -246,7 +245,7 @@ func TestDeleteUser(
 				}()
 				boil.SetDB(db)
 
-				if tt.name == constants.ErrorFindingUser {
+				if tt.name == ErrorFindingUser {
 					mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
 						WithArgs().
 						WillReturnError(fmt.Errorf(""))

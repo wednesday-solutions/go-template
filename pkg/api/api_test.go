@@ -17,7 +17,6 @@ import (
 
 	graphql "go-template/gqlmodels"
 	"go-template/internal/config"
-	"go-template/internal/constants"
 	"go-template/internal/server"
 	"go-template/resolver"
 	"go-template/testutls"
@@ -52,7 +51,7 @@ func TestStart(t *testing.T) {
 		websocketTransportCalled     bool
 	}{
 		{
-			name: constants.SuccessCase,
+			name: "Success",
 			args: args{
 				cfg: testutls.MockConfig(),
 			},
