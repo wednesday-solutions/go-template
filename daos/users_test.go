@@ -4,12 +4,14 @@ import (
 	"context"
 	"database/sql/driver"
 	"fmt"
+	"log"
 	"regexp"
 	"testing"
 
 	"go-template/daos"
 	"go-template/internal/config"
 	"go-template/models"
+	"go-template/pkg/utl/convert"
 	"go-template/testutls"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -39,7 +41,12 @@ func TestCreateUserTx(t *testing.T) {
 
 	for _, tt := range cases {
 		// Inject mock instance into boil.
-		mock, db, _ := testutls.SetupEnvAndDB(t, testutls.Parameters{EnvFileLocation: "../.env.local"})
+
+		err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../"))
+		if err != nil {
+			log.Fatal(err)
+		}
+		mock, db, _ := testutls.SetupMockDB(t)
 		oldDB := boil.GetDB()
 		defer func() {
 			db.Close()
@@ -346,7 +353,11 @@ func TestDeleteUser(t *testing.T) {
 func TestFindAllUsersWithCount(t *testing.T) {
 
 	oldDB := boil.GetDB()
-	mock, db, _ := testutls.SetupEnvAndDB(t, testutls.Parameters{})
+	err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	mock, db, _ := testutls.SetupMockDB(t)
 
 	cases := []struct {
 		name      string
