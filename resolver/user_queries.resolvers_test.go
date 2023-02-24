@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"go-template/internal/constants"
 	"regexp"
 	"testing"
 
@@ -36,7 +37,7 @@ func TestMe(
 		args     args
 	}{
 		{
-			name:     "Success",
+			name:     constants.SuccessCase,
 			args:     args{user: testutls.MockUser()},
 			wantResp: cnvrttogql.UserToGraphQlUser(testutls.MockUser(), 4),
 		},
@@ -76,6 +77,7 @@ func TestMe(
 	}
 }
 
+// TestUsers is a unit test function for testing user queries.
 func TestUsers(
 	t *testing.T,
 ) {
@@ -86,27 +88,32 @@ func TestUsers(
 		wantErr    bool
 	}{
 		{
-			name:    "Fail on finding user",
+			name:    constants.ErrorFindingUser,
 			wantErr: true,
 		},
 		{
-			name:     "Success",
+			name:     constants.SuccessCase,
 			wantErr:  false,
 			wantResp: testutls.MockUsers(),
 		},
 	}
 
+	// Create a new instance of the resolver.
 	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
 		t.Run(
 			tt.name,
 			func(t *testing.T) {
+
+				// Load environment variables from the .env.local file.
 				err := godotenv.Load(
 					"../.env.local",
 				)
 				if err != nil {
 					fmt.Print("error loading .env file")
 				}
+
+				// Create a new mock database connection.
 				db, mock, err := sqlmock.New()
 				if err != nil {
 					t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
@@ -120,33 +127,40 @@ func TestUsers(
 				boil.SetDB(db)
 
 				//fail on finding user case
-				if tt.name == "Fail on finding user" {
+				if tt.name == constants.ErrorFindingUser {
 					mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
 						WithArgs().
 						WillReturnError(fmt.Errorf(""))
 				}
-				// get user by id
+
+				// Define a mock result set for user queries.
 				rows := sqlmock.
 					NewRows([]string{"id", "email", "first_name", "last_name", "mobile", "username", "address"}).
 					AddRow(testutls.MockID, testutls.MockEmail, "First", "Last", "+911234567890", "username", "22 Jump Street")
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users";`)).
-					WithArgs().
-					WillReturnRows(rows)
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users";`)).WithArgs().WillReturnRows(rows)
+
+				// Define a mock result set.
 				rowCount := sqlmock.NewRows([]string{"count"}).
 					AddRow(1)
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT COUNT(*) FROM "users";`)).
 					WithArgs().
 					WillReturnRows(rowCount)
 
+				// Create a new context with a mock user.
 				c := context.Background()
 				ctx := context.WithValue(c, testutls.UserKey, testutls.MockUser())
+
+				// Query for users using the resolver and get the response and error.
 				response, err := resolver1.Query().
 					Users(ctx, tt.pagination)
 
+				// Check if the response matches the expected response length.
 				if tt.wantResp != nil &&
 					response != nil {
 					assert.Equal(t, len(tt.wantResp), len(response.Users))
+
 				}
+				// Check if the error matches the expected error value.
 				assert.Equal(t, tt.wantErr, err != nil)
 			},
 		)

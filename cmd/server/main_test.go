@@ -6,6 +6,7 @@ import (
 
 	main "go-template/cmd/server"
 	"go-template/internal/config"
+	"go-template/internal/constants"
 	"go-template/pkg/api"
 	"go-template/testutls"
 
@@ -37,7 +38,7 @@ func TestSetup(t *testing.T) {
 			error:   "open .env.local: no such file or directory",
 			isPanic: true,
 		},
-		"Success": {
+		constants.SuccessCase: {
 			isPanic: false,
 			init:    initEnv,
 		},

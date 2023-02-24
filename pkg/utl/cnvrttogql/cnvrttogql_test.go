@@ -2,6 +2,7 @@ package cnvrttogql
 
 import (
 	graphql "go-template/gqlmodels"
+	"go-template/internal/constants"
 	"go-template/models"
 	"reflect"
 	"testing"
@@ -20,7 +21,7 @@ func TestUsersToGraphQlUsers(t *testing.T) {
 		want []*graphql.User
 	}{
 		{
-			name: "Success",
+			name: constants.SuccessCase,
 			args: args{
 				u: models.UserSlice{{
 					ID: 1,
@@ -52,7 +53,7 @@ func TestRoleToGraphqlRole(t *testing.T) {
 		want *graphql.Role
 	}{
 		{
-			name: "Success",
+			name: constants.SuccessCase,
 			args: args{
 				u: &models.Role{
 					ID: 1,

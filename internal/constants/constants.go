@@ -24,9 +24,14 @@ const (
 	MaxDepth = 4
 )
 const (
+	UserRoleName       = "UserRole"
+	SuperAdminRoleName = "SuperAdminRole"
+)
+const (
 	ErrorFromRedisCache   = "RedisCache Error"
 	ErrorFromGetRole      = "RedisCache GetRole Error"
 	ErrorUnauthorizedUser = "Unauthorized User"
 	ErrorFromCreateRole   = "CreateRole Error"
 	SuccessCase           = "Success"
+	ErrorFindingUser      = "Fail on finding user"
 )

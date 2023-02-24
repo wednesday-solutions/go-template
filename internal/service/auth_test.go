@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"go-template/internal/config"
+	"go-template/internal/constants"
 	"go-template/internal/service"
 	"go-template/testutls"
 
@@ -22,7 +23,7 @@ func TestSecure(t *testing.T) {
 		args args
 	}{
 		{
-			name: "Success",
+			name: constants.SuccessCase,
 			args: args{
 				cfg: testutls.MockConfig(),
 			},
@@ -45,7 +46,7 @@ func TestJWT(t *testing.T) {
 		args args
 	}{
 		{
-			name: "Success",
+			name: constants.SuccessCase,
 			args: args{
 				cfg: testutls.MockConfig(),
 			},

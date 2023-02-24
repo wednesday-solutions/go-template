@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	fm "go-template/gqlmodels"
+	"go-template/internal/constants"
 	"go-template/resolver"
 	"go-template/testutls"
 
@@ -55,7 +56,7 @@ func TestLogin(
 			wantErr: true,
 		},
 		{
-			name: "Success",
+			name: constants.SuccessCase,
 			req: args{
 				UserName: testutls.MockEmail,
 				Password: "adminuser",
@@ -116,7 +117,7 @@ func TestLogin(
 					WithArgs().
 					WillReturnRows(rows)
 
-				if tt.name == "Success" {
+				if tt.name == constants.SuccessCase {
 					rows := sqlmock.NewRows([]string{"id", "name"}).
 						AddRow(1, "ADMIN")
 					mock.ExpectQuery(regexp.QuoteMeta(`SELECT "roles".* FROM "roles" WHERE ("id" = $1) LIMIT 1`)).
@@ -182,7 +183,7 @@ func TestChangePassword(
 			wantErr: true,
 		},
 		{
-			name: "Success",
+			name: constants.SuccessCase,
 			req: changeReq{
 				OldPassword: "adminuser",
 				NewPassword: "adminuser!A9@",
@@ -230,7 +231,7 @@ func TestChangePassword(
 				mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
 					WithArgs().
 					WillReturnRows(rows)
-				if tt.name == "Success" {
+				if tt.name == constants.SuccessCase {
 					// update password
 					result := driver.Result(driver.RowsAffected(1))
 					mock.ExpectExec(regexp.QuoteMeta(`UPDATE "users" `)).WillReturnResult(result)
@@ -261,7 +262,7 @@ func TestRefreshToken(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "Success",
+			name: constants.SuccessCase,
 			req:  "refresh_token",
 			wantResp: &fm.RefreshTokenResponse{
 				Token: testutls.MockToken,
@@ -303,7 +304,7 @@ func TestRefreshToken(t *testing.T) {
 					WithArgs().
 					WillReturnRows(rows)
 
-				if tt.name == "Success" {
+				if tt.name == constants.SuccessCase {
 					rows := sqlmock.NewRows([]string{"id", "name"}).
 						AddRow(1, "ADMIN")
 					mock.ExpectQuery(regexp.QuoteMeta(`SELECT "roles".* FROM "roles" WHERE ("id" = $1) LIMIT 1`)).

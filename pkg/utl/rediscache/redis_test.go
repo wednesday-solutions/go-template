@@ -3,6 +3,7 @@ package rediscache
 import (
 	"encoding/json"
 	"fmt"
+	"go-template/internal/constants"
 	"reflect"
 	"testing"
 
@@ -22,7 +23,7 @@ func Test_redisDial(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "Success",
+			name: constants.SuccessCase,
 			want: redigoConn,
 		},
 		{
@@ -66,7 +67,7 @@ func TestSetKeyValue(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "Success",
+			name: constants.SuccessCase,
 			args: args{
 				key:  "user10",
 				data: 1,
@@ -117,7 +118,7 @@ func TestGetKeyValue(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "Success",
+			name: constants.SuccessCase,
 			args: args{
 				key: "user10",
 			},

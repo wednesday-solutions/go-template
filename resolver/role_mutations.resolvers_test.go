@@ -47,7 +47,7 @@ func TestCreateRole(
 		{
 			name: constants.ErrorUnauthorizedUser,
 			req: fm.RoleCreateInput{
-				Name:        "Role",
+				Name:        constants.UserRoleName,
 				AccessLevel: int(constants.UserRole),
 			},
 			wantResp: &fm.RolePayload{},
@@ -56,19 +56,19 @@ func TestCreateRole(
 		{
 			name: constants.SuccessCase,
 			req: fm.RoleCreateInput{
-				Name:        "Role",
+				Name:        constants.UserRoleName,
 				AccessLevel: int(constants.UserRole),
 			},
 			wantResp: &fm.RolePayload{Role: &fm.Role{
 
 				AccessLevel: int(constants.UserRole),
-				Name:        "Role",
+				Name:        constants.UserRoleName,
 			}},
 		},
 		{
 			name: constants.ErrorFromCreateRole,
 			req: fm.RoleCreateInput{
-				Name:        "UserRole",
+				Name:        constants.UserRoleName,
 				AccessLevel: int(constants.UserRole),
 			},
 			wantErr: true,
@@ -98,8 +98,8 @@ func TestCreateRole(
 		patchGetRole := gomonkey.ApplyFunc(rediscache.GetRole,
 			func(roleID int, ctx context.Context) (*models.Role, error) {
 				return &models.Role{
-					AccessLevel: 100,
-					Name:        "SuperAdminRole",
+					AccessLevel: int(constants.SuperAdminRole),
+					Name:        constants.SuperAdminRoleName,
 				}, nil
 			})
 
@@ -108,7 +108,7 @@ func TestCreateRole(
 			func(role models.Role, ctx context.Context) (models.Role, error) {
 				return models.Role{
 					AccessLevel: int(constants.UserRole),
-					Name:        "Role",
+					Name:        constants.UserRoleName,
 				}, nil
 			})
 
@@ -136,12 +136,13 @@ func TestCreateRole(
 						})
 					defer patchGetRole.Reset()
 				}
+
 				if tt.name == constants.ErrorUnauthorizedUser {
 					patchGetRole := gomonkey.ApplyFunc(rediscache.GetRole,
 						func(roleID int, ctx context.Context) (*models.Role, error) {
 							return &models.Role{
 								AccessLevel: int(constants.UserRole),
-								Name:        "Role",
+								Name:        constants.UserRoleName,
 							}, nil
 						})
 					defer patchGetRole.Reset()

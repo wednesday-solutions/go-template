@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"go-template/internal/constants"
 	"go-template/internal/server"
 
 	"github.com/go-playground/validator"
@@ -36,7 +37,7 @@ func TestBind(t *testing.T) {
 			wantData: &Req{Name: ""},
 		},
 		{
-			name:     "Success",
+			name:     constants.SuccessCase,
 			req:      `{"name":"John"}`,
 			wantData: &Req{Name: "John"},
 		},

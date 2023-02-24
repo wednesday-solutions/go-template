@@ -4,6 +4,7 @@ import (
 	"crypto/sha1"
 	"testing"
 
+	"go-template/internal/constants"
 	"go-template/pkg/utl/secure"
 
 	"github.com/stretchr/testify/assert"
@@ -50,7 +51,7 @@ func TestHashAndMatch(t *testing.T) {
 		want bool
 	}{
 		{
-			name: "Success",
+			name: constants.SuccessCase,
 			pass: "gamepad",
 			want: true,
 		},

@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"go-template/internal/config"
+	"go-template/internal/constants"
 	"go-template/testutls"
 
 	. "github.com/agiledragon/gomonkey/v2"
@@ -21,7 +22,7 @@ func TestLoad(t *testing.T) {
 		error    string
 	}{
 		{
-			name:     "Success",
+			name:     constants.SuccessCase,
 			wantErr:  false,
 			wantData: testutls.MockConfig(),
 		},

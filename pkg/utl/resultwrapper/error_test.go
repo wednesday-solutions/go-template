@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"go-template/internal/constants"
 	resultwrapper "go-template/pkg/utl/resultwrapper"
 	"go-template/testutls"
 
@@ -102,7 +103,7 @@ func TestResultWrapper(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "Success",
+			name: constants.SuccessCase,
 			args: args{
 				errorCode: 400,
 				err:       fmt.Errorf("sample error"),
@@ -135,7 +136,7 @@ func TestInternalServerError(t *testing.T) {
 		err     string
 	}{
 		{
-			name: "Success",
+			name: constants.SuccessCase,
 			err:  errorStr,
 			args: args{
 				err: fmt.Errorf(errorStr),
@@ -164,7 +165,7 @@ func TestInternalServerErrorFromMessage(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "Success",
+			name: constants.SuccessCase,
 			args: args{
 				err: "This is an error",
 				c:   getContext(),
@@ -194,7 +195,7 @@ func TestBadRequest(t *testing.T) {
 		err     string
 	}{
 		{
-			name: "Success",
+			name: constants.SuccessCase,
 			err:  errorStr,
 			args: args{
 				err: fmt.Errorf(errorStr),
@@ -223,7 +224,7 @@ func TestBadRequestFromMessage(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "Success",
+			name: constants.SuccessCase,
 			args: args{
 				err: "This is an error",
 				c:   getContext(),
@@ -253,7 +254,7 @@ func TestConflict(t *testing.T) {
 		err     string
 	}{
 		{
-			name: "Success",
+			name: constants.SuccessCase,
 			err:  errorStr,
 			args: args{
 				err: fmt.Errorf(errorStr),
@@ -282,7 +283,7 @@ func TestConflictFromMessage(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "Success",
+			name: constants.SuccessCase,
 			args: args{
 				err: "This is an error",
 				c:   getContext(),
@@ -312,7 +313,7 @@ func TestTooManyRequests(t *testing.T) {
 		err     string
 	}{
 		{
-			name: "Success",
+			name: constants.SuccessCase,
 			err:  errorStr,
 			args: args{
 				err: fmt.Errorf(errorStr),
@@ -343,7 +344,7 @@ func TestUnauthorized(t *testing.T) {
 		err     string
 	}{
 		{
-			name: "Success",
+			name: constants.SuccessCase,
 			err:  errorStr,
 			args: args{
 				err: fmt.Errorf(errorStr),
@@ -372,7 +373,7 @@ func TestUnauthorizedFromMessage(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "Success",
+			name: constants.SuccessCase,
 			args: args{
 				err: "This is an error",
 				c:   getContext(),
@@ -493,7 +494,7 @@ func TestHandleGraphQLError(t *testing.T) {
 		want string
 	}{
 		{
-			name: "Success",
+			name: constants.SuccessCase,
 			args: args{
 				errMsg: "This is an error",
 			},
@@ -524,7 +525,7 @@ func TestResolverSQLError(t *testing.T) {
 		dontAddDetail bool
 	}{
 		{
-			name: "Success",
+			name: constants.SuccessCase,
 			args: args{
 				err:    fmt.Errorf("this is some error"),
 				detail: "Some level of detail",

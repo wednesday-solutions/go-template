@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"go-template/internal/constants"
 	"go-template/models"
 	"go-template/testutls"
 
@@ -36,7 +37,7 @@ func TestGetUser(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "Success",
+			name: constants.SuccessCase,
 			args: args{
 				userID:    testutls.MockID,
 				dbQueries: []testutls.QueryData{},
@@ -141,7 +142,7 @@ func TestGetRole(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "Success",
+			name: constants.SuccessCase,
 			args: args{
 				roleID:    testutls.MockID,
 				dbQueries: []testutls.QueryData{},
@@ -219,7 +220,7 @@ func TestIncVisits(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "Success",
+			name: constants.SuccessCase,
 			args: args{
 				path: "test",
 			},
@@ -257,7 +258,7 @@ func TestStartVisits(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "Success",
+			name: constants.SuccessCase,
 			args: args{
 				path: "test",
 			},
