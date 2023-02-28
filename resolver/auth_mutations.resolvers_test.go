@@ -19,16 +19,25 @@ import (
 )
 
 const (
-	UserRoleName          = "UserRole"
-	SuperAdminRoleName    = "SuperAdminRole"
-	ErrorFromRedisCache   = "RedisCache Error"
-	ErrorFromGetRole      = "RedisCache GetRole Error"
-	ErrorUnauthorizedUser = "Unauthorized User"
-	ErrorFromCreateRole   = "CreateRole Error"
-	SuccessCase           = "Success"
-	ErrorFindingUser      = "Fail on finding user"
-	OldPassword           = "adminuser"
-	NewPassword           = "adminuser!A9@"
+	UserRoleName            = "UserRole"
+	SuperAdminRoleName      = "SuperAdminRole"
+	ErrorFromRedisCache     = "RedisCache Error"
+	ErrorFromGetRole        = "RedisCache GetRole Error"
+	ErrorUnauthorizedUser   = "Unauthorized User"
+	ErrorFromCreateRole     = "CreateRole Error"
+	ErrorPasswordValidation = "Fail on PasswordValidation"
+	ErrorActiveStatus       = "Fail on ActiveStatus"
+	ErrorInsecurePassword   = "Insecure password"
+	ErrorInvalidToken       = "Fail on FindByToken"
+	TestPasswordHash        = "$2a$10$dS5vK8hHmG5"
+	OldPasswordHash         = "$2a$10$dS5vK8hHmG5gzwV8f7TK5.WHviMBqmYQLYp30a3XvqhCW9Wvl2tOS"
+	SuccessCase             = "Success"
+	ErrorFindingUser        = "Fail on finding user"
+	OldPassword             = "adminuser"
+	NewPassword             = "adminuser!A9@"
+	TestPassword            = "pass123"
+	TestUsername            = "wednesday"
+	TestToken               = "refreshToken"
 )
 
 func TestLogin(
@@ -47,21 +56,21 @@ func TestLogin(
 		{
 			name: ErrorFindingUser,
 			req: args{
-				UserName: "wednesday",
-				Password: "pass123",
+				UserName: TestUsername,
+				Password: TestPassword,
 			},
 			wantErr: true,
 		},
 		{
-			name: "Fail on PasswordValidation",
+			name: ErrorPasswordValidation,
 			req: args{
 				UserName: testutls.MockEmail,
-				Password: "pass123",
+				Password: TestPassword,
 			},
 			wantErr: true,
 		},
 		{
-			name: "Fail on ActiveStatus",
+			name: ErrorActiveStatus,
 			req: args{
 				UserName: testutls.MockEmail,
 				Password: OldPassword,
@@ -76,7 +85,7 @@ func TestLogin(
 			},
 			wantResp: &fm.LoginResponse{
 				Token:        "jwttokenstring",
-				RefreshToken: "refreshtoken",
+				RefreshToken: TestToken,
 			},
 		},
 	}
@@ -108,25 +117,25 @@ func TestLogin(
 						WithArgs().
 						WillReturnError(fmt.Errorf(""))
 				}
-				if tt.name == "Fail on PasswordValidation" {
+				if tt.name == ErrorPasswordValidation {
 					// get user by username
 					rows := sqlmock.NewRows([]string{"id", "password", "active", "role_id"}).
-						AddRow(testutls.MockID, "$2a$10$dS5vK8hHmG5", true, 1)
+						AddRow(testutls.MockID, TestPasswordHash, true, 1)
 					mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users"  WHERE (username=$1) LIMIT 1;`)).
 						WithArgs().
 						WillReturnRows(rows)
 				}
-				if tt.name == "Fail on ActiveStatus" {
+				if tt.name == ErrorActiveStatus {
 					// get user by username
 					rows := sqlmock.NewRows([]string{"id", "password", "active", "role_id"}).
-						AddRow(testutls.MockID, "$2a$10$dS5vK8hHmG5gzwV8f7TK5.WHviMBqmYQLYp30a3XvqhCW9Wvl2tOS", false, 1)
+						AddRow(testutls.MockID, OldPasswordHash, false, 1)
 					mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users"  WHERE (username=$1) LIMIT 1;`)).
 						WithArgs().
 						WillReturnRows(rows)
 				}
 				// get user by username
 				rows := sqlmock.NewRows([]string{"id", "password", "active", "role_id"}).
-					AddRow(testutls.MockID, "$2a$10$dS5vK8hHmG5gzwV8f7TK5.WHviMBqmYQLYp30a3XvqhCW9Wvl2tOS", true, 1)
+					AddRow(testutls.MockID, OldPasswordHash, true, 1)
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users"  WHERE (username=$1) LIMIT 1;`)).
 					WithArgs().
 					WillReturnRows(rows)
@@ -176,21 +185,21 @@ func TestChangePassword(
 		{
 			name: ErrorFindingUser,
 			req: changeReq{
-				OldPassword: "adminuser!A9@@@@",
+				OldPassword: TestPassword,
 				NewPassword: NewPassword,
 			},
 			wantErr: true,
 		},
 		{
-			name: "Incorrect Old Password",
+			name: ErrorPasswordValidation,
 			req: changeReq{
-				OldPassword: "admin",
+				OldPassword: TestPassword,
 				NewPassword: NewPassword,
 			},
 			wantErr: true,
 		},
 		{
-			name: "Insecure password",
+			name: ErrorInsecurePassword,
 			req: changeReq{
 				OldPassword: OldPassword,
 				NewPassword: testutls.MockEmail,
@@ -240,7 +249,7 @@ func TestChangePassword(
 				}
 				// get user by id
 				rows := sqlmock.NewRows([]string{"id", "email", "password"}).
-					AddRow(testutls.MockID, testutls.MockEmail, "$2a$10$dS5vK8hHmG5gzwV8f7TK5.WHviMBqmYQLYp30a3XvqhCW9Wvl2tOS")
+					AddRow(testutls.MockID, testutls.MockEmail, OldPasswordHash)
 				mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
 					WithArgs().
 					WillReturnRows(rows)
@@ -270,8 +279,8 @@ func TestRefreshToken(t *testing.T) {
 		wantErr  bool
 	}{
 		{
-			name:    "Fail on FindByToken",
-			req:     "refreshToken",
+			name:    ErrorInvalidToken,
+			req:     TestToken,
 			wantErr: true,
 		},
 		{
@@ -304,7 +313,7 @@ func TestRefreshToken(t *testing.T) {
 				}()
 				boil.SetDB(db)
 
-				if tt.name == "Fail on FindByToken" {
+				if tt.name == ErrorInvalidToken {
 					// get user by token
 					mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users" WHERE (token=$1) LIMIT 1;`)).
 						WithArgs().
