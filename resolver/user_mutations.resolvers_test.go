@@ -46,7 +46,7 @@ func TestCreateUser(
 			wantErr: true,
 		},
 		{
-			name: "Success",
+			name: SuccessCase,
 			req: fm.UserCreateInput{
 				FirstName: testutls.MockUser().FirstName.String,
 				LastName:  testutls.MockUser().LastName.String,
@@ -144,12 +144,12 @@ func TestUpdateUser(
 		wantErr  bool
 	}{
 		{
-			name:    "Fail on finding User",
+			name:    ErrorFindingUser,
 			req:     &fm.UserUpdateInput{},
 			wantErr: true,
 		},
 		{
-			name: "Success",
+			name: SuccessCase,
 			req: &fm.UserUpdateInput{
 				FirstName: &testutls.MockUser().FirstName.String,
 				LastName:  &testutls.MockUser().LastName.String,
@@ -178,7 +178,7 @@ func TestUpdateUser(
 				}()
 				boil.SetDB(db)
 
-				if tt.name == "Fail on finding User" {
+				if tt.name == ErrorFindingUser {
 					mock.ExpectQuery(regexp.QuoteMeta(`UPDATE "users"`)).WithArgs().WillReturnError(fmt.Errorf(""))
 				}
 
@@ -211,11 +211,11 @@ func TestDeleteUser(
 		wantErr  bool
 	}{
 		{
-			name:    "Fail on finding user",
+			name:    ErrorFindingUser,
 			wantErr: true,
 		},
 		{
-			name: "Success",
+			name: SuccessCase,
 			wantResp: &fm.UserDeletePayload{
 				ID: "0",
 			},
@@ -245,7 +245,7 @@ func TestDeleteUser(
 				}()
 				boil.SetDB(db)
 
-				if tt.name == "Fail on finding user" {
+				if tt.name == ErrorFindingUser {
 					mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
 						WithArgs().
 						WillReturnError(fmt.Errorf(""))

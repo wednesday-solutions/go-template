@@ -15,6 +15,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const SuccessCase = "Success"
+
 func TestSetup(t *testing.T) {
 
 	initEnv := func() {
@@ -37,7 +39,7 @@ func TestSetup(t *testing.T) {
 			error:   "open .env.local: no such file or directory",
 			isPanic: true,
 		},
-		"Success": {
+		SuccessCase: {
 			isPanic: false,
 			init:    initEnv,
 		},

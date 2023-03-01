@@ -13,6 +13,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const SuccessCase = "Success"
+
 func TestSecure(t *testing.T) {
 	type args struct {
 		cfg *config.Configuration
@@ -22,7 +24,7 @@ func TestSecure(t *testing.T) {
 		args args
 	}{
 		{
-			name: "Success",
+			name: SuccessCase,
 			args: args{
 				cfg: testutls.MockConfig(),
 			},
@@ -45,7 +47,7 @@ func TestJWT(t *testing.T) {
 		args args
 	}{
 		{
-			name: "Success",
+			name: SuccessCase,
 			args: args{
 				cfg: testutls.MockConfig(),
 			},

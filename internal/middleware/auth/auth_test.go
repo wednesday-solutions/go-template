@@ -29,6 +29,8 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
+const SuccessCase = "Success"
+
 var parseTokenMock func(token string) (*jwt.Token, error)
 
 type tokenParserMock struct {
@@ -51,7 +53,7 @@ func TestGraphQLMiddleware(t *testing.T) {
 		tokenParser      func(token string) (*jwt.Token, error)
 		whiteListedQuery bool
 	}{
-		"Success": {
+		SuccessCase: {
 			whiteListedQuery: false,
 			header:           "Bearer 123",
 			wantStatus:       http.StatusOK,
@@ -266,7 +268,7 @@ func TestUserIDFromContext(t *testing.T) {
 		user   *models.User
 		userID int
 	}{
-		"Success": {
+		SuccessCase: {
 			user:   &models.User{ID: testutls.MockID},
 			userID: testutls.MockID,
 		},

@@ -10,6 +10,8 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
+const SuccessCase = "Success"
+
 func TestUsersToGraphQlUsers(t *testing.T) {
 	type args struct {
 		u models.UserSlice
@@ -20,7 +22,7 @@ func TestUsersToGraphQlUsers(t *testing.T) {
 		want []*graphql.User
 	}{
 		{
-			name: "Success",
+			name: SuccessCase,
 			args: args{
 				u: models.UserSlice{{
 					ID: 1,
@@ -52,7 +54,7 @@ func TestRoleToGraphqlRole(t *testing.T) {
 		want *graphql.Role
 	}{
 		{
-			name: "Success",
+			name: SuccessCase,
 			args: args{
 				u: &models.Role{
 					ID: 1,

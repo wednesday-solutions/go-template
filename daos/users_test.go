@@ -19,6 +19,8 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
+const ErrorFindingUser = "Fail on finding user"
+
 func TestCreateUserTx(t *testing.T) {
 
 	cases := []struct {
@@ -144,7 +146,7 @@ func TestFindUserByEmail(t *testing.T) {
 		err  error
 	}{
 		{
-			name: "Fail on finding user",
+			name: ErrorFindingUser,
 			req:  args{email: "abc"},
 			err:  fmt.Errorf("sql: no rows in sql"),
 		},
@@ -173,7 +175,7 @@ func TestFindUserByEmail(t *testing.T) {
 		}()
 		boil.SetDB(db)
 
-		if tt.name == "Fail on finding user" {
+		if tt.name == ErrorFindingUser {
 			mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users" WHERE (email=$1) LIMIT 1;`)).
 				WithArgs().
 				WillReturnError(fmt.Errorf(""))
