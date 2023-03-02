@@ -4,12 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"regexp"
 	"testing"
 
 	fm "go-template/gqlmodels"
+	"go-template/internal/config"
 	"go-template/models"
 	"go-template/pkg/utl/cnvrttogql"
+	"go-template/pkg/utl/convert"
 	"go-template/resolver"
 	"go-template/testutls"
 
@@ -42,10 +45,11 @@ func TestMe(
 		},
 	}
 
-	_, db, err := testutls.SetupEnvAndDB(t, testutls.Parameters{EnvFileLocation: `../.env.local`})
+	err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../"))
 	if err != nil {
-		panic("failed to setup env and db")
+		log.Fatal(err)
 	}
+	_, db, _ := testutls.SetupMockDB(t)
 	oldDb := boil.GetDB()
 	boil.SetDB(db)
 	defer func() {
@@ -59,6 +63,7 @@ func TestMe(
 			return conn, nil
 		},
 	)
+	//
 	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
 		t.Run(
