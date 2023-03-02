@@ -7,13 +7,18 @@ import (
 	"regexp"
 	"testing"
 
+	"go-template/daos"
 	fm "go-template/gqlmodels"
 	"go-template/internal/config"
+	"go-template/internal/jwt"
+	"go-template/internal/service"
+	"go-template/models"
 	"go-template/pkg/utl/convert"
 	"go-template/resolver"
 	"go-template/testutls"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/agiledragon/gomonkey/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
@@ -29,15 +34,24 @@ const (
 	ErrorActiveStatus       = "Fail on ActiveStatus"
 	ErrorInsecurePassword   = "Insecure password"
 	ErrorInvalidToken       = "Fail on FindByToken"
+	ErrorUpdateUser         = "User Update Error"
+	ErrorDeleteUser         = "User Delete Error"
+	ErrorFromConfig         = "Config Error"
+	ErrorFromBool           = "Boolean Error"
 	TestPasswordHash        = "$2a$10$dS5vK8hHmG5"
 	OldPasswordHash         = "$2a$10$dS5vK8hHmG5gzwV8f7TK5.WHviMBqmYQLYp30a3XvqhCW9Wvl2tOS"
 	SuccessCase             = "Success"
 	ErrorFindingUser        = "Fail on finding user"
+	ErrorFromCreateUser     = "Fail on Create User"
+	ErrorFromThrottleCheck  = "Throttle error"
+	ErrorFromJwt            = "Jwt Error"
+	ErrorFromGenerateToken  = "Token Error"
 	OldPassword             = "adminuser"
 	NewPassword             = "adminuser!A9@"
 	TestPassword            = "pass123"
 	TestUsername            = "wednesday"
 	TestToken               = "refreshToken"
+	ReqToken                = "refresh_token"
 )
 
 func TestLogin(
@@ -78,6 +92,38 @@ func TestLogin(
 			wantErr: true,
 		},
 		{
+			name: ErrorFromConfig,
+			req: args{
+				UserName: testutls.MockEmail,
+				Password: OldPassword,
+			},
+			wantErr: true,
+		},
+		{
+			name: ErrorFromJwt,
+			req: args{
+				UserName: testutls.MockEmail,
+				Password: OldPassword,
+			},
+			wantErr: true,
+		},
+		{
+			name: ErrorFromGenerateToken,
+			req: args{
+				UserName: testutls.MockEmail,
+				Password: OldPassword,
+			},
+			wantErr: true,
+		},
+		// {
+		// 	name: ErrorUpdateUser,
+		// 	req: args{
+		// 		UserName: testutls.MockEmail,
+		// 		Password: OldPassword,
+		// 	},
+		// 	wantErr: true,
+		// },
+		{
 			name: SuccessCase,
 			req: args{
 				UserName: testutls.MockEmail,
@@ -95,6 +141,49 @@ func TestLogin(
 		t.Run(
 			tt.name,
 			func(t *testing.T) {
+				if tt.name == ErrorFromConfig {
+					patch := gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
+						return nil, fmt.Errorf("error in loading config")
+					})
+					defer patch.Reset()
+				}
+
+				if tt.name == ErrorUpdateUser {
+					patch := gomonkey.ApplyFunc(daos.UpdateUser,
+						func(user models.User, ctx context.Context) (models.User, error) {
+							return user, fmt.Errorf("error for update user")
+						})
+					defer patch.Reset()
+				}
+
+				var tg jwt.Service
+				if tt.name == ErrorFromJwt {
+					patch := gomonkey.ApplyFunc(service.JWT, func(cfg *config.Configuration) (jwt.Service, error) {
+
+						return tg, fmt.Errorf("error in creating auth service")
+
+					})
+					defer patch.Reset()
+				}
+				if tt.name == ErrorFromGenerateToken {
+					patch := gomonkey.ApplyFunc(tg.GenerateToken, func(u *models.User) (string, error) {
+
+						return "", fmt.Errorf("error in generating token")
+
+					})
+					defer patch.Reset()
+				}
+
+				if tt.name == ErrorUpdateUser {
+
+					patch := gomonkey.ApplyFunc(daos.UpdateUser,
+						func(user models.User, ctx context.Context) (models.User, error) {
+							return user, fmt.Errorf("error for update user")
+						})
+					defer patch.Reset()
+				}
+
+				//else {
 
 				err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../"))
 				if err != nil {
@@ -133,6 +222,13 @@ func TestLogin(
 						WithArgs().
 						WillReturnRows(rows)
 				}
+
+				// if tt.name == ErrorUpdateUser {
+
+				// 	mock.ExpectQuery(regexp.QuoteMeta(`SELECT "roles".* FROM "roles" WHERE ("id" = $1) LIMIT 0`)).
+				// 		WithArgs().WillReturnError(fmt.Errorf("error from update user"))
+				// }
+
 				// get user by username
 				rows := sqlmock.NewRows([]string{"id", "password", "active", "role_id"}).
 					AddRow(testutls.MockID, OldPasswordHash, true, 1)
@@ -160,8 +256,8 @@ func TestLogin(
 					tt.wantResp.Token = response.Token
 					assert.Equal(t, tt.wantResp, response)
 				}
-
 				assert.Equal(t, tt.wantErr, err != nil)
+
 			},
 		)
 	}
@@ -207,6 +303,23 @@ func TestChangePassword(
 			wantErr: true,
 		},
 		{
+			name: ErrorUpdateUser,
+			req: changeReq{
+				OldPassword: OldPassword,
+				NewPassword: NewPassword,
+			},
+			wantErr: true,
+		},
+		{
+			name: ErrorFromConfig,
+			req: changeReq{
+				OldPassword: OldPassword,
+				NewPassword: testutls.MockEmail,
+			},
+			wantErr: true,
+		},
+
+		{
 			name: SuccessCase,
 			req: changeReq{
 				OldPassword: OldPassword,
@@ -224,6 +337,14 @@ func TestChangePassword(
 		t.Run(
 			tt.name,
 			func(t *testing.T) {
+
+				if tt.name == ErrorFromConfig {
+					patch := gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
+						return nil, fmt.Errorf("error in loading config")
+					})
+					defer patch.Reset()
+				}
+
 				err := config.LoadEnv()
 				if err != nil {
 					fmt.Print("error loading .env file")
@@ -253,10 +374,15 @@ func TestChangePassword(
 				mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
 					WithArgs().
 					WillReturnRows(rows)
+
 				if tt.name == SuccessCase {
-					// update password
 					result := driver.Result(driver.RowsAffected(1))
 					mock.ExpectExec(regexp.QuoteMeta(`UPDATE "users" `)).WillReturnResult(result)
+				}
+
+				if tt.name == ErrorUpdateUser {
+
+					mock.ExpectExec(regexp.QuoteMeta(`UPDATE "users" `)).WillReturnError(fmt.Errorf("errrorr"))
 				}
 
 				c := context.Background()
@@ -284,8 +410,23 @@ func TestRefreshToken(t *testing.T) {
 			wantErr: true,
 		},
 		{
+			name:    ErrorFromConfig,
+			req:     ReqToken,
+			wantErr: true,
+		},
+		{
+			name:    ErrorFromJwt,
+			req:     ReqToken,
+			wantErr: true,
+		},
+		{
+			name:    ErrorFromGenerateToken,
+			req:     ReqToken,
+			wantErr: true,
+		},
+		{
 			name: SuccessCase,
-			req:  "refresh_token",
+			req:  ReqToken,
 			wantResp: &fm.RefreshTokenResponse{
 				Token: testutls.MockToken,
 			},
@@ -295,6 +436,7 @@ func TestRefreshToken(t *testing.T) {
 
 	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
+
 		t.Run(
 			tt.name,
 			func(t *testing.T) {
@@ -319,6 +461,32 @@ func TestRefreshToken(t *testing.T) {
 						WithArgs().
 						WillReturnError(fmt.Errorf(""))
 				}
+
+				if tt.name == ErrorFromConfig {
+					patch := gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
+						return nil, fmt.Errorf("error in loading config")
+					})
+					defer patch.Reset()
+				}
+
+				var tg jwt.Service
+				if tt.name == ErrorFromJwt {
+					patch := gomonkey.ApplyFunc(service.JWT, func(cfg *config.Configuration) (jwt.Service, error) {
+
+						return tg, fmt.Errorf("error in creating auth service")
+
+					})
+					defer patch.Reset()
+				}
+				if tt.name == ErrorFromGenerateToken {
+					patch := gomonkey.ApplyFunc(tg.GenerateToken, func(u *models.User) (string, error) {
+
+						return "", fmt.Errorf("error in generating token")
+
+					})
+					defer patch.Reset()
+				}
+
 				// get user by token
 				rows := sqlmock.NewRows([]string{"id", "email", "token", "role_id"}).
 					AddRow(1, testutls.MockEmail, testutls.MockToken, 1)
