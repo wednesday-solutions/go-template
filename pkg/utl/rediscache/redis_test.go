@@ -66,6 +66,7 @@ func TestSetKeyValue(t *testing.T) {
 		name    string
 		args    args
 		wantErr bool
+		jsonErr bool
 	}{
 		{
 			name: SuccessCase,
@@ -82,6 +83,15 @@ func TestSetKeyValue(t *testing.T) {
 			},
 			wantErr: true,
 		},
+		{
+			name: "json error",
+			args: args{
+				key:  "user10",
+				data: 1,
+			},
+			wantErr: true,
+			jsonErr: true,
+		},
 	}
 	ApplyFunc(redigo.Dial, func(string, string, ...redis.DialOption) (redis.Conn, error) {
 		return redigoConn, nil
@@ -95,6 +105,14 @@ func TestSetKeyValue(t *testing.T) {
 				patches = ApplyFunc(redigo.Dial, func(string, string, ...redis.DialOption) (redis.Conn, error) {
 					return nil, fmt.Errorf("some error")
 				})
+			}
+
+			if tt.jsonErr {
+				patchJson := ApplyFunc(json.Marshal, func(v any) ([]byte, error) {
+					return []byte{}, fmt.Errorf("json error")
+				})
+
+				defer patchJson.Reset()
 			}
 			redigoConn.Command("SET", tt.args.key, string(b)).Expect("something")
 
@@ -119,7 +137,7 @@ func TestGetKeyValue(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: SuccessCase,
+			name: "Success",
 			args: args{
 				key: "user10",
 			},

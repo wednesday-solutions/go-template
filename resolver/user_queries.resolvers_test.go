@@ -3,6 +3,7 @@ package resolver_test
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"regexp"
 	"testing"
@@ -10,10 +11,12 @@ import (
 	fm "go-template/gqlmodels"
 	"go-template/models"
 	"go-template/pkg/utl/cnvrttogql"
+	"go-template/pkg/utl/rediscache"
 	"go-template/resolver"
 	"go-template/testutls"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/agiledragon/gomonkey/v2"
 	. "github.com/agiledragon/gomonkey/v2"
 	"github.com/gomodule/redigo/redis"
 	"github.com/joho/godotenv"
@@ -35,32 +38,46 @@ func TestMe(
 		wantErr  bool
 		args     args
 	}{
+
 		{
 			name:     SuccessCase,
 			args:     args{user: testutls.MockUser()},
 			wantResp: cnvrttogql.UserToGraphQlUser(testutls.MockUser(), 4),
 		},
+		{
+			name:     ErrorFromRedisCache,
+			args:     args{user: testutls.MockUser()},
+			wantResp: nil,
+		},
 	}
 
-	_, db, err := testutls.SetupEnvAndDB(t, testutls.Parameters{EnvFileLocation: `../.env.local`})
-	if err != nil {
-		panic("failed to setup env and db")
-	}
-	oldDb := boil.GetDB()
-	boil.SetDB(db)
-	defer func() {
-		db.Close()
-		boil.SetDB(oldDb)
-	}()
-	conn := redigomock.NewConn()
-	ApplyFunc(
-		redis.Dial,
-		func(network string, address string, options ...redis.DialOption) (redis.Conn, error) {
-			return conn, nil
-		},
-	)
 	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
+
+		if tt.name == ErrorFromRedisCache {
+			patchGetUser := gomonkey.ApplyFunc(rediscache.GetUser,
+				func(userID int, ctx context.Context) (*models.User, error) {
+					return nil, errors.New("redis cache")
+				})
+			defer patchGetUser.Reset()
+		}
+		_, db, err := testutls.SetupEnvAndDB(t, testutls.Parameters{EnvFileLocation: `../.env.local`})
+		if err != nil {
+			panic("failed to setup env and db")
+		}
+		oldDb := boil.GetDB()
+		boil.SetDB(db)
+		defer func() {
+			db.Close()
+			boil.SetDB(oldDb)
+		}()
+		conn := redigomock.NewConn()
+		ApplyFunc(
+			redis.Dial,
+			func(network string, address string, options ...redis.DialOption) (redis.Conn, error) {
+				return conn, nil
+			},
+		)
 		t.Run(
 			tt.name,
 			func(t *testing.T) {
@@ -70,7 +87,11 @@ func TestMe(
 				c := context.Background()
 				ctx := context.WithValue(c, testutls.UserKey, testutls.MockUser())
 				response, _ := resolver1.Query().Me(ctx)
-				assert.Equal(t, tt.wantResp, response)
+				if tt.wantResp != nil &&
+					response != nil {
+					assert.Equal(t, tt.wantResp, response)
+				}
+				assert.Equal(t, tt.wantErr, err != nil)
 			},
 		)
 	}
@@ -89,6 +110,15 @@ func TestUsers(
 		{
 			name:    ErrorFindingUser,
 			wantErr: true,
+		},
+		{
+			name:    "pagination",
+			wantErr: false,
+			pagination: &fm.UserPagination{
+				Limit: 1,
+				Page:  1,
+			},
+			wantResp: testutls.MockUsers(),
 		},
 		{
 			name:     SuccessCase,
@@ -132,18 +162,34 @@ func TestUsers(
 						WillReturnError(fmt.Errorf(""))
 				}
 
+				if tt.name == "pagination" {
+					rows := sqlmock.
+						NewRows([]string{"id", "email", "first_name", "last_name", "mobile", "username", "address"}).
+						AddRow(testutls.MockID, testutls.MockEmail, "First", "Last", "+911234567890", "username", "22 Jump Street")
+					mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users" LIMIT 1 OFFSET 1;`)).WithArgs().WillReturnRows(rows)
+
+					rowCount := sqlmock.NewRows([]string{"count"}).
+						AddRow(1)
+					mock.ExpectQuery(regexp.QuoteMeta(`SELECT COUNT(*) FROM "users" LIMIT 1;`)).
+						WithArgs().
+						WillReturnRows(rowCount)
+
+				} else {
+					rows := sqlmock.
+						NewRows([]string{"id", "email", "first_name", "last_name", "mobile", "username", "address"}).
+						AddRow(testutls.MockID, testutls.MockEmail, "First", "Last", "+911234567890", "username", "22 Jump Street")
+					mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users";`)).WithArgs().WillReturnRows(rows)
+
+					rowCount := sqlmock.NewRows([]string{"count"}).
+						AddRow(1)
+					mock.ExpectQuery(regexp.QuoteMeta(`SELECT COUNT(*) FROM "users";`)).
+						WithArgs().
+						WillReturnRows(rowCount)
+
+				}
 				// Define a mock result set for user queries.
-				rows := sqlmock.
-					NewRows([]string{"id", "email", "first_name", "last_name", "mobile", "username", "address"}).
-					AddRow(testutls.MockID, testutls.MockEmail, "First", "Last", "+911234567890", "username", "22 Jump Street")
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users";`)).WithArgs().WillReturnRows(rows)
 
 				// Define a mock result set.
-				rowCount := sqlmock.NewRows([]string{"count"}).
-					AddRow(1)
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT COUNT(*) FROM "users";`)).
-					WithArgs().
-					WillReturnRows(rowCount)
 
 				// Create a new context with a mock user.
 				c := context.Background()

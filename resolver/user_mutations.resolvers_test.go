@@ -4,14 +4,19 @@ import (
 	"context"
 	"database/sql/driver"
 	"fmt"
+	"go-template/daos"
 	fm "go-template/gqlmodels"
+	"go-template/internal/config"
+	"go-template/models"
 	"go-template/pkg/utl/convert"
+	"go-template/pkg/utl/throttle"
 	"go-template/resolver"
 	"go-template/testutls"
 	"regexp"
 	"testing"
 	"time"
 
+	"github.com/agiledragon/gomonkey/v2"
 	. "github.com/agiledragon/gomonkey/v2"
 	"golang.org/x/crypto/bcrypt"
 
@@ -41,7 +46,22 @@ func TestCreateUser(
 		wantErr  bool
 	}{
 		{
-			name:    "Fail on Create User",
+			name:    ErrorFromCreateUser,
+			req:     fm.UserCreateInput{},
+			wantErr: true,
+		},
+		{
+			name:    ErrorFromThrottleCheck,
+			req:     fm.UserCreateInput{},
+			wantErr: true,
+		},
+		// {
+		// 	name:    ErrorFromBool,
+		// 	req:     fm.UserCreateInput{},
+		// 	wantErr: true,
+		// },
+		{
+			name:    ErrorFromConfig,
 			req:     fm.UserCreateInput{},
 			wantErr: true,
 		},
@@ -77,6 +97,29 @@ func TestCreateUser(
 		t.Run(
 			tt.name,
 			func(t *testing.T) {
+
+				if tt.name == ErrorFromThrottleCheck {
+					patch := gomonkey.ApplyFunc(throttle.Check, func(ctx context.Context, limit int, dur time.Duration) error {
+						return fmt.Errorf("Internal error")
+					})
+					defer patch.Reset()
+				}
+
+				// if tt.name == ErrorFromBool {
+				// 	patch := gomonkey.ApplyFunc(null.NewBool, func (b bool, valid bool) null.Bool {
+				// 		return fmt.Errorf("Internal error")
+				// 	})
+				// 	defer patch.Reset()
+				// }
+
+				if tt.name == ErrorFromConfig {
+					patch := gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
+						return nil, fmt.Errorf("error in loading config")
+					})
+					defer patch.Reset()
+
+				}
+
 				mock, db, _ := testutls.SetupEnvAndDB(t, testutls.Parameters{EnvFileLocation: "../.env.local"})
 				oldDB := boil.GetDB()
 				defer func() {
@@ -85,7 +128,7 @@ func TestCreateUser(
 				}()
 				boil.SetDB(db)
 
-				if tt.name == "Fail on Create User" {
+				if tt.name == ErrorFromCreateUser {
 					// insert new user
 					mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "users"`)).
 						WithArgs().
@@ -149,16 +192,28 @@ func TestUpdateUser(
 			wantErr: true,
 		},
 		{
+			name: ErrorUpdateUser,
+			req: &fm.UserUpdateInput{
+				FirstName: &testutls.MockUser().FirstName.String,
+				LastName:  &testutls.MockUser().LastName.String,
+				Mobile:    &testutls.MockUser().Mobile.String,
+				Address:   &testutls.MockUser().Address.String,
+			},
+			wantErr: true,
+		},
+		{
 			name: SuccessCase,
 			req: &fm.UserUpdateInput{
 				FirstName: &testutls.MockUser().FirstName.String,
 				LastName:  &testutls.MockUser().LastName.String,
+				Mobile:    &testutls.MockUser().Mobile.String,
 				Address:   &testutls.MockUser().Address.String,
 			},
 			wantResp: &fm.User{
 				ID:        "0",
 				FirstName: &testutls.MockUser().FirstName.String,
 				LastName:  &testutls.MockUser().LastName.String,
+				Mobile:    &testutls.MockUser().Mobile.String,
 				Address:   &testutls.MockUser().Address.String,
 			},
 			wantErr: false,
@@ -170,6 +225,15 @@ func TestUpdateUser(
 		t.Run(
 			tt.name,
 			func(t *testing.T) {
+
+				if tt.name == ErrorUpdateUser {
+
+					patch := gomonkey.ApplyFunc(daos.UpdateUser,
+						func(user models.User, ctx context.Context) (models.User, error) {
+							return user, fmt.Errorf("error for update user")
+						})
+					defer patch.Reset()
+				}
 				mock, db, _ := testutls.SetupEnvAndDB(t, testutls.Parameters{EnvFileLocation: "../.env.local"})
 				oldDB := boil.GetDB()
 				defer func() {
@@ -215,6 +279,10 @@ func TestDeleteUser(
 			wantErr: true,
 		},
 		{
+			name:    ErrorDeleteUser,
+			wantErr: true,
+		},
+		{
 			name: SuccessCase,
 			wantResp: &fm.UserDeletePayload{
 				ID: "0",
@@ -228,6 +296,15 @@ func TestDeleteUser(
 		t.Run(
 			tt.name,
 			func(t *testing.T) {
+				if tt.name == ErrorDeleteUser {
+
+					patch := gomonkey.ApplyFunc(daos.DeleteUser,
+						func(user models.User, ctx context.Context) (int64, error) {
+							return 0, fmt.Errorf("error for delete user")
+						})
+					defer patch.Reset()
+				}
+
 				err := godotenv.Load(
 					"../.env.local",
 				)
