@@ -279,7 +279,10 @@ func TestStartVisits(t *testing.T) {
 		return conn, nil
 	})
 
-	config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../"))
+	err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../"))
+	if err != nil {
+		t.Log(err)
+	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
