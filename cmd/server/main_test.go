@@ -7,7 +7,7 @@ import (
 	main "go-template/cmd/server"
 	"go-template/internal/config"
 	"go-template/pkg/api"
-	"go-template/testutls"
+	"go-template/pkg/utl/convert"
 
 	. "github.com/agiledragon/gomonkey/v2"
 	"github.com/joho/godotenv"
@@ -18,7 +18,8 @@ import (
 func TestSetup(t *testing.T) {
 
 	initEnv := func() {
-		_, _, err := testutls.SetupEnvAndDB(t, testutls.Parameters{EnvFileLocation: "../../.env.local"})
+
+		err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../../"))
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -29,12 +30,12 @@ func TestSetup(t *testing.T) {
 		init    func()
 	}{
 		"Failure__envFileNotFound": {
-			error:   "open .env.local: no such file or directory",
+			error:   "open .env.base: no such file or directory",
 			isPanic: true,
 			init:    initEnv,
 		},
 		"Failure_NoEnvName": {
-			error:   "open .env.local: no such file or directory",
+			error:   "open .env.base: no such file or directory",
 			isPanic: true,
 		},
 		"Success": {
