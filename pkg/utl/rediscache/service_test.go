@@ -25,6 +25,12 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
+const (
+	ErrorFromCacheUserValue = "CacheUserValueError"
+	SuccessCacheMiss        = "Success_WithCacheMiss"
+	ErrorFromJson           = "jsonError"
+)
+
 var conn = redigomock.NewConn()
 
 func TestGetUser(t *testing.T) {
@@ -51,7 +57,7 @@ func TestGetUser(t *testing.T) {
 			want: testutls.MockUser(),
 		},
 		{
-			name: "Success_WithCacheMiss",
+			name: SuccessCacheMiss,
 			args: args{
 				userID:    testutls.MockID,
 				cacheMiss: true,
@@ -90,7 +96,7 @@ func TestGetUser(t *testing.T) {
 			want: testutls.MockUser(),
 		},
 		{
-			name: "CacheUserValueError",
+			name: ErrorFromCacheUserValue,
 			args: args{
 				userID:    testutls.MockID,
 				dbQueries: []testutls.QueryData{},
@@ -98,7 +104,7 @@ func TestGetUser(t *testing.T) {
 			cacheErr: true,
 		},
 		{
-			name: "jsonError",
+			name: ErrorFromJson,
 			args: args{
 				userID:    testutls.MockID,
 				dbQueries: []testutls.QueryData{},
@@ -106,15 +112,6 @@ func TestGetUser(t *testing.T) {
 			wantErr: true,
 			jsonErr: true,
 		},
-		// {
-		//  name: "FindUserbyIDError",
-		//  args: args{
-		//      userID:    testutls.MockID,
-		//      dbQueries: []testutls.QueryData{},
-		//  },
-		//  wantErr:         true,
-		//  findUserByIDErr: true,
-		// },
 	}
 
 	ApplyFunc(redisDial, func() (redis.Conn, error) {
@@ -148,12 +145,7 @@ func TestGetUser(t *testing.T) {
 			})
 			defer patchJson.Reset()
 		}
-		// if tt.findUserByIDErr {
-		//  patchDaos := ApplyFunc(daos.FindUserByID, func(userID int, ctx context.Context) (*models.User, error) {
-		//      return nil, fmt.Errorf("finduserID error")
-		//  })
-		//  defer patchDaos.Reset()
-		// }
+
 		t.Run(tt.name, func(t *testing.T) {
 
 			if tt.args.cacheMiss {
@@ -212,7 +204,7 @@ func TestGetRole(t *testing.T) {
 			want: role,
 		},
 		{
-			name: "Success_WithCacheMiss",
+			name: SuccessCacheMiss,
 			args: args{
 				roleID:    testutls.MockID,
 				cacheMiss: true,

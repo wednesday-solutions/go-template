@@ -14,7 +14,10 @@ import (
 
 var redigoConn = redigomock.NewConn()
 
-const SuccessCase = "Success"
+const (
+	SuccessCase = "Success"
+	FailedCase  = "Failed"
+)
 
 func Test_redisDial(t *testing.T) {
 
@@ -28,7 +31,7 @@ func Test_redisDial(t *testing.T) {
 			want: redigoConn,
 		},
 		{
-			name:    "Failure",
+			name:    FailedCase,
 			wantErr: true,
 		},
 	}
@@ -76,7 +79,7 @@ func TestSetKeyValue(t *testing.T) {
 			},
 		},
 		{
-			name: "Failure",
+			name: FailedCase,
 			args: args{
 				key:  "user10",
 				data: 1,
@@ -137,14 +140,14 @@ func TestGetKeyValue(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "Success",
+			name: SuccessCase,
 			args: args{
 				key: "user10",
 			},
 			want: "user",
 		},
 		{
-			name: "Failure",
+			name: FailedCase,
 			args: args{
 				key: "user10",
 			},

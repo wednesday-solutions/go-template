@@ -3,16 +3,20 @@ package zaplog
 import (
 	"context"
 	"fmt"
-	"log"
-	"os"
 	"testing"
-
-	"github.com/agiledragon/gomonkey/v2"
 
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"go.uber.org/zap/zaptest/observer"
+)
+
+const (
+	ErrorFromProduction = "Error  producton"
+	InformationTest     = "test info"
+	InfoMessage         = "This is an info log"
+	DebugMessage        = "This is a debug log"
+	NewCase             = "New Case"
 )
 
 type SugaredLogger struct {
@@ -30,50 +34,29 @@ func TestInfo(t *testing.T) {
 		args args
 	}{
 		{
-			name: "test info",
+			name: InformationTest,
 			args: args{
 				c:   context.Background(),
-				msg: "This is an info log",
+				msg: InfoMessage,
 			},
 		},
 		{
-			name: "Error  producton",
+			name: ErrorFromProduction,
 			args: args{
 				c:   context.Background(),
-				msg: "This is an info log",
+				msg: InfoMessage,
 			},
 		},
 		{
-			name: "NEW CASE",
+			name: NewCase,
 			args: args{
 				c:   context.Background(),
-				msg: "This is an info log",
+				msg: InfoMessage,
 			},
 		},
 	}
 	for _, tt := range tests {
-		os.Setenv("ENVIRONMENT_NAME", "production")
-
-		_ = gomonkey.ApplyFunc(os.Getenv,
-			func(s string) string {
-				log.Println("--------- gomonkey call --------")
-				return "production"
-			})
 		t.Run(tt.name, func(t *testing.T) {
-
-			// patchZapProd := gomonkey.ApplyFunc(zap.NewProduction, func(options ...zap.Option) (*zap.Logger, error) {
-			// 	return &zap.Logger{}, nil
-			// })
-
-			// defer patchZapProd.Reset()
-
-			//patchDaos := gomonkey.ApplyFunc(InitLogger,
-			//	func() *zap.SugaredLogger {
-			//		var zapLogger *zap.Logger
-			//		zapLogger, _ = zap.NewProduction()
-			//		return zapLogger.Sugar()
-			//	})
-			//defer patchDaos.Reset()
 
 			observedZapCore, observedLogs := observer.New(zap.InfoLevel)
 			observedLogger := zap.New(observedZapCore).Sugar()
@@ -98,15 +81,16 @@ func TestDebug(t *testing.T) {
 		args args
 	}{
 		{
-			name: "test info",
+			name: InformationTest,
 			args: args{
 				c:   context.Background(),
-				msg: "This is a debug log",
+				msg: DebugMessage,
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+
 			observedZapCore, observedLogs := observer.New(zap.DebugLevel)
 			observedLogger := zap.New(observedZapCore).Sugar()
 			_ = SetLogger(observedLogger)

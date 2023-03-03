@@ -56,11 +56,6 @@ func TestCreateUser(
 			req:     fm.UserCreateInput{},
 			wantErr: true,
 		},
-		// {
-		// 	name:    ErrorFromBool,
-		// 	req:     fm.UserCreateInput{},
-		// 	wantErr: true,
-		// },
 		{
 			name:    ErrorFromConfig,
 			req:     fm.UserCreateInput{},
@@ -105,13 +100,6 @@ func TestCreateUser(
 					})
 					defer patch.Reset()
 				}
-
-				// if tt.name == ErrorFromBool {
-				// 	patch := gomonkey.ApplyFunc(null.NewBool, func (b bool, valid bool) null.Bool {
-				// 		return fmt.Errorf("Internal error")
-				// 	})
-				// 	defer patch.Reset()
-				// }
 
 				if tt.name == ErrorFromConfig {
 					patch := gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
