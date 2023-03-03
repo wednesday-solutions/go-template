@@ -3,12 +3,11 @@ package daos_test
 import (
 	"context"
 	"fmt"
-	"regexp"
-	"testing"
-
 	"go-template/daos"
 	"go-template/internal/config"
 	"go-template/models"
+	"regexp"
+	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/assert"

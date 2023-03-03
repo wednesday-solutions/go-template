@@ -18,6 +18,28 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
+const (
+	UserRoleName            = "UserRole"
+	SuperAdminRoleName      = "SuperAdminRole"
+	ErrorFromRedisCache     = "RedisCache Error"
+	ErrorFromGetRole        = "RedisCache GetRole Error"
+	ErrorUnauthorizedUser   = "Unauthorized User"
+	ErrorFromCreateRole     = "CreateRole Error"
+	ErrorPasswordValidation = "Fail on PasswordValidation"
+	ErrorActiveStatus       = "Fail on ActiveStatus"
+	ErrorInsecurePassword   = "Insecure password"
+	ErrorInvalidToken       = "Fail on FindByToken"
+	TestPasswordHash        = "$2a$10$dS5vK8hHmG5"
+	OldPasswordHash         = "$2a$10$dS5vK8hHmG5gzwV8f7TK5.WHviMBqmYQLYp30a3XvqhCW9Wvl2tOS"
+	SuccessCase             = "Success"
+	ErrorFindingUser        = "Fail on finding user"
+	OldPassword             = "adminuser"
+	NewPassword             = "adminuser!A9@"
+	TestPassword            = "pass123"
+	TestUsername            = "wednesday"
+	TestToken               = "refreshToken"
+)
+
 func TestLogin(
 	t *testing.T,
 ) {
@@ -32,22 +54,38 @@ func TestLogin(
 		wantErr  bool
 	}{
 		{
-			name: "Fail on FindByUser",
+			name: ErrorFindingUser,
 			req: args{
-				UserName: "wednesday",
-				Password: "pass123",
+				UserName: TestUsername,
+				Password: TestPassword,
 			},
 			wantErr: true,
 		},
 		{
-			name: "Success",
+			name: ErrorPasswordValidation,
 			req: args{
 				UserName: testutls.MockEmail,
-				Password: "adminuser",
+				Password: TestPassword,
+			},
+			wantErr: true,
+		},
+		{
+			name: ErrorActiveStatus,
+			req: args{
+				UserName: testutls.MockEmail,
+				Password: OldPassword,
+			},
+			wantErr: true,
+		},
+		{
+			name: SuccessCase,
+			req: args{
+				UserName: testutls.MockEmail,
+				Password: OldPassword,
 			},
 			wantResp: &fm.LoginResponse{
 				Token:        "jwttokenstring",
-				RefreshToken: "refreshtoken",
+				RefreshToken: TestToken,
 			},
 		},
 	}
@@ -73,20 +111,36 @@ func TestLogin(
 					boil.SetDB(oldDB)
 				}()
 				boil.SetDB(db)
-				if tt.name == "Fail on FindByUser" {
+				if tt.name == ErrorFindingUser {
 					// get user by username
 					mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users" WHERE (username=$1) LIMIT 1;`)).
 						WithArgs().
 						WillReturnError(fmt.Errorf(""))
 				}
+				if tt.name == ErrorPasswordValidation {
+					// get user by username
+					rows := sqlmock.NewRows([]string{"id", "password", "active", "role_id"}).
+						AddRow(testutls.MockID, TestPasswordHash, true, 1)
+					mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users"  WHERE (username=$1) LIMIT 1;`)).
+						WithArgs().
+						WillReturnRows(rows)
+				}
+				if tt.name == ErrorActiveStatus {
+					// get user by username
+					rows := sqlmock.NewRows([]string{"id", "password", "active", "role_id"}).
+						AddRow(testutls.MockID, OldPasswordHash, false, 1)
+					mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users"  WHERE (username=$1) LIMIT 1;`)).
+						WithArgs().
+						WillReturnRows(rows)
+				}
 				// get user by username
 				rows := sqlmock.NewRows([]string{"id", "password", "active", "role_id"}).
-					AddRow(testutls.MockID, "$2a$10$dS5vK8hHmG5gzwV8f7TK5.WHviMBqmYQLYp30a3XvqhCW9Wvl2tOS", true, 1)
+					AddRow(testutls.MockID, OldPasswordHash, true, 1)
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users"  WHERE (username=$1) LIMIT 1;`)).
 					WithArgs().
 					WillReturnRows(rows)
 
-				if tt.name == "Success" {
+				if tt.name == SuccessCase {
 					rows := sqlmock.NewRows([]string{"id", "name"}).
 						AddRow(1, "ADMIN")
 					mock.ExpectQuery(regexp.QuoteMeta(`SELECT "roles".* FROM "roles" WHERE ("id" = $1) LIMIT 1`)).
@@ -117,6 +171,7 @@ func TestChangePassword(
 	t *testing.T,
 ) {
 
+	// Define a struct to represent the change password request
 	type changeReq struct {
 		OldPassword string
 		NewPassword string
@@ -128,26 +183,34 @@ func TestChangePassword(
 		wantErr  bool
 	}{
 		{
-			name: "Fail on FindByUser",
+			name: ErrorFindingUser,
 			req: changeReq{
-				OldPassword: "adminuser!A9@@@@",
-				NewPassword: "adminuser!A9@",
+				OldPassword: TestPassword,
+				NewPassword: NewPassword,
 			},
 			wantErr: true,
 		},
 		{
-			name: "Incorrect Old Password",
+			name: ErrorPasswordValidation,
 			req: changeReq{
-				OldPassword: "admin",
-				NewPassword: "adminuser!A9@",
+				OldPassword: TestPassword,
+				NewPassword: NewPassword,
 			},
 			wantErr: true,
 		},
 		{
-			name: "Success",
+			name: ErrorInsecurePassword,
 			req: changeReq{
-				OldPassword: "adminuser",
-				NewPassword: "adminuser!A9@",
+				OldPassword: OldPassword,
+				NewPassword: testutls.MockEmail,
+			},
+			wantErr: true,
+		},
+		{
+			name: SuccessCase,
+			req: changeReq{
+				OldPassword: OldPassword,
+				NewPassword: NewPassword,
 			},
 			wantResp: &fm.ChangePasswordResponse{
 				Ok: true,
@@ -178,7 +241,7 @@ func TestChangePassword(
 				}()
 				boil.SetDB(db)
 
-				if tt.name == "Fail on FindByUser" {
+				if tt.name == ErrorFindingUser {
 					// get user by id
 					mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
 						WithArgs().
@@ -186,11 +249,11 @@ func TestChangePassword(
 				}
 				// get user by id
 				rows := sqlmock.NewRows([]string{"id", "email", "password"}).
-					AddRow(testutls.MockID, testutls.MockEmail, "$2a$10$dS5vK8hHmG5gzwV8f7TK5.WHviMBqmYQLYp30a3XvqhCW9Wvl2tOS")
+					AddRow(testutls.MockID, testutls.MockEmail, OldPasswordHash)
 				mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
 					WithArgs().
 					WillReturnRows(rows)
-				if tt.name == "Success" {
+				if tt.name == SuccessCase {
 					// update password
 					result := driver.Result(driver.RowsAffected(1))
 					mock.ExpectExec(regexp.QuoteMeta(`UPDATE "users" `)).WillReturnResult(result)
@@ -216,12 +279,12 @@ func TestRefreshToken(t *testing.T) {
 		wantErr  bool
 	}{
 		{
-			name:    "Fail on FindByToken",
-			req:     "refreshToken",
+			name:    ErrorInvalidToken,
+			req:     TestToken,
 			wantErr: true,
 		},
 		{
-			name: "Success",
+			name: SuccessCase,
 			req:  "refresh_token",
 			wantResp: &fm.RefreshTokenResponse{
 				Token: testutls.MockToken,
@@ -250,7 +313,7 @@ func TestRefreshToken(t *testing.T) {
 				}()
 				boil.SetDB(db)
 
-				if tt.name == "Fail on FindByToken" {
+				if tt.name == ErrorInvalidToken {
 					// get user by token
 					mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users" WHERE (token=$1) LIMIT 1;`)).
 						WithArgs().
@@ -263,7 +326,7 @@ func TestRefreshToken(t *testing.T) {
 					WithArgs().
 					WillReturnRows(rows)
 
-				if tt.name == "Success" {
+				if tt.name == SuccessCase {
 					rows := sqlmock.NewRows([]string{"id", "name"}).
 						AddRow(1, "ADMIN")
 					mock.ExpectQuery(regexp.QuoteMeta(`SELECT "roles".* FROM "roles" WHERE ("id" = $1) LIMIT 1`)).
