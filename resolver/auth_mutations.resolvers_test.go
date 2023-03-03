@@ -7,7 +7,6 @@ import (
 	"regexp"
 	"testing"
 
-	"go-template/daos"
 	fm "go-template/gqlmodels"
 	"go-template/internal/config"
 	"go-template/internal/jwt"
@@ -115,14 +114,14 @@ func TestLogin(
 			},
 			wantErr: true,
 		},
-		// {
-		// 	name: ErrorUpdateUser,
-		// 	req: args{
-		// 		UserName: testutls.MockEmail,
-		// 		Password: OldPassword,
-		// 	},
-		// 	wantErr: true,
-		// },
+		{
+			name: ErrorUpdateUser,
+			req: args{
+				UserName: testutls.MockEmail,
+				Password: OldPassword,
+			},
+			wantErr: true,
+		},
 		{
 			name: SuccessCase,
 			req: args{
@@ -148,14 +147,6 @@ func TestLogin(
 					defer patch.Reset()
 				}
 
-				if tt.name == ErrorUpdateUser {
-					patch := gomonkey.ApplyFunc(daos.UpdateUser,
-						func(user models.User, ctx context.Context) (models.User, error) {
-							return user, fmt.Errorf("error for update user")
-						})
-					defer patch.Reset()
-				}
-
 				var tg jwt.Service
 				if tt.name == ErrorFromJwt {
 					patch := gomonkey.ApplyFunc(service.JWT, func(cfg *config.Configuration) (jwt.Service, error) {
@@ -165,23 +156,16 @@ func TestLogin(
 					})
 					defer patch.Reset()
 				}
-				if tt.name == ErrorFromGenerateToken {
-					patch := gomonkey.ApplyFunc(tg.GenerateToken, func(u *models.User) (string, error) {
 
+				patch := gomonkey.ApplyFunc(tg.GenerateToken, func(u *models.User) (string, error) {
+					if tt.name == ErrorFromGenerateToken {
 						return "", fmt.Errorf("error in generating token")
+					} else {
+						return "", nil
+					}
 
-					})
-					defer patch.Reset()
-				}
-
-				if tt.name == ErrorUpdateUser {
-
-					patch := gomonkey.ApplyFunc(daos.UpdateUser,
-						func(user models.User, ctx context.Context) (models.User, error) {
-							return user, fmt.Errorf("error for update user")
-						})
-					defer patch.Reset()
-				}
+				})
+				defer patch.Reset()
 
 				//else {
 
@@ -236,7 +220,7 @@ func TestLogin(
 					WithArgs().
 					WillReturnRows(rows)
 
-				if tt.name == SuccessCase {
+				if tt.name == SuccessCase || tt.name == ErrorUpdateUser {
 					rows := sqlmock.NewRows([]string{"id", "name"}).
 						AddRow(1, "ADMIN")
 					mock.ExpectQuery(regexp.QuoteMeta(`SELECT "roles".* FROM "roles" WHERE ("id" = $1) LIMIT 1`)).
@@ -245,8 +229,15 @@ func TestLogin(
 				}
 
 				// update users with token
-				result := driver.Result(driver.RowsAffected(1))
-				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "users" `)).WillReturnResult(result)
+
+				if tt.name == ErrorUpdateUser {
+					fmt.Println(tt.name, " test name ")
+					mock.ExpectExec(regexp.QuoteMeta(`UPDATE "users" `)).WillReturnError(fmt.Errorf("error occured"))
+				} else {
+					fmt.Println(tt.name, " test name ")
+					result := driver.Result(driver.RowsAffected(1))
+					mock.ExpectExec(regexp.QuoteMeta(`UPDATE "users" `)).WillReturnResult(result)
+				}
 
 				c := context.Background()
 				response, err := resolver1.Mutation().Login(c, tt.req.UserName, tt.req.Password)
