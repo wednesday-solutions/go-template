@@ -13,6 +13,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const SuccessCase = "Success"
+
 func TestLoad(t *testing.T) {
 	cases := []struct {
 		name     string
@@ -22,7 +24,7 @@ func TestLoad(t *testing.T) {
 		error    string
 	}{
 		{
-			name:     "Success",
+			name:     SuccessCase,
 			wantErr:  false,
 			wantData: testutls.MockConfig(),
 		},

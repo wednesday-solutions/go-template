@@ -22,7 +22,7 @@ func TestUserNotification(
 		wantErr  bool
 	}{
 		{
-			name: "Success",
+			name: SuccessCase,
 			wantResp: make(
 				chan *fm.User,
 				1,
