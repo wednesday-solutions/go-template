@@ -12,6 +12,7 @@ import (
 	"go-template/pkg/utl/throttle"
 	"go-template/resolver"
 	"go-template/testutls"
+	"log"
 	"regexp"
 	"testing"
 	"time"
@@ -121,6 +122,11 @@ func TestCreateUser(
 				}
 
 				mock, db, _ := testutls.SetupEnvAndDB(t, testutls.Parameters{EnvFileLocation: "../.env.local"})
+				err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../"))
+				if err != nil {
+					log.Fatal(err)
+				}
+				mock, db, _ = testutls.SetupMockDB(t)
 				oldDB := boil.GetDB()
 				defer func() {
 					db.Close()
@@ -235,6 +241,11 @@ func TestUpdateUser(
 					defer patch.Reset()
 				}
 				mock, db, _ := testutls.SetupEnvAndDB(t, testutls.Parameters{EnvFileLocation: "../.env.local"})
+				err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../"))
+				if err != nil {
+					log.Fatal(err)
+				}
+				mock, db, _ = testutls.SetupMockDB(t)
 				oldDB := boil.GetDB()
 				defer func() {
 					db.Close()

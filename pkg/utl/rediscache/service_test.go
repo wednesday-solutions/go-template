@@ -5,13 +5,16 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
+	"log"
 	"math"
 	"reflect"
 	"regexp"
 	"testing"
 	"time"
 
+	"go-template/internal/config"
 	"go-template/models"
+	"go-template/pkg/utl/convert"
 	"go-template/testutls"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -119,7 +122,11 @@ func TestGetUser(t *testing.T) {
 	})
 
 	oldDB := boil.GetDB()
-	mock, db, _ := testutls.SetupEnvAndDB(t, testutls.Parameters{EnvFileLocation: "../../../.env.local"})
+	err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../../../"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	mock, db, _ := testutls.SetupMockDB(t)
 
 	for _, tt := range tests {
 		if tt.cacheErr {
@@ -231,7 +238,11 @@ func TestGetRole(t *testing.T) {
 	})
 
 	oldDB := boil.GetDB()
-	mock, db, _ := testutls.SetupEnvAndDB(t, testutls.Parameters{EnvFileLocation: "../../../.env.local"})
+	err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../../../"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	mock, db, _ := testutls.SetupMockDB(t)
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -324,7 +335,11 @@ func TestStartVisits(t *testing.T) {
 		return conn, nil
 	})
 
-	testutls.SetupEnvAndDB(t, testutls.Parameters{EnvFileLocation: "../../../.env.local"}) //nolint
+	err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../"))
+	if err != nil {
+		t.Log(err)
+	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 

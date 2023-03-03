@@ -7,8 +7,10 @@ import (
 	"strings"
 	"testing"
 
+	"go-template/internal/config"
 	"go-template/internal/jwt"
 	"go-template/models"
+	"go-template/pkg/utl/convert"
 	"go-template/testutls"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -113,7 +115,11 @@ func TestGenerateToken(t *testing.T) {
 		},
 	}
 
-	mock, _, err := testutls.SetupEnvAndDB(t, testutls.Parameters{EnvFileLocation: "../../.env.local"})
+	err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../../"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	mock, _, _ := testutls.SetupMockDB(t)
 	if err != nil {
 		panic("failed to setup env and db")
 	}

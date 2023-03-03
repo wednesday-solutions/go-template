@@ -5,12 +5,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"regexp"
 	"testing"
 
 	fm "go-template/gqlmodels"
+	"go-template/internal/config"
 	"go-template/models"
 	"go-template/pkg/utl/cnvrttogql"
+	"go-template/pkg/utl/convert"
 	"go-template/pkg/utl/rediscache"
 	"go-template/resolver"
 	"go-template/testutls"
@@ -51,6 +54,25 @@ func TestMe(
 		},
 	}
 
+	err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, db, _ := testutls.SetupMockDB(t)
+	oldDb := boil.GetDB()
+	boil.SetDB(db)
+	defer func() {
+		db.Close()
+		boil.SetDB(oldDb)
+	}()
+	conn := redigomock.NewConn()
+	ApplyFunc(
+		redis.Dial,
+		func(network string, address string, options ...redis.DialOption) (redis.Conn, error) {
+			return conn, nil
+		},
+	)
+	//
 	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
 
