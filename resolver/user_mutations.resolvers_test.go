@@ -5,9 +5,11 @@ import (
 	"database/sql/driver"
 	"fmt"
 	fm "go-template/gqlmodels"
+	"go-template/internal/config"
 	"go-template/pkg/utl/convert"
 	"go-template/resolver"
 	"go-template/testutls"
+	"log"
 	"regexp"
 	"testing"
 	"time"
@@ -77,7 +79,11 @@ func TestCreateUser(
 		t.Run(
 			tt.name,
 			func(t *testing.T) {
-				mock, db, _ := testutls.SetupEnvAndDB(t, testutls.Parameters{EnvFileLocation: "../.env.local"})
+				err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../"))
+				if err != nil {
+					log.Fatal(err)
+				}
+				mock, db, _ := testutls.SetupMockDB(t)
 				oldDB := boil.GetDB()
 				defer func() {
 					db.Close()
@@ -170,7 +176,11 @@ func TestUpdateUser(
 		t.Run(
 			tt.name,
 			func(t *testing.T) {
-				mock, db, _ := testutls.SetupEnvAndDB(t, testutls.Parameters{EnvFileLocation: "../.env.local"})
+				err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../"))
+				if err != nil {
+					log.Fatal(err)
+				}
+				mock, db, _ := testutls.SetupMockDB(t)
 				oldDB := boil.GetDB()
 				defer func() {
 					db.Close()

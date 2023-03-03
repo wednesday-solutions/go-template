@@ -62,8 +62,11 @@ func TestLoad(t *testing.T) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 
-			_ = config.LoadEnvWithFilePrefix((convert.StringToPointerString("./../../")))
-			_, _, err := testutls.SetupMockDB(t)
+			err := config.LoadEnvWithFilePrefix((convert.StringToPointerString("./../../")))
+			if err != nil {
+				fmt.Print("error loading .env file")
+			}
+			_, _, err = testutls.SetupMockDB(t)
 			if err != nil {
 				fmt.Print("error loading .env file")
 			}
