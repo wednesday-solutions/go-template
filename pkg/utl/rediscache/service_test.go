@@ -18,10 +18,17 @@ import (
 	"go-template/testutls"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/agiledragon/gomonkey/v2"
 	. "github.com/agiledragon/gomonkey/v2"
 	"github.com/gomodule/redigo/redis"
 	redigomock "github.com/rafaeljusto/redigomock/v3"
 	"github.com/volatiletech/sqlboiler/v4/boil"
+)
+
+const (
+	ErrorFromCacheUserValue = "CacheUserValueError"
+	SuccessCacheMiss        = "Success_WithCacheMiss"
+	ErrorFromJson           = "jsonError"
 )
 
 var conn = redigomock.NewConn()
@@ -33,10 +40,13 @@ func TestGetUser(t *testing.T) {
 		dbQueries []testutls.QueryData
 	}
 	tests := []struct {
-		name    string
-		args    args
-		want    *models.User
-		wantErr bool
+		name            string
+		args            args
+		want            *models.User
+		wantErr         bool
+		cacheErr        bool
+		jsonErr         bool
+		findUserByIDErr bool
 	}{
 		{
 			name: SuccessCase,
@@ -47,7 +57,7 @@ func TestGetUser(t *testing.T) {
 			want: testutls.MockUser(),
 		},
 		{
-			name: "Success_WithCacheMiss",
+			name: SuccessCacheMiss,
 			args: args{
 				userID:    testutls.MockID,
 				cacheMiss: true,
@@ -85,6 +95,23 @@ func TestGetUser(t *testing.T) {
 			},
 			want: testutls.MockUser(),
 		},
+		{
+			name: ErrorFromCacheUserValue,
+			args: args{
+				userID:    testutls.MockID,
+				dbQueries: []testutls.QueryData{},
+			},
+			cacheErr: true,
+		},
+		{
+			name: ErrorFromJson,
+			args: args{
+				userID:    testutls.MockID,
+				dbQueries: []testutls.QueryData{},
+			},
+			wantErr: true,
+			jsonErr: true,
+		},
 	}
 
 	ApplyFunc(redisDial, func() (redis.Conn, error) {
@@ -99,6 +126,26 @@ func TestGetUser(t *testing.T) {
 	mock, db, _ := testutls.SetupMockDB(t)
 
 	for _, tt := range tests {
+		if tt.cacheErr {
+			patch := gomonkey.ApplyFunc(redis.Dial, func(network string,
+				address string, options ...redis.DialOption) (redis.Conn, error) {
+				return nil, fmt.Errorf("cached user value error")
+			})
+			defer patch.Reset()
+		} else {
+			patch := gomonkey.ApplyFunc(redis.Dial, func(network string,
+				address string, options ...redis.DialOption) (redis.Conn, error) {
+				return conn, nil
+			})
+			defer patch.Reset()
+		}
+		if tt.jsonErr {
+			patchJson := ApplyFunc(json.Marshal, func(v any) ([]byte, error) {
+				return []byte{}, fmt.Errorf("json error")
+			})
+			defer patchJson.Reset()
+		}
+
 		t.Run(tt.name, func(t *testing.T) {
 
 			if tt.args.cacheMiss {
@@ -117,6 +164,7 @@ func TestGetUser(t *testing.T) {
 			}
 
 			got, err := GetUser(tt.args.userID, context.Background())
+
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetUser() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -156,7 +204,7 @@ func TestGetRole(t *testing.T) {
 			want: role,
 		},
 		{
-			name: "Success_WithCacheMiss",
+			name: SuccessCacheMiss,
 			args: args{
 				roleID:    testutls.MockID,
 				cacheMiss: true,

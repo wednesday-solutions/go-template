@@ -15,7 +15,7 @@ type ContextKey struct {
 	Name string
 }
 
-var Logger = initLogger()
+var Logger = InitLogger()
 
 func SetLogger(logger *zap.SugaredLogger) *zap.SugaredLogger {
 	Logger = logger
@@ -31,7 +31,7 @@ func Info(c context.Context, args ...interface{}) {
 func Debug(c context.Context, args ...interface{}) {
 	Logger.Debug(getRequestID(c), "\n", args, "\n")
 }
-func initLogger() *zap.SugaredLogger {
+func InitLogger() *zap.SugaredLogger {
 	var zapLogger *zap.Logger
 	var err error
 	if os.Getenv("ENVIRONMENT_NAME") == "production" {

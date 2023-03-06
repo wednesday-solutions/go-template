@@ -14,7 +14,10 @@ import (
 
 var redigoConn = redigomock.NewConn()
 
-const SuccessCase = "Success"
+const (
+	SuccessCase = "Success"
+	FailedCase  = "Failed"
+)
 
 func Test_redisDial(t *testing.T) {
 
@@ -28,7 +31,7 @@ func Test_redisDial(t *testing.T) {
 			want: redigoConn,
 		},
 		{
-			name:    "Failure",
+			name:    FailedCase,
 			wantErr: true,
 		},
 	}
@@ -66,6 +69,7 @@ func TestSetKeyValue(t *testing.T) {
 		name    string
 		args    args
 		wantErr bool
+		jsonErr bool
 	}{
 		{
 			name: SuccessCase,
@@ -75,12 +79,21 @@ func TestSetKeyValue(t *testing.T) {
 			},
 		},
 		{
-			name: "Failure",
+			name: FailedCase,
 			args: args{
 				key:  "user10",
 				data: 1,
 			},
 			wantErr: true,
+		},
+		{
+			name: "json error",
+			args: args{
+				key:  "user10",
+				data: 1,
+			},
+			wantErr: true,
+			jsonErr: true,
 		},
 	}
 	ApplyFunc(redigo.Dial, func(string, string, ...redis.DialOption) (redis.Conn, error) {
@@ -95,6 +108,14 @@ func TestSetKeyValue(t *testing.T) {
 				patches = ApplyFunc(redigo.Dial, func(string, string, ...redis.DialOption) (redis.Conn, error) {
 					return nil, fmt.Errorf("some error")
 				})
+			}
+
+			if tt.jsonErr {
+				patchJson := ApplyFunc(json.Marshal, func(v any) ([]byte, error) {
+					return []byte{}, fmt.Errorf("json error")
+				})
+
+				defer patchJson.Reset()
 			}
 			redigoConn.Command("SET", tt.args.key, string(b)).Expect("something")
 
@@ -126,7 +147,7 @@ func TestGetKeyValue(t *testing.T) {
 			want: "user",
 		},
 		{
-			name: "Failure",
+			name: FailedCase,
 			args: args{
 				key: "user10",
 			},
