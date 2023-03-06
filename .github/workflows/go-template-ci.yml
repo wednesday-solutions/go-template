@@ -40,15 +40,15 @@ jobs:
           fail_ci_if_error: true
           files: ./coverage.out
           verbose: true
-      - name: SonarCloud Scan
-        uses: sonarsource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          args: >
-            -Dsonar.organization=${{ secrets.SONAR_ORG}}
-            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY}}
+      # - name: SonarCloud Scan
+      #   uses: sonarsource/sonarcloud-github-action@master
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      #   with:
+      #     args: >
+      #       -Dsonar.organization=${{ secrets.SONAR_ORG}}
+      #       -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY}}
   golangci-lint:
     runs-on: ubuntu-latest
     steps:
