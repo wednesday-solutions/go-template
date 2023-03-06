@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql/driver"
 	"fmt"
+	"reflect"
 	"regexp"
 	"strings"
 	"testing"
@@ -482,10 +483,6 @@ func TestRefreshToken(t *testing.T) {
 		t.Run(
 			tt.name,
 			func(t *testing.T) {
-				err := config.LoadEnv()
-				if err != nil {
-					fmt.Print("error loading .env file")
-				}
 
 				// Create a mock SQL database connection
 				db, mock, err := sqlmock.New()
@@ -509,36 +506,39 @@ func TestRefreshToken(t *testing.T) {
 				}
 
 				// Handle the case where there is an error loading the config
-				if tt.name == ErrorFromConfig {
-					patch := gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
-						return nil, fmt.Errorf("error in loading config")
 
-					})
-					defer patch.Reset()
-				}
+				patch := gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
+					if tt.name == ErrorFromConfig {
+						return nil, fmt.Errorf("error in loading config")
+					} else {
+						return &config.Configuration{}, nil
+					}
+				})
+				defer patch.Reset()
 
 				//initialize a jwt service
-				var tg jwt.Service
+				tg := jwt.Service{}
 
 				// Handle the case where there is an error creating the JWT service
-				if tt.name == ErrorFromJwt {
-					patch := gomonkey.ApplyFunc(service.JWT, func(cfg *config.Configuration) (jwt.Service, error) {
-
+				patchJWT := gomonkey.ApplyFunc(service.JWT, func(cfg *config.Configuration) (jwt.Service, error) {
+					if tt.name == ErrorFromJwt {
 						return tg, fmt.Errorf(ErrorMsgFromJwt)
-
-					})
-					defer patch.Reset()
-				}
+					} else {
+						return tg, nil
+					}
+				})
+				defer patchJWT.Reset()
 
 				// Handle the case where there is an error form token generation service
-				if tt.name == ErrorFromGenerateToken {
-					patch := gomonkey.ApplyFunc(tg.GenerateToken, func(u *models.User) (string, error) {
-
-						return "", resultwrapper.ErrUnauthorized
-
+				patchGenerateToken := gomonkey.ApplyMethod(reflect.TypeOf(tg), "GenerateToken",
+					func(jwt.Service, *models.User) (string, error) {
+						if tt.name == ErrorFromGenerateToken {
+							return "", resultwrapper.ErrUnauthorized
+						} else {
+							return "token", nil
+						}
 					})
-					defer patch.Reset()
-				}
+				defer patchGenerateToken.Reset()
 
 				// Expect a query to get the user by ID to return a row with mock data entered
 				rows := sqlmock.NewRows([]string{"id", "email", "token", "role_id"}).
