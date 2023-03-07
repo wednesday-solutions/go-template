@@ -2,6 +2,7 @@ package resultwrapper_test
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -9,11 +10,15 @@ import (
 	resultwrapper "go-template/pkg/utl/resultwrapper"
 	"go-template/testutls"
 
+	"github.com/agiledragon/gomonkey/v2"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
 
-const SuccessCase = "Success"
+const (
+	SuccessCase = "Success"
+	ErrorCase   = "error from json"
+)
 
 func TestSplitByLabel(t *testing.T) {
 
@@ -86,6 +91,7 @@ func getContext() echo.Context {
 	})
 	return e.NewContext(req, w)
 }
+
 func TestResultWrapper(t *testing.T) {
 	type args struct {
 		errorCode int
@@ -111,15 +117,37 @@ func TestResultWrapper(t *testing.T) {
 			},
 			wantErr: true,
 		},
+		{
+			name: ErrorCase,
+			args: args{
+				errorCode: 400,
+				err:       fmt.Errorf("error"),
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+
 			w := httptest.NewRecorder()
 			ctx := e.NewContext(req, w)
-			if err := resultwrapper.ResultWrapper(tt.args.errorCode, ctx, tt.args.err); (err != nil) != tt.wantErr {
-				t.Errorf("ResultWrapper() error = %v, wantErr %v", err, tt.wantErr)
+
+			if tt.name == ErrorCase {
+
+				patch := gomonkey.ApplyMethodFunc(ctx, "JSON", func(code int, i interface{}) error {
+					log.Println("loop call success")
+					return fmt.Errorf("error")
+				})
+				defer patch.Reset()
 			}
-			assert.Equal(t, tt.args.errorCode, ctx.Response().Status)
+
+			err := resultwrapper.ResultWrapper(tt.args.errorCode, ctx, tt.args.err)
+			if tt.name == ErrorCase {
+				assert.Equal(t, tt.args.err, err)
+			} else {
+				assert.Equal(t, tt.args.errorCode, ctx.Response().Status)
+			}
+
 		})
 	}
 }

@@ -21,6 +21,7 @@ import (
 	"github.com/agiledragon/gomonkey/v2"
 	. "github.com/agiledragon/gomonkey/v2"
 	"github.com/gomodule/redigo/redis"
+	redigo "github.com/gomodule/redigo/redis"
 	redigomock "github.com/rafaeljusto/redigomock/v3"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
@@ -29,6 +30,20 @@ const (
 	ErrorFromCacheUserValue = "CacheUserValueError"
 	SuccessCacheMiss        = "Success_WithCacheMiss"
 	ErrorFromJson           = "jsonError"
+	ErrorRedisDial          = "Redis Dial Error"
+	ErrorConnDo             = "Conn.Do Error"
+	ErrMsgFromConnDo        = "Error From Conn Do"
+	ErrMsgFromRedisDial     = "Error From Redis Dial"
+	ErrorGetKeyValue        = "Get Key Value Error Case"
+	ErrorSetKeyValue        = "Set Key Value Error Case"
+	ErrorUnmarshal          = "Unmarshalling Error Case"
+	ErrorMarshal            = "Marshalling Error Case"
+	ErrorFindRoleById       = "Find Role By Id Error Case"
+	ErrMsgGetKeyValue       = "Error From Get Key Value"
+	ErrMsgSetKeyValue       = "Error From Set Key Value"
+	ErrMsgUnmarshal         = "Error while Unmarshalling"
+	ErrMsgMarshal           = "Error while Marshalling"
+	ErrMsgFindRoleById      = "Error From Find Role By Id"
 )
 
 var conn = redigomock.NewConn()
@@ -194,6 +209,7 @@ func TestGetRole(t *testing.T) {
 		args    args
 		want    *models.Role
 		wantErr bool
+		errMsg  error
 	}{
 		{
 			name: SuccessCase,
@@ -202,6 +218,34 @@ func TestGetRole(t *testing.T) {
 				dbQueries: []testutls.QueryData{},
 			},
 			want: role,
+		},
+
+		{
+			name: ErrorGetKeyValue,
+			args: args{
+				roleID:    testutls.MockID,
+				dbQueries: []testutls.QueryData{},
+			},
+			wantErr: true,
+			errMsg:  fmt.Errorf(ErrMsgGetKeyValue),
+		},
+		{
+			name: ErrorUnmarshal,
+			args: args{
+				roleID:    testutls.MockID,
+				dbQueries: []testutls.QueryData{},
+			},
+			wantErr: true,
+			errMsg:  fmt.Errorf(ErrMsgUnmarshal),
+		},
+		{
+			name: ErrorSetKeyValue,
+			args: args{
+				roleID:    testutls.MockID,
+				dbQueries: []testutls.QueryData{},
+			},
+			wantErr: true,
+			errMsg:  fmt.Errorf(ErrMsgSetKeyValue),
 		},
 		{
 			name: SuccessCacheMiss,
@@ -225,9 +269,6 @@ func TestGetRole(t *testing.T) {
 			want: role,
 		},
 	}
-	ApplyFunc(redisDial, func() (redis.Conn, error) {
-		return conn, nil
-	})
 
 	oldDB := boil.GetDB()
 	err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../../../"))
@@ -237,7 +278,34 @@ func TestGetRole(t *testing.T) {
 	mock, db, _ := testutls.SetupMockDB(t)
 
 	for _, tt := range tests {
+		ApplyFunc(redisDial, func() (redis.Conn, error) {
+			return conn, nil
+		})
+
+		if tt.name == ErrorSetKeyValue {
+			patch := gomonkey.ApplyFunc(json.Marshal, func(v any) ([]byte, error) {
+
+				return []byte{}, fmt.Errorf(ErrMsgSetKeyValue)
+
+			})
+
+			defer patch.Reset()
+		}
+
 		t.Run(tt.name, func(t *testing.T) {
+			if tt.name == ErrorGetKeyValue {
+				patch := gomonkey.ApplyFunc(GetKeyValue, func(key string) (interface{}, error) {
+					return nil, fmt.Errorf(ErrMsgGetKeyValue)
+				})
+				defer patch.Reset()
+			}
+
+			if tt.name == ErrorUnmarshal {
+				patchJson := ApplyFunc(json.Unmarshal, func(data []byte, v any) error {
+					return fmt.Errorf(ErrMsgUnmarshal)
+				})
+				defer patchJson.Reset()
+			}
 
 			if tt.args.cacheMiss {
 				conn.Command("GET", fmt.Sprintf("role%d", tt.args.roleID)).Expect(nil)
@@ -276,6 +344,7 @@ func TestIncVisits(t *testing.T) {
 		args    args
 		want    int
 		wantErr bool
+		errMsg  error
 	}{
 		{
 			name: SuccessCase,
@@ -284,12 +353,28 @@ func TestIncVisits(t *testing.T) {
 			},
 			want: 10,
 		},
+		{
+			name: ErrorRedisDial,
+			args: args{
+				path: "test",
+			},
+			wantErr: true,
+			errMsg:  fmt.Errorf(ErrMsgFromRedisDial),
+		},
 	}
 
 	ApplyFunc(redisDial, func() (redis.Conn, error) {
 		return conn, nil
 	})
 	for _, tt := range tests {
+
+		if tt.name == ErrorRedisDial {
+			patch := gomonkey.ApplyFunc(redisDial, func() (redigo.Conn, error) {
+				return nil, fmt.Errorf(ErrMsgFromRedisDial)
+			})
+			defer patch.Reset()
+		}
+
 		t.Run(tt.name, func(t *testing.T) {
 
 			conn.Command("INCR", tt.args.path).Expect([]byte(fmt.Sprint(tt.want)))
@@ -314,13 +399,30 @@ func TestStartVisits(t *testing.T) {
 		args    args
 		want    int
 		wantErr bool
+		errMsg  error
 	}{
+		{
+			name: ErrorConnDo,
+			args: args{
+				path: "test",
+			},
+			wantErr: true,
+			errMsg:  fmt.Errorf(ErrMsgFromConnDo),
+		},
 		{
 			name: SuccessCase,
 			args: args{
 				path: "test",
 			},
 			want: 10,
+		},
+		{
+			name: ErrorRedisDial,
+			args: args{
+				path: "test",
+			},
+			wantErr: true,
+			errMsg:  fmt.Errorf(ErrMsgFromRedisDial),
 		},
 	}
 	ApplyFunc(redisDial, func() (redis.Conn, error) {
@@ -333,8 +435,22 @@ func TestStartVisits(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
 
+		if tt.name == ErrorRedisDial {
+			patch := gomonkey.ApplyFunc(redisDial, func() (redigo.Conn, error) {
+				return nil, fmt.Errorf(ErrMsgFromRedisDial)
+			})
+			defer patch.Reset()
+		}
+
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.name == ErrorConnDo {
+				patch := gomonkey.ApplyMethodFunc(redigomock.NewConn(), "Do",
+					func(commandName string, args ...interface{}) (reply interface{}, err error) {
+						return nil, fmt.Errorf(ErrMsgFromConnDo)
+					})
+				defer patch.Reset()
+			}
 			conn.Command("SETEX", tt.args.path, int(math.Ceil(time.Second.Seconds())), 1).Expect(1)
 			err := StartVisits(tt.args.path, time.Second)
 
