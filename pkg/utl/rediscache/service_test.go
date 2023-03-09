@@ -44,6 +44,7 @@ const (
 	ErrMsgUnmarshal         = "Error while Unmarshalling"
 	ErrMsgMarshal           = "Error while Marshalling"
 	ErrMsgFindRoleById      = "Error From Find Role By Id"
+	ErrorDaos               = "Error daos"
 )
 
 var conn = redigomock.NewConn()
@@ -55,14 +56,110 @@ func TestGetUser(t *testing.T) {
 		dbQueries []testutls.QueryData
 	}
 	tests := []struct {
-		name            string
-		args            args
-		want            *models.User
-		wantErr         bool
-		cacheErr        bool
-		jsonErr         bool
-		findUserByIDErr bool
+		name    string
+		args    args
+		want    *models.User
+		wantErr bool
+		errMsg  error
 	}{
+		{
+			name: ErrorGetKeyValue,
+			args: args{
+				userID:    testutls.MockID,
+				dbQueries: []testutls.QueryData{},
+			},
+			wantErr: true,
+			errMsg:  fmt.Errorf(ErrMsgGetKeyValue),
+		},
+		{
+			name: ErrorUnmarshal,
+			args: args{
+				userID:    testutls.MockID,
+				dbQueries: []testutls.QueryData{},
+			},
+			wantErr: true,
+		},
+		{
+			name: ErrorSetKeyValue,
+			args: args{
+				userID:    testutls.MockID,
+				cacheMiss: true,
+				dbQueries: []testutls.QueryData{
+					{
+						Actions: &[]driver.Value{testutls.MockID},
+						Query:   `select * from "users" where "id"=$1`,
+						DbResponse: sqlmock.NewRows([]string{
+							"id",
+							"first_name",
+							"last_name",
+							"username",
+							"email",
+							"mobile",
+							"address",
+							"token",
+							"password",
+							"role_id",
+							"active",
+						}).AddRow(
+							testutls.MockUser().ID,
+							testutls.MockUser().FirstName,
+							testutls.MockUser().LastName,
+							testutls.MockUser().Username,
+							testutls.MockUser().Email,
+							testutls.MockUser().Mobile,
+							testutls.MockUser().Address,
+							testutls.MockUser().Token,
+							testutls.MockUser().Password,
+							testutls.MockUser().RoleID,
+							testutls.MockUser().Active,
+						),
+					},
+				},
+			},
+			wantErr: true,
+			errMsg:  fmt.Errorf(ErrMsgSetKeyValue),
+		},
+		{
+			name: ErrorDaos,
+			args: args{
+				userID:    testutls.MockID,
+				cacheMiss: true,
+				dbQueries: []testutls.QueryData{
+					{
+						Actions: &[]driver.Value{testutls.MockID},
+						Query:   `select * from "users" where "id"=$1`,
+						DbResponse: sqlmock.NewRows([]string{
+							"id",
+							"first_name",
+							"last_name",
+							"username",
+							"email",
+							"mobile",
+							"address",
+							"token",
+							"password",
+							"role_id",
+							"active",
+						}).AddRow(
+							testutls.MockUser().ID,
+							testutls.MockUser().FirstName,
+							testutls.MockUser().LastName,
+							testutls.MockUser().Username,
+							testutls.MockUser().Email,
+							testutls.MockUser().Mobile,
+							testutls.MockUser().Address,
+							testutls.MockUser().Token,
+							testutls.MockUser().Password,
+							testutls.MockUser().RoleID,
+							testutls.MockUser().Active,
+						).RowError(0, fmt.Errorf("data error")),
+					},
+				},
+			},
+			wantErr: true,
+			errMsg:  fmt.Errorf(ErrMsgSetKeyValue),
+		},
+
 		{
 			name: SuccessCase,
 			args: args{
@@ -116,22 +213,8 @@ func TestGetUser(t *testing.T) {
 				userID:    testutls.MockID,
 				dbQueries: []testutls.QueryData{},
 			},
-			cacheErr: true,
-		},
-		{
-			name: ErrorFromJson,
-			args: args{
-				userID:    testutls.MockID,
-				dbQueries: []testutls.QueryData{},
-			},
-			wantErr: true,
-			jsonErr: true,
 		},
 	}
-
-	ApplyFunc(redisDial, func() (redis.Conn, error) {
-		return conn, nil
-	})
 
 	oldDB := boil.GetDB()
 	err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../../../"))
@@ -141,28 +224,18 @@ func TestGetUser(t *testing.T) {
 	mock, db, _ := testutls.SetupMockDB(t)
 
 	for _, tt := range tests {
-		if tt.cacheErr {
-			patch := gomonkey.ApplyFunc(redis.Dial, func(network string,
-				address string, options ...redis.DialOption) (redis.Conn, error) {
-				return nil, fmt.Errorf("cached user value error")
-			})
-			defer patch.Reset()
-		} else {
-			patch := gomonkey.ApplyFunc(redis.Dial, func(network string,
-				address string, options ...redis.DialOption) (redis.Conn, error) {
-				return conn, nil
-			})
-			defer patch.Reset()
-		}
-		if tt.jsonErr {
-			patchJson := ApplyFunc(json.Marshal, func(v any) ([]byte, error) {
-				return []byte{}, fmt.Errorf("json error")
-			})
-			defer patchJson.Reset()
-		}
+		ApplyFunc(redisDial, func() (redis.Conn, error) {
+			return conn, nil
+		})
 
 		t.Run(tt.name, func(t *testing.T) {
 
+			if tt.name == ErrorUnmarshal {
+				patchJson := ApplyFunc(json.Marshal, func(v any) ([]byte, error) {
+					return []byte{}, fmt.Errorf("json error")
+				})
+				defer patchJson.Reset()
+			}
 			if tt.args.cacheMiss {
 				conn.Command("GET", fmt.Sprintf("user%d", tt.args.userID)).Expect(nil)
 
@@ -173,6 +246,13 @@ func TestGetUser(t *testing.T) {
 						WithArgs(*dbQuery.Actions...).
 						WillReturnRows(dbQuery.DbResponse)
 				}
+			} else if tt.name == ErrorGetKeyValue {
+				log.Print("enter get loop")
+				conn.Command("GET", fmt.Sprintf("role%d", tt.args.userID)).ExpectError(fmt.Errorf("error"))
+
+			} else if tt.name == ErrorSetKeyValue {
+				log.Print("enter set loop")
+				conn.Command("GET", fmt.Sprintf("role%d", tt.args.userID)).Expect(nil)
 			} else {
 				b, _ := json.Marshal(tt.want)
 				conn.Command("GET", fmt.Sprintf("user%d", tt.args.userID)).Expect(b)
@@ -192,18 +272,19 @@ func TestGetUser(t *testing.T) {
 	boil.SetDB(oldDB)
 	db.Close()
 }
-
 func TestGetRole(t *testing.T) {
 	type args struct {
 		roleID    int
 		cacheMiss bool
 		dbQueries []testutls.QueryData
 	}
+
 	var role = &models.Role{
 		ID:          1,
 		AccessLevel: 100,
 		Name:        "Admin",
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -211,15 +292,6 @@ func TestGetRole(t *testing.T) {
 		wantErr bool
 		errMsg  error
 	}{
-		{
-			name: SuccessCase,
-			args: args{
-				roleID:    testutls.MockID,
-				dbQueries: []testutls.QueryData{},
-			},
-			want: role,
-		},
-
 		{
 			name: ErrorGetKeyValue,
 			args: args{
@@ -242,10 +314,53 @@ func TestGetRole(t *testing.T) {
 			name: ErrorSetKeyValue,
 			args: args{
 				roleID:    testutls.MockID,
-				dbQueries: []testutls.QueryData{},
+				cacheMiss: true,
+				dbQueries: []testutls.QueryData{
+					{
+						Actions: &[]driver.Value{role.ID},
+						Query:   `select * from "roles" where "id"=$1`,
+						DbResponse: sqlmock.NewRows([]string{
+							"id", "access_level", "name",
+						}).AddRow(
+							role.ID,
+							role.AccessLevel,
+							role.Name,
+						),
+					},
+				},
 			},
 			wantErr: true,
 			errMsg:  fmt.Errorf(ErrMsgSetKeyValue),
+		},
+		{
+			name: ErrorFindRoleById,
+			args: args{
+				roleID:    testutls.MockID,
+				cacheMiss: true,
+				dbQueries: []testutls.QueryData{
+					{
+						Actions: &[]driver.Value{role.ID},
+						Query:   `select * from "roles" where "id"=$1`,
+						DbResponse: sqlmock.NewRows([]string{
+							"id", "access_level", "name",
+						}).AddRow(
+							role.ID,
+							role.AccessLevel,
+							role.Name,
+						).RowError(0, fmt.Errorf("data error")),
+					},
+				},
+			},
+			wantErr: true,
+			errMsg:  fmt.Errorf(ErrMsgSetKeyValue),
+		},
+		{
+			name: SuccessCase,
+			args: args{
+				roleID:    testutls.MockID,
+				dbQueries: []testutls.QueryData{},
+			},
+			want: role,
 		},
 		{
 			name: SuccessCacheMiss,
@@ -278,27 +393,12 @@ func TestGetRole(t *testing.T) {
 	mock, db, _ := testutls.SetupMockDB(t)
 
 	for _, tt := range tests {
+
 		ApplyFunc(redisDial, func() (redis.Conn, error) {
 			return conn, nil
 		})
 
-		if tt.name == ErrorSetKeyValue {
-			patch := gomonkey.ApplyFunc(json.Marshal, func(v any) ([]byte, error) {
-
-				return []byte{}, fmt.Errorf(ErrMsgSetKeyValue)
-
-			})
-
-			defer patch.Reset()
-		}
-
 		t.Run(tt.name, func(t *testing.T) {
-			if tt.name == ErrorGetKeyValue {
-				patch := gomonkey.ApplyFunc(GetKeyValue, func(key string) (interface{}, error) {
-					return nil, fmt.Errorf(ErrMsgGetKeyValue)
-				})
-				defer patch.Reset()
-			}
 
 			if tt.name == ErrorUnmarshal {
 				patchJson := ApplyFunc(json.Unmarshal, func(data []byte, v any) error {
@@ -317,10 +417,16 @@ func TestGetRole(t *testing.T) {
 						WithArgs(*dbQuery.Actions...).
 						WillReturnRows(dbQuery.DbResponse)
 				}
+
+			} else if tt.name == ErrorGetKeyValue {
+				conn.Command("GET", fmt.Sprintf("role%d", tt.args.roleID)).ExpectError(fmt.Errorf("error"))
+			} else if tt.name == ErrorSetKeyValue {
+				conn.Command("GET", fmt.Sprintf("role%d", tt.args.roleID)).Expect(nil)
 			} else {
 				b, _ := json.Marshal(tt.want)
 				conn.Command("GET", fmt.Sprintf("role%d", tt.args.roleID)).Expect(b)
 			}
+
 			got, err := GetRole(tt.args.roleID, context.Background())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetRole() error = %v, wantErr %v", err, tt.wantErr)
@@ -334,7 +440,6 @@ func TestGetRole(t *testing.T) {
 	boil.SetDB(oldDB)
 	db.Close()
 }
-
 func TestIncVisits(t *testing.T) {
 	type args struct {
 		path string
