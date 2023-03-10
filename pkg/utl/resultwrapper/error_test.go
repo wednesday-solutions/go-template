@@ -2,7 +2,6 @@ package resultwrapper_test
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -135,7 +134,6 @@ func TestResultWrapper(t *testing.T) {
 			if tt.name == ErrorCase {
 
 				patch := gomonkey.ApplyMethodFunc(ctx, "JSON", func(code int, i interface{}) error {
-					log.Println("loop call success")
 					return fmt.Errorf("error")
 				})
 				defer patch.Reset()

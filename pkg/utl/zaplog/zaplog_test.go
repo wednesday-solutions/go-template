@@ -14,7 +14,8 @@ import (
 )
 
 const (
-	ErrorFromProduction = "Error  producton"
+	ErrorFromProduction = "Error production"
+	ErrMsgProduction    = "ZAP_NEW_PRODUCTION_ERROR"
 	InformationTest     = "test info"
 	InfoMessage         = "This is an info log"
 	DebugMessage        = "This is a debug log"
@@ -134,7 +135,7 @@ func TestInitLogger(t *testing.T) {
 
 			patchProduction := gomonkey.ApplyFunc(zap.NewProduction, func(options ...zap.Option) (*zap.Logger, error) {
 				if tt.panicErr {
-					return &mockZapLog, fmt.Errorf("ZAP_NEW_PRODUCTION_ERROR")
+					return &mockZapLog, fmt.Errorf(ErrMsgProduction)
 				} else {
 					return &mockZapLog, nil
 				}

@@ -247,11 +247,9 @@ func TestGetUser(t *testing.T) {
 						WillReturnRows(dbQuery.DbResponse)
 				}
 			} else if tt.name == ErrorGetKeyValue {
-				log.Print("enter get loop")
-				conn.Command("GET", fmt.Sprintf("role%d", tt.args.userID)).ExpectError(fmt.Errorf("error"))
+				conn.Command("GET", fmt.Sprintf("role%d", tt.args.userID)).ExpectError(fmt.Errorf(ErrMsgGetKeyValue))
 
 			} else if tt.name == ErrorSetKeyValue {
-				log.Print("enter set loop")
 				conn.Command("GET", fmt.Sprintf("role%d", tt.args.userID)).Expect(nil)
 			} else {
 				b, _ := json.Marshal(tt.want)
@@ -419,7 +417,7 @@ func TestGetRole(t *testing.T) {
 				}
 
 			} else if tt.name == ErrorGetKeyValue {
-				conn.Command("GET", fmt.Sprintf("role%d", tt.args.roleID)).ExpectError(fmt.Errorf("error"))
+				conn.Command("GET", fmt.Sprintf("role%d", tt.args.roleID)).ExpectError(fmt.Errorf(ErrMsgGetKeyValue))
 			} else if tt.name == ErrorSetKeyValue {
 				conn.Command("GET", fmt.Sprintf("role%d", tt.args.roleID)).Expect(nil)
 			} else {
