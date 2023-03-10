@@ -17,6 +17,7 @@ import (
 const (
 	SuccessCase = "Success"
 	ErrorCase   = "error from json"
+	ErrMsgJSON  = "Error from JSON"
 )
 
 func TestSplitByLabel(t *testing.T) {
@@ -120,7 +121,7 @@ func TestResultWrapper(t *testing.T) {
 			name: ErrorCase,
 			args: args{
 				errorCode: 400,
-				err:       fmt.Errorf("error"),
+				err:       fmt.Errorf(ErrMsgJSON),
 			},
 			wantErr: true,
 		},
@@ -134,7 +135,7 @@ func TestResultWrapper(t *testing.T) {
 			if tt.name == ErrorCase {
 
 				patch := gomonkey.ApplyMethodFunc(ctx, "JSON", func(code int, i interface{}) error {
-					return fmt.Errorf("error")
+					return fmt.Errorf(ErrMsgJSON)
 				})
 				defer patch.Reset()
 			}
