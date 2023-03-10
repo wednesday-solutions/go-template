@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/stretchr/testify/assert"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
@@ -64,6 +65,13 @@ func TestRoleToGraphqlRole(t *testing.T) {
 				ID: "1",
 			},
 		},
+		{
+			name: SuccessCase,
+			args: args{
+				u: nil,
+			},
+			want: nil,
+		},
 	}
 
 	db, _, err := sqlmock.New()
@@ -79,6 +87,28 @@ func TestRoleToGraphqlRole(t *testing.T) {
 			if got := RoleToGraphqlRole(tt.args.u, 1); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("RoleToGraphqlRole() = %v, want %v", got, tt.want)
 			}
+		})
+	}
+}
+
+func TestUserToGraphQlUser(t *testing.T) {
+	tests := []struct {
+		name string
+		req  *models.User
+		want *graphql.User
+	}{
+
+		{
+			name: SuccessCase,
+			req:  nil,
+			want: nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := UserToGraphQlUser(tt.req, 0)
+			assert.Equal(t, got, tt.want)
+
 		})
 	}
 }
