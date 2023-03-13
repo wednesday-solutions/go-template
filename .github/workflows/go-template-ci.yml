@@ -33,12 +33,6 @@ jobs:
         run:  go build ./...
       - name: Test
         run:  ./scripts/test.sh
-      - uses: codecov/codecov-action@v2
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          fail_ci_if_error: true
-          files: ./coverage.out
-          verbose: true
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         env:
