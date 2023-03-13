@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - master
+      - feat/sonar-ec2
 
 
 jobs:
