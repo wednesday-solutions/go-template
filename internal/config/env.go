@@ -69,6 +69,7 @@ func LoadEnvWithFilePrefix(fileprefix *string) error {
 		envName = "local"
 	}
 	log.Println(envName)
+	log.Println("testthis")
 
 	envVarInjection := GetBool("ENV_INJECTION")
 	if !envVarInjection || envName == "local" {
