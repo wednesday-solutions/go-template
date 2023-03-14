@@ -14,7 +14,6 @@ import (
 
 func stripFileExtension(fileName string) string {
 	s := strings.TrimRight(fileName, ".go")
-	fmt.Println("aserorr while loading the env")
 	return s
 }
 
