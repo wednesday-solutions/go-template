@@ -64,12 +64,10 @@ func TestSetKeyValue(t *testing.T) {
 		key  string
 		data interface{}
 	}
-	// user := testutls.MockUser()
 	tests := []struct {
 		name    string
 		args    args
 		wantErr bool
-		jsonErr bool
 	}{
 		{
 			name: SuccessCase,
@@ -87,13 +85,12 @@ func TestSetKeyValue(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "json error",
+			name: ErrorMarshal,
 			args: args{
-				key:  "user10",
+				key:  "",
 				data: 1,
 			},
 			wantErr: true,
-			jsonErr: true,
 		},
 	}
 	ApplyFunc(redigo.Dial, func(string, string, ...redis.DialOption) (redis.Conn, error) {
@@ -102,19 +99,18 @@ func TestSetKeyValue(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+
 			var patches *Patches
 			b, _ := json.Marshal(tt.args.data)
-			if tt.wantErr {
+			if tt.name == FailedCase {
 				patches = ApplyFunc(redigo.Dial, func(string, string, ...redis.DialOption) (redis.Conn, error) {
 					return nil, fmt.Errorf("some error")
 				})
 			}
-
-			if tt.jsonErr {
+			if tt.name == ErrorMarshal {
 				patchJson := ApplyFunc(json.Marshal, func(v any) ([]byte, error) {
-					return []byte{}, fmt.Errorf("json error")
+					return nil, fmt.Errorf(ErrMsgMarshal)
 				})
-
 				defer patchJson.Reset()
 			}
 			redigoConn.Command("SET", tt.args.key, string(b)).Expect("something")
