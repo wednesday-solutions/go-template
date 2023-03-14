@@ -28,27 +28,25 @@ jobs:
           go install golang.org/x/lint/golint@latest
           go install github.com/BurntSushi/toml/cmd/tomlv@latest
           go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-
       - uses: pre-commit/action@v3.0.0
       - name: Build
         run:  go build ./...
       - name: Test
         run:  ./scripts/test.sh
-      - uses: codecov/codecov-action@v2
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          fail_ci_if_error: true
-          files: ./coverage.out
-          verbose: true
-      # - name: SonarCloud Scan
-      #   uses: sonarsource/sonarcloud-github-action@master
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      #   with:
-      #     args: >
-      #       -Dsonar.organization=${{ secrets.SONAR_ORG}}
-      #       -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY}}
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      - uses: sonarsource/sonarqube-quality-gate-action@master
+        timeout-minutes: 5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+#           testing image url
+      
   golangci-lint:
     runs-on: ubuntu-latest
     steps:
