@@ -15,26 +15,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v3
+        with:
+          depth: 0
       - name: Install Go
         uses: actions/setup-go@v3
         with:
           go-version: 1.19
-      - name: Install pre-commit dependencies
-        run: |
-          go install github.com/fzipp/gocyclo/cmd/gocyclo@latest
-          go install golang.org/x/tools/cmd/goimports@latest
-          go install github.com/go-critic/go-critic/cmd/gocritic@latest
-          go install golang.org/x/lint/golint@latest
-          go install github.com/BurntSushi/toml/cmd/tomlv@latest
-          go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-      - uses: pre-commit/action@v3.0.0
-      - name: Build
-        run:  go build ./...
+      - name: Get branch name
+        id: vars
+        run: echo ::set-output name=branch::${{ github.event.pull_request.head.ref }}
       - name: Test
         run:  ./scripts/test.sh
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
+        with:
+          args: >
+            -Dsonar.branch.name=${{ steps.vars.outputs.branch }}
+            -Dsonar.scm.revision=${{ github.event.pull_request.head.sha }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -45,6 +42,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+#           testing image url
       
   golangci-lint:
     runs-on: ubuntu-latest
