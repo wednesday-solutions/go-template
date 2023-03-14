@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          depth: 0
+          fetch-depth: 0
       - uses: actions/setup-python@v3
       - name: Install Go
         uses: actions/setup-go@v3
@@ -49,7 +49,6 @@ jobs:
         uses: sonarsource/sonarqube-scan-action@master
         with:
           args: >
-            -Dsonar.branch.name=${{ steps.vars.outputs.branch }}
             -Dsonar.scm.revision=${{ github.event.pull_request.head.sha }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
