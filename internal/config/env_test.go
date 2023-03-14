@@ -187,6 +187,11 @@ func TestLoadEnv(t *testing.T) {
 			args:    args{env: "local", tapped: false},
 		},
 		{
+			name:    "Env varInjection Error",
+			wantErr: true,
+			args:    args{env: "local", tapped: false},
+		},
+		{
 			name:    "dbCredsInjected True",
 			wantErr: true,
 			args:    args{env: "", tapped: false},
@@ -227,13 +232,17 @@ func TestLoadEnv(t *testing.T) {
 			// togglel whenever this file is loaded
 			tt.args.tapped = true
 			if tt.args.err == "" {
+
+				if tt.name == "Env varInjection Error" && len(filenames) > 0 && filenames[0] == ".env.local" {
+					return fmt.Errorf(tt.args.err)
+				}
+
 				return nil
 			}
 			return fmt.Errorf(tt.args.err)
 
 		})
 		os.Setenv("ENVIRONMENT_NAME", tt.args.env)
-
 		if tt.args.dbSecret != "" {
 			os.Setenv("DB_SECRET", tt.args.dbSecret)
 		}
