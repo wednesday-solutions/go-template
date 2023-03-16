@@ -139,10 +139,19 @@ func TestFileName(t *testing.T) {
 			name: "Successfully get .env.local",
 			want: ".env.local",
 		},
+		{
+			name: "nil env",
+			want: ".env",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			os.Setenv("ENVIRONMENT_NAME", "local")
+			if tt.name == "nil env" {
+				os.Setenv("ENVIRONMENT_NAME", "")
+			} else {
+				os.Setenv("ENVIRONMENT_NAME", "local")
+			}
+
 			if got := FileName(); got != tt.want {
 				t.Errorf("FileName() = %v, want %v", got, tt.want)
 			}
@@ -177,6 +186,16 @@ func TestLoadEnv(t *testing.T) {
 			wantErr: false,
 			args:    args{env: "local", tapped: false},
 		},
+		{
+			name:    "Env varInjection Error",
+			wantErr: true,
+			args:    args{env: "local", tapped: false},
+		},
+		{
+			name:    "dbCredsInjected True",
+			wantErr: true,
+			args:    args{env: "", tapped: false},
+		},
 
 		{
 			name:    "Successfully load develop env",
@@ -189,7 +208,14 @@ func TestLoadEnv(t *testing.T) {
 					`"port":%s}`, username, host, dbname, password, port),
 			},
 		},
-
+		{
+			name:    "dbCredsInjected True",
+			wantErr: false,
+			args: args{env: "", tapped: false, dbSecret: fmt.Sprintf(`{"username":"%s",`+
+				`"host":"%s","dbname":"%s","password":"%s",`+
+				`"port":%s}`, username, host, dbname, password, port),
+			},
+		},
 		{
 			name:    "Failed to load env",
 			wantErr: true,
@@ -201,21 +227,32 @@ func TestLoadEnv(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+
 		ApplyFunc(godotenv.Load, func(filenames ...string) (err error) {
 			// togglel whenever this file is loaded
 			tt.args.tapped = true
 			if tt.args.err == "" {
+
+				if tt.name == "Env varInjection Error" && len(filenames) > 0 && filenames[0] == ".env.local" {
+					return fmt.Errorf(tt.args.err)
+				}
+
 				return nil
 			}
 			return fmt.Errorf(tt.args.err)
 
 		})
 		os.Setenv("ENVIRONMENT_NAME", tt.args.env)
-
 		if tt.args.dbSecret != "" {
 			os.Setenv("DB_SECRET", tt.args.dbSecret)
 		}
 		t.Run(tt.name, func(t *testing.T) {
+			if tt.name == "dbCredsInjected True" {
+				ApplyFunc(GetBool, func(key string) bool {
+					return true
+				})
+			}
+
 			tapped := tt.args.tapped
 
 			if err := LoadEnv(); (err != nil) != tt.wantErr {

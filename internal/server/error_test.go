@@ -173,7 +173,7 @@ func Test_customErrHandler_handler(t *testing.T) {
 					EXPECT().
 					JSON(gomock.Eq(tt.args.expectedStatusCode), gomock.Any()).
 					DoAndReturn(func(code int, i interface{}) error {
-						return nil
+						return fmt.Errorf("error")
 					}).
 					AnyTimes()
 			}
