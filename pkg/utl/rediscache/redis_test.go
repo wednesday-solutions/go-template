@@ -21,7 +21,7 @@ const (
 
 func Test_redisDial(t *testing.T) {
 
-
+	// dummy comment
 	tests := []struct {
 		name    string
 		want    redigo.Conn
