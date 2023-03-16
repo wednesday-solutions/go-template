@@ -15,11 +15,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v3
       - name: Install Go
         uses: actions/setup-go@v3
         with:
           go-version: 1.19
+      - name: Get branch name
+        id: vars
+        run: echo ::set-output name=branch::${{ github.event.pull_request.head.ref }}
       - name: Install pre-commit dependencies
         run: |
           go install github.com/fzipp/gocyclo/cmd/gocyclo@latest
@@ -34,21 +39,29 @@ jobs:
         run:  go build ./...
       - name: Test
         run:  ./scripts/test.sh
-      - uses: codecov/codecov-action@v2
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          fail_ci_if_error: true
-          files: ./coverage.out
-          verbose: true
-      # - name: SonarCloud Scan
-      #   uses: sonarsource/sonarcloud-github-action@master
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      # - uses: codecov/codecov-action@v2
       #   with:
-      #     args: >
-      #       -Dsonar.organization=${{ secrets.SONAR_ORG}}
-      #       -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY}}
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     fail_ci_if_error: true
+      #     files: ./coverage.out
+      #     verbose: true
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        with:
+          args: >
+            -Dsonar.scm.revision=${{ github.event.pull_request.head.sha }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      - uses: sonarsource/sonarqube-quality-gate-action@master
+        timeout-minutes: 5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+#           testing image url
+      
   golangci-lint:
     runs-on: ubuntu-latest
     steps:
