@@ -2,6 +2,7 @@ package jwt_test
 
 import (
 	"database/sql/driver"
+	"fmt"
 	"log"
 	"regexp"
 	"strings"
@@ -82,6 +83,7 @@ func TestGenerateToken(t *testing.T) {
 		req          models.User
 		wantErr      bool
 		want         string
+		RoleErr      bool
 	}{
 		"invalid algo": {
 			algo:    "invalid",
@@ -113,6 +115,17 @@ func TestGenerateToken(t *testing.T) {
 			},
 			want: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
 		},
+		"Error from Role.One": {
+			algo:         "HS256",
+			secret:       "g0r$kt3$t1ng",
+			minSecretLen: 1,
+			req: models.User{
+				RoleID:   null.IntFrom(1),
+				Username: null.StringFrom("johndoe"),
+				Email:    null.StringFrom("johndoe@mail.com"),
+			},
+			RoleErr: true,
+		},
 	}
 
 	err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../../"))
@@ -125,11 +138,19 @@ func TestGenerateToken(t *testing.T) {
 	}
 	rows := sqlmock.NewRows([]string{"id", "name"}).AddRow(1, "johndoe")
 
-	mock.ExpectQuery(regexp.QuoteMeta(`SELECT "roles".* FROM "roles" WHERE ("id" = $1) LIMIT 1`)).
-		WithArgs([]driver.Value{1}...).
-		WillReturnRows(rows)
 	for name, tt := range cases {
+
 		t.Run(name, func(t *testing.T) {
+			if tt.RoleErr == true {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT "roles".* FROM "roles" WHERE ("id" = $1) LIMIT 1`)).
+					WithArgs([]driver.Value{1}...).
+					WillReturnError(fmt.Errorf("Error from Role.One"))
+			} else {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT "roles".* FROM "roles" WHERE ("id" = $1) LIMIT 1`)).
+					WithArgs([]driver.Value{1}...).
+					WillReturnRows(rows)
+			}
+
 			jwtSvc, err := jwt.New(tt.algo, tt.secret, 60, tt.minSecretLen)
 			assert.Equal(t, tt.wantErr, err != nil)
 			if err == nil && !tt.wantErr {
