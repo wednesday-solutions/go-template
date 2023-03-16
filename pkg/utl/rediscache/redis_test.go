@@ -21,6 +21,7 @@ const (
 
 func Test_redisDial(t *testing.T) {
 
+
 	tests := []struct {
 		name    string
 		want    redigo.Conn
