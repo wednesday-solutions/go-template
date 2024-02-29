@@ -1,0 +1,3 @@
+extend type Query {
+    posts(input:PostQueryInput, pagination: PostsPagination): PostsPayload!
+}

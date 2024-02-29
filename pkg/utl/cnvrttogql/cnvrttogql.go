@@ -70,3 +70,52 @@ func RoleToGraphqlRole(r *models.Role, count int) *graphql.Role {
 		Users:       UsersToGraphQlUsers(users, count),
 	}
 }
+
+func AuthorsToGraphQlAuthors(u models.AuthorSlice) []*graphql.Author {
+	var r []*graphql.Author
+	for _, e := range u {
+		r = append(r, AuthorToGraphQlAuthor(e))
+	}
+	return r
+}
+func AuthorToGraphQlAuthor(u *models.Author) *graphql.Author {
+	if u == nil {
+		return nil
+	}
+	return &graphql.Author{
+		ID:        strconv.Itoa(u.ID),
+		FirstName: convert.NullDotStringToPointerString(u.FirstName),
+		LastName:  convert.NullDotStringToPointerString(u.LastName),
+		Email:     convert.NullDotStringToPointerString(u.Email),
+	}
+}
+
+// PostsToGraphQlPosts converts type models.Post into pointer type graphql.Post
+func PostsToGraphQlPosts(u models.PostSlice, count int64) []*graphql.Post {
+	var r []*graphql.Post
+	for _, e := range u {
+		r = append(r, PostToGraphQlPost(e, count))
+	}
+	return r
+}
+
+// PostToGraphQlPost converts type models.Post into pointer type graphql.Post
+func PostToGraphQlPost(u *models.Post, count int64) *graphql.Post {
+	count++
+	if u == nil {
+		return nil
+	}
+	var author *models.Author
+	if count <= constants.MaxDepth {
+		u.L.LoadAuthor(context.Background(), boil.GetContextDB(), true, u, nil) //nolint:errcheck
+		if u.R != nil {
+			author = u.R.Author
+		}
+	}
+
+	return &graphql.Post{
+		ID:     strconv.Itoa(u.ID),
+		Author: AuthorToGraphQlAuthor(author),
+		Post:   &u.Post,
+	}
+}

@@ -2,10 +2,80 @@
 
 package gqlmodels
 
+type Author struct {
+	ID        string  `json:"id"`
+	FirstName *string `json:"firstName,omitempty"`
+	LastName  *string `json:"lastName,omitempty"`
+	Email     *string `json:"email,omitempty"`
+	CreatedAt *int    `json:"createdAt,omitempty"`
+	DeletedAt *int    `json:"deletedAt,omitempty"`
+	UpdatedAt *int    `json:"updatedAt,omitempty"`
+}
+
+type AuthorCreateInput struct {
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+	Email     string `json:"email"`
+}
+
+type AuthorDeleteInput struct {
+	ID string `json:"id"`
+}
+
+type AuthorDeletePayload struct {
+	ID string `json:"id"`
+}
+
+type AuthorFilter struct {
+	Search *string      `json:"search,omitempty"`
+	Where  *AuthorWhere `json:"where,omitempty"`
+}
+
+type AuthorPagination struct {
+	Limit int `json:"limit"`
+	Page  int `json:"page"`
+}
+
+type AuthorPayload struct {
+	Author *Author `json:"author"`
+}
+
+type AuthorQueryInput struct {
+	ID string `json:"id"`
+}
+
+type AuthorUpdateInput struct {
+	ID        string  `json:"id"`
+	FirstName *string `json:"firstName,omitempty"`
+	LastName  *string `json:"lastName,omitempty"`
+	Email     *string `json:"email,omitempty"`
+}
+
+type AuthorWhere struct {
+	ID        *IDFilter     `json:"id,omitempty"`
+	FirstName *StringFilter `json:"firstName,omitempty"`
+	LastName  *StringFilter `json:"lastName,omitempty"`
+	Email     *StringFilter `json:"email,omitempty"`
+	CreatedAt *IntFilter    `json:"createdAt,omitempty"`
+	DeletedAt *IntFilter    `json:"deletedAt,omitempty"`
+	UpdatedAt *IntFilter    `json:"updatedAt,omitempty"`
+	Or        *AuthorWhere  `json:"or,omitempty"`
+	And       *AuthorWhere  `json:"and,omitempty"`
+}
+
+type AuthorsCreateInput struct {
+	Authors []*AuthorCreateInput `json:"authors"`
+}
+
+type AuthorsPayload struct {
+	Authors []*Author `json:"authors"`
+	Total   int       `json:"total"`
+}
+
 type BooleanFilter struct {
-	IsTrue  *bool `json:"isTrue"`
-	IsFalse *bool `json:"isFalse"`
-	IsNull  *bool `json:"isNull"`
+	IsTrue  *bool `json:"isTrue,omitempty"`
+	IsFalse *bool `json:"isFalse,omitempty"`
+	IsNull  *bool `json:"isNull,omitempty"`
 }
 
 type ChangePasswordResponse struct {
@@ -13,37 +83,103 @@ type ChangePasswordResponse struct {
 }
 
 type FloatFilter struct {
-	EqualTo           *float64  `json:"equalTo"`
-	NotEqualTo        *float64  `json:"notEqualTo"`
-	LessThan          *float64  `json:"lessThan"`
-	LessThanOrEqualTo *float64  `json:"lessThanOrEqualTo"`
-	MoreThan          *float64  `json:"moreThan"`
-	MoreThanOrEqualTo *float64  `json:"moreThanOrEqualTo"`
-	In                []float64 `json:"in"`
-	NotIn             []float64 `json:"notIn"`
+	EqualTo           *float64  `json:"equalTo,omitempty"`
+	NotEqualTo        *float64  `json:"notEqualTo,omitempty"`
+	LessThan          *float64  `json:"lessThan,omitempty"`
+	LessThanOrEqualTo *float64  `json:"lessThanOrEqualTo,omitempty"`
+	MoreThan          *float64  `json:"moreThan,omitempty"`
+	MoreThanOrEqualTo *float64  `json:"moreThanOrEqualTo,omitempty"`
+	In                []float64 `json:"in,omitempty"`
+	NotIn             []float64 `json:"notIn,omitempty"`
 }
 
 type IDFilter struct {
-	EqualTo    *string  `json:"equalTo"`
-	NotEqualTo *string  `json:"notEqualTo"`
-	In         []string `json:"in"`
-	NotIn      []string `json:"notIn"`
+	EqualTo    *string  `json:"equalTo,omitempty"`
+	NotEqualTo *string  `json:"notEqualTo,omitempty"`
+	In         []string `json:"in,omitempty"`
+	NotIn      []string `json:"notIn,omitempty"`
 }
 
 type IntFilter struct {
-	EqualTo           *int  `json:"equalTo"`
-	NotEqualTo        *int  `json:"notEqualTo"`
-	LessThan          *int  `json:"lessThan"`
-	LessThanOrEqualTo *int  `json:"lessThanOrEqualTo"`
-	MoreThan          *int  `json:"moreThan"`
-	MoreThanOrEqualTo *int  `json:"moreThanOrEqualTo"`
-	In                []int `json:"in"`
-	NotIn             []int `json:"notIn"`
+	EqualTo           *int  `json:"equalTo,omitempty"`
+	NotEqualTo        *int  `json:"notEqualTo,omitempty"`
+	LessThan          *int  `json:"lessThan,omitempty"`
+	LessThanOrEqualTo *int  `json:"lessThanOrEqualTo,omitempty"`
+	MoreThan          *int  `json:"moreThan,omitempty"`
+	MoreThanOrEqualTo *int  `json:"moreThanOrEqualTo,omitempty"`
+	In                []int `json:"in,omitempty"`
+	NotIn             []int `json:"notIn,omitempty"`
 }
 
 type LoginResponse struct {
 	Token        string `json:"token"`
 	RefreshToken string `json:"refreshToken"`
+}
+
+type Mutation struct {
+}
+
+type Post struct {
+	ID        string  `json:"id"`
+	Author    *Author `json:"author,omitempty"`
+	Post      *string `json:"post,omitempty"`
+	CreatedAt *int    `json:"createdAt,omitempty"`
+	DeletedAt *int    `json:"deletedAt,omitempty"`
+	UpdatedAt *int    `json:"updatedAt,omitempty"`
+}
+
+type PostCreateInput struct {
+	Post     string `json:"post"`
+	AuthorID string `json:"authorId"`
+}
+
+type PostDeleteInput struct {
+	ID string `json:"id"`
+}
+
+type PostDeletePayload struct {
+	ID string `json:"id"`
+}
+
+type PostQueryInput struct {
+	AuthorID int `json:"authorId"`
+}
+
+type PostUpdateInput struct {
+	ID   string  `json:"id"`
+	Post *string `json:"post,omitempty"`
+}
+
+type PostsCreateInput struct {
+	Posts []*PostsCreateInput `json:"posts"`
+}
+
+type PostsFilter struct {
+	Search *string     `json:"search,omitempty"`
+	Where  *PostsWhere `json:"where,omitempty"`
+}
+
+type PostsPagination struct {
+	Limit int `json:"limit"`
+	Page  int `json:"page"`
+}
+
+type PostsPayload struct {
+	Posts []*Post `json:"posts"`
+	Total int     `json:"total"`
+}
+
+type PostsWhere struct {
+	ID        *IDFilter    `json:"id,omitempty"`
+	Author    *AuthorWhere `json:"author,omitempty"`
+	CreatedAt *IntFilter   `json:"createdAt,omitempty"`
+	DeletedAt *IntFilter   `json:"deletedAt,omitempty"`
+	UpdatedAt *IntFilter   `json:"updatedAt,omitempty"`
+	Or        *PostsWhere  `json:"or,omitempty"`
+	And       *PostsWhere  `json:"and,omitempty"`
+}
+
+type Query struct {
 }
 
 type RefreshTokenResponse struct {
@@ -54,10 +190,10 @@ type Role struct {
 	ID          string  `json:"id"`
 	AccessLevel int     `json:"accessLevel"`
 	Name        string  `json:"name"`
-	UpdatedAt   *int    `json:"updatedAt"`
-	DeletedAt   *int    `json:"deletedAt"`
-	CreatedAt   *int    `json:"createdAt"`
-	Users       []*User `json:"users"`
+	UpdatedAt   *int    `json:"updatedAt,omitempty"`
+	DeletedAt   *int    `json:"deletedAt,omitempty"`
+	CreatedAt   *int    `json:"createdAt,omitempty"`
+	Users       []*User `json:"users,omitempty"`
 }
 
 type RoleCreateInput struct {
@@ -70,8 +206,8 @@ type RoleDeletePayload struct {
 }
 
 type RoleFilter struct {
-	Search *string    `json:"search"`
-	Where  *RoleWhere `json:"where"`
+	Search *string    `json:"search,omitempty"`
+	Where  *RoleWhere `json:"where,omitempty"`
 }
 
 type RolePagination struct {
@@ -84,23 +220,23 @@ type RolePayload struct {
 }
 
 type RoleUpdateInput struct {
-	AccessLevel *int    `json:"accessLevel"`
-	Name        *string `json:"name"`
-	UpdatedAt   *int    `json:"updatedAt"`
-	DeletedAt   *int    `json:"deletedAt"`
-	CreatedAt   *int    `json:"createdAt"`
+	AccessLevel *int    `json:"accessLevel,omitempty"`
+	Name        *string `json:"name,omitempty"`
+	UpdatedAt   *int    `json:"updatedAt,omitempty"`
+	DeletedAt   *int    `json:"deletedAt,omitempty"`
+	CreatedAt   *int    `json:"createdAt,omitempty"`
 }
 
 type RoleWhere struct {
-	ID          *IDFilter     `json:"id"`
-	AccessLevel *IntFilter    `json:"accessLevel"`
-	Name        *StringFilter `json:"name"`
-	UpdatedAt   *IntFilter    `json:"updatedAt"`
-	DeletedAt   *IntFilter    `json:"deletedAt"`
-	CreatedAt   *IntFilter    `json:"createdAt"`
-	Users       *UserWhere    `json:"users"`
-	Or          *RoleWhere    `json:"or"`
-	And         *RoleWhere    `json:"and"`
+	ID          *IDFilter     `json:"id,omitempty"`
+	AccessLevel *IntFilter    `json:"accessLevel,omitempty"`
+	Name        *StringFilter `json:"name,omitempty"`
+	UpdatedAt   *IntFilter    `json:"updatedAt,omitempty"`
+	DeletedAt   *IntFilter    `json:"deletedAt,omitempty"`
+	CreatedAt   *IntFilter    `json:"createdAt,omitempty"`
+	Users       *UserWhere    `json:"users,omitempty"`
+	Or          *RoleWhere    `json:"or,omitempty"`
+	And         *RoleWhere    `json:"and,omitempty"`
 }
 
 type RolesCreateInput struct {
@@ -120,41 +256,44 @@ type RolesUpdatePayload struct {
 }
 
 type StringFilter struct {
-	EqualTo            *string  `json:"equalTo"`
-	NotEqualTo         *string  `json:"notEqualTo"`
-	In                 []string `json:"in"`
-	NotIn              []string `json:"notIn"`
-	StartWith          *string  `json:"startWith"`
-	NotStartWith       *string  `json:"notStartWith"`
-	EndWith            *string  `json:"endWith"`
-	NotEndWith         *string  `json:"notEndWith"`
-	Contain            *string  `json:"contain"`
-	NotContain         *string  `json:"notContain"`
-	StartWithStrict    *string  `json:"startWithStrict"`
-	NotStartWithStrict *string  `json:"notStartWithStrict"`
-	EndWithStrict      *string  `json:"endWithStrict"`
-	NotEndWithStrict   *string  `json:"notEndWithStrict"`
-	ContainStrict      *string  `json:"containStrict"`
-	NotContainStrict   *string  `json:"notContainStrict"`
+	EqualTo            *string  `json:"equalTo,omitempty"`
+	NotEqualTo         *string  `json:"notEqualTo,omitempty"`
+	In                 []string `json:"in,omitempty"`
+	NotIn              []string `json:"notIn,omitempty"`
+	StartWith          *string  `json:"startWith,omitempty"`
+	NotStartWith       *string  `json:"notStartWith,omitempty"`
+	EndWith            *string  `json:"endWith,omitempty"`
+	NotEndWith         *string  `json:"notEndWith,omitempty"`
+	Contain            *string  `json:"contain,omitempty"`
+	NotContain         *string  `json:"notContain,omitempty"`
+	StartWithStrict    *string  `json:"startWithStrict,omitempty"`
+	NotStartWithStrict *string  `json:"notStartWithStrict,omitempty"`
+	EndWithStrict      *string  `json:"endWithStrict,omitempty"`
+	NotEndWithStrict   *string  `json:"notEndWithStrict,omitempty"`
+	ContainStrict      *string  `json:"containStrict,omitempty"`
+	NotContainStrict   *string  `json:"notContainStrict,omitempty"`
+}
+
+type Subscription struct {
 }
 
 type User struct {
 	ID                 string  `json:"id"`
-	FirstName          *string `json:"firstName"`
-	LastName           *string `json:"lastName"`
-	Username           *string `json:"username"`
-	Password           *string `json:"password"`
-	Email              *string `json:"email"`
-	Mobile             *string `json:"mobile"`
-	Address            *string `json:"address"`
-	Active             *bool   `json:"active"`
-	LastLogin          *int    `json:"lastLogin"`
-	LastPasswordChange *int    `json:"lastPasswordChange"`
-	Token              *string `json:"token"`
-	Role               *Role   `json:"role"`
-	CreatedAt          *int    `json:"createdAt"`
-	DeletedAt          *int    `json:"deletedAt"`
-	UpdatedAt          *int    `json:"updatedAt"`
+	FirstName          *string `json:"firstName,omitempty"`
+	LastName           *string `json:"lastName,omitempty"`
+	Username           *string `json:"username,omitempty"`
+	Password           *string `json:"password,omitempty"`
+	Email              *string `json:"email,omitempty"`
+	Mobile             *string `json:"mobile,omitempty"`
+	Address            *string `json:"address,omitempty"`
+	Active             *bool   `json:"active,omitempty"`
+	LastLogin          *int    `json:"lastLogin,omitempty"`
+	LastPasswordChange *int    `json:"lastPasswordChange,omitempty"`
+	Token              *string `json:"token,omitempty"`
+	Role               *Role   `json:"role,omitempty"`
+	CreatedAt          *int    `json:"createdAt,omitempty"`
+	DeletedAt          *int    `json:"deletedAt,omitempty"`
+	UpdatedAt          *int    `json:"updatedAt,omitempty"`
 }
 
 type UserCreateInput struct {
@@ -165,8 +304,8 @@ type UserCreateInput struct {
 	Email     string  `json:"email"`
 	RoleID    string  `json:"roleId"`
 	Mobile    string  `json:"mobile"`
-	Address   *string `json:"address"`
-	Active    *bool   `json:"active"`
+	Address   *string `json:"address,omitempty"`
+	Active    *bool   `json:"active,omitempty"`
 }
 
 type UserDeletePayload struct {
@@ -174,8 +313,8 @@ type UserDeletePayload struct {
 }
 
 type UserFilter struct {
-	Search *string    `json:"search"`
-	Where  *UserWhere `json:"where"`
+	Search *string    `json:"search,omitempty"`
+	Where  *UserWhere `json:"where,omitempty"`
 }
 
 type UserPagination struct {
@@ -189,31 +328,31 @@ type UserPayload struct {
 
 type UserUpdateInput struct {
 	ID        string  `json:"id"`
-	FirstName *string `json:"firstName"`
-	LastName  *string `json:"lastName"`
-	Mobile    *string `json:"mobile"`
-	Address   *string `json:"address"`
+	FirstName *string `json:"firstName,omitempty"`
+	LastName  *string `json:"lastName,omitempty"`
+	Mobile    *string `json:"mobile,omitempty"`
+	Address   *string `json:"address,omitempty"`
 }
 
 type UserWhere struct {
-	ID                 *IDFilter      `json:"id"`
-	FirstName          *StringFilter  `json:"firstName"`
-	LastName           *StringFilter  `json:"lastName"`
-	Username           *StringFilter  `json:"username"`
-	Password           *StringFilter  `json:"password"`
-	Email              *StringFilter  `json:"email"`
-	Mobile             *StringFilter  `json:"mobile"`
-	Address            *StringFilter  `json:"address"`
-	Active             *BooleanFilter `json:"active"`
-	LastLogin          *IntFilter     `json:"lastLogin"`
-	LastPasswordChange *IntFilter     `json:"lastPasswordChange"`
-	Token              *StringFilter  `json:"token"`
-	Role               *RoleWhere     `json:"role"`
-	CreatedAt          *IntFilter     `json:"createdAt"`
-	DeletedAt          *IntFilter     `json:"deletedAt"`
-	UpdatedAt          *IntFilter     `json:"updatedAt"`
-	Or                 *UserWhere     `json:"or"`
-	And                *UserWhere     `json:"and"`
+	ID                 *IDFilter      `json:"id,omitempty"`
+	FirstName          *StringFilter  `json:"firstName,omitempty"`
+	LastName           *StringFilter  `json:"lastName,omitempty"`
+	Username           *StringFilter  `json:"username,omitempty"`
+	Password           *StringFilter  `json:"password,omitempty"`
+	Email              *StringFilter  `json:"email,omitempty"`
+	Mobile             *StringFilter  `json:"mobile,omitempty"`
+	Address            *StringFilter  `json:"address,omitempty"`
+	Active             *BooleanFilter `json:"active,omitempty"`
+	LastLogin          *IntFilter     `json:"lastLogin,omitempty"`
+	LastPasswordChange *IntFilter     `json:"lastPasswordChange,omitempty"`
+	Token              *StringFilter  `json:"token,omitempty"`
+	Role               *RoleWhere     `json:"role,omitempty"`
+	CreatedAt          *IntFilter     `json:"createdAt,omitempty"`
+	DeletedAt          *IntFilter     `json:"deletedAt,omitempty"`
+	UpdatedAt          *IntFilter     `json:"updatedAt,omitempty"`
+	Or                 *UserWhere     `json:"or,omitempty"`
+	And                *UserWhere     `json:"and,omitempty"`
 }
 
 type UsersCreateInput struct {
@@ -223,4 +362,8 @@ type UsersCreateInput struct {
 type UsersPayload struct {
 	Users []*User `json:"users"`
 	Total int     `json:"total"`
+}
+
+type PostPayload struct {
+	Post *Post `json:"post"`
 }

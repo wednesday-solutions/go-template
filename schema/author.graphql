@@ -1,0 +1,66 @@
+type Author {
+    id: ID!
+    firstName: String
+    lastName: String
+    email: String
+    createdAt: Int
+    deletedAt: Int
+    updatedAt: Int
+}
+
+input   AuthorFilter {
+    search: String
+    where: AuthorWhere
+}
+
+input AuthorPagination {
+    limit: Int!
+    page: Int!
+}
+
+input AuthorWhere {
+    id: IDFilter
+    firstName: StringFilter
+    lastName: StringFilter
+    email: StringFilter
+    createdAt: IntFilter
+    deletedAt: IntFilter
+    updatedAt: IntFilter
+    or: AuthorWhere
+    and: AuthorWhere
+}
+input AuthorCreateInput {
+    firstName: String!
+    lastName: String!
+    email: String!
+}
+
+input AuthorUpdateInput {
+    id: ID!
+    firstName: String
+    lastName: String
+    email: String
+}
+
+input AuthorsCreateInput {
+    authors: [AuthorCreateInput!]!
+}
+
+type AuthorPayload {
+    author: Author!
+}
+
+type AuthorDeletePayload {
+    id: ID!
+}
+
+input AuthorQueryInput{
+    id:ID!
+}
+type AuthorsPayload {
+    authors: [Author!]!
+    total: Int!
+}
+input AuthorDeleteInput{
+    id:ID!
+}

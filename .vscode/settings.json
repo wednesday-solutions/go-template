@@ -18,5 +18,8 @@
         "editor.insertSpaces": true,
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "golang.go"
-    }
+    },
+    "cSpell.words": [
+        "cnvrttogql"
+    ]
 }

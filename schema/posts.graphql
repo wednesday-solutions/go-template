@@ -1,0 +1,60 @@
+type Post {
+    id: ID!
+    author:Author
+    post: String
+    createdAt: Int
+    deletedAt: Int
+    updatedAt: Int
+}
+
+input PostsFilter {
+    search: String
+    where: PostsWhere
+}
+
+input PostsPagination {
+    limit: Int!
+    page: Int!
+}
+
+input PostsWhere {
+    id: IDFilter
+    author:AuthorWhere
+    createdAt: IntFilter
+    deletedAt: IntFilter
+    updatedAt: IntFilter
+    or: PostsWhere
+    and: PostsWhere
+}
+input PostCreateInput {
+    post: String!
+    authorId: ID!
+}
+
+input PostUpdateInput {
+    id: ID!
+    post:String
+}
+
+input PostsCreateInput {
+    posts: [PostsCreateInput!]!
+}
+
+type postPayload {
+    post: Post!
+}
+
+type PostDeletePayload {
+    id: ID!
+}
+
+input PostQueryInput{
+    authorId:Int!
+}
+type PostsPayload {
+    posts: [Post!]!
+    total: Int!
+}
+input PostDeleteInput{
+    id:ID!
+}
