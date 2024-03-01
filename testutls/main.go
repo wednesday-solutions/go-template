@@ -23,6 +23,7 @@ type key string
 
 var (
 	UserKey key = "user"
+	AuthorKey key = "author"
 )
 
 const (
@@ -166,4 +167,24 @@ func IsInTests() bool {
 		}
 	}
 	return false
+}
+func MockAuthor() *models.Author {
+	return &models.Author{
+		ID:        MockID,
+		FirstName: null.StringFrom("First"),
+		LastName:  null.StringFrom("Last"),
+		Email:     null.StringFrom(MockEmail),
+		DeletedAt: null.NewTime(time.Time{}, false),
+		UpdatedAt: null.NewTime(time.Time{}, false),
+	}
+}
+func MockAuthors() []*models.Author {
+	return []*models.Author{
+		{
+			FirstName: null.StringFrom("First"),
+			LastName:  null.StringFrom("Last"),
+			Email:     null.StringFrom(MockEmail),
+		},
+	}
+
 }
