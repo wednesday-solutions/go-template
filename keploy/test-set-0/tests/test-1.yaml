@@ -1,0 +1,133 @@
+version: api.keploy.io/v1beta1
+kind: Http
+name: test-1
+spec:
+    metadata: {}
+    req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/playground
+        header:
+            Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+            Accept-Encoding: gzip, deflate, br, zstd
+            Accept-Language: en-GB,en-US;q=0.9,en;q=0.8
+            Connection: keep-alive
+            Host: localhost:9000
+            Purpose: prefetch
+            Sec-Ch-Ua: '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"'
+            Sec-Ch-Ua-Mobile: ?0
+            Sec-Ch-Ua-Platform: '"macOS"'
+            Sec-Fetch-Dest: document
+            Sec-Fetch-Mode: navigate
+            Sec-Fetch-Site: none
+            Sec-Fetch-User: ?1
+            Sec-Purpose: prefetch;prerender
+            Upgrade-Insecure-Requests: "1"
+            User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36
+        body: ""
+        timestamp: 2024-03-04T16:46:03.824543852Z
+    resp:
+        status_code: 200
+        header:
+            Content-Length: "1657"
+            Content-Type: text/html; charset=UTF-8
+            Date: Mon, 04 Mar 2024 16:46:03 GMT
+            Strict-Transport-Security: max-age=5184000; includeSubDomains
+            Vary: Origin
+            X-Content-Type-Options: nosniff
+            X-Dns-Prefetch-Control: "off"
+            X-Download-Options: noopen
+            X-Frame-Options: DENY
+            X-Request-Id: Ir1bPmGdYkzzDAucKH0HyDWFEImuBLpq
+            X-Xss-Protection: 1; mode=block
+        body: |
+            <!DOCTYPE html>
+            <html>
+              <head>
+              	<meta charset="utf-8">
+              	<title>GraphQL playground</title>
+            	<style>
+            		body {
+            			height: 100%;
+            			margin: 0;
+            			width: 100%;
+            			overflow: hidden;
+            		}
+
+            		#graphiql {
+            			height: 100vh;
+            		}
+            	</style>
+            	<script
+            		src="https://cdn.jsdelivr.net/npm/react@17.0.2/umd/react.production.min.js"
+            		integrity="sha256-Ipu/TQ50iCCVZBUsZyNJfxrDk0E2yhaEIz0vqI&#43;kFG8="
+            		crossorigin="anonymous"
+            	></script>
+            	<script
+            		src="https://cdn.jsdelivr.net/npm/react-dom@17.0.2/umd/react-dom.production.min.js"
+            		integrity="sha256-nbMykgB6tsOFJ7OdVmPpdqMFVk4ZsqWocT6issAPUF0="
+            		crossorigin="anonymous"
+            	></script>
+                <link
+            		rel="stylesheet"
+            		href="https://cdn.jsdelivr.net/npm/graphiql@2.0.7/graphiql.min.css"
+            		integrity="sha256-gQryfbGYeYFxnJYnfPStPYFt0&#43;uv8RP8Dm&#43;&#43;eh00G9c="
+            		crossorigin="anonymous"
+            	/>
+              </head>
+              <body>
+                <div id="graphiql">Loading...</div>
+
+            	<script
+            		src="https://cdn.jsdelivr.net/npm/graphiql@2.0.7/graphiql.min.js"
+            		integrity="sha256-qQ6pw7LwTLC&#43;GfzN&#43;cJsYXfVWRKH9O5o7&#43;5H96gTJhQ="
+            		crossorigin="anonymous"
+            	></script>
+
+                <script>
+                  const url = location.protocol + '//' + location.host + "/graphql";
+                  const wsProto = location.protocol == 'https:' ? 'wss:' : 'ws:';
+                  const subscriptionUrl = wsProto + '//' + location.host + "/graphql";
+
+                  const fetcher = GraphiQL.createFetcher({ url, subscriptionUrl });
+                  ReactDOM.render(
+                    React.createElement(GraphiQL, {
+                      fetcher: fetcher,
+                      isHeadersEditorEnabled: true,
+                      shouldPersistHeaders: true
+                    }),
+                    document.getElementById('graphiql'),
+                  );
+                </script>
+              </body>
+            </html>
+        status_message: OK
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 2024-03-04T16:46:03.950015297Z
+    objects: []
+    assertions:
+        noise:
+            header.Content-Length: []
+            header.Date: []
+    created: 1709570763
+curl: |
+    curl --request GET \
+      --url http://localhost:9000/playground \
+      --header 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8' \
+      --header 'Sec-Fetch-Site: none' \
+      --header 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36' \
+      --header 'Sec-Ch-Ua-Mobile: ?0' \
+      --header 'Purpose: prefetch' \
+      --header 'Connection: keep-alive' \
+      --header 'Host: localhost:9000' \
+      --header 'Sec-Purpose: prefetch;prerender' \
+      --header 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7' \
+      --header 'Sec-Ch-Ua: "Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"' \
+      --header 'Sec-Fetch-Dest: document' \
+      --header 'Accept-Encoding: gzip, deflate, br, zstd' \
+      --header 'Sec-Ch-Ua-Platform: "macOS"' \
+      --header 'Upgrade-Insecure-Requests: 1' \
+      --header 'Sec-Fetch-User: ?1' \
+      --header 'Sec-Fetch-Mode: navigate' \

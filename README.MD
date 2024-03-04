@@ -291,7 +291,25 @@ Also make sure the execution role has an appropriate policy attached to it so it
 ```
 ./scripts/update-ecs.sh gotemplate dev
 ```
+##Setting Up Keploy
+For using the Keploy you required the following environment
+```
+Docker Desktop>=4.25.2
+```
+Install and setup keploy using following command
+```
+./scripts/setup-keploy.sh
+```
+start Recording Tests using
+```
+keploy record
+```
 
+Run the Recorded Keploy Tests Using
+
+```
+keploy test
+```
 ## Testing
 
 Get test coverage using

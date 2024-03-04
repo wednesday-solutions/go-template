@@ -1,0 +1,38 @@
+record:
+  path: ""
+  command: "docker run -p 9000:9000 --name go-template-app --network go-template-network go-template-app:1.0"
+  proxyport: 0
+  containerName: "go-template-app"
+  networkName: "go-template-network"
+  delay: 5
+  buildDelay: 30s
+  tests:
+    filters:
+      - path: ""
+        urlMethods: []
+        headers: {}
+        host: ""
+
+test:
+  path: ""
+  command: "docker run -p 9000:9000 --name go-template-app --network go-template-network go-template-app:1.0"
+  proxyport: 0
+  containerName: "go-template-app"
+  networkName: "go-template-network"
+  selectedTests: {}
+  globalNoise:
+    global:
+      body: {}
+      header: {}
+  delay: 5
+  buildDelay: 30s
+  apiTimeout: 5
+  ignoreOrdering: false
+  stubs:
+    filters:
+      - path: ""
+        host: ""
+        ports: 0
+  withCoverage: false
+  generateTestReport: true
+  coverageReportPath: ""

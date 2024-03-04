@@ -1,0 +1,77 @@
+version: api.keploy.io/v1beta1
+kind: Http
+name: test-4
+spec:
+    metadata: {}
+    req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/graphql
+        header:
+            Accept: application/json, multipart/mixed
+            Accept-Encoding: gzip, deflate, br, zstd
+            Accept-Language: en-GB,en-US;q=0.9,en;q=0.8
+            Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiam9obmRvZUBtYWlsLmNvbSIsImV4cCI6MTcwOTIwMjIwMiwiaWQiOjEsInJvbGUiOiJTVVBFUl9BRE1JTiIsInUiOiJhZG1pbiJ9.NSAM6OGSa_LnHRb3WxjjHewcHTmuFOiLq_1RpMi9cQE
+            Connection: keep-alive
+            Content-Length: "237"
+            Content-Type: application/json
+            Host: localhost:9000
+            Origin: http://localhost:9000
+            Referer: http://localhost:9000/playground
+            Sec-Ch-Ua: '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"'
+            Sec-Ch-Ua-Mobile: ?0
+            Sec-Ch-Ua-Platform: '"macOS"'
+            Sec-Fetch-Dest: empty
+            Sec-Fetch-Mode: cors
+            Sec-Fetch-Site: same-origin
+            User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36
+        body: '{"query":"mutation Login {\n  login(username:\"admin\", password:\"adminuser\") {\n    token\n    refreshToken\n  }\n}\n\n# query Me {\n#   me {\n#     id\n#     firstName\n#     lastName\n#     id\n#   }\n# }\n","operationName":"Login"}'
+        timestamp: 2024-03-04T16:46:16.392451358Z
+    resp:
+        status_code: 200
+        header:
+            Access-Control-Allow-Credentials: "true"
+            Access-Control-Allow-Origin: http://localhost:9000
+            Access-Control-Expose-Headers: Content-Length
+            Content-Length: "138"
+            Content-Type: application/json
+            Date: Mon, 04 Mar 2024 16:46:16 GMT
+            Strict-Transport-Security: max-age=5184000; includeSubDomains
+            Vary: Origin
+            X-Content-Type-Options: nosniff
+            X-Dns-Prefetch-Control: "off"
+            X-Download-Options: noopen
+            X-Frame-Options: DENY
+            X-Request-Id: 4ZXE6B3QLIPxqNEhgYKkTI1ynpVUHH5G
+            X-Xss-Protection: 1; mode=block
+        body: '{"errors":[{"message":"models: failed to execute a one query for users: bind failed to execute query: EOF","path":["login"]}],"data":null}'
+        status_message: OK
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 2024-03-04T16:46:18.423571929Z
+    objects: []
+    assertions:
+        noise:
+            header.Date: []
+    created: 1709570778
+curl: |-
+    curl --request POST \
+      --url http://localhost:9000/graphql \
+      --header 'Sec-Ch-Ua-Platform: "macOS"' \
+      --header 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36' \
+      --header 'Sec-Fetch-Mode: cors' \
+      --header 'Connection: keep-alive' \
+      --header 'Sec-Fetch-Dest: empty' \
+      --header 'Sec-Ch-Ua-Mobile: ?0' \
+      --header 'Sec-Ch-Ua: "Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"' \
+      --header 'Sec-Fetch-Site: same-origin' \
+      --header 'Host: localhost:9000' \
+      --header 'Origin: http://localhost:9000' \
+      --header 'Content-Type: application/json' \
+      --header 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8' \
+      --header 'Accept-Encoding: gzip, deflate, br, zstd' \
+      --header 'Referer: http://localhost:9000/playground' \
+      --header 'Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiam9obmRvZUBtYWlsLmNvbSIsImV4cCI6MTcwOTIwMjIwMiwiaWQiOjEsInJvbGUiOiJTVVBFUl9BRE1JTiIsInUiOiJhZG1pbiJ9.NSAM6OGSa_LnHRb3WxjjHewcHTmuFOiLq_1RpMi9cQE' \
+      --header 'Accept: application/json, multipart/mixed' \
+      --data '{"query":"mutation Login {\n  login(username:\"admin\", password:\"adminuser\") {\n    token\n    refreshToken\n  }\n}\n\n# query Me {\n#   me {\n#     id\n#     firstName\n#     lastName\n#     id\n#   }\n# }\n","operationName":"Login"}'
