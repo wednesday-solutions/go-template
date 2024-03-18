@@ -1,0 +1,74 @@
+🐰 Keploy: 2024-03-14T17:42:39Z 	[33mWARN[0m	Delay is set to 5 seconds, incase your app takes more time to start use --delay to set custom delay
+🐰 Keploy: 2024-03-14T17:42:39Z 	[34mINFO[0m	Example usage: keploy test -c "docker run -p 8080:8080 --network myNetworkName myApplicationImageName" --delay 6
+🐰 Keploy: 2024-03-14T17:42:39Z 	[33mWARN[0m	buildDelay is set to 30s, incase your docker container takes more time to build use --buildDelay to set custom delay
+🐰 Keploy: 2024-03-14T17:42:39Z 	[34mINFO[0m	Example usage:keploy test -c "docker-compose up --build" --buildDelay 35s
+🐰 Keploy: 2024-03-14T17:42:39Z 	[34mINFO[0m		{"keploy test and mock path": "/Users/himanshu/go-template/keploy"}
+🐰 Keploy: 2024-03-14T17:42:39Z 	[34mINFO[0m		{"keploy testReport path": "/Users/himanshu/go-template/keploy/testReports/test-run-5"}
+🐰 Keploy: 2024-03-14T17:42:41Z 	[34mINFO[0m	keploy initialized and probes added to the kernel.
+🐰 Keploy: 2024-03-14T17:42:42Z 	[34mINFO[0m	Keploy has hijacked the DNS resolution mechanism, your application may misbehave in keploy test mode if you have provided wrong domain name in your application code.
+🐰 Keploy: 2024-03-14T17:42:42Z 	[34mINFO[0m	starting TCP DNS server at addr :26789
+🐰 Keploy: 2024-03-14T17:42:42Z 	[34mINFO[0m	Proxy started at port:16789
+🐰 Keploy: 2024-03-14T17:42:42Z 	[34mINFO[0m	starting UDP DNS server at addr :26789
+🐰 Keploy: 2024-03-14T17:42:42Z 	[34mINFO[0m	running user application for	{"test-set": "[38;5;208mtest-set-2[0m"}
+🐰 Keploy: 2024-03-14T17:42:42Z 	[34mINFO[0m	trying to make your docker network external
+🐰 Keploy: 2024-03-14T17:42:42Z 	[34mINFO[0m	successfully made your docker network external
+🐰 Keploy: 2024-03-14T17:42:42Z 	[34mINFO[0m	trying to inject network:go-template-network to the keploy container
+🐰 Keploy: 2024-03-14T17:42:42Z 	[34mINFO[0m	Successfully injected network to the keploy container	{"Keploy container": "keploy-v2", "appNetwork": "go-template-network"}
+🐰 Keploy: 2024-03-14T17:42:43Z 	[34mINFO[0m	container & network found and processed successfully	{"time": 1710438163233319836}
+🐰 Keploy: 2024-03-14T17:42:43Z 	[34mINFO[0m		{"no of test cases": 9, "test-set": "test-set-2"}
+🐰 Keploy: 2024-03-14T17:42:48Z 	[34mINFO[0m	starting test for of	{"test case": "[38;5;208mtest-1[0m", "test set": "[38;5;208mtest-set-2[0m"}
+🐰 Keploy: 2024-03-14T17:42:48Z 	[34mINFO[0m	result	{"testcase id": "[32mtest-1[0m", "testset id": "[32mtest-set-2[0m", "passed": "[32mtrue[0m"}
+🐰 Keploy: 2024-03-14T17:42:48Z 	[34mINFO[0m	starting test for of	{"test case": "[38;5;208mtest-2[0m", "test set": "[38;5;208mtest-set-2[0m"}
+🐰 Keploy: 2024-03-14T17:42:53Z 	[31mERROR[0m	failed sending testcase request to app
+🐰 Keploy: 2024-03-14T17:42:53Z 	[34mINFO[0m		{"matched mocks": []}
+🐰 Keploy: 2024-03-14T17:42:53Z 	[34mINFO[0m	result	{"testcase id": "[31mtest-2[0m", "testset id": "[31mtest-set-2[0m", "passed": "[31mfalse[0m"}
+🐰 Keploy: 2024-03-14T17:42:53Z 	[34mINFO[0m	starting test for of	{"test case": "[38;5;208mtest-3[0m", "test set": "[38;5;208mtest-set-2[0m"}
+🐰 Keploy: 2024-03-14T17:42:53Z 	[34mINFO[0m	result	{"testcase id": "[32mtest-3[0m", "testset id": "[32mtest-set-2[0m", "passed": "[32mtrue[0m"}
+🐰 Keploy: 2024-03-14T17:42:53Z 	[34mINFO[0m	starting test for of	{"test case": "[38;5;208mtest-4[0m", "test set": "[38;5;208mtest-set-2[0m"}
+🐰 Keploy: 2024-03-14T17:42:53Z 	[34mINFO[0m	result	{"testcase id": "[32mtest-4[0m", "testset id": "[32mtest-set-2[0m", "passed": "[32mtrue[0m"}
+🐰 Keploy: 2024-03-14T17:42:53Z 	[34mINFO[0m	starting test for of	{"test case": "[38;5;208mtest-5[0m", "test set": "[38;5;208mtest-set-2[0m"}
+🐰 Keploy: 2024-03-14T17:42:58Z 	[31mERROR[0m	failed sending testcase request to app
+🐰 Keploy: 2024-03-14T17:42:58Z 	[34mINFO[0m		{"matched mocks": []}
+🐰 Keploy: 2024-03-14T17:42:58Z 	[34mINFO[0m	result	{"testcase id": "[31mtest-5[0m", "testset id": "[31mtest-set-2[0m", "passed": "[31mfalse[0m"}
+🐰 Keploy: 2024-03-14T17:42:58Z 	[34mINFO[0m	starting test for of	{"test case": "[38;5;208mtest-6[0m", "test set": "[38;5;208mtest-set-2[0m"}
+🐰 Keploy: 2024-03-14T17:43:03Z 	[31mERROR[0m	failed sending testcase request to app
+🐰 Keploy: 2024-03-14T17:43:03Z 	[34mINFO[0m		{"matched mocks": []}
+🐰 Keploy: 2024-03-14T17:43:03Z 	[34mINFO[0m	result	{"testcase id": "[31mtest-6[0m", "testset id": "[31mtest-set-2[0m", "passed": "[31mfalse[0m"}
+🐰 Keploy: 2024-03-14T17:43:04Z 	[34mINFO[0m	starting test for of	{"test case": "[38;5;208mtest-7[0m", "test set": "[38;5;208mtest-set-2[0m"}
+🐰 Keploy: 2024-03-14T17:43:04Z 	[34mINFO[0m	result	{"testcase id": "[32mtest-7[0m", "testset id": "[32mtest-set-2[0m", "passed": "[32mtrue[0m"}
+🐰 Keploy: 2024-03-14T17:43:04Z 	[34mINFO[0m	starting test for of	{"test case": "[38;5;208mtest-8[0m", "test set": "[38;5;208mtest-set-2[0m"}
+🐰 Keploy: 2024-03-14T17:43:04Z 	[34mINFO[0m	result	{"testcase id": "[32mtest-8[0m", "testset id": "[32mtest-set-2[0m", "passed": "[32mtrue[0m"}
+🐰 Keploy: 2024-03-14T17:43:04Z 	[34mINFO[0m	starting test for of	{"test case": "[38;5;208mtest-9[0m", "test set": "[38;5;208mtest-set-2[0m"}
+🐰 Keploy: 2024-03-14T17:43:04Z 	[34mINFO[0m	result	{"testcase id": "[32mtest-9[0m", "testset id": "[32mtest-set-2[0m", "passed": "[32mtrue[0m"}
+🐰 Keploy: 2024-03-14T17:43:04Z 	[34mINFO[0m	test report for test-set-2: 	{"name: ": "report-1", "path: ": "/Users/himanshu/go-template/keploy/report-1"}
+🐰 Keploy: 2024-03-14T17:43:04Z 	[34mINFO[0m	keploy has initiated the shutdown of the user application.
+🐰 Keploy: 2024-03-14T17:43:14Z 	[34mINFO[0m	keploy terminated user application
+🐰 Keploy: 2024-03-14T17:43:14Z 	[34mINFO[0m	running user application for	{"test-set": "[38;5;208mtest-set-0[0m"}
+🐰 Keploy: 2024-03-14T17:43:14Z 	[34mINFO[0m	trying to make your docker network external
+🐰 Keploy: 2024-03-14T17:43:14Z 	[34mINFO[0m	successfully made your docker network external
+🐰 Keploy: 2024-03-14T17:43:14Z 	[34mINFO[0m	trying to inject network:go-template-network to the keploy container
+🐰 Keploy: 2024-03-14T17:43:14Z 	[34mINFO[0m	Successfully injected network to the keploy container	{"Keploy container": "keploy-v2", "appNetwork": "go-template-network"}
+🐰 Keploy: 2024-03-14T17:43:15Z 	[34mINFO[0m	container & network found and processed successfully	{"time": 1710438195680027087}
+🐰 Keploy: 2024-03-14T17:43:15Z 	[34mINFO[0m		{"no of test cases": 6, "test-set": "test-set-0"}
+🐰 Keploy: 2024-03-14T17:43:17Z 	[34mINFO[0m	Exiting keploy program gracefully.
+🐰 Keploy: 2024-03-14T17:43:17Z 	[34mINFO[0m	eBPF resources released successfully...
+🐰 Keploy: 2024-03-14T17:43:17Z 	[34mINFO[0m	Udp Dns server stopped
+🐰 Keploy: 2024-03-14T17:43:17Z 	[34mINFO[0m	Tcp Dns server stopped
+🐰 Keploy: 2024-03-14T17:43:17Z 	[34mINFO[0m	proxy stopped...
+🐰 Keploy: 2024-03-14T17:43:18Z 	[31mERROR[0m	failed to set the read deadline for the client connection	{"Client IP Address": "172.24.0.5:43412", "Client ConnectionID": 18, "Destination IP Address": "172.17.0.3:6379", "Destination ConnectionID": 19, "error": "set tcp 172.24.0.2:16789: use of closed network connection"}
+🐰 Keploy: 2024-03-14T17:43:18Z 	[31mERROR[0m	failed to set the read deadline for the client connection	{"Client IP Address": "172.24.0.5:38080", "Client ConnectionID": 20, "Destination IP Address": "172.17.0.3:6379", "Destination ConnectionID": 21, "error": "set tcp 172.24.0.2:16789: use of closed network connection"}
+🐰 Keploy: 2024-03-14T17:43:18Z 	[31mERROR[0m	failed to set the read deadline for the client connection	{"Client IP Address": "172.24.0.5:43404", "Client ConnectionID": 16, "Destination IP Address": "172.17.0.3:6379", "Destination ConnectionID": 17, "error": "set tcp 172.24.0.2:16789: use of closed network connection"}
+🐰 Keploy: 2024-03-14T17:43:20Z 	[34mINFO[0m	starting test for of	{"test case": "[38;5;208mtest-1[0m", "test set": "[38;5;208mtest-set-0[0m"}
+🐰 Keploy: 2024-03-14T17:43:20Z 	[34mINFO[0m	result	{"testcase id": "[32mtest-1[0m", "testset id": "[32mtest-set-0[0m", "passed": "[32mtrue[0m"}
+🐰 Keploy: 2024-03-14T17:43:20Z 	[34mINFO[0m	starting test for of	{"test case": "[38;5;208mtest-2[0m", "test set": "[38;5;208mtest-set-0[0m"}
+🐰 Keploy: 2024-03-14T17:43:21Z 	[34mINFO[0m	result	{"testcase id": "[32mtest-2[0m", "testset id": "[32mtest-set-0[0m", "passed": "[32mtrue[0m"}
+🐰 Keploy: 2024-03-14T17:43:21Z 	[34mINFO[0m	starting test for of	{"test case": "[38;5;208mtest-3[0m", "test set": "[38;5;208mtest-set-0[0m"}
+🐰 Keploy: 2024-03-14T17:43:21Z 	[34mINFO[0m	result	{"testcase id": "[32mtest-3[0m", "testset id": "[32mtest-set-0[0m", "passed": "[32mtrue[0m"}
+🐰 Keploy: 2024-03-14T17:43:21Z 	[34mINFO[0m	starting test for of	{"test case": "[38;5;208mtest-4[0m", "test set": "[38;5;208mtest-set-0[0m"}
+🐰 Keploy: 2024-03-14T17:43:21Z 	[34mINFO[0m	result	{"testcase id": "[32mtest-4[0m", "testset id": "[32mtest-set-0[0m", "passed": "[32mtrue[0m"}
+🐰 Keploy: 2024-03-14T17:43:21Z 	[34mINFO[0m	starting test for of	{"test case": "[38;5;208mtest-5[0m", "test set": "[38;5;208mtest-set-0[0m"}
+🐰 Keploy: 2024-03-14T17:43:21Z 	[34mINFO[0m	result	{"testcase id": "[32mtest-5[0m", "testset id": "[32mtest-set-0[0m", "passed": "[32mtrue[0m"}
+🐰 Keploy: 2024-03-14T17:43:21Z 	[34mINFO[0m	starting test for of	{"test case": "[38;5;208mtest-6[0m", "test set": "[38;5;208mtest-set-0[0m"}
+🐰 Keploy: 2024-03-14T17:43:21Z 	[34mINFO[0m	result	{"testcase id": "[32mtest-6[0m", "testset id": "[32mtest-set-0[0m", "passed": "[32mtrue[0m"}
+🐰 Keploy: 2024-03-14T17:43:21Z 	[34mINFO[0m	test report for test-set-0: 	{"name: ": "report-2", "path: ": "/Users/himanshu/go-template/keploy/report-2"}
+🐰 Keploy: 2024-03-14T17:43:21Z 	[34mINFO[0m	keploy has initiated the shutdown of the user application.

@@ -192,7 +192,7 @@ func TestUpdateAuthor(
 
 				if tt.name == ErrorUpdateAuthor {
 
-					patch := gomonkey.ApplyFunc(daos.UpdateAuther,
+					patch := gomonkey.ApplyFunc(daos.UpdateAuthor,
 						func(author models.Author, ctx context.Context) (models.Author, error) {
 							return author, fmt.Errorf("error for update Author")
 						})

@@ -34,9 +34,9 @@ func (r *mutationResolver) CreateAuthor(ctx context.Context, input gqlmodels.Aut
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "Author information")
 	}
-	graphAuther := cnvrttogql.AuthorToGraphQlAuthor(&newAuthor)
+	graphAuthor := cnvrttogql.AuthorToGraphQlAuthor(&newAuthor)
 
-	return graphAuther, err
+	return graphAuthor, err
 }
 
 // UpdateAuthor is the resolver for the updateAuthor field.func (r *mutationResolver) UpdateAuthor(ctx context.Context, input gqlmodels.AuthorUpdateInput) (*gqlmodels.Author, error) {
@@ -57,7 +57,7 @@ func (r *mutationResolver) UpdateAuthor(ctx context.Context, input gqlmodels.Aut
 		u.Email = null.StringFromPtr(input.Email)
 	}
 	// update the author in the database
-	_, err = daos.UpdateAuther(*u, ctx)
+	_, err = daos.UpdateAuthor(*u, ctx)
 	if err != nil {
 		return nil, resultwrapper.ResolverSQLError(err, "new information")
 	}

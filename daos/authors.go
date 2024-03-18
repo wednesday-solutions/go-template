@@ -42,17 +42,17 @@ func CreateAuthor(author models.Author, ctx context.Context) (models.Author, err
 	return CreateAuthorTx(author, ctx, nil)
 }
 
-// UpdateAutherTx updates an author in the database, using a transaction.
-func UpdateAutherTx(author models.Author, ctx context.Context, tx *sql.Tx) (models.Author, error) {
+// UpdateAuthorTx updates an author in the database, using a transaction.
+func UpdateAuthorTx(author models.Author, ctx context.Context, tx *sql.Tx) (models.Author, error) {
 	contextExecutor := GetContextExecutor(tx)
 	// Update the author in the database.
 	_, err := author.Update(ctx, contextExecutor, boil.Infer())
 	return author, err
 }
 
-// UpdateAuther updates an author in the database.
-func UpdateAuther(author models.Author, ctx context.Context) (models.Author, error) {
-	return UpdateAutherTx(author, ctx, nil)
+// UpdateAuthor updates an author in the database.
+func UpdateAuthor(author models.Author, ctx context.Context) (models.Author, error) {
+	return UpdateAuthorTx(author, ctx, nil)
 }
 
 // DeleteAuthor deletes an author from the database.
