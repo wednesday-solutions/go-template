@@ -74,7 +74,16 @@ Using go-template requires having Go 1.7 or above. Once you download go-template
   github.com/volatiletech/sqlboiler \
   github.com/99designs/gqlgen
   ```
+  For Go 1.16 or above, you need to install sqlboiler using
 
+  ```
+  go install github.com/volatiletech/sqlboiler/v4@latest
+  go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-psql@latest
+  ```
+  For Go 1.18 and above install the sql-migrate using
+  ```
+  go install github.com/rubenv/sql-migrate/...@latest
+  ```
 4. To run all the migrations using the script setup-local.sh as follows `./scripts/setup-local.sh`.
 
 5. Generate the graphql models using `gqlgen generate`
@@ -177,7 +186,6 @@ go-template/
 └──.env.local                       # a sample .env file for reference
 └──.env.base                        # a base .env file should be included in all environments 
 └──.pre-commit-config.yaml          # config to run pre-commit utility
-└──dbconfig.yml
 └──docker-compose.*.yml             # docker-compose file corresponding to the state of project (local, prod, test)
 └──docker-compose.yml               # docker-compose file which serves as a base to other docker-compose files
 └──generate-modules.sh              # script to generate modules
@@ -195,7 +203,12 @@ generate your database models
 ```
 sqlboiler psql --no-hooks
 ```
-
+# Seed your Database
+For seeding Your database models use 
+```
+go run cmd/seeder/exec/seed.go  
+```
+Note: We have Seeder directory because we are using it while building docker image for application
 # graphQL
 
 generate the graphql models from the database schema
@@ -300,7 +313,10 @@ go test -cover
 ```
 
 ## Generate mocks
-
+Install Mockgen Using
+```
+go install github.com/gleisonmv/mockgen@latest
+```
 Sample command to generate mocks
 
 ```
