@@ -1,0 +1,1729 @@
+version: api.keploy.io/v1beta1
+name: report-1
+status: FAILED
+success: 4
+failure: 5
+total: 9
+tests:
+    - kind: Http
+      name: report-1
+      status: FAILED
+      started: 1710436441
+      completed: 1710436441
+      test_case_path: /Users/himanshu/go-template/keploy/test-set-2
+      mock_path: /Users/himanshu/go-template/keploy/test-set-2/mocks.yaml
+      test_case_id: test-1
+      req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: http://172.24.0.5:9000/graphql
+        header:
+            Accept: application/json, multipart/mixed
+            Accept-Encoding: gzip, deflate, br, zstd
+            Accept-Language: en-GB,en-US;q=0.9,en;q=0.8
+            Connection: keep-alive
+            Content-Length: "142"
+            Content-Type: application/json
+            Cookie: __hstc=181257784.e0fa10c698a35e55de1a39067df22f30.1709635044687.1709635044687.1709635044687.1; hubspotutk=e0fa10c698a35e55de1a39067df22f30; messagesUtk=91ea843e27d3455f86995fa0c541b5e0
+            Host: localhost:9000
+            Origin: http://localhost:9000
+            Referer: http://localhost:9000/playground
+            Sec-Ch-Ua: '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"'
+            Sec-Ch-Ua-Mobile: ?0
+            Sec-Ch-Ua-Platform: '"macOS"'
+            Sec-Fetch-Dest: empty
+            Sec-Fetch-Mode: cors
+            Sec-Fetch-Site: same-origin
+            User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36
+        body: '{"query":"mutation Login{\n  login(username:\"admin\", password:\"adminuser\"){\n    token\n    refreshToken\n  }\n}","operationName":"Login"}'
+        timestamp: 2024-03-14T17:10:51.061846396Z
+      resp:
+        status_code: 200
+        header:
+            Access-Control-Allow-Credentials: "true"
+            Access-Control-Allow-Origin: http://localhost:9000
+            Access-Control-Expose-Headers: Content-Length
+            Content-Length: "278"
+            Content-Type: application/json
+            Date: Thu, 14 Mar 2024 17:10:51 GMT
+            Strict-Transport-Security: max-age=5184000; includeSubDomains
+            Vary: Origin
+            X-Content-Type-Options: nosniff
+            X-Dns-Prefetch-Control: "off"
+            X-Download-Options: noopen
+            X-Frame-Options: DENY
+            X-Request-Id: jeocDpN9VznZGX8yCTwtSH0QHO9jhi1H
+            X-Xss-Protection: 1; mode=block
+        body: '{"data":{"login":{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiam9obmRvZUBtYWlsLmNvbSIsImV4cCI6MTcxMDUyMjY1MSwiaWQiOjEsInJvbGUiOiJTVVBFUl9BRE1JTiIsInUiOiJhZG1pbiJ9.P5ko6a_J6h0p2FdaWfP2qYpVHT2sLwgVQjXijrK9u8w","refreshToken":"8fbf67268ece73c423c0cb14bdfb7da5754f4b33"}}}'
+        status_message: OK
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 2024-03-14T17:10:53.261732007Z
+      noise:
+        header.Date: []
+      result:
+        status_code:
+            normal: true
+            expected: 200
+            actual: 200
+        headers_result:
+            - normal: true
+              expected:
+                key: Vary
+                value:
+                    - Origin
+              actual:
+                key: Vary
+                value:
+                    - Origin
+            - normal: true
+              expected:
+                key: Content-Type
+                value:
+                    - application/json
+              actual:
+                key: Content-Type
+                value:
+                    - application/json
+            - normal: true
+              expected:
+                key: X-Content-Type-Options
+                value:
+                    - nosniff
+              actual:
+                key: X-Content-Type-Options
+                value:
+                    - nosniff
+            - normal: true
+              expected:
+                key: X-Request-Id
+                value:
+                    - jeocDpN9VznZGX8yCTwtSH0QHO9jhi1H
+              actual:
+                key: X-Request-Id
+                value:
+                    - fjhE1QaNlVNRuwVDBNO4jeJgEH47QE33
+            - normal: true
+              expected:
+                key: Content-Length
+                value:
+                    - "278"
+              actual:
+                key: Content-Length
+                value:
+                    - "278"
+            - normal: true
+              expected:
+                key: X-Dns-Prefetch-Control
+                value:
+                    - "off"
+              actual:
+                key: X-Dns-Prefetch-Control
+                value:
+                    - "off"
+            - normal: true
+              expected:
+                key: Access-Control-Allow-Origin
+                value:
+                    - http://localhost:9000
+              actual:
+                key: Access-Control-Allow-Origin
+                value:
+                    - http://localhost:9000
+            - normal: true
+              expected:
+                key: Access-Control-Expose-Headers
+                value:
+                    - Content-Length
+              actual:
+                key: Access-Control-Expose-Headers
+                value:
+                    - Content-Length
+            - normal: true
+              expected:
+                key: X-Xss-Protection
+                value:
+                    - 1; mode=block
+              actual:
+                key: X-Xss-Protection
+                value:
+                    - 1; mode=block
+            - normal: true
+              expected:
+                key: Date
+                value:
+                    - Thu, 14 Mar 2024 17:10:51 GMT
+              actual:
+                key: Date
+                value:
+                    - Thu, 14 Mar 2024 17:14:01 GMT
+            - normal: true
+              expected:
+                key: Access-Control-Allow-Credentials
+                value:
+                    - "true"
+              actual:
+                key: Access-Control-Allow-Credentials
+                value:
+                    - "true"
+            - normal: true
+              expected:
+                key: X-Frame-Options
+                value:
+                    - DENY
+              actual:
+                key: X-Frame-Options
+                value:
+                    - DENY
+            - normal: true
+              expected:
+                key: Strict-Transport-Security
+                value:
+                    - max-age=5184000; includeSubDomains
+              actual:
+                key: Strict-Transport-Security
+                value:
+                    - max-age=5184000; includeSubDomains
+            - normal: true
+              expected:
+                key: X-Download-Options
+                value:
+                    - noopen
+              actual:
+                key: X-Download-Options
+                value:
+                    - noopen
+        body_result:
+            - normal: false
+              expected: '{"data":{"login":{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiam9obmRvZUBtYWlsLmNvbSIsImV4cCI6MTcxMDUyMjY1MSwiaWQiOjEsInJvbGUiOiJTVVBFUl9BRE1JTiIsInUiOiJhZG1pbiJ9.P5ko6a_J6h0p2FdaWfP2qYpVHT2sLwgVQjXijrK9u8w","refreshToken":"8fbf67268ece73c423c0cb14bdfb7da5754f4b33"}}}'
+              actual: '{"data":{"login":{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiam9obmRvZUBtYWlsLmNvbSIsImV4cCI6MTcxMDUyMjg0MSwiaWQiOjEsInJvbGUiOiJTVVBFUl9BRE1JTiIsInUiOiJhZG1pbiJ9.U4mhCBFpalSiMRv0yPFzwZH_P1c4OYgkUS2xBLrcsAQ","refreshToken":"5f04b9edc5a239b3dffb78a265e424dfcfec1169"}}}'
+              type: JSON
+        dep_result: []
+    - kind: Http
+      name: report-1
+      status: FAILED
+      started: 1710436441
+      completed: 1710436446
+      test_case_path: /Users/himanshu/go-template/keploy/test-set-2
+      mock_path: /Users/himanshu/go-template/keploy/test-set-2/mocks.yaml
+      test_case_id: test-2
+      req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: http://172.24.0.5:9000/graphql
+        header:
+            Accept: application/json, multipart/mixed
+            Accept-Encoding: gzip, deflate, br, zstd
+            Accept-Language: en-GB,en-US;q=0.9,en;q=0.8
+            Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiam9obmRvZUBtYWlsLmNvbSIsImV4cCI6MTcxMDUyMjY1MSwiaWQiOjEsInJvbGUiOiJTVVBFUl9BRE1JTiIsInUiOiJhZG1pbiJ9.P5ko6a_J6h0p2FdaWfP2qYpVHT2sLwgVQjXijrK9u8w
+            Connection: keep-alive
+            Content-Length: "110"
+            Content-Type: application/json
+            Cookie: __hstc=181257784.e0fa10c698a35e55de1a39067df22f30.1709635044687.1709635044687.1709635044687.1; hubspotutk=e0fa10c698a35e55de1a39067df22f30; messagesUtk=91ea843e27d3455f86995fa0c541b5e0
+            Host: localhost:9000
+            Origin: http://localhost:9000
+            Referer: http://localhost:9000/playground
+            Sec-Ch-Ua: '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"'
+            Sec-Ch-Ua-Mobile: ?0
+            Sec-Ch-Ua-Platform: '"macOS"'
+            Sec-Fetch-Dest: empty
+            Sec-Fetch-Mode: cors
+            Sec-Fetch-Site: same-origin
+            User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36
+        body: '{"query":"query Me {\n  me {\n    id\n    username\n    firstName\n    lastName\n  }\n}","operationName":"Me"}'
+        timestamp: 2024-03-14T17:11:15.624321032Z
+      resp:
+        status_code: 200
+        header:
+            Access-Control-Allow-Credentials: "true"
+            Access-Control-Allow-Origin: http://localhost:9000
+            Access-Control-Expose-Headers: Content-Length
+            Content-Length: "97"
+            Content-Type: application/json
+            Date: Thu, 14 Mar 2024 17:11:15 GMT
+            Strict-Transport-Security: max-age=5184000; includeSubDomains
+            Vary: Origin
+            X-Content-Type-Options: nosniff
+            X-Dns-Prefetch-Control: "off"
+            X-Download-Options: noopen
+            X-Frame-Options: DENY
+            X-Request-Id: 7nh88Iikag9pLLL67D1uNcVtCyW3TuHb
+            X-Xss-Protection: 1; mode=block
+        body: '{"data":{"me":{"id":"1","username":"admin","firstName":"Mohammed Ali","lastName":"Chherawalla"}}}'
+        status_message: OK
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 2024-03-14T17:11:17.732744088Z
+      noise:
+        header.Date: []
+      result:
+        status_code:
+            normal: false
+            expected: 200
+            actual: 0
+        headers_result:
+            - normal: false
+              expected:
+                key: Vary
+                value:
+                    - Origin
+              actual:
+                key: Vary
+                value: []
+            - normal: false
+              expected:
+                key: Strict-Transport-Security
+                value:
+                    - max-age=5184000; includeSubDomains
+              actual:
+                key: Strict-Transport-Security
+                value: []
+            - normal: false
+              expected:
+                key: X-Content-Type-Options
+                value:
+                    - nosniff
+              actual:
+                key: X-Content-Type-Options
+                value: []
+            - normal: false
+              expected:
+                key: Access-Control-Expose-Headers
+                value:
+                    - Content-Length
+              actual:
+                key: Access-Control-Expose-Headers
+                value: []
+            - normal: false
+              expected:
+                key: X-Xss-Protection
+                value:
+                    - 1; mode=block
+              actual:
+                key: X-Xss-Protection
+                value: []
+            - normal: true
+              expected:
+                key: Date
+                value:
+                    - Thu, 14 Mar 2024 17:11:15 GMT
+              actual:
+                key: Date
+                value: []
+            - normal: false
+              expected:
+                key: X-Download-Options
+                value:
+                    - noopen
+              actual:
+                key: X-Download-Options
+                value: []
+            - normal: false
+              expected:
+                key: Content-Type
+                value:
+                    - application/json
+              actual:
+                key: Content-Type
+                value: []
+            - normal: true
+              expected:
+                key: X-Request-Id
+                value:
+                    - 7nh88Iikag9pLLL67D1uNcVtCyW3TuHb
+              actual:
+                key: X-Request-Id
+                value: []
+            - normal: false
+              expected:
+                key: Content-Length
+                value:
+                    - "97"
+              actual:
+                key: Content-Length
+                value: []
+            - normal: false
+              expected:
+                key: X-Frame-Options
+                value:
+                    - DENY
+              actual:
+                key: X-Frame-Options
+                value: []
+            - normal: false
+              expected:
+                key: Access-Control-Allow-Credentials
+                value:
+                    - "true"
+              actual:
+                key: Access-Control-Allow-Credentials
+                value: []
+            - normal: false
+              expected:
+                key: Access-Control-Allow-Origin
+                value:
+                    - http://localhost:9000
+              actual:
+                key: Access-Control-Allow-Origin
+                value: []
+            - normal: false
+              expected:
+                key: X-Dns-Prefetch-Control
+                value:
+                    - "off"
+              actual:
+                key: X-Dns-Prefetch-Control
+                value: []
+        body_result:
+            - normal: false
+              expected: '{"data":{"me":{"id":"1","username":"admin","firstName":"Mohammed Ali","lastName":"Chherawalla"}}}'
+              actual: 'Post "http://172.24.0.5:9000/graphql": context deadline exceeded (Client.Timeout exceeded while awaiting headers)'
+              type: PLAIN
+        dep_result: []
+    - kind: Http
+      name: report-1
+      status: PASSED
+      started: 1710436446
+      completed: 1710436447
+      test_case_path: /Users/himanshu/go-template/keploy/test-set-2
+      mock_path: /Users/himanshu/go-template/keploy/test-set-2/mocks.yaml
+      test_case_id: test-3
+      req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: http://172.24.0.5:9000/graphql
+        header:
+            Accept: application/json, multipart/mixed
+            Accept-Encoding: gzip, deflate, br, zstd
+            Accept-Language: en-GB,en-US;q=0.9,en;q=0.8
+            Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiam9obmRvZUBtYWlsLmNvbSIsImV4cCI6MTcxMDUyMjY1MSwiaWQiOjEsInJvbGUiOiJTVVBFUl9BRE1JTiIsInUiOiJhZG1pbiJ9.P5ko6a_J6h0p2FdaWfP2qYpVHT2sLwgVQjXijrK9u8w
+            Connection: keep-alive
+            Content-Length: "173"
+            Content-Type: application/json
+            Cookie: __hstc=181257784.e0fa10c698a35e55de1a39067df22f30.1709635044687.1709635044687.1709635044687.1; hubspotutk=e0fa10c698a35e55de1a39067df22f30; messagesUtk=91ea843e27d3455f86995fa0c541b5e0
+            Host: localhost:9000
+            Origin: http://localhost:9000
+            Referer: http://localhost:9000/playground
+            Sec-Ch-Ua: '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"'
+            Sec-Ch-Ua-Mobile: ?0
+            Sec-Ch-Ua-Platform: '"macOS"'
+            Sec-Fetch-Dest: empty
+            Sec-Fetch-Mode: cors
+            Sec-Fetch-Site: same-origin
+            User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36
+        body: '{"query":"mutation ChangePassword {\n  changePassword(oldPassword: \"adminuser\", newPassword: \"gfggyfyf@123\") {\n    \n    ok\n  }\n}\n","operationName":"ChangePassword"}'
+        timestamp: 2024-03-14T17:11:31.171254539Z
+      resp:
+        status_code: 200
+        header:
+            Access-Control-Allow-Credentials: "true"
+            Access-Control-Allow-Origin: http://localhost:9000
+            Access-Control-Expose-Headers: Content-Length
+            Content-Length: "39"
+            Content-Type: application/json
+            Date: Thu, 14 Mar 2024 17:11:31 GMT
+            Strict-Transport-Security: max-age=5184000; includeSubDomains
+            Vary: Origin
+            X-Content-Type-Options: nosniff
+            X-Dns-Prefetch-Control: "off"
+            X-Download-Options: noopen
+            X-Frame-Options: DENY
+            X-Request-Id: kDpNgYPwI3i3vGx5cCJNs5pE9Um48NZD
+            X-Xss-Protection: 1; mode=block
+        body: '{"data":{"changePassword":{"ok":true}}}'
+        status_message: OK
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 2024-03-14T17:11:33.434946012Z
+      noise:
+        header.Date: []
+      result:
+        status_code:
+            normal: true
+            expected: 200
+            actual: 200
+        headers_result:
+            - normal: true
+              expected:
+                key: X-Xss-Protection
+                value:
+                    - 1; mode=block
+              actual:
+                key: X-Xss-Protection
+                value:
+                    - 1; mode=block
+            - normal: true
+              expected:
+                key: X-Download-Options
+                value:
+                    - noopen
+              actual:
+                key: X-Download-Options
+                value:
+                    - noopen
+            - normal: true
+              expected:
+                key: X-Content-Type-Options
+                value:
+                    - nosniff
+              actual:
+                key: X-Content-Type-Options
+                value:
+                    - nosniff
+            - normal: true
+              expected:
+                key: X-Dns-Prefetch-Control
+                value:
+                    - "off"
+              actual:
+                key: X-Dns-Prefetch-Control
+                value:
+                    - "off"
+            - normal: true
+              expected:
+                key: Vary
+                value:
+                    - Origin
+              actual:
+                key: Vary
+                value:
+                    - Origin
+            - normal: true
+              expected:
+                key: X-Request-Id
+                value:
+                    - kDpNgYPwI3i3vGx5cCJNs5pE9Um48NZD
+              actual:
+                key: X-Request-Id
+                value:
+                    - MwRhJUI0aYZEsbEqeJOlbo6zhk6jFeo1
+            - normal: true
+              expected:
+                key: X-Frame-Options
+                value:
+                    - DENY
+              actual:
+                key: X-Frame-Options
+                value:
+                    - DENY
+            - normal: true
+              expected:
+                key: Access-Control-Expose-Headers
+                value:
+                    - Content-Length
+              actual:
+                key: Access-Control-Expose-Headers
+                value:
+                    - Content-Length
+            - normal: true
+              expected:
+                key: Content-Type
+                value:
+                    - application/json
+              actual:
+                key: Content-Type
+                value:
+                    - application/json
+            - normal: true
+              expected:
+                key: Content-Length
+                value:
+                    - "39"
+              actual:
+                key: Content-Length
+                value:
+                    - "39"
+            - normal: true
+              expected:
+                key: Strict-Transport-Security
+                value:
+                    - max-age=5184000; includeSubDomains
+              actual:
+                key: Strict-Transport-Security
+                value:
+                    - max-age=5184000; includeSubDomains
+            - normal: true
+              expected:
+                key: Access-Control-Allow-Credentials
+                value:
+                    - "true"
+              actual:
+                key: Access-Control-Allow-Credentials
+                value:
+                    - "true"
+            - normal: true
+              expected:
+                key: Access-Control-Allow-Origin
+                value:
+                    - http://localhost:9000
+              actual:
+                key: Access-Control-Allow-Origin
+                value:
+                    - http://localhost:9000
+            - normal: true
+              expected:
+                key: Date
+                value:
+                    - Thu, 14 Mar 2024 17:11:31 GMT
+              actual:
+                key: Date
+                value:
+                    - Thu, 14 Mar 2024 17:14:07 GMT
+        body_result:
+            - normal: true
+              expected: '{"data":{"changePassword":{"ok":true}}}'
+              actual: '{"data":{"changePassword":{"ok":true}}}'
+              type: JSON
+        dep_result: []
+    - kind: Http
+      name: report-1
+      status: FAILED
+      started: 1710436447
+      completed: 1710436447
+      test_case_path: /Users/himanshu/go-template/keploy/test-set-2
+      mock_path: /Users/himanshu/go-template/keploy/test-set-2/mocks.yaml
+      test_case_id: test-4
+      req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: http://172.24.0.5:9000/graphql
+        header:
+            Accept: application/json, multipart/mixed
+            Accept-Encoding: gzip, deflate, br, zstd
+            Accept-Language: en-GB,en-US;q=0.9,en;q=0.8
+            Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiam9obmRvZUBtYWlsLmNvbSIsImV4cCI6MTcxMDUyMjY1MSwiaWQiOjEsInJvbGUiOiJTVVBFUl9BRE1JTiIsInUiOiJhZG1pbiJ9.P5ko6a_J6h0p2FdaWfP2qYpVHT2sLwgVQjXijrK9u8w
+            Connection: keep-alive
+            Content-Length: "155"
+            Content-Type: application/json
+            Cookie: __hstc=181257784.e0fa10c698a35e55de1a39067df22f30.1709635044687.1709635044687.1709635044687.1; hubspotutk=e0fa10c698a35e55de1a39067df22f30; messagesUtk=91ea843e27d3455f86995fa0c541b5e0
+            Host: localhost:9000
+            Origin: http://localhost:9000
+            Referer: http://localhost:9000/playground
+            Sec-Ch-Ua: '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"'
+            Sec-Ch-Ua-Mobile: ?0
+            Sec-Ch-Ua-Platform: '"macOS"'
+            Sec-Fetch-Dest: empty
+            Sec-Fetch-Mode: cors
+            Sec-Fetch-Site: same-origin
+            User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36
+        body: '{"query":"mutation refereshToken{\n  refreshToken(token:\"8fbf67268ece73c423c0cb14bdfb7da5754f4b33\"){\n    token\n  }\n}","operationName":"refereshToken"}'
+        timestamp: 2024-03-14T17:11:52.257084757Z
+      resp:
+        status_code: 200
+        header:
+            Access-Control-Allow-Credentials: "true"
+            Access-Control-Allow-Origin: http://localhost:9000
+            Access-Control-Expose-Headers: Content-Length
+            Content-Length: "227"
+            Content-Type: application/json
+            Date: Thu, 14 Mar 2024 17:11:52 GMT
+            Strict-Transport-Security: max-age=5184000; includeSubDomains
+            Vary: Origin
+            X-Content-Type-Options: nosniff
+            X-Dns-Prefetch-Control: "off"
+            X-Download-Options: noopen
+            X-Frame-Options: DENY
+            X-Request-Id: 01TiFckBSKV0zbw61pxgSbVSBRtUlbXz
+            X-Xss-Protection: 1; mode=block
+        body: '{"data":{"refreshToken":{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiam9obmRvZUBtYWlsLmNvbSIsImV4cCI6MTcxMDUyMjcxMiwiaWQiOjEsInJvbGUiOiJTVVBFUl9BRE1JTiIsInUiOiJhZG1pbiJ9.TUHretJEHk_gM64h3QyCZ-HbycWBUA75ZZK3BN-ae5A"}}}'
+        status_message: OK
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 2024-03-14T17:11:54.378833466Z
+      noise:
+        header.Date: []
+      result:
+        status_code:
+            normal: true
+            expected: 200
+            actual: 200
+        headers_result:
+            - normal: true
+              expected:
+                key: Strict-Transport-Security
+                value:
+                    - max-age=5184000; includeSubDomains
+              actual:
+                key: Strict-Transport-Security
+                value:
+                    - max-age=5184000; includeSubDomains
+            - normal: true
+              expected:
+                key: X-Request-Id
+                value:
+                    - 01TiFckBSKV0zbw61pxgSbVSBRtUlbXz
+              actual:
+                key: X-Request-Id
+                value:
+                    - bleQme13O2ve0UTtZddsvePR21N0nOv7
+            - normal: true
+              expected:
+                key: Content-Type
+                value:
+                    - application/json
+              actual:
+                key: Content-Type
+                value:
+                    - application/json
+            - normal: true
+              expected:
+                key: Access-Control-Allow-Origin
+                value:
+                    - http://localhost:9000
+              actual:
+                key: Access-Control-Allow-Origin
+                value:
+                    - http://localhost:9000
+            - normal: true
+              expected:
+                key: X-Dns-Prefetch-Control
+                value:
+                    - "off"
+              actual:
+                key: X-Dns-Prefetch-Control
+                value:
+                    - "off"
+            - normal: true
+              expected:
+                key: Access-Control-Expose-Headers
+                value:
+                    - Content-Length
+              actual:
+                key: Access-Control-Expose-Headers
+                value:
+                    - Content-Length
+            - normal: true
+              expected:
+                key: Content-Length
+                value:
+                    - "227"
+              actual:
+                key: Content-Length
+                value:
+                    - "227"
+            - normal: true
+              expected:
+                key: X-Content-Type-Options
+                value:
+                    - nosniff
+              actual:
+                key: X-Content-Type-Options
+                value:
+                    - nosniff
+            - normal: true
+              expected:
+                key: Access-Control-Allow-Credentials
+                value:
+                    - "true"
+              actual:
+                key: Access-Control-Allow-Credentials
+                value:
+                    - "true"
+            - normal: true
+              expected:
+                key: X-Xss-Protection
+                value:
+                    - 1; mode=block
+              actual:
+                key: X-Xss-Protection
+                value:
+                    - 1; mode=block
+            - normal: true
+              expected:
+                key: Date
+                value:
+                    - Thu, 14 Mar 2024 17:11:52 GMT
+              actual:
+                key: Date
+                value:
+                    - Thu, 14 Mar 2024 17:14:07 GMT
+            - normal: true
+              expected:
+                key: Vary
+                value:
+                    - Origin
+              actual:
+                key: Vary
+                value:
+                    - Origin
+            - normal: true
+              expected:
+                key: X-Download-Options
+                value:
+                    - noopen
+              actual:
+                key: X-Download-Options
+                value:
+                    - noopen
+            - normal: true
+              expected:
+                key: X-Frame-Options
+                value:
+                    - DENY
+              actual:
+                key: X-Frame-Options
+                value:
+                    - DENY
+        body_result:
+            - normal: false
+              expected: '{"data":{"refreshToken":{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiam9obmRvZUBtYWlsLmNvbSIsImV4cCI6MTcxMDUyMjcxMiwiaWQiOjEsInJvbGUiOiJTVVBFUl9BRE1JTiIsInUiOiJhZG1pbiJ9.TUHretJEHk_gM64h3QyCZ-HbycWBUA75ZZK3BN-ae5A"}}}'
+              actual: '{"data":{"refreshToken":{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiam9obmRvZUBtYWlsLmNvbSIsImV4cCI6MTcxMDUyMjg0NywiaWQiOjEsInJvbGUiOiJTVVBFUl9BRE1JTiIsInUiOiJhZG1pbiJ9.N2G6BLrXUw6XQz9jeDFnbtGxLEYzlzwiL4eOq-oDmRA"}}}'
+              type: JSON
+        dep_result: []
+    - kind: Http
+      name: report-1
+      status: FAILED
+      started: 1710436447
+      completed: 1710436452
+      test_case_path: /Users/himanshu/go-template/keploy/test-set-2
+      mock_path: /Users/himanshu/go-template/keploy/test-set-2/mocks.yaml
+      test_case_id: test-5
+      req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: http://172.24.0.5:9000/graphql
+        header:
+            Accept: application/json, multipart/mixed
+            Accept-Encoding: gzip, deflate, br, zstd
+            Accept-Language: en-GB,en-US;q=0.9,en;q=0.8
+            Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiam9obmRvZUBtYWlsLmNvbSIsImV4cCI6MTcxMDUyMjY1MSwiaWQiOjEsInJvbGUiOiJTVVBFUl9BRE1JTiIsInUiOiJhZG1pbiJ9.P5ko6a_J6h0p2FdaWfP2qYpVHT2sLwgVQjXijrK9u8w
+            Connection: keep-alive
+            Content-Length: "182"
+            Content-Type: application/json
+            Cookie: __hstc=181257784.e0fa10c698a35e55de1a39067df22f30.1709635044687.1709635044687.1709635044687.1; hubspotutk=e0fa10c698a35e55de1a39067df22f30; messagesUtk=91ea843e27d3455f86995fa0c541b5e0
+            Host: localhost:9000
+            Origin: http://localhost:9000
+            Referer: http://localhost:9000/playground
+            Sec-Ch-Ua: '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"'
+            Sec-Ch-Ua-Mobile: ?0
+            Sec-Ch-Ua-Platform: '"macOS"'
+            Sec-Fetch-Dest: empty
+            Sec-Fetch-Mode: cors
+            Sec-Fetch-Site: same-origin
+            User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36
+        body: '{"query":"mutation createRole {\n  createRole(input: {accessLevel: 10, name: \"himanshu\"}) {\n    role {\n      id\n      accessLevel\n    }\n  }\n}\n","operationName":"createRole"}'
+        timestamp: 2024-03-14T17:12:13.101383517Z
+      resp:
+        status_code: 200
+        header:
+            Access-Control-Allow-Credentials: "true"
+            Access-Control-Allow-Origin: http://localhost:9000
+            Access-Control-Expose-Headers: Content-Length
+            Content-Length: "59"
+            Content-Type: application/json
+            Date: Thu, 14 Mar 2024 17:12:13 GMT
+            Strict-Transport-Security: max-age=5184000; includeSubDomains
+            Vary: Origin
+            X-Content-Type-Options: nosniff
+            X-Dns-Prefetch-Control: "off"
+            X-Download-Options: noopen
+            X-Frame-Options: DENY
+            X-Request-Id: LuGHXdUuTcx1M6jn9jMzB9u3UsDvpNxb
+            X-Xss-Protection: 1; mode=block
+        body: '{"data":{"createRole":{"role":{"id":"","accessLevel":10}}}}'
+        status_message: OK
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 2024-03-14T17:12:15.23373017Z
+      noise:
+        header.Date: []
+      result:
+        status_code:
+            normal: false
+            expected: 200
+            actual: 0
+        headers_result:
+            - normal: false
+              expected:
+                key: X-Frame-Options
+                value:
+                    - DENY
+              actual:
+                key: X-Frame-Options
+                value: []
+            - normal: false
+              expected:
+                key: Access-Control-Allow-Credentials
+                value:
+                    - "true"
+              actual:
+                key: Access-Control-Allow-Credentials
+                value: []
+            - normal: false
+              expected:
+                key: Content-Length
+                value:
+                    - "59"
+              actual:
+                key: Content-Length
+                value: []
+            - normal: false
+              expected:
+                key: Content-Type
+                value:
+                    - application/json
+              actual:
+                key: Content-Type
+                value: []
+            - normal: false
+              expected:
+                key: Vary
+                value:
+                    - Origin
+              actual:
+                key: Vary
+                value: []
+            - normal: false
+              expected:
+                key: X-Download-Options
+                value:
+                    - noopen
+              actual:
+                key: X-Download-Options
+                value: []
+            - normal: false
+              expected:
+                key: X-Content-Type-Options
+                value:
+                    - nosniff
+              actual:
+                key: X-Content-Type-Options
+                value: []
+            - normal: false
+              expected:
+                key: Access-Control-Expose-Headers
+                value:
+                    - Content-Length
+              actual:
+                key: Access-Control-Expose-Headers
+                value: []
+            - normal: false
+              expected:
+                key: X-Xss-Protection
+                value:
+                    - 1; mode=block
+              actual:
+                key: X-Xss-Protection
+                value: []
+            - normal: false
+              expected:
+                key: Strict-Transport-Security
+                value:
+                    - max-age=5184000; includeSubDomains
+              actual:
+                key: Strict-Transport-Security
+                value: []
+            - normal: true
+              expected:
+                key: Date
+                value:
+                    - Thu, 14 Mar 2024 17:12:13 GMT
+              actual:
+                key: Date
+                value: []
+            - normal: true
+              expected:
+                key: X-Request-Id
+                value:
+                    - LuGHXdUuTcx1M6jn9jMzB9u3UsDvpNxb
+              actual:
+                key: X-Request-Id
+                value: []
+            - normal: false
+              expected:
+                key: Access-Control-Allow-Origin
+                value:
+                    - http://localhost:9000
+              actual:
+                key: Access-Control-Allow-Origin
+                value: []
+            - normal: false
+              expected:
+                key: X-Dns-Prefetch-Control
+                value:
+                    - "off"
+              actual:
+                key: X-Dns-Prefetch-Control
+                value: []
+        body_result:
+            - normal: false
+              expected: '{"data":{"createRole":{"role":{"id":"","accessLevel":10}}}}'
+              actual: 'Post "http://172.24.0.5:9000/graphql": context deadline exceeded (Client.Timeout exceeded while awaiting headers)'
+              type: PLAIN
+        dep_result: []
+    - kind: Http
+      name: report-1
+      status: FAILED
+      started: 1710436452
+      completed: 1710436457
+      test_case_path: /Users/himanshu/go-template/keploy/test-set-2
+      mock_path: /Users/himanshu/go-template/keploy/test-set-2/mocks.yaml
+      test_case_id: test-6
+      req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: http://172.24.0.5:9000/graphql
+        header:
+            Accept: application/json, multipart/mixed
+            Accept-Encoding: gzip, deflate, br, zstd
+            Accept-Language: en-GB,en-US;q=0.9,en;q=0.8
+            Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiam9obmRvZUBtYWlsLmNvbSIsImV4cCI6MTcxMDUyMjY1MSwiaWQiOjEsInJvbGUiOiJTVVBFUl9BRE1JTiIsInUiOiJhZG1pbiJ9.P5ko6a_J6h0p2FdaWfP2qYpVHT2sLwgVQjXijrK9u8w
+            Connection: keep-alive
+            Content-Length: "326"
+            Content-Type: application/json
+            Cookie: __hstc=181257784.e0fa10c698a35e55de1a39067df22f30.1709635044687.1709635044687.1709635044687.1; hubspotutk=e0fa10c698a35e55de1a39067df22f30; messagesUtk=91ea843e27d3455f86995fa0c541b5e0
+            Host: localhost:9000
+            Origin: http://localhost:9000
+            Referer: http://localhost:9000/playground
+            Sec-Ch-Ua: '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"'
+            Sec-Ch-Ua-Mobile: ?0
+            Sec-Ch-Ua-Platform: '"macOS"'
+            Sec-Fetch-Dest: empty
+            Sec-Fetch-Mode: cors
+            Sec-Fetch-Site: same-origin
+            User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36
+        body: '{"query":"mutation createUser {\n  createUser(input: {\n    firstName: \"himanshu\"\n    lastName: \"raj\"\n    username: \"himanshu\"\n    password: \"gghhgh@12345\"\n    email: \"hraj@gmail.com\"\n    roleId: 1\n    mobile: \"9334045003\"\n  }) {\n    firstName\n    lastName\n    id\n  }\n}\n","operationName":"createUser"}'
+        timestamp: 2024-03-14T17:12:20.432898312Z
+      resp:
+        status_code: 200
+        header:
+            Access-Control-Allow-Credentials: "true"
+            Access-Control-Allow-Origin: http://localhost:9000
+            Access-Control-Expose-Headers: Content-Length
+            Content-Length: "74"
+            Content-Type: application/json
+            Date: Thu, 14 Mar 2024 17:12:20 GMT
+            Strict-Transport-Security: max-age=5184000; includeSubDomains
+            Vary: Origin
+            X-Content-Type-Options: nosniff
+            X-Dns-Prefetch-Control: "off"
+            X-Download-Options: noopen
+            X-Frame-Options: DENY
+            X-Request-Id: Vfs52PfzwNtN2C7DpJCpJGOA9FIOx1Ks
+            X-Xss-Protection: 1; mode=block
+        body: '{"data":{"createUser":{"firstName":"himanshu","lastName":"raj","id":"2"}}}'
+        status_message: OK
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 2024-03-14T17:12:22.98542559Z
+      noise:
+        header.Date: []
+      result:
+        status_code:
+            normal: false
+            expected: 200
+            actual: 0
+        headers_result:
+            - normal: false
+              expected:
+                key: X-Download-Options
+                value:
+                    - noopen
+              actual:
+                key: X-Download-Options
+                value: []
+            - normal: false
+              expected:
+                key: Access-Control-Allow-Origin
+                value:
+                    - http://localhost:9000
+              actual:
+                key: Access-Control-Allow-Origin
+                value: []
+            - normal: false
+              expected:
+                key: Strict-Transport-Security
+                value:
+                    - max-age=5184000; includeSubDomains
+              actual:
+                key: Strict-Transport-Security
+                value: []
+            - normal: true
+              expected:
+                key: Date
+                value:
+                    - Thu, 14 Mar 2024 17:12:20 GMT
+              actual:
+                key: Date
+                value: []
+            - normal: false
+              expected:
+                key: X-Content-Type-Options
+                value:
+                    - nosniff
+              actual:
+                key: X-Content-Type-Options
+                value: []
+            - normal: false
+              expected:
+                key: X-Frame-Options
+                value:
+                    - DENY
+              actual:
+                key: X-Frame-Options
+                value: []
+            - normal: false
+              expected:
+                key: Access-Control-Allow-Credentials
+                value:
+                    - "true"
+              actual:
+                key: Access-Control-Allow-Credentials
+                value: []
+            - normal: false
+              expected:
+                key: Vary
+                value:
+                    - Origin
+              actual:
+                key: Vary
+                value: []
+            - normal: false
+              expected:
+                key: Access-Control-Expose-Headers
+                value:
+                    - Content-Length
+              actual:
+                key: Access-Control-Expose-Headers
+                value: []
+            - normal: false
+              expected:
+                key: Content-Length
+                value:
+                    - "74"
+              actual:
+                key: Content-Length
+                value: []
+            - normal: true
+              expected:
+                key: X-Request-Id
+                value:
+                    - Vfs52PfzwNtN2C7DpJCpJGOA9FIOx1Ks
+              actual:
+                key: X-Request-Id
+                value: []
+            - normal: false
+              expected:
+                key: X-Xss-Protection
+                value:
+                    - 1; mode=block
+              actual:
+                key: X-Xss-Protection
+                value: []
+            - normal: false
+              expected:
+                key: X-Dns-Prefetch-Control
+                value:
+                    - "off"
+              actual:
+                key: X-Dns-Prefetch-Control
+                value: []
+            - normal: false
+              expected:
+                key: Content-Type
+                value:
+                    - application/json
+              actual:
+                key: Content-Type
+                value: []
+        body_result:
+            - normal: false
+              expected: '{"data":{"createUser":{"firstName":"himanshu","lastName":"raj","id":"2"}}}'
+              actual: 'Post "http://172.24.0.5:9000/graphql": context deadline exceeded (Client.Timeout exceeded while awaiting headers)'
+              type: PLAIN
+        dep_result: []
+    - kind: Http
+      name: report-1
+      status: PASSED
+      started: 1710436457
+      completed: 1710436457
+      test_case_path: /Users/himanshu/go-template/keploy/test-set-2
+      mock_path: /Users/himanshu/go-template/keploy/test-set-2/mocks.yaml
+      test_case_id: test-7
+      req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: http://172.24.0.5:9000/graphql
+        header:
+            Accept: application/json, multipart/mixed
+            Accept-Encoding: gzip, deflate, br, zstd
+            Accept-Language: en-GB,en-US;q=0.9,en;q=0.8
+            Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiam9obmRvZUBtYWlsLmNvbSIsImV4cCI6MTcxMDUyMjY1MSwiaWQiOjEsInJvbGUiOiJTVVBFUl9BRE1JTiIsInUiOiJhZG1pbiJ9.P5ko6a_J6h0p2FdaWfP2qYpVHT2sLwgVQjXijrK9u8w
+            Connection: keep-alive
+            Content-Length: "183"
+            Content-Type: application/json
+            Cookie: __hstc=181257784.e0fa10c698a35e55de1a39067df22f30.1709635044687.1709635044687.1709635044687.1; hubspotutk=e0fa10c698a35e55de1a39067df22f30; messagesUtk=91ea843e27d3455f86995fa0c541b5e0
+            Host: localhost:9000
+            Origin: http://localhost:9000
+            Referer: http://localhost:9000/playground
+            Sec-Ch-Ua: '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"'
+            Sec-Ch-Ua-Mobile: ?0
+            Sec-Ch-Ua-Platform: '"macOS"'
+            Sec-Fetch-Dest: empty
+            Sec-Fetch-Mode: cors
+            Sec-Fetch-Site: same-origin
+            User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36
+        body: '{"query":"mutation UpdateUser {\n  updateUser(input: {\n    id: \"2\",\n    firstName: \"ankush\"\n  }) {\n    id\n    firstName\n    lastName\n  }\n}\n","operationName":"UpdateUser"}'
+        timestamp: 2024-03-14T17:12:33.502807152Z
+      resp:
+        status_code: 200
+        header:
+            Access-Control-Allow-Credentials: "true"
+            Access-Control-Allow-Origin: http://localhost:9000
+            Access-Control-Expose-Headers: Content-Length
+            Content-Length: "80"
+            Content-Type: application/json
+            Date: Thu, 14 Mar 2024 17:12:33 GMT
+            Strict-Transport-Security: max-age=5184000; includeSubDomains
+            Vary: Origin
+            X-Content-Type-Options: nosniff
+            X-Dns-Prefetch-Control: "off"
+            X-Download-Options: noopen
+            X-Frame-Options: DENY
+            X-Request-Id: Zqg9KF3Sgfrbkfi0PkvFBnOEeq8innhO
+            X-Xss-Protection: 1; mode=block
+        body: '{"data":{"updateUser":{"id":"1","firstName":"ankush","lastName":"Chherawalla"}}}'
+        status_message: OK
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 2024-03-14T17:12:35.604262013Z
+      noise:
+        header.Date: []
+      result:
+        status_code:
+            normal: true
+            expected: 200
+            actual: 200
+        headers_result:
+            - normal: true
+              expected:
+                key: X-Request-Id
+                value:
+                    - Zqg9KF3Sgfrbkfi0PkvFBnOEeq8innhO
+              actual:
+                key: X-Request-Id
+                value:
+                    - iGPeEMlZPGk2sZeBok4Bl1Eyau2gpPux
+            - normal: true
+              expected:
+                key: Content-Length
+                value:
+                    - "80"
+              actual:
+                key: Content-Length
+                value:
+                    - "80"
+            - normal: true
+              expected:
+                key: Date
+                value:
+                    - Thu, 14 Mar 2024 17:12:33 GMT
+              actual:
+                key: Date
+                value:
+                    - Thu, 14 Mar 2024 17:14:17 GMT
+            - normal: true
+              expected:
+                key: Vary
+                value:
+                    - Origin
+              actual:
+                key: Vary
+                value:
+                    - Origin
+            - normal: true
+              expected:
+                key: X-Frame-Options
+                value:
+                    - DENY
+              actual:
+                key: X-Frame-Options
+                value:
+                    - DENY
+            - normal: true
+              expected:
+                key: Access-Control-Allow-Origin
+                value:
+                    - http://localhost:9000
+              actual:
+                key: Access-Control-Allow-Origin
+                value:
+                    - http://localhost:9000
+            - normal: true
+              expected:
+                key: X-Dns-Prefetch-Control
+                value:
+                    - "off"
+              actual:
+                key: X-Dns-Prefetch-Control
+                value:
+                    - "off"
+            - normal: true
+              expected:
+                key: X-Download-Options
+                value:
+                    - noopen
+              actual:
+                key: X-Download-Options
+                value:
+                    - noopen
+            - normal: true
+              expected:
+                key: Access-Control-Expose-Headers
+                value:
+                    - Content-Length
+              actual:
+                key: Access-Control-Expose-Headers
+                value:
+                    - Content-Length
+            - normal: true
+              expected:
+                key: Content-Type
+                value:
+                    - application/json
+              actual:
+                key: Content-Type
+                value:
+                    - application/json
+            - normal: true
+              expected:
+                key: Strict-Transport-Security
+                value:
+                    - max-age=5184000; includeSubDomains
+              actual:
+                key: Strict-Transport-Security
+                value:
+                    - max-age=5184000; includeSubDomains
+            - normal: true
+              expected:
+                key: X-Content-Type-Options
+                value:
+                    - nosniff
+              actual:
+                key: X-Content-Type-Options
+                value:
+                    - nosniff
+            - normal: true
+              expected:
+                key: X-Xss-Protection
+                value:
+                    - 1; mode=block
+              actual:
+                key: X-Xss-Protection
+                value:
+                    - 1; mode=block
+            - normal: true
+              expected:
+                key: Access-Control-Allow-Credentials
+                value:
+                    - "true"
+              actual:
+                key: Access-Control-Allow-Credentials
+                value:
+                    - "true"
+        body_result:
+            - normal: true
+              expected: '{"data":{"updateUser":{"id":"1","firstName":"ankush","lastName":"Chherawalla"}}}'
+              actual: '{"data":{"updateUser":{"id":"1","firstName":"ankush","lastName":"Chherawalla"}}}'
+              type: JSON
+        dep_result: []
+    - kind: Http
+      name: report-1
+      status: PASSED
+      started: 1710436457
+      completed: 1710436457
+      test_case_path: /Users/himanshu/go-template/keploy/test-set-2
+      mock_path: /Users/himanshu/go-template/keploy/test-set-2/mocks.yaml
+      test_case_id: test-8
+      req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: http://172.24.0.5:9000/graphql
+        header:
+            Accept: application/json, multipart/mixed
+            Accept-Encoding: gzip, deflate, br, zstd
+            Accept-Language: en-GB,en-US;q=0.9,en;q=0.8
+            Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiam9obmRvZUBtYWlsLmNvbSIsImV4cCI6MTcxMDUyMjY1MSwiaWQiOjEsInJvbGUiOiJTVVBFUl9BRE1JTiIsInUiOiJhZG1pbiJ9.P5ko6a_J6h0p2FdaWfP2qYpVHT2sLwgVQjXijrK9u8w
+            Connection: keep-alive
+            Content-Length: "96"
+            Content-Type: application/json
+            Cookie: __hstc=181257784.e0fa10c698a35e55de1a39067df22f30.1709635044687.1709635044687.1709635044687.1; hubspotutk=e0fa10c698a35e55de1a39067df22f30; messagesUtk=91ea843e27d3455f86995fa0c541b5e0
+            Host: localhost:9000
+            Origin: http://localhost:9000
+            Referer: http://localhost:9000/playground
+            Sec-Ch-Ua: '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"'
+            Sec-Ch-Ua-Mobile: ?0
+            Sec-Ch-Ua-Platform: '"macOS"'
+            Sec-Fetch-Dest: empty
+            Sec-Fetch-Mode: cors
+            Sec-Fetch-Site: same-origin
+            User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36
+        body: '{"query":"mutation DeleteUser {\n  deleteUser {\n    id\n  }\n}\n","operationName":"DeleteUser"}'
+        timestamp: 2024-03-14T17:12:43.183564572Z
+      resp:
+        status_code: 200
+        header:
+            Access-Control-Allow-Credentials: "true"
+            Access-Control-Allow-Origin: http://localhost:9000
+            Access-Control-Expose-Headers: Content-Length
+            Content-Length: "34"
+            Content-Type: application/json
+            Date: Thu, 14 Mar 2024 17:12:43 GMT
+            Strict-Transport-Security: max-age=5184000; includeSubDomains
+            Vary: Origin
+            X-Content-Type-Options: nosniff
+            X-Dns-Prefetch-Control: "off"
+            X-Download-Options: noopen
+            X-Frame-Options: DENY
+            X-Request-Id: XQFmswvg1G86105QMQ6skMNwUWD5OZJ7
+            X-Xss-Protection: 1; mode=block
+        body: '{"data":{"deleteUser":{"id":"1"}}}'
+        status_message: OK
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 2024-03-14T17:12:45.24853267Z
+      noise:
+        header.Date: []
+      result:
+        status_code:
+            normal: true
+            expected: 200
+            actual: 200
+        headers_result:
+            - normal: true
+              expected:
+                key: X-Xss-Protection
+                value:
+                    - 1; mode=block
+              actual:
+                key: X-Xss-Protection
+                value:
+                    - 1; mode=block
+            - normal: true
+              expected:
+                key: Access-Control-Expose-Headers
+                value:
+                    - Content-Length
+              actual:
+                key: Access-Control-Expose-Headers
+                value:
+                    - Content-Length
+            - normal: true
+              expected:
+                key: Vary
+                value:
+                    - Origin
+              actual:
+                key: Vary
+                value:
+                    - Origin
+            - normal: true
+              expected:
+                key: X-Request-Id
+                value:
+                    - XQFmswvg1G86105QMQ6skMNwUWD5OZJ7
+              actual:
+                key: X-Request-Id
+                value:
+                    - iMuA95m9AfBue64hvf27wwmwwYx1iiGg
+            - normal: true
+              expected:
+                key: X-Frame-Options
+                value:
+                    - DENY
+              actual:
+                key: X-Frame-Options
+                value:
+                    - DENY
+            - normal: true
+              expected:
+                key: Date
+                value:
+                    - Thu, 14 Mar 2024 17:12:43 GMT
+              actual:
+                key: Date
+                value:
+                    - Thu, 14 Mar 2024 17:14:17 GMT
+            - normal: true
+              expected:
+                key: Strict-Transport-Security
+                value:
+                    - max-age=5184000; includeSubDomains
+              actual:
+                key: Strict-Transport-Security
+                value:
+                    - max-age=5184000; includeSubDomains
+            - normal: true
+              expected:
+                key: Content-Type
+                value:
+                    - application/json
+              actual:
+                key: Content-Type
+                value:
+                    - application/json
+            - normal: true
+              expected:
+                key: Access-Control-Allow-Credentials
+                value:
+                    - "true"
+              actual:
+                key: Access-Control-Allow-Credentials
+                value:
+                    - "true"
+            - normal: true
+              expected:
+                key: Access-Control-Allow-Origin
+                value:
+                    - http://localhost:9000
+              actual:
+                key: Access-Control-Allow-Origin
+                value:
+                    - http://localhost:9000
+            - normal: true
+              expected:
+                key: X-Content-Type-Options
+                value:
+                    - nosniff
+              actual:
+                key: X-Content-Type-Options
+                value:
+                    - nosniff
+            - normal: true
+              expected:
+                key: X-Dns-Prefetch-Control
+                value:
+                    - "off"
+              actual:
+                key: X-Dns-Prefetch-Control
+                value:
+                    - "off"
+            - normal: true
+              expected:
+                key: Content-Length
+                value:
+                    - "34"
+              actual:
+                key: Content-Length
+                value:
+                    - "34"
+            - normal: true
+              expected:
+                key: X-Download-Options
+                value:
+                    - noopen
+              actual:
+                key: X-Download-Options
+                value:
+                    - noopen
+        body_result:
+            - normal: true
+              expected: '{"data":{"deleteUser":{"id":"1"}}}'
+              actual: '{"data":{"deleteUser":{"id":"1"}}}'
+              type: JSON
+        dep_result: []
+    - kind: Http
+      name: report-1
+      status: PASSED
+      started: 1710436457
+      completed: 1710436457
+      test_case_path: /Users/himanshu/go-template/keploy/test-set-2
+      mock_path: /Users/himanshu/go-template/keploy/test-set-2/mocks.yaml
+      test_case_id: test-9
+      req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: http://172.24.0.5:9000/graphql
+        header:
+            Accept: application/json, multipart/mixed
+            Accept-Encoding: gzip, deflate, br, zstd
+            Accept-Language: en-GB,en-US;q=0.9,en;q=0.8
+            Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiam9obmRvZUBtYWlsLmNvbSIsImV4cCI6MTcxMDUyMjY1MSwiaWQiOjEsInJvbGUiOiJTVVBFUl9BRE1JTiIsInUiOiJhZG1pbiJ9.P5ko6a_J6h0p2FdaWfP2qYpVHT2sLwgVQjXijrK9u8w
+            Connection: keep-alive
+            Content-Length: "160"
+            Content-Type: application/json
+            Cookie: __hstc=181257784.e0fa10c698a35e55de1a39067df22f30.1709635044687.1709635044687.1709635044687.1; hubspotutk=e0fa10c698a35e55de1a39067df22f30; messagesUtk=91ea843e27d3455f86995fa0c541b5e0
+            Host: localhost:9000
+            Origin: http://localhost:9000
+            Referer: http://localhost:9000/playground
+            Sec-Ch-Ua: '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"'
+            Sec-Ch-Ua-Mobile: ?0
+            Sec-Ch-Ua-Platform: '"macOS"'
+            Sec-Fetch-Dest: empty
+            Sec-Fetch-Mode: cors
+            Sec-Fetch-Site: same-origin
+            User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36
+        body: '{"query":"query Users {\n  users(pagination: {\n    limit: 10,\n    page: 1\n  }) {\n    users {\n      id\n    }\n    total\n  }\n}\n","operationName":"Users"}'
+        timestamp: 2024-03-14T17:12:49.390433575Z
+      resp:
+        status_code: 200
+        header:
+            Access-Control-Allow-Credentials: "true"
+            Access-Control-Allow-Origin: http://localhost:9000
+            Access-Control-Expose-Headers: Content-Length
+            Content-Length: "75"
+            Content-Type: application/json
+            Date: Thu, 14 Mar 2024 17:12:49 GMT
+            Strict-Transport-Security: max-age=5184000; includeSubDomains
+            Vary: Origin
+            X-Content-Type-Options: nosniff
+            X-Dns-Prefetch-Control: "off"
+            X-Download-Options: noopen
+            X-Frame-Options: DENY
+            X-Request-Id: QzfG3DVR8fDBtWi35lhlqB14Tbluf9Kf
+            X-Xss-Protection: 1; mode=block
+        body: '{"errors":[{"message":"No user found for this email address"}],"data":null}'
+        status_message: OK
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 2024-03-14T17:12:52.95229984Z
+      noise:
+        header.Date: []
+      result:
+        status_code:
+            normal: true
+            expected: 200
+            actual: 200
+        headers_result:
+            - normal: true
+              expected:
+                key: Content-Length
+                value:
+                    - "75"
+              actual:
+                key: Content-Length
+                value:
+                    - "75"
+            - normal: true
+              expected:
+                key: X-Dns-Prefetch-Control
+                value:
+                    - "off"
+              actual:
+                key: X-Dns-Prefetch-Control
+                value:
+                    - "off"
+            - normal: true
+              expected:
+                key: Access-Control-Expose-Headers
+                value:
+                    - Content-Length
+              actual:
+                key: Access-Control-Expose-Headers
+                value:
+                    - Content-Length
+            - normal: true
+              expected:
+                key: Access-Control-Allow-Credentials
+                value:
+                    - "true"
+              actual:
+                key: Access-Control-Allow-Credentials
+                value:
+                    - "true"
+            - normal: true
+              expected:
+                key: Access-Control-Allow-Origin
+                value:
+                    - http://localhost:9000
+              actual:
+                key: Access-Control-Allow-Origin
+                value:
+                    - http://localhost:9000
+            - normal: true
+              expected:
+                key: Strict-Transport-Security
+                value:
+                    - max-age=5184000; includeSubDomains
+              actual:
+                key: Strict-Transport-Security
+                value:
+                    - max-age=5184000; includeSubDomains
+            - normal: true
+              expected:
+                key: X-Request-Id
+                value:
+                    - QzfG3DVR8fDBtWi35lhlqB14Tbluf9Kf
+              actual:
+                key: X-Request-Id
+                value:
+                    - Dasi8SaGng5GioMcHBbgNqf1xx5JWxmK
+            - normal: true
+              expected:
+                key: X-Content-Type-Options
+                value:
+                    - nosniff
+              actual:
+                key: X-Content-Type-Options
+                value:
+                    - nosniff
+            - normal: true
+              expected:
+                key: Vary
+                value:
+                    - Origin
+              actual:
+                key: Vary
+                value:
+                    - Origin
+            - normal: true
+              expected:
+                key: X-Frame-Options
+                value:
+                    - DENY
+              actual:
+                key: X-Frame-Options
+                value:
+                    - DENY
+            - normal: true
+              expected:
+                key: X-Download-Options
+                value:
+                    - noopen
+              actual:
+                key: X-Download-Options
+                value:
+                    - noopen
+            - normal: true
+              expected:
+                key: Date
+                value:
+                    - Thu, 14 Mar 2024 17:12:49 GMT
+              actual:
+                key: Date
+                value:
+                    - Thu, 14 Mar 2024 17:14:17 GMT
+            - normal: true
+              expected:
+                key: Content-Type
+                value:
+                    - application/json
+              actual:
+                key: Content-Type
+                value:
+                    - application/json
+            - normal: true
+              expected:
+                key: X-Xss-Protection
+                value:
+                    - 1; mode=block
+              actual:
+                key: X-Xss-Protection
+                value:
+                    - 1; mode=block
+        body_result:
+            - normal: true
+              expected: '{"errors":[{"message":"No user found for this email address"}],"data":null}'
+              actual: '{"errors":[{"message":"No user found for this email address"}],"data":null}'
+              type: JSON
+        dep_result: []
+test_set: test-set-2

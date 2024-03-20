@@ -1,0 +1,79 @@
+version: api.keploy.io/v1beta1
+kind: Http
+name: test-6
+spec:
+    metadata: {}
+    req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/graphql
+        header:
+            Accept: application/json, multipart/mixed
+            Accept-Encoding: gzip, deflate, br, zstd
+            Accept-Language: en-GB,en-US;q=0.9,en;q=0.8
+            Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiam9obmRvZUBtYWlsLmNvbSIsImV4cCI6MTcxMDQwOTA5NiwiaWQiOjEsInJvbGUiOiJTVVBFUl9BRE1JTiIsInUiOiJhZG1pbiJ9.mg-lfE1Sc2QCa2hOp3G2p1qMaPMblO95mnSLOikHrgY
+            Connection: keep-alive
+            Content-Length: "110"
+            Content-Type: application/json
+            Cookie: __hstc=181257784.e0fa10c698a35e55de1a39067df22f30.1709635044687.1709635044687.1709635044687.1; hubspotutk=e0fa10c698a35e55de1a39067df22f30; messagesUtk=91ea843e27d3455f86995fa0c541b5e0
+            Host: localhost:9000
+            Origin: http://localhost:9000
+            Referer: http://localhost:9000/playground
+            Sec-Ch-Ua: '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"'
+            Sec-Ch-Ua-Mobile: ?0
+            Sec-Ch-Ua-Platform: '"macOS"'
+            Sec-Fetch-Dest: empty
+            Sec-Fetch-Mode: cors
+            Sec-Fetch-Site: same-origin
+            User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36
+        body: '{"query":"query Me {\n  me {\n    id\n    username\n    firstName\n    lastName\n  }\n}","operationName":"Me"}'
+        timestamp: 2024-03-14T16:49:50.988216687Z
+    resp:
+        status_code: 200
+        header:
+            Access-Control-Allow-Credentials: "true"
+            Access-Control-Allow-Origin: http://localhost:9000
+            Access-Control-Expose-Headers: Content-Length
+            Content-Length: "66"
+            Content-Type: application/json
+            Date: Thu, 14 Mar 2024 16:49:50 GMT
+            Strict-Transport-Security: max-age=5184000; includeSubDomains
+            Vary: Origin
+            X-Content-Type-Options: nosniff
+            X-Dns-Prefetch-Control: "off"
+            X-Download-Options: noopen
+            X-Frame-Options: DENY
+            X-Request-Id: Uu2EhjCDhQfkMQB7LBz4SXZb4fXHThGB
+            X-Xss-Protection: 1; mode=block
+        body: '{"errors":[{"message":"Invalid authorization token"}],"data":null}'
+        status_message: OK
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 2024-03-14T16:49:52.996119007Z
+    objects: []
+    assertions:
+        noise:
+            header.Date: []
+    created: 1710434992
+curl: |-
+    curl --request POST \
+      --url http://localhost:9000/graphql \
+      --header 'Cookie: __hstc=181257784.e0fa10c698a35e55de1a39067df22f30.1709635044687.1709635044687.1709635044687.1; hubspotutk=e0fa10c698a35e55de1a39067df22f30; messagesUtk=91ea843e27d3455f86995fa0c541b5e0' \
+      --header 'Accept: application/json, multipart/mixed' \
+      --header 'Sec-Ch-Ua-Mobile: ?0' \
+      --header 'Sec-Ch-Ua: "Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"' \
+      --header 'Sec-Fetch-Site: same-origin' \
+      --header 'Sec-Fetch-Dest: empty' \
+      --header 'Content-Type: application/json' \
+      --header 'Sec-Ch-Ua-Platform: "macOS"' \
+      --header 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36' \
+      --header 'Accept-Encoding: gzip, deflate, br, zstd' \
+      --header 'Host: localhost:9000' \
+      --header 'Referer: http://localhost:9000/playground' \
+      --header 'Sec-Fetch-Mode: cors' \
+      --header 'Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiam9obmRvZUBtYWlsLmNvbSIsImV4cCI6MTcxMDQwOTA5NiwiaWQiOjEsInJvbGUiOiJTVVBFUl9BRE1JTiIsInUiOiJhZG1pbiJ9.mg-lfE1Sc2QCa2hOp3G2p1qMaPMblO95mnSLOikHrgY' \
+      --header 'Origin: http://localhost:9000' \
+      --header 'Connection: keep-alive' \
+      --header 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8' \
+      --data '{"query":"query Me {\n  me {\n    id\n    username\n    firstName\n    lastName\n  }\n}","operationName":"Me"}'

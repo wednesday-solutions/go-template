@@ -1,0 +1,71 @@
+version: api.keploy.io/v1beta1
+kind: Http
+name: test-3
+spec:
+    metadata: {}
+    req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/favicon.ico
+        header:
+            Accept: image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8
+            Accept-Encoding: gzip, deflate, br, zstd
+            Accept-Language: en-GB,en-US;q=0.9,en;q=0.8
+            Connection: keep-alive
+            Cookie: __hstc=181257784.e0fa10c698a35e55de1a39067df22f30.1709635044687.1709635044687.1709635044687.1; hubspotutk=e0fa10c698a35e55de1a39067df22f30; messagesUtk=91ea843e27d3455f86995fa0c541b5e0
+            Host: localhost:9000
+            Referer: http://localhost:9000/playground
+            Sec-Ch-Ua: '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"'
+            Sec-Ch-Ua-Mobile: ?0
+            Sec-Ch-Ua-Platform: '"macOS"'
+            Sec-Fetch-Dest: image
+            Sec-Fetch-Mode: no-cors
+            Sec-Fetch-Site: same-origin
+            User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36
+        body: ""
+        timestamp: 2024-03-14T16:49:36.881364055Z
+    resp:
+        status_code: 404
+        header:
+            Content-Length: "29"
+            Content-Type: application/json; charset=UTF-8
+            Date: Thu, 14 Mar 2024 16:49:36 GMT
+            Strict-Transport-Security: max-age=5184000; includeSubDomains
+            Vary: Origin
+            X-Content-Type-Options: nosniff
+            X-Dns-Prefetch-Control: "off"
+            X-Download-Options: noopen
+            X-Frame-Options: DENY
+            X-Request-Id: ea8MFFjZnrYJPiQSNi8F5j6zAKAf9lt1
+            X-Xss-Protection: 1; mode=block
+        body: |
+            {
+              "message": "Not Found"
+            }
+        status_message: Not Found
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 2024-03-14T16:49:38.970756709Z
+    objects: []
+    assertions:
+        noise:
+            header.Date: []
+    created: 1710434978
+curl: |
+    curl --request GET \
+      --url http://localhost:9000/favicon.ico \
+      --header 'Host: localhost:9000' \
+      --header 'Connection: keep-alive' \
+      --header 'Sec-Ch-Ua-Mobile: ?0' \
+      --header 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36' \
+      --header 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8' \
+      --header 'Sec-Fetch-Dest: image' \
+      --header 'Sec-Fetch-Site: same-origin' \
+      --header 'Accept-Encoding: gzip, deflate, br, zstd' \
+      --header 'Cookie: __hstc=181257784.e0fa10c698a35e55de1a39067df22f30.1709635044687.1709635044687.1709635044687.1; hubspotutk=e0fa10c698a35e55de1a39067df22f30; messagesUtk=91ea843e27d3455f86995fa0c541b5e0' \
+      --header 'Sec-Ch-Ua-Platform: "macOS"' \
+      --header 'Sec-Fetch-Mode: no-cors' \
+      --header 'Accept: image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8' \
+      --header 'Referer: http://localhost:9000/playground' \
+      --header 'Sec-Ch-Ua: "Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"' \

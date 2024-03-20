@@ -23,6 +23,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gorilla/websocket"
+	"github.com/keploy/go-sdk/v2/keploy"
 	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq" // here
 
@@ -111,6 +112,7 @@ func Start(cfg *config.Configuration) (*echo.Echo, error) {
 		playgroundHandler.ServeHTTP(res, req)
 		return nil
 	})
+	keploy.GracefulShutdown()
 	server.Start(e, &server.Config{
 		Port:                cfg.Server.Port,
 		ReadTimeoutSeconds:  cfg.Server.ReadTimeout,

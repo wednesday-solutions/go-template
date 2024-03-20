@@ -1,0 +1,398 @@
+version: api.keploy.io/v1beta1
+name: report-3
+status: PASSED
+success: 2
+failure: 0
+total: 2
+tests:
+    - kind: Http
+      name: report-3
+      status: PASSED
+      started: 1710436491
+      completed: 1710436491
+      test_case_path: /Users/himanshu/go-template/keploy/test-set-1
+      mock_path: /Users/himanshu/go-template/keploy/test-set-1/mocks.yaml
+      test_case_id: test-1
+      req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: http://172.24.0.3:9000/graphql
+        header:
+            Accept: application/json, multipart/mixed
+            Accept-Encoding: gzip, deflate, br, zstd
+            Accept-Language: en-GB,en-US;q=0.9,en;q=0.8
+            Connection: keep-alive
+            Content-Length: "142"
+            Content-Type: application/json
+            Cookie: __hstc=181257784.e0fa10c698a35e55de1a39067df22f30.1709635044687.1709635044687.1709635044687.1; hubspotutk=e0fa10c698a35e55de1a39067df22f30; messagesUtk=91ea843e27d3455f86995fa0c541b5e0
+            Host: localhost:9000
+            Origin: http://localhost:9000
+            Referer: http://localhost:9000/playground
+            Sec-Ch-Ua: '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"'
+            Sec-Ch-Ua-Mobile: ?0
+            Sec-Ch-Ua-Platform: '"macOS"'
+            Sec-Fetch-Dest: empty
+            Sec-Fetch-Mode: cors
+            Sec-Fetch-Site: same-origin
+            User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36
+        body: '{"query":"mutation Login{\n  login(username:\"adminuser\", password:\"admin\"){\n    token\n    refreshToken\n  }\n}","operationName":"Login"}'
+        timestamp: 2024-03-14T16:59:34.811896166Z
+      resp:
+        status_code: 200
+        header:
+            Access-Control-Allow-Credentials: "true"
+            Access-Control-Allow-Origin: http://localhost:9000
+            Access-Control-Expose-Headers: Content-Length
+            Content-Length: "82"
+            Content-Type: application/json
+            Date: Thu, 14 Mar 2024 16:59:34 GMT
+            Strict-Transport-Security: max-age=5184000; includeSubDomains
+            Vary: Origin
+            X-Content-Type-Options: nosniff
+            X-Dns-Prefetch-Control: "off"
+            X-Download-Options: noopen
+            X-Frame-Options: DENY
+            X-Request-Id: ntiaemh6c2bkpjIfoisy2jeAEuS3HDmg
+            X-Xss-Protection: 1; mode=block
+        body: '{"errors":[{"message":"sql: no rows in result set","path":["login"]}],"data":null}'
+        status_message: OK
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 2024-03-14T16:59:36.853125958Z
+      noise:
+        header.Date: []
+      result:
+        status_code:
+            normal: true
+            expected: 200
+            actual: 200
+        headers_result:
+            - normal: true
+              expected:
+                key: X-Dns-Prefetch-Control
+                value:
+                    - "off"
+              actual:
+                key: X-Dns-Prefetch-Control
+                value:
+                    - "off"
+            - normal: true
+              expected:
+                key: Content-Length
+                value:
+                    - "82"
+              actual:
+                key: Content-Length
+                value:
+                    - "82"
+            - normal: true
+              expected:
+                key: Access-Control-Allow-Credentials
+                value:
+                    - "true"
+              actual:
+                key: Access-Control-Allow-Credentials
+                value:
+                    - "true"
+            - normal: true
+              expected:
+                key: X-Download-Options
+                value:
+                    - noopen
+              actual:
+                key: X-Download-Options
+                value:
+                    - noopen
+            - normal: true
+              expected:
+                key: X-Frame-Options
+                value:
+                    - DENY
+              actual:
+                key: X-Frame-Options
+                value:
+                    - DENY
+            - normal: true
+              expected:
+                key: Access-Control-Allow-Origin
+                value:
+                    - http://localhost:9000
+              actual:
+                key: Access-Control-Allow-Origin
+                value:
+                    - http://localhost:9000
+            - normal: true
+              expected:
+                key: Access-Control-Expose-Headers
+                value:
+                    - Content-Length
+              actual:
+                key: Access-Control-Expose-Headers
+                value:
+                    - Content-Length
+            - normal: true
+              expected:
+                key: X-Xss-Protection
+                value:
+                    - 1; mode=block
+              actual:
+                key: X-Xss-Protection
+                value:
+                    - 1; mode=block
+            - normal: true
+              expected:
+                key: Date
+                value:
+                    - Thu, 14 Mar 2024 16:59:34 GMT
+              actual:
+                key: Date
+                value:
+                    - Thu, 14 Mar 2024 17:14:51 GMT
+            - normal: true
+              expected:
+                key: Content-Type
+                value:
+                    - application/json
+              actual:
+                key: Content-Type
+                value:
+                    - application/json
+            - normal: true
+              expected:
+                key: Vary
+                value:
+                    - Origin
+              actual:
+                key: Vary
+                value:
+                    - Origin
+            - normal: true
+              expected:
+                key: X-Content-Type-Options
+                value:
+                    - nosniff
+              actual:
+                key: X-Content-Type-Options
+                value:
+                    - nosniff
+            - normal: true
+              expected:
+                key: X-Request-Id
+                value:
+                    - ntiaemh6c2bkpjIfoisy2jeAEuS3HDmg
+              actual:
+                key: X-Request-Id
+                value:
+                    - WT2YuFvM4pFystWmxi3BkNZGzwFG7lkE
+            - normal: true
+              expected:
+                key: Strict-Transport-Security
+                value:
+                    - max-age=5184000; includeSubDomains
+              actual:
+                key: Strict-Transport-Security
+                value:
+                    - max-age=5184000; includeSubDomains
+        body_result:
+            - normal: true
+              expected: '{"errors":[{"message":"sql: no rows in result set","path":["login"]}],"data":null}'
+              actual: '{"errors":[{"message":"sql: no rows in result set","path":["login"]}],"data":null}'
+              type: JSON
+        dep_result: []
+    - kind: Http
+      name: report-3
+      status: PASSED
+      started: 1710436491
+      completed: 1710436491
+      test_case_path: /Users/himanshu/go-template/keploy/test-set-1
+      mock_path: /Users/himanshu/go-template/keploy/test-set-1/mocks.yaml
+      test_case_id: test-2
+      req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: http://172.24.0.3:9000/graphql
+        header:
+            Accept: application/json, multipart/mixed
+            Accept-Encoding: gzip, deflate, br, zstd
+            Accept-Language: en-GB,en-US;q=0.9,en;q=0.8
+            Connection: keep-alive
+            Content-Length: "142"
+            Content-Type: application/json
+            Cookie: __hstc=181257784.e0fa10c698a35e55de1a39067df22f30.1709635044687.1709635044687.1709635044687.1; hubspotutk=e0fa10c698a35e55de1a39067df22f30; messagesUtk=91ea843e27d3455f86995fa0c541b5e0
+            Host: localhost:9000
+            Origin: http://localhost:9000
+            Referer: http://localhost:9000/playground
+            Sec-Ch-Ua: '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"'
+            Sec-Ch-Ua-Mobile: ?0
+            Sec-Ch-Ua-Platform: '"macOS"'
+            Sec-Fetch-Dest: empty
+            Sec-Fetch-Mode: cors
+            Sec-Fetch-Site: same-origin
+            User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36
+        body: '{"query":"mutation Login{\n  login(username:\"adminuser\", password:\"admin\"){\n    token\n    refreshToken\n  }\n}","operationName":"Login"}'
+        timestamp: 2024-03-14T17:04:43.918035931Z
+      resp:
+        status_code: 200
+        header:
+            Access-Control-Allow-Credentials: "true"
+            Access-Control-Allow-Origin: http://localhost:9000
+            Access-Control-Expose-Headers: Content-Length
+            Content-Length: "82"
+            Content-Type: application/json
+            Date: Thu, 14 Mar 2024 17:04:43 GMT
+            Strict-Transport-Security: max-age=5184000; includeSubDomains
+            Vary: Origin
+            X-Content-Type-Options: nosniff
+            X-Dns-Prefetch-Control: "off"
+            X-Download-Options: noopen
+            X-Frame-Options: DENY
+            X-Request-Id: 2DueTHvBd545lqrBUewqu8qAcTolASie
+            X-Xss-Protection: 1; mode=block
+        body: '{"errors":[{"message":"sql: no rows in result set","path":["login"]}],"data":null}'
+        status_message: OK
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 2024-03-14T17:04:45.956132171Z
+      noise:
+        header.Date: []
+      result:
+        status_code:
+            normal: true
+            expected: 200
+            actual: 200
+        headers_result:
+            - normal: true
+              expected:
+                key: Access-Control-Allow-Origin
+                value:
+                    - http://localhost:9000
+              actual:
+                key: Access-Control-Allow-Origin
+                value:
+                    - http://localhost:9000
+            - normal: true
+              expected:
+                key: Strict-Transport-Security
+                value:
+                    - max-age=5184000; includeSubDomains
+              actual:
+                key: Strict-Transport-Security
+                value:
+                    - max-age=5184000; includeSubDomains
+            - normal: true
+              expected:
+                key: X-Dns-Prefetch-Control
+                value:
+                    - "off"
+              actual:
+                key: X-Dns-Prefetch-Control
+                value:
+                    - "off"
+            - normal: true
+              expected:
+                key: X-Request-Id
+                value:
+                    - 2DueTHvBd545lqrBUewqu8qAcTolASie
+              actual:
+                key: X-Request-Id
+                value:
+                    - jPmLWUTIeSDrNldTUPb9yxxGusedAUml
+            - normal: true
+              expected:
+                key: Content-Type
+                value:
+                    - application/json
+              actual:
+                key: Content-Type
+                value:
+                    - application/json
+            - normal: true
+              expected:
+                key: X-Content-Type-Options
+                value:
+                    - nosniff
+              actual:
+                key: X-Content-Type-Options
+                value:
+                    - nosniff
+            - normal: true
+              expected:
+                key: Access-Control-Allow-Credentials
+                value:
+                    - "true"
+              actual:
+                key: Access-Control-Allow-Credentials
+                value:
+                    - "true"
+            - normal: true
+              expected:
+                key: Content-Length
+                value:
+                    - "82"
+              actual:
+                key: Content-Length
+                value:
+                    - "82"
+            - normal: true
+              expected:
+                key: X-Download-Options
+                value:
+                    - noopen
+              actual:
+                key: X-Download-Options
+                value:
+                    - noopen
+            - normal: true
+              expected:
+                key: X-Xss-Protection
+                value:
+                    - 1; mode=block
+              actual:
+                key: X-Xss-Protection
+                value:
+                    - 1; mode=block
+            - normal: true
+              expected:
+                key: Date
+                value:
+                    - Thu, 14 Mar 2024 17:04:43 GMT
+              actual:
+                key: Date
+                value:
+                    - Thu, 14 Mar 2024 17:14:51 GMT
+            - normal: true
+              expected:
+                key: Vary
+                value:
+                    - Origin
+              actual:
+                key: Vary
+                value:
+                    - Origin
+            - normal: true
+              expected:
+                key: X-Frame-Options
+                value:
+                    - DENY
+              actual:
+                key: X-Frame-Options
+                value:
+                    - DENY
+            - normal: true
+              expected:
+                key: Access-Control-Expose-Headers
+                value:
+                    - Content-Length
+              actual:
+                key: Access-Control-Expose-Headers
+                value:
+                    - Content-Length
+        body_result:
+            - normal: true
+              expected: '{"errors":[{"message":"sql: no rows in result set","path":["login"]}],"data":null}'
+              actual: '{"errors":[{"message":"sql: no rows in result set","path":["login"]}],"data":null}'
+              type: JSON
+        dep_result: []
+test_set: test-set-1

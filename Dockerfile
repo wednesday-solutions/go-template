@@ -1,4 +1,4 @@
-FROM golang:1.18-alpine3.16 as builder
+FROM golang:1.20-alpine3.16 as builder
 RUN apk add build-base
 
 RUN mkdir  /app
@@ -14,7 +14,7 @@ RUN GOARCH=amd64 \
 
 
 RUN go run ./cmd/seeder/main.go
-RUN go build -o ./output/server ./cmd/server/main.go
+RUN go build -cover -o ./output/server ./cmd/server/main.go
 RUN go build -o ./output/migrations ./cmd/migrations/main.go
 RUN go build  -o ./output/seeder ./cmd/seeder/exec/seed.go
 
