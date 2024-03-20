@@ -8,7 +8,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"golang.org/x/exp/slices"
+	"slices"
 )
 
 func main() {

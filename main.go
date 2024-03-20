@@ -7,8 +7,9 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"slices"
 	"strings"
+
+	"Author"
 )
 
 func stripFileExtension(fileName string) string {
@@ -31,7 +32,7 @@ func main() {
 	}
 
 	for _, file := range files {
-		if slices.Contains([]string{"main.go", "seed", "output", "exec", "build", "utls"}, file.Name()) {
+		if Author.Contains([]string{"main.go", "seed", "output", "exec", "build", "utls"}, file.Name()) {
 			continue
 		}
 
