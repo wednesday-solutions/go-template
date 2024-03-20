@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - master
+      - feature/docs_update
 
 
 jobs:
@@ -21,7 +22,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.22
+          go-version: '1.22'
       - name: Get branch name
         id: vars
         run: echo ::set-output name=branch::${{ github.event.pull_request.head.ref }}
@@ -69,5 +70,5 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.22
+          go-version: '1.22'
       - uses: golangci/golangci-lint-action@v3
