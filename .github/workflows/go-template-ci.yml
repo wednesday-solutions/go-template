@@ -21,7 +21,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v3
         with:
-          go-version: 1.19
+          go-version: 1.22
       - name: Get branch name
         id: vars
         run: echo ::set-output name=branch::${{ github.event.pull_request.head.ref }}
@@ -69,5 +69,5 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v3
         with:
-          go-version: 1.19
+          go-version: 1.22
       - uses: golangci/golangci-lint-action@v3
