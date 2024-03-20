@@ -7,10 +7,8 @@ on:
   push:
     branches:
       - master
-
-
+      - docs_update
 jobs:
-
   lint-test-build:
     runs-on: ubuntu-latest
     steps:
@@ -18,10 +16,10 @@ jobs:
         with:
           fetch-depth: 0
       - uses: actions/setup-python@v3
-      - name: Install Go
+      - name: SetupGoV5
         uses: actions/setup-go@v5
         with:
-          go-version: 1.22
+          go-version: '1.22'
       - name: Get branch name
         id: vars
         run: echo ::set-output name=branch::${{ github.event.pull_request.head.ref }}
@@ -69,5 +67,5 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.22
+          go-version: '1.22'
       - uses: golangci/golangci-lint-action@v3
