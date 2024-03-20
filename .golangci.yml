@@ -6,7 +6,6 @@ linters-settings:
 linters:
   enable:
     - lll
-    - deadcode
     - errcheck
     - gosimple 
     - govet 
@@ -16,3 +15,8 @@ linters:
     - typecheck
     - unused 
     - varcheck
+    # - cyclop
+    # - funlen
+    # - gocritic
+    # - gocyclo
+    # - gofmt
