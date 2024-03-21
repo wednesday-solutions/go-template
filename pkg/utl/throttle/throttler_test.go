@@ -103,19 +103,15 @@ func TestCheck(t *testing.T) {
 	}
 	ApplyFunc(graphql.GetPath, func(ctx context.Context) ast.Path {
 		return ast.Path{ast.PathName("users")}
-
 	})
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.args.ctx = context.WithValue(tt.args.ctx, userIPAdress, tt.args.ip)
-
 			patches := ApplyFunc(os.Getenv, func(key string) string {
 				if key == "ENVIRONMENT_NAME" {
 					if tt.args.isLocal {
 						return "local"
 					}
-
 				}
 				return ""
 			})
@@ -129,14 +125,12 @@ func TestCheck(t *testing.T) {
 			ApplyFunc(rediscache.StartVisits, func(path string, exp time.Duration) error {
 				return tt.args.startVisitsErr
 			})
-
 			if err := Check(tt.args.ctx, tt.args.limit, tt.args.dur); (err != nil) != tt.wantErr {
 				t.Errorf("Check() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
 }
-
 func TestGqlMiddleware(t *testing.T) {
 	type args struct {
 		handler echo.HandlerFunc

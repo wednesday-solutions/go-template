@@ -103,9 +103,7 @@ func LoadEnvWithFilePrefix(fileprefix *string) error {
 		os.Setenv("PSQL_PASS", secrets.Password)
 		os.Setenv("PSQL_PORT", strconv.Itoa(secrets.Port))
 		os.Setenv("PSQL_USER", secrets.Username)
-
 	}
-
 	return nil
 }
 func LoadEnv() error {

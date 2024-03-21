@@ -48,7 +48,7 @@ type args struct {
 	shutDownFailed       bool
 }
 
-func initValues(shutDownFailed bool, startServer func(e *echo.Echo, s *http.Server) error) args {
+func initValues(startServer func(e *echo.Echo, s *http.Server) error) args {
 	config := testutls.MockConfig()
 	return args{
 		e: server.New(),
@@ -63,7 +63,6 @@ func initValues(shutDownFailed bool, startServer func(e *echo.Echo, s *http.Serv
 	}
 }
 func TestStart(t *testing.T) {
-
 	cases := map[string]struct {
 		args args
 	}{
@@ -90,19 +89,16 @@ func TestStart(t *testing.T) {
 				tt.args.startServerCalled = true
 				return err
 			})
-
 			if tt.args.shutDownFailed {
 				ApplyMethod(reflect.TypeOf(tt.args.e), "Shutdown", func(e *echo.Echo, ctx context.Context) (err error) {
 					return fmt.Errorf("error shutting down")
 				})
-
 				ApplyMethod(
 					reflect.TypeOf(tt.args.e.StdLogger), "Fatal",
 					func(l *log.Logger, i ...interface{}) {
 						tt.args.serverShutDownCalled = true
 					})
 			}
-
 			go func() {
 				time.Sleep(200 * time.Millisecond)
 				proc, err := os.FindProcess(os.Getpid())
@@ -120,16 +116,13 @@ func TestStart(t *testing.T) {
 					log.Fatal("errror")
 				}
 				time.Sleep(1 * time.Second)
-
 			}()
 			server.Start(tt.args.e, tt.args.cfg)
 			time.Sleep(400 * time.Millisecond)
 			assert.Equal(t, tt.args.startServerCalled, true)
-
 			if tt.args.shutDownFailed {
 				assert.Equal(t, tt.args.serverShutDownCalled, true)
 			}
-
 		})
 	}
 }

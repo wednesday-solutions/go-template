@@ -71,9 +71,7 @@ func MockUsers() []*models.User {
 			Address:   null.StringFrom("22 Jump Street"),
 		},
 	}
-
 }
-
 func MockJwt(role string) *jwt.Token {
 	return &jwt.Token{
 		Raw: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIi" +

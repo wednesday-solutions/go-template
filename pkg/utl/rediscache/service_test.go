@@ -227,9 +227,7 @@ func TestGetUser(t *testing.T) {
 		ApplyFunc(redisDial, func() (redis.Conn, error) {
 			return conn, nil
 		})
-
 		t.Run(tt.name, func(t *testing.T) {
-
 			if tt.name == ErrorUnmarshal {
 				patchJson := ApplyFunc(json.Marshal, func(v any) ([]byte, error) {
 					return []byte{}, fmt.Errorf("json error")
@@ -238,7 +236,6 @@ func TestGetUser(t *testing.T) {
 			}
 			if tt.args.cacheMiss {
 				conn.Command("GET", fmt.Sprintf("user%d", tt.args.userID)).Expect(nil)
-
 				b, _ := json.Marshal(tt.want)
 				conn.Command("SET", fmt.Sprintf("user%d", tt.args.userID), string(b)).Expect(nil)
 				for _, dbQuery := range tt.args.dbQueries {
@@ -248,16 +245,13 @@ func TestGetUser(t *testing.T) {
 				}
 			} else if tt.name == ErrorGetKeyValue {
 				conn.Command("GET", fmt.Sprintf("role%d", tt.args.userID)).ExpectError(fmt.Errorf(ErrMsgGetKeyValue))
-
 			} else if tt.name == ErrorSetKeyValue {
 				conn.Command("GET", fmt.Sprintf("role%d", tt.args.userID)).Expect(nil)
 			} else {
 				b, _ := json.Marshal(tt.want)
 				conn.Command("GET", fmt.Sprintf("user%d", tt.args.userID)).Expect(b)
 			}
-
 			got, err := GetUser(tt.args.userID, context.Background())
-
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetUser() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -382,32 +376,25 @@ func TestGetRole(t *testing.T) {
 			want: role,
 		},
 	}
-
 	oldDB := boil.GetDB()
 	err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../../../"))
 	if err != nil {
 		log.Fatal(err)
 	}
 	mock, db, _ := testutls.SetupMockDB(t)
-
 	for _, tt := range tests {
-
 		ApplyFunc(redisDial, func() (redis.Conn, error) {
 			return conn, nil
 		})
-
 		t.Run(tt.name, func(t *testing.T) {
-
 			if tt.name == ErrorUnmarshal {
 				patchJson := ApplyFunc(json.Unmarshal, func(data []byte, v any) error {
 					return fmt.Errorf(ErrMsgUnmarshal)
 				})
 				defer patchJson.Reset()
 			}
-
 			if tt.args.cacheMiss {
 				conn.Command("GET", fmt.Sprintf("role%d", tt.args.roleID)).Expect(nil)
-
 				b, _ := json.Marshal(tt.want)
 				conn.Command("SET", fmt.Sprintf("role%d", tt.args.roleID), string(b)).Expect(nil)
 				for _, dbQuery := range tt.args.dbQueries {
@@ -415,7 +402,6 @@ func TestGetRole(t *testing.T) {
 						WithArgs(*dbQuery.Actions...).
 						WillReturnRows(dbQuery.DbResponse)
 				}
-
 			} else if tt.name == ErrorGetKeyValue {
 				conn.Command("GET", fmt.Sprintf("role%d", tt.args.roleID)).ExpectError(fmt.Errorf(ErrMsgGetKeyValue))
 			} else if tt.name == ErrorSetKeyValue {
@@ -424,7 +410,6 @@ func TestGetRole(t *testing.T) {
 				b, _ := json.Marshal(tt.want)
 				conn.Command("GET", fmt.Sprintf("role%d", tt.args.roleID)).Expect(b)
 			}
-
 			got, err := GetRole(tt.args.roleID, context.Background())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetRole() error = %v, wantErr %v", err, tt.wantErr)
@@ -470,16 +455,13 @@ func TestIncVisits(t *testing.T) {
 		return conn, nil
 	})
 	for _, tt := range tests {
-
 		if tt.name == ErrorRedisDial {
 			patch := gomonkey.ApplyFunc(redisDial, func() (redigo.Conn, error) {
 				return nil, fmt.Errorf(ErrMsgFromRedisDial)
 			})
 			defer patch.Reset()
 		}
-
 		t.Run(tt.name, func(t *testing.T) {
-
 			conn.Command("INCR", tt.args.path).Expect([]byte(fmt.Sprint(tt.want)))
 			got, err := IncVisits(tt.args.path)
 			if (err != nil) != tt.wantErr {
@@ -531,14 +513,12 @@ func TestStartVisits(t *testing.T) {
 	ApplyFunc(redisDial, func() (redis.Conn, error) {
 		return conn, nil
 	})
-
 	err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../"))
 	if err != nil {
 		t.Log(err)
 	}
 
 	for _, tt := range tests {
-
 		if tt.name == ErrorRedisDial {
 			patch := gomonkey.ApplyFunc(redisDial, func() (redigo.Conn, error) {
 				return nil, fmt.Errorf(ErrMsgFromRedisDial)
@@ -561,7 +541,6 @@ func TestStartVisits(t *testing.T) {
 				t.Errorf("StartVisits() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-
 		})
 	}
 }

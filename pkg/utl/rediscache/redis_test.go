@@ -20,7 +20,6 @@ const (
 )
 
 func Test_redisDial(t *testing.T) {
-
 	tests := []struct {
 		name    string
 		want    redigo.Conn
@@ -99,7 +98,6 @@ func TestSetKeyValue(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
 			var patches *Patches
 			b, _ := json.Marshal(tt.args.data)
 			if tt.name == FailedCase {

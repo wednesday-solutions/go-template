@@ -75,7 +75,6 @@ func TestMe(
 	//
 	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
-
 		if tt.name == ErrorFromRedisCache {
 			patchGetUser := gomonkey.ApplyFunc(rediscache.GetUser,
 				func(userID int, ctx context.Context) (*models.User, error) {
@@ -103,7 +102,6 @@ func TestMe(
 		t.Run(
 			tt.name,
 			func(t *testing.T) {
-
 				b, _ := json.Marshal(tt.args.user)
 				conn.Command("GET", "user0").Expect(b)
 				c := context.Background()
@@ -155,7 +153,6 @@ func TestUsers(
 		t.Run(
 			tt.name,
 			func(t *testing.T) {
-
 				// Load environment variables from the .env.local file.
 				err := godotenv.Load(
 					"../.env.local",
@@ -195,7 +192,6 @@ func TestUsers(
 					mock.ExpectQuery(regexp.QuoteMeta(`SELECT COUNT(*) FROM "users" LIMIT 1;`)).
 						WithArgs().
 						WillReturnRows(rowCount)
-
 				} else {
 					rows := sqlmock.
 						NewRows([]string{"id", "email", "first_name", "last_name", "mobile", "username", "address"}).
@@ -207,16 +203,12 @@ func TestUsers(
 					mock.ExpectQuery(regexp.QuoteMeta(`SELECT COUNT(*) FROM "users";`)).
 						WithArgs().
 						WillReturnRows(rowCount)
-
 				}
 				// Define a mock result set for user queries.
-
 				// Define a mock result set.
-
 				// Create a new context with a mock user.
 				c := context.Background()
 				ctx := context.WithValue(c, testutls.UserKey, testutls.MockUser())
-
 				// Query for users using the resolver and get the response and error.
 				response, err := resolver1.Query().
 					Users(ctx, tt.pagination)
@@ -225,7 +217,6 @@ func TestUsers(
 				if tt.wantResp != nil &&
 					response != nil {
 					assert.Equal(t, len(tt.wantResp), len(response.Users))
-
 				}
 				// Check if the error matches the expected error value.
 				assert.Equal(t, tt.wantErr, err != nil)

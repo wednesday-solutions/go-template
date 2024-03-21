@@ -39,11 +39,10 @@ func TestStart(t *testing.T) {
 		cfg *config.Configuration
 	}
 	tests := []struct {
-		name        string
-		args        args
-		wantErr     bool
-		setDbCalled bool
-
+		name                         string
+		args                         args
+		wantErr                      bool
+		setDbCalled                  bool
 		getTransportCalled           bool
 		postTransportCalled          bool
 		optionsTransportCalled       bool
@@ -62,8 +61,7 @@ func TestStart(t *testing.T) {
 			args: args{
 				cfg: testutls.MockConfig(),
 			},
-			wantErr: false,
-
+			wantErr:                      false,
 			getTransportCalled:           false,
 			postTransportCalled:          false,
 			optionsTransportCalled:       false,
@@ -71,7 +69,6 @@ func TestStart(t *testing.T) {
 			websocketTransportCalled:     false,
 		},
 	}
-
 	patches := ApplyFunc(os.Getenv, func(key string) (value string) {
 		if key == "JWT_SECRET" {
 			return testutls.MockJWTSecret
@@ -87,28 +84,22 @@ func TestStart(t *testing.T) {
 		fmt.Print("Fake server started\n")
 	})
 	e := echo.New()
-
 	ApplyFunc(server.New, func() *echo.Echo {
 		return e
 	})
-
 	observers := map[string]chan *graphql.User{}
 	graphqlHandler := handler.New(graphql.NewExecutableSchema(graphql.Config{
 		Resolvers: &resolver.Resolver{Observers: observers},
 	}))
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ApplyFunc(boil.SetDB, func(db boil.Executor) {
 				fmt.Print("boil.SetDB called\n")
 				tt.setDbCalled = true
 			})
-
 			if tt.getTransportCalled || tt.postTransportCalled ||
 				tt.optionsTransportCalled || tt.multipartFormTransportCalled {
-
 				ApplyMethod(reflect.TypeOf(graphqlHandler), "AddTransport", func(s *handler.Server, t graphql2.Transport) {
-
 					transportGET := transport.GET{}
 					transportMultipartForm := transport.MultipartForm{}
 					transportPOST := transport.POST{}
@@ -123,7 +114,6 @@ func TestStart(t *testing.T) {
 							},
 						},
 					}
-
 					if t == transportGET {
 						tt.getTransportCalled = true
 					}
@@ -133,22 +123,18 @@ func TestStart(t *testing.T) {
 					if t == transportPOST {
 						tt.postTransportCalled = true
 					}
-
 					if reflect.TypeOf(t) == reflect.TypeOf(transportWebsocket) {
 						tt.websocketTransportCalled = true
 					}
-
 				})
 				_, err := Start(tt.args.cfg)
 				if err != nil != tt.wantErr {
 					t.Errorf("Start() error = %v, wantErr %v", err, tt.wantErr)
 				}
-
 				assert.Equal(t, tt.getTransportCalled, true)
 				assert.Equal(t, tt.multipartFormTransportCalled, true)
 				assert.Equal(t, tt.postTransportCalled, true)
 				assert.Equal(t, tt.websocketTransportCalled, true)
-
 			} else {
 				_, err := Start(tt.args.cfg)
 				if err != nil != tt.wantErr {
@@ -161,16 +147,12 @@ func TestStart(t *testing.T) {
 					RequestBody: testutls.MockWhitelistedQuery,
 					IsGraphQL:   false,
 				})
-
 				if err != nil {
 					log.Fatal(err)
 				}
-
 				assert.Equal(t, tt.setDbCalled, true)
-
 				// check if it returns schema correctly
 				assert.NotNil(t, jsonRes["data"].(map[string]interface{})["__schema"])
-
 				_, res, err := testutls.SimpleMakeRequest(testutls.RequestParameters{
 					E:          e,
 					Pathname:   "/playground",
@@ -182,12 +164,10 @@ func TestStart(t *testing.T) {
 					log.Fatal(err)
 				}
 				bodyBytes, _ := io.ReadAll(res.Body)
-
 				// check if the playground is returned
 				assert.Contains(t, string(bodyBytes), "GraphiQL.createFetcher")
 				ts := httptest.NewServer(e)
 				u := "ws" + strings.TrimPrefix(ts.URL+graphQLPathname, "http")
-
 				// Connect to the server
 				fmt.Print(u)
 				ws, _, err := websocket.DefaultDialer.Dial(u, nil)
@@ -195,7 +175,6 @@ func TestStart(t *testing.T) {
 					t.Fatalf("%v", err)
 				}
 				defer ws.Close()
-
 				if err := ws.WriteMessage(websocket.TextMessage, []byte(`{"type":"connection_init","payload":`+
 					`{"authorization":"bearer ABC"}}`)); err != nil {
 					t.Fatalf("%v", err)
@@ -207,7 +186,6 @@ func TestStart(t *testing.T) {
 				// check if the playground is returned
 				assert.Contains(t, string(p), "{\"type\":\"connection_ack\"}\n")
 			}
-
 		})
 	}
 }

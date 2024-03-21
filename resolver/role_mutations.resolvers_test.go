@@ -24,7 +24,6 @@ import (
 func TestCreateRole(
 	t *testing.T,
 ) {
-
 	// Define test cases, each case has a name, request input, expected response, and error.
 	cases := []struct {
 		name     string
@@ -79,7 +78,6 @@ func TestCreateRole(
 
 	// Loop through each test case.
 	for _, tt := range cases {
-
 		// Mocking rediscache.GetUserID function
 		patchUserID := gomonkey.ApplyFunc(auth.UserIDFromContext,
 			func(ctx context.Context) int {
@@ -119,7 +117,6 @@ func TestCreateRole(
 		defer patchCreateRole.Reset()
 		t.Run(tt.name,
 			func(t *testing.T) {
-
 				// Apply additional monkey patches based on test case name.
 				if tt.name == ErrorFromRedisCache {
 					patchGetUser := gomonkey.ApplyFunc(rediscache.GetUser,
@@ -170,7 +167,6 @@ func TestCreateRole(
 
 				// Check if the response matches the expected response
 				assert.Equal(t, tt.wantResp, response)
-
 			})
 	}
 }

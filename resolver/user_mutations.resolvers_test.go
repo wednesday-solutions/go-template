@@ -93,7 +93,6 @@ func TestCreateUser(
 		t.Run(
 			tt.name,
 			func(t *testing.T) {
-
 				if tt.name == ErrorFromThrottleCheck {
 					patch := gomonkey.ApplyFunc(throttle.Check, func(ctx context.Context, limit int, dur time.Duration) error {
 						return fmt.Errorf("Internal error")
@@ -106,9 +105,7 @@ func TestCreateUser(
 						return nil, fmt.Errorf("error in loading config")
 					})
 					defer patch.Reset()
-
 				}
-
 				err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../"))
 				if err != nil {
 					log.Fatal(err)
@@ -218,9 +215,7 @@ func TestUpdateUser(
 		t.Run(
 			tt.name,
 			func(t *testing.T) {
-
 				if tt.name == ErrorUpdateUser {
-
 					patch := gomonkey.ApplyFunc(daos.UpdateUser,
 						func(user models.User, ctx context.Context) (models.User, error) {
 							return user, fmt.Errorf("error for update user")
@@ -294,7 +289,6 @@ func TestDeleteUser(
 			tt.name,
 			func(t *testing.T) {
 				if tt.name == ErrorDeleteUser {
-
 					patch := gomonkey.ApplyFunc(daos.DeleteUser,
 						func(user models.User, ctx context.Context) (int64, error) {
 							return 0, fmt.Errorf("error for delete user")

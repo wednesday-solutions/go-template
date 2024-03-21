@@ -3,6 +3,14 @@ linters-settings:
     line-length: 128
     tab-width: 2
     autofix: true
+  cyclop:
+   max-complexity: 10
+   skip-tests: true
+  funlen:
+   lines: 100
+   statements: 50
+   ignore-tests: true
+   ignore-blank-lines: true
 linters:
   enable:
     - lll
@@ -11,12 +19,20 @@ linters:
     - govet 
     - ineffassign
     - staticcheck 
-    - structcheck
     - typecheck
     - unused 
-    - varcheck
-    # - cyclop
-    # - funlen
-    # - gocritic
-    # - gocyclo
-    # - gofmt
+    - cyclop
+    - funlen
+    - goconst
+    - gofmt
+    - godox
+    - misspell
+    - reassign
+    - whitespace
+    
+issues:
+  exclude-rules:
+      - path: '(.+)_test\.go'
+        linters:
+          - funlen
+          - typecheck

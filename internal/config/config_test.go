@@ -61,7 +61,6 @@ func TestLoad(t *testing.T) {
 	}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-
 			err := config.LoadEnvWithFilePrefix((convert.StringToPointerString("./../../")))
 			if err != nil {
 				fmt.Print("error loading .env file")
@@ -89,7 +88,6 @@ func TestLoad(t *testing.T) {
 			isError := err != nil
 			assert.Equal(t, tt.wantErr, isError)
 			if isError {
-
 				assert.Equal(t, err.Error(), tt.error)
 			}
 		})

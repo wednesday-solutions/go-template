@@ -68,21 +68,16 @@ func Test_getVldErrorMsg(t *testing.T) {
 }
 
 func getValidatorErr(t *testing.T) error {
-
 	fieldError := testutls.NewMockFieldError(gomock.NewController(t))
-
 	fieldError.EXPECT().Field().DoAndReturn(func() string {
 		return "FIELD"
 	}).AnyTimes()
-
 	fieldError.EXPECT().ActualTag().DoAndReturn(func() string {
 		return "ACTUALTAG"
 	}).AnyTimes()
-
 	return validator.ValidationErrors{fieldError}
 }
-func Test_customErrHandler_handler(t *testing.T) {
-
+func TestCustomErrHandlerHandler(t *testing.T) {
 	type args struct {
 		err                error
 		expectedStatusCode int
@@ -130,16 +125,13 @@ func Test_customErrHandler_handler(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
 			// just make a request
 			req, _ := http.NewRequest(
 				tt.args.httpMethod,
 				"/",
 				bytes.NewBuffer([]byte("")),
 			)
-
 			ctx := testutls.NewMockContext(gomock.NewController(t))
-
 			// mock ctx.Response
 			ctx.
 				EXPECT().
@@ -148,7 +140,6 @@ func Test_customErrHandler_handler(t *testing.T) {
 					return &echo.Response{Status: tt.args.expectedStatusCode}
 				}).
 				AnyTimes()
-
 			// mock ctx.Request
 			ctx.
 				EXPECT().
@@ -157,7 +148,6 @@ func Test_customErrHandler_handler(t *testing.T) {
 					return req
 				}).
 				AnyTimes()
-
 			if tt.args.httpMethod == "HEAD" {
 				// mock ctx.NoContent
 				ctx.
@@ -177,7 +167,6 @@ func Test_customErrHandler_handler(t *testing.T) {
 					}).
 					AnyTimes()
 			}
-
 			// call the handler with tt.args.err. We are asserting in the JSON/NoContent call
 			custErr.handler(tt.args.err, ctx)
 		})

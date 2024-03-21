@@ -127,7 +127,6 @@ func TestGenerateToken(t *testing.T) {
 			RoleErr: true,
 		},
 	}
-
 	err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../../"))
 	if err != nil {
 		log.Fatal(err)
@@ -137,9 +136,7 @@ func TestGenerateToken(t *testing.T) {
 		panic("failed to setup env and db")
 	}
 	rows := sqlmock.NewRows([]string{"id", "name"}).AddRow(1, "johndoe")
-
 	for name, tt := range cases {
-
 		t.Run(name, func(t *testing.T) {
 			if tt.RoleErr == true {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT "roles".* FROM "roles" WHERE ("id" = $1) LIMIT 1`)).
@@ -150,7 +147,6 @@ func TestGenerateToken(t *testing.T) {
 					WithArgs([]driver.Value{1}...).
 					WillReturnRows(rows)
 			}
-
 			jwtSvc, err := jwt.New(tt.algo, tt.secret, 60, tt.minSecretLen)
 			assert.Equal(t, tt.wantErr, err != nil)
 			if err == nil && !tt.wantErr {
@@ -160,7 +156,6 @@ func TestGenerateToken(t *testing.T) {
 		})
 	}
 }
-
 func TestParseToken(t *testing.T) {
 	algo := "HS256"
 	cases := map[string]struct {
@@ -205,5 +200,4 @@ func TestParseToken(t *testing.T) {
 			}
 		})
 	}
-
 }

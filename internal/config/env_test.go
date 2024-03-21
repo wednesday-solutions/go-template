@@ -118,7 +118,6 @@ func TestGetBool(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-
 		if tt.success {
 			os.Setenv(tt.args.key, fmt.Sprintf("%v", tt.want))
 		}
@@ -227,12 +226,10 @@ func TestLoadEnv(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-
 		ApplyFunc(godotenv.Load, func(filenames ...string) (err error) {
 			// togglel whenever this file is loaded
 			tt.args.tapped = true
 			if tt.args.err == "" {
-
 				if tt.name == "Env varInjection Error" && len(filenames) > 0 && filenames[0] == ".env.local" {
 					return fmt.Errorf(tt.args.err)
 				}
@@ -240,7 +237,6 @@ func TestLoadEnv(t *testing.T) {
 				return nil
 			}
 			return fmt.Errorf(tt.args.err)
-
 		})
 		os.Setenv("ENVIRONMENT_NAME", tt.args.env)
 		if tt.args.dbSecret != "" {

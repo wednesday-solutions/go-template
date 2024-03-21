@@ -166,23 +166,19 @@ func TestGraphQLMiddleware(t *testing.T) {
 			dbQueries: []testutls.QueryData{},
 		},
 	}
-
 	oldDB := boil.GetDB()
 	err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../../../"))
 	if err != nil {
 		log.Fatal(err)
 	}
 	mock, db, _ := testutls.SetupMockDB(t)
-
 	for name, tt := range cases {
 		t.Run(name, func(t *testing.T) {
-
 			for _, dbQuery := range tt.dbQueries {
 				mock.ExpectQuery(regexp.QuoteMeta(dbQuery.Query)).
 					WithArgs(*dbQuery.Actions...).
 					WillReturnRows(dbQuery.DbResponse)
 			}
-
 			requestQuery := testutls.MockQuery
 			if tt.whiteListedQuery {
 				requestQuery = testutls.MockWhitelistedQuery
@@ -193,7 +189,6 @@ func TestGraphQLMiddleware(t *testing.T) {
 	boil.SetDB(oldDB)
 	db.Close()
 }
-
 func makeRequest(t *testing.T, requestQuery string, tt struct {
 	wantStatus       int
 	header           string
@@ -206,26 +201,21 @@ func makeRequest(t *testing.T, requestQuery string, tt struct {
 }) {
 	// mock token parser to handle the different cases for when the token us valid, invalid, empty
 	parseTokenMock = tt.tokenParser
-
 	// mock operation handler, and assert different conditions
 	operationHandlerMock = tt.operationHandler
-
 	tokenParser := tokenParserMock{}
 	client := &http.Client{}
 	observers := map[string]chan *graphql.User{}
 	graphqlHandler := handler.New(graphql.NewExecutableSchema(graphql.Config{
 		Resolvers: &resolver.Resolver{Observers: observers},
 	}))
-
 	graphqlHandler.
 		AroundOperations(func(ctx context.Context, next graphql2.OperationHandler) graphql2.ResponseHandler {
 			res := auth.GraphQLMiddleware(ctx, tokenParser, operationHandlerMock)
 			return res
 		})
-
 	graphqlHandler.AddTransport(transport.POST{})
 	pathName := "/graphql"
-
 	e := echo.New()
 	e.POST(pathName, func(c echo.Context) error {
 		req := c.Request()
@@ -233,7 +223,6 @@ func makeRequest(t *testing.T, requestQuery string, tt struct {
 		graphqlHandler.ServeHTTP(res, req)
 		return nil
 	}, auth.GqlMiddleware())
-
 	ts := httptest.NewServer(e)
 	path := ts.URL + pathName
 	defer ts.Close()
@@ -243,7 +232,6 @@ func makeRequest(t *testing.T, requestQuery string, tt struct {
 		path,
 		bytes.NewBuffer([]byte(requestQuery)),
 	)
-
 	if tt.wantStatus != 401 {
 		req.Header.Set("authorization", tt.header)
 	}
@@ -252,7 +240,6 @@ func makeRequest(t *testing.T, requestQuery string, tt struct {
 	if err != nil {
 		t.Fatal("Cannot create http request")
 	}
-
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
 		log.Fatal(err)
@@ -268,7 +255,6 @@ func makeRequest(t *testing.T, requestQuery string, tt struct {
 	}
 	assert.Equal(t, tt.wantStatus, res.StatusCode)
 }
-
 func TestUserIDFromContext(t *testing.T) {
 	cases := map[string]struct {
 		user   *models.User
@@ -285,14 +271,11 @@ func TestUserIDFromContext(t *testing.T) {
 	}
 	for name, tt := range cases {
 		t.Run(name, func(t *testing.T) {
-
 			userID := auth.UserIDFromContext(context.WithValue(testutls.MockCtx{}, auth.UserCtxKey, tt.user))
 			assert.Equal(t, tt.userID, userID)
 		})
 	}
-
 }
-
 func TestFromContext(t *testing.T) {
 	user := &models.User{ID: testutls.MockID}
 	u := auth.FromContext(context.WithValue(testutls.MockCtx{}, auth.UserCtxKey, user))
