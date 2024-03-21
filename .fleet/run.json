@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "environment": {
+                "PSQL_DBNAME": "go_template",
+                "PSQL_HOST": "localhost",
+                "PSQL_PASS": "go_template_role456",
+                "PSQL_USER": "go_template_role",
+                "PSQL_SSLMODE": "disable",
+                "PSQL_PORT": "5432",
+                "ENVIRONMENT_NAME": "local",
+                "JWT_SECRET": "aa60b52e-7974-11ea-bc55-0242ac130003b08d6654-7974-11ea-bc55-0242ac130003-b08d6654-7974-11ea-bc55-0242ac130003"
+            },
+            "type": "go",
+            "name": "Run Go-Template local",
+            "goExecPath": "/usr/local/bin/go",
+            "buildParams": [
+                "$PROJECT_DIR$/cmd/server/main.go",
+            ]
+        }
+    ]
+}
