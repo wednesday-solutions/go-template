@@ -9,8 +9,8 @@ linters-settings:
   funlen:
    lines: 100
    statements: 50
-   ignore-tests: true
    ignore-blank-lines: true
+   ignore-comments: true
 linters:
   enable:
     - lll
@@ -29,7 +29,6 @@ linters:
     - misspell
     - reassign
     - whitespace
-    
 issues:
   exclude-rules:
       - path: '(.+)_test\.go'
