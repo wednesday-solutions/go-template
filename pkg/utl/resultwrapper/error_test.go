@@ -231,7 +231,7 @@ func TestBadRequest(t *testing.T) {
 			err := resultwrapper.BadRequest(tt.args.c, tt.args.err)
 			assert.Equal(t, http.StatusBadRequest, tt.args.c.Response().Status)
 			assert.Equal(t, err.Error(), tt.err)
-		}
+		})
 	}
 }
 
@@ -290,7 +290,6 @@ func TestConflict(t *testing.T) {
 			assert.Equal(t, http.StatusConflict, tt.args.c.Response().Status)
 			assert.Equal(t, err.Error(), tt.err)
 		})
-
 	}
 }
 
@@ -349,7 +348,6 @@ func TestTooManyRequests(t *testing.T) {
 			assert.Equal(t, http.StatusTooManyRequests, tt.args.c.Response().Status)
 			assert.Equal(t, err.Error(), tt.err)
 		})
-
 	}
 }
 
@@ -380,7 +378,6 @@ func TestUnauthorized(t *testing.T) {
 			assert.Equal(t, http.StatusUnauthorized, tt.args.c.Response().Status)
 			assert.Equal(t, err.Error(), tt.err)
 		})
-
 	}
 }
 
@@ -460,7 +457,6 @@ func TestNoDataFound(t *testing.T) {
 			err := resultwrapper.NoDataFound(tt.args.c, tt.args.err)
 			assert.Equal(t, err, tt.expectedErr)
 			assert.Equal(t, tt.statusCode, tt.args.c.Response().Status)
-
 		})
 	}
 }
@@ -501,7 +497,6 @@ func TestServiceUnavailable(t *testing.T) {
 			err := resultwrapper.ServiceUnavailable(tt.args.c, tt.args.err)
 			assert.Equal(t, tt.errCode, tt.args.c.Response().Status)
 			assert.Equal(t, err, tt.expectedErr)
-
 		})
 	}
 }

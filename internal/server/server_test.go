@@ -67,17 +67,17 @@ func TestStart(t *testing.T) {
 		args args
 	}{
 		"Success": {
-			args: initValues(false, func(e *echo.Echo, s *http.Server) (err error) {
+			args: initValues(func(e *echo.Echo, s *http.Server) (err error) {
 				return nil
 			}),
 		},
 		"Failure_ServerStartUpFailed": {
-			args: initValues(false, func(e *echo.Echo, s *http.Server) (err error) {
+			args: initValues(func(e *echo.Echo, s *http.Server) (err error) {
 				return fmt.Errorf("error starting up")
 			}),
 		},
 		"Failure_ServerShutDownFailed": {
-			args: initValues(true, func(e *echo.Echo, s *http.Server) (err error) {
+			args: initValues(func(e *echo.Echo, s *http.Server) (err error) {
 				return nil
 			}),
 		},
