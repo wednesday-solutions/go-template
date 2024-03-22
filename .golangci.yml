@@ -4,10 +4,9 @@ linters-settings:
     tab-width: 2
     autofix: true
   cyclop:
-   max-complexity: 10
-   skip-tests: true
+   max-complexity: 18
   funlen:
-   lines: 100
+   lines: 165
    statements: 50
    ignore-blank-lines: true
    ignore-comments: true
@@ -29,8 +28,3 @@ linters:
     - misspell
     - reassign
     - whitespace
-issues:
-  exclude-rules:
-      - path: '(.+)_test\.go'
-        linters:
-          - funlen

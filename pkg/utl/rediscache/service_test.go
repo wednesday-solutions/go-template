@@ -48,6 +48,31 @@ const (
 )
 
 var conn = redigomock.NewConn()
+var dbQuerydata = sqlmock.NewRows([]string{
+	"id",
+	"first_name",
+	"last_name",
+	"username",
+	"email",
+	"mobile",
+	"address",
+	"token",
+	"password",
+	"role_id",
+	"active",
+}).AddRow(
+	testutls.MockUser().ID,
+	testutls.MockUser().FirstName,
+	testutls.MockUser().LastName,
+	testutls.MockUser().Username,
+	testutls.MockUser().Email,
+	testutls.MockUser().Mobile,
+	testutls.MockUser().Address,
+	testutls.MockUser().Token,
+	testutls.MockUser().Password,
+	testutls.MockUser().RoleID,
+	testutls.MockUser().Active,
+)
 
 func TestGetUser(t *testing.T) {
 	type args struct {
@@ -86,33 +111,9 @@ func TestGetUser(t *testing.T) {
 				cacheMiss: true,
 				dbQueries: []testutls.QueryData{
 					{
-						Actions: &[]driver.Value{testutls.MockID},
-						Query:   `select * from "users" where "id"=$1`,
-						DbResponse: sqlmock.NewRows([]string{
-							"id",
-							"first_name",
-							"last_name",
-							"username",
-							"email",
-							"mobile",
-							"address",
-							"token",
-							"password",
-							"role_id",
-							"active",
-						}).AddRow(
-							testutls.MockUser().ID,
-							testutls.MockUser().FirstName,
-							testutls.MockUser().LastName,
-							testutls.MockUser().Username,
-							testutls.MockUser().Email,
-							testutls.MockUser().Mobile,
-							testutls.MockUser().Address,
-							testutls.MockUser().Token,
-							testutls.MockUser().Password,
-							testutls.MockUser().RoleID,
-							testutls.MockUser().Active,
-						),
+						Actions:    &[]driver.Value{testutls.MockID},
+						Query:      `select * from "users" where "id"=$1`,
+						DbResponse: dbQuerydata,
 					},
 				},
 			},
@@ -126,33 +127,9 @@ func TestGetUser(t *testing.T) {
 				cacheMiss: true,
 				dbQueries: []testutls.QueryData{
 					{
-						Actions: &[]driver.Value{testutls.MockID},
-						Query:   `select * from "users" where "id"=$1`,
-						DbResponse: sqlmock.NewRows([]string{
-							"id",
-							"first_name",
-							"last_name",
-							"username",
-							"email",
-							"mobile",
-							"address",
-							"token",
-							"password",
-							"role_id",
-							"active",
-						}).AddRow(
-							testutls.MockUser().ID,
-							testutls.MockUser().FirstName,
-							testutls.MockUser().LastName,
-							testutls.MockUser().Username,
-							testutls.MockUser().Email,
-							testutls.MockUser().Mobile,
-							testutls.MockUser().Address,
-							testutls.MockUser().Token,
-							testutls.MockUser().Password,
-							testutls.MockUser().RoleID,
-							testutls.MockUser().Active,
-						).RowError(0, fmt.Errorf("data error")),
+						Actions:    &[]driver.Value{testutls.MockID},
+						Query:      `select * from "users" where "id"=$1`,
+						DbResponse: dbQuerydata.RowError(0, fmt.Errorf("data error")),
 					},
 				},
 			},
@@ -175,33 +152,9 @@ func TestGetUser(t *testing.T) {
 				cacheMiss: true,
 				dbQueries: []testutls.QueryData{
 					{
-						Actions: &[]driver.Value{testutls.MockID},
-						Query:   `select * from "users" where "id"=$1`,
-						DbResponse: sqlmock.NewRows([]string{
-							"id",
-							"first_name",
-							"last_name",
-							"username",
-							"email",
-							"mobile",
-							"address",
-							"token",
-							"password",
-							"role_id",
-							"active",
-						}).AddRow(
-							testutls.MockUser().ID,
-							testutls.MockUser().FirstName,
-							testutls.MockUser().LastName,
-							testutls.MockUser().Username,
-							testutls.MockUser().Email,
-							testutls.MockUser().Mobile,
-							testutls.MockUser().Address,
-							testutls.MockUser().Token,
-							testutls.MockUser().Password,
-							testutls.MockUser().RoleID,
-							testutls.MockUser().Active,
-						),
+						Actions:    &[]driver.Value{testutls.MockID},
+						Query:      `select * from "users" where "id"=$1`,
+						DbResponse: dbQuerydata,
 					},
 				},
 			},
@@ -264,19 +217,27 @@ func TestGetUser(t *testing.T) {
 	boil.SetDB(oldDB)
 	db.Close()
 }
+
+var role = &models.Role{
+	ID:          1,
+	AccessLevel: 100,
+	Name:        "Admin",
+}
+
+var DbResponse = sqlmock.NewRows([]string{
+	"id", "access_level", "name",
+}).AddRow(
+	role.ID,
+	role.AccessLevel,
+	role.Name,
+)
+
 func TestGetRole(t *testing.T) {
 	type args struct {
 		roleID    int
 		cacheMiss bool
 		dbQueries []testutls.QueryData
 	}
-
-	var role = &models.Role{
-		ID:          1,
-		AccessLevel: 100,
-		Name:        "Admin",
-	}
-
 	tests := []struct {
 		name    string
 		args    args
@@ -309,15 +270,9 @@ func TestGetRole(t *testing.T) {
 				cacheMiss: true,
 				dbQueries: []testutls.QueryData{
 					{
-						Actions: &[]driver.Value{role.ID},
-						Query:   `select * from "roles" where "id"=$1`,
-						DbResponse: sqlmock.NewRows([]string{
-							"id", "access_level", "name",
-						}).AddRow(
-							role.ID,
-							role.AccessLevel,
-							role.Name,
-						),
+						Actions:    &[]driver.Value{role.ID},
+						Query:      `select * from "roles" where "id"=$1`,
+						DbResponse: DbResponse,
 					},
 				},
 			},
@@ -331,15 +286,9 @@ func TestGetRole(t *testing.T) {
 				cacheMiss: true,
 				dbQueries: []testutls.QueryData{
 					{
-						Actions: &[]driver.Value{role.ID},
-						Query:   `select * from "roles" where "id"=$1`,
-						DbResponse: sqlmock.NewRows([]string{
-							"id", "access_level", "name",
-						}).AddRow(
-							role.ID,
-							role.AccessLevel,
-							role.Name,
-						).RowError(0, fmt.Errorf("data error")),
+						Actions:    &[]driver.Value{role.ID},
+						Query:      `select * from "roles" where "id"=$1`,
+						DbResponse: DbResponse.RowError(0, fmt.Errorf("data error")),
 					},
 				},
 			},
@@ -361,15 +310,9 @@ func TestGetRole(t *testing.T) {
 				cacheMiss: true,
 				dbQueries: []testutls.QueryData{
 					{
-						Actions: &[]driver.Value{role.ID},
-						Query:   `select * from "roles" where "id"=$1`,
-						DbResponse: sqlmock.NewRows([]string{
-							"id", "access_level", "name",
-						}).AddRow(
-							role.ID,
-							role.AccessLevel,
-							role.Name,
-						),
+						Actions:    &[]driver.Value{role.ID},
+						Query:      `select * from "roles" where "id"=$1`,
+						DbResponse: DbResponse,
 					},
 				},
 			},
