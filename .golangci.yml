@@ -3,13 +3,13 @@ linters-settings:
     line-length: 128
     tab-width: 2
     autofix: true
-  cyclop:
-   max-complexity: 18
   funlen:
-   lines: 165
+   lines: 60
    statements: 50
    ignore-blank-lines: true
    ignore-comments: true
+  # cyclop:
+  #  max-complexity: 10
 linters:
   enable:
     - lll
@@ -20,7 +20,6 @@ linters:
     - staticcheck 
     - typecheck
     - unused 
-    - cyclop
     - funlen
     - goconst
     - gofmt

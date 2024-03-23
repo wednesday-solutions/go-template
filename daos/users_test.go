@@ -2,6 +2,7 @@ package daos_test
 
 import (
 	"context"
+	"database/sql"
 	"database/sql/driver"
 	"fmt"
 	"log"
@@ -24,7 +25,23 @@ import (
 const ErrorFindingUser = "Fail on finding user"
 
 func TestCreateUserTx(t *testing.T) {
-	cases := []struct {
+	cases := getTestCases()
+
+	for _, tt := range cases {
+		setupMockDB(t)
+
+		t.Run(tt.name, func(t *testing.T) {
+			testCreateUser(t, tt)
+		})
+	}
+}
+
+func getTestCases() []struct {
+	name string
+	req  models.User
+	err  error
+} {
+	return []struct {
 		name string
 		req  models.User
 		err  error
@@ -39,59 +56,65 @@ func TestCreateUserTx(t *testing.T) {
 			err: nil,
 		},
 	}
+}
 
-	for _, tt := range cases {
-		// Inject mock instance into boil.
+func setupMockDB(t *testing.T) (*sql.DB, sqlmock.Sqlmock) {
+	err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	mock, db, _ := testutls.SetupMockDB(t)
+	oldDB := boil.GetDB()
+	defer func() {
+		db.Close()
+		boil.SetDB(oldDB)
+	}()
+	boil.SetDB(db)
+	return db, mock
+}
 
-		err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../"))
-		if err != nil {
-			log.Fatal(err)
-		}
-		mock, db, _ := testutls.SetupMockDB(t)
-		oldDB := boil.GetDB()
-		defer func() {
-			db.Close()
-			boil.SetDB(oldDB)
-		}()
-		boil.SetDB(db)
+func testCreateUser(t *testing.T, tt struct {
+	name string
+	req  models.User
+	err  error
+}) {
+	db, mock := setupMockDB(t)
+	defer db.Close()
 
-		rows := sqlmock.NewRows([]string{
-			"first_name",
-			"last_name",
-			"username",
-			"mobile",
-			"address",
-			"active",
-			"last_login",
-			"last_password_change",
-			"token",
-			"role_id",
-			"deleted_at",
-		}).AddRow(
-			testutls.MockUser().FirstName,
-			testutls.MockUser().LastName,
-			testutls.MockUser().Username,
-			testutls.MockUser().Mobile,
-			testutls.MockUser().Address,
-			testutls.MockUser().Active,
-			testutls.MockUser().LastLogin,
-			testutls.MockUser().LastPasswordChange,
-			testutls.MockUser().Token,
-			testutls.MockUser().RoleID,
-			testutls.MockUser().DeletedAt,
-		)
-		mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "users"`)).
-			WithArgs().
-			WillReturnRows(rows)
+	rows := sqlmock.NewRows([]string{
+		"first_name",
+		"last_name",
+		"username",
+		"mobile",
+		"address",
+		"active",
+		"last_login",
+		"last_password_change",
+		"token",
+		"role_id",
+		"deleted_at",
+	}).AddRow(
+		testutls.MockUser().FirstName,
+		testutls.MockUser().LastName,
+		testutls.MockUser().Username,
+		testutls.MockUser().Mobile,
+		testutls.MockUser().Address,
+		testutls.MockUser().Active,
+		testutls.MockUser().LastLogin,
+		testutls.MockUser().LastPasswordChange,
+		testutls.MockUser().Token,
+		testutls.MockUser().RoleID,
+		testutls.MockUser().DeletedAt,
+	)
+	mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "users"`)).
+		WithArgs().
+		WillReturnRows(rows)
 
-		t.Run(tt.name, func(t *testing.T) {
-			_, err := daos.CreateUser(tt.req, context.Background())
-			if err != nil {
-				assert.Equal(t, true, tt.err != nil)
-			} else {
-				assert.Equal(t, err, tt.err)
-			}
-		})
+	_, err := daos.CreateUser(tt.req, context.Background())
+	if err != nil {
+		assert.Equal(t, true, tt.err != nil)
+	} else {
+		assert.Equal(t, err, tt.err)
 	}
 }
 

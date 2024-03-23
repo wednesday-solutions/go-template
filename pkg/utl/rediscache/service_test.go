@@ -418,11 +418,33 @@ func TestIncVisits(t *testing.T) {
 	}
 }
 
+type args struct {
+	path string
+}
+
 func TestStartVisits(t *testing.T) {
-	type args struct {
-		path string
+	tests := getTestCases()
+
+	for _, tt := range tests {
+		mockDependencies(tt.name)
+
+		t.Run(tt.name, func(t *testing.T) {
+			expectRedisCommand(tt.args.path, tt.want)
+			err := StartVisits(tt.args.path, time.Second)
+
+			verifyError(t, err, tt.wantErr)
+		})
 	}
-	tests := []struct {
+}
+
+func getTestCases() []struct {
+	name    string
+	args    args
+	want    int
+	wantErr bool
+	errMsg  error
+} {
+	return []struct {
 		name    string
 		args    args
 		want    int
@@ -453,37 +475,29 @@ func TestStartVisits(t *testing.T) {
 			errMsg:  fmt.Errorf(ErrMsgFromRedisDial),
 		},
 	}
-	ApplyFunc(redisDial, func() (redis.Conn, error) {
-		return conn, nil
-	})
-	err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../"))
-	if err != nil {
-		t.Log(err)
-	}
+}
 
-	for _, tt := range tests {
-		if tt.name == ErrorRedisDial {
-			patch := gomonkey.ApplyFunc(redisDial, func() (redigo.Conn, error) {
-				return nil, fmt.Errorf(ErrMsgFromRedisDial)
-			})
-			defer patch.Reset()
-		}
-
-		t.Run(tt.name, func(t *testing.T) {
-			if tt.name == ErrorConnDo {
-				patch := gomonkey.ApplyMethodFunc(redigomock.NewConn(), "Do",
-					func(commandName string, args ...interface{}) (reply interface{}, err error) {
-						return nil, fmt.Errorf(ErrMsgFromConnDo)
-					})
-				defer patch.Reset()
-			}
-			conn.Command("SETEX", tt.args.path, int(math.Ceil(time.Second.Seconds())), 1).Expect(1)
-			err := StartVisits(tt.args.path, time.Second)
-
-			if (err != nil) != tt.wantErr {
-				t.Errorf("StartVisits() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
+func mockDependencies(name string) {
+	if name == ErrorRedisDial {
+		patch := gomonkey.ApplyFunc(redisDial, func() (redigo.Conn, error) {
+			return nil, fmt.Errorf(ErrMsgFromRedisDial)
 		})
+		defer patch.Reset()
+	} else if name == ErrorConnDo {
+		patch := gomonkey.ApplyMethodFunc(redigomock.NewConn(), "Do",
+			func(commandName string, args ...interface{}) (reply interface{}, err error) {
+				return nil, fmt.Errorf(ErrMsgFromConnDo)
+			})
+		defer patch.Reset()
+	}
+}
+
+func expectRedisCommand(path string, want int) {
+	conn.Command("SETEX", path, int(math.Ceil(time.Second.Seconds())), 1).Expect(want)
+}
+
+func verifyError(t *testing.T, err error, wantErr bool) {
+	if (err != nil) != wantErr {
+		t.Errorf("StartVisits() error = %v, wantErr %v", err, wantErr)
 	}
 }

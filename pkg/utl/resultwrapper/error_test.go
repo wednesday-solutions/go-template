@@ -530,11 +530,12 @@ func TestHandleGraphQLError(t *testing.T) {
 	}
 }
 
+type args struct {
+	err    error
+	detail string
+}
+
 func TestResolverSQLError(t *testing.T) {
-	type args struct {
-		err    error
-		detail string
-	}
 	tests := []struct {
 		name          string
 		args          args

@@ -15,7 +15,13 @@ import (
 
 const SuccessCase = "Success"
 
-func TestLoad(t *testing.T) {
+func getLoadTestCases() []struct {
+	name     string
+	wantData *config.Configuration
+	wantErr  bool
+	errKey   string
+	error    string
+} {
 	cases := []struct {
 		name     string
 		wantData *config.Configuration
@@ -59,6 +65,11 @@ func TestLoad(t *testing.T) {
 			error:   "error loading server timeout from .env ",
 		},
 	}
+	return cases
+}
+
+func TestLoad(t *testing.T) {
+	cases := getLoadTestCases()
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			err := config.LoadEnvWithFilePrefix((convert.StringToPointerString("./../../")))
@@ -69,7 +80,6 @@ func TestLoad(t *testing.T) {
 			if err != nil {
 				fmt.Print("error loading .env file")
 			}
-
 			if tt.wantErr {
 				patches := ApplyFunc(os.Getenv, func(key string) string {
 					if key == tt.errKey {
@@ -79,12 +89,10 @@ func TestLoad(t *testing.T) {
 				})
 				defer patches.Reset()
 			}
-
 			config, err := config.Load()
 			if tt.wantData != nil {
 				assert.Equal(t, config, tt.wantData)
 			}
-
 			isError := err != nil
 			assert.Equal(t, tt.wantErr, isError)
 			if isError {

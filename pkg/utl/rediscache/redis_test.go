@@ -95,7 +95,6 @@ func TestSetKeyValue(t *testing.T) {
 	ApplyFunc(redigo.Dial, func(string, string, ...redis.DialOption) (redis.Conn, error) {
 		return redigoConn, nil
 	})
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var patches *Patches
@@ -112,7 +111,6 @@ func TestSetKeyValue(t *testing.T) {
 				defer patchJson.Reset()
 			}
 			redigoConn.Command("SET", tt.args.key, string(b)).Expect("something")
-
 			if err := SetKeyValue(tt.args.key, tt.args.data); (err != nil) != tt.wantErr {
 				t.Errorf("SetKeyValue() error = %v, wantErr %v", err, tt.wantErr)
 			}

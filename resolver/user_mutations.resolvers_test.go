@@ -209,7 +209,6 @@ func TestUpdateUser(
 			wantErr: false,
 		},
 	}
-
 	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
 		t.Run(
@@ -233,18 +232,14 @@ func TestUpdateUser(
 					boil.SetDB(oldDB)
 				}()
 				boil.SetDB(db)
-
 				if tt.name == ErrorFindingUser {
 					mock.ExpectQuery(regexp.QuoteMeta(`UPDATE "users"`)).WithArgs().WillReturnError(fmt.Errorf(""))
 				}
-
 				rows := sqlmock.NewRows([]string{"first_name"}).AddRow(testutls.MockUser().FirstName)
 				mock.ExpectQuery(regexp.QuoteMeta(`select * from "users"`)).WithArgs(0).WillReturnRows(rows)
-
 				// update users with new information
 				result := driver.Result(driver.RowsAffected(1))
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "users"`)).WillReturnResult(result)
-
 				c := context.Background()
 				ctx := context.WithValue(c, testutls.UserKey, testutls.MockUser())
 				response, err := resolver1.Mutation().UpdateUser(ctx, tt.req)
@@ -282,7 +277,6 @@ func TestDeleteUser(
 			wantErr: false,
 		},
 	}
-
 	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
 		t.Run(
@@ -295,7 +289,6 @@ func TestDeleteUser(
 						})
 					defer patch.Reset()
 				}
-
 				err := godotenv.Load(
 					"../.env.local",
 				)
@@ -312,7 +305,6 @@ func TestDeleteUser(
 					boil.SetDB(oldDB)
 				}()
 				boil.SetDB(db)
-
 				if tt.name == ErrorFindingUser {
 					mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
 						WithArgs().
@@ -328,7 +320,6 @@ func TestDeleteUser(
 				result := driver.Result(driver.RowsAffected(1))
 				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "users" WHERE "id"=$1`)).
 					WillReturnResult(result)
-
 				c := context.Background()
 				ctx := context.WithValue(c, testutls.UserKey, testutls.MockUser())
 				response, err := resolver1.Mutation().
