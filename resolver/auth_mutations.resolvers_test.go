@@ -424,73 +424,164 @@ func handleSpecificTestCase(t *testing.T, tt struct {
 	}
 }
 
-func TestChangePassword(
-	t *testing.T,
-) {
-	// Define a struct to represent the change password request
-	type changeReq struct {
-		OldPassword string
-		NewPassword string
-	}
+type changeReq struct {
+	OldPassword string
+	NewPassword string
+}
+
+func GetChangePasswordTestCases() []struct {
+	name     string
+	req      changeReq
+	wantResp *fm.ChangePasswordResponse
+	wantErr  bool
+} {
 	cases := []struct {
 		name     string
 		req      changeReq
 		wantResp *fm.ChangePasswordResponse
 		wantErr  bool
 	}{
-		{
-			name: ErrorFindingUser,
-			req: changeReq{
-				OldPassword: TestPassword,
-				NewPassword: NewPassword,
-			},
-			wantErr: true,
-		},
-		{
-			name: ErrorPasswordValidation,
-			req: changeReq{
-				OldPassword: TestPassword,
-				NewPassword: NewPassword,
-			},
-			wantErr: true,
-		},
-		{
-			name: ErrorInsecurePassword,
-			req: changeReq{
-				OldPassword: OldPassword,
-				NewPassword: testutls.MockEmail,
-			},
-			wantErr: true,
-		},
-		{
-			name: ErrorUpdateUser,
-			req: changeReq{
-				OldPassword: OldPassword,
-				NewPassword: NewPassword,
-			},
-			wantErr: true,
-		},
-		{
-			name: ErrorFromConfig,
-			req: changeReq{
-				OldPassword: OldPassword,
-				NewPassword: testutls.MockEmail,
-			},
-			wantErr: true,
-		},
-
-		{
-			name: SuccessCase,
-			req: changeReq{
-				OldPassword: OldPassword,
-				NewPassword: NewPassword,
-			},
-			wantResp: &fm.ChangePasswordResponse{
-				Ok: true,
-			},
-			wantErr: false,
-		},
+		ErrorFindingUserCase(),
+		ErrorPasswordValidationCase(),
+		ErrorInsecurePasswordCase(),
+		ErrorUpdateUserCase(),
+		ErrorFromConfigCase(),
+		GetSuccessCase(),
 	}
+	return cases
+}
+func ErrorFindingUserCase() struct {
+	name     string
+	req      changeReq
+	wantResp *fm.ChangePasswordResponse
+	wantErr  bool
+} {
+	return struct {
+		name     string
+		req      changeReq
+		wantResp *fm.ChangePasswordResponse
+		wantErr  bool
+	}{
+		name: ErrorFindingUser,
+		req: changeReq{
+			OldPassword: TestPassword,
+			NewPassword: NewPassword,
+		},
+		wantErr: true,
+	}
+}
+
+func ErrorPasswordValidationCase() struct {
+	name     string
+	req      changeReq
+	wantResp *fm.ChangePasswordResponse
+	wantErr  bool
+} {
+	return struct {
+		name     string
+		req      changeReq
+		wantResp *fm.ChangePasswordResponse
+		wantErr  bool
+	}{
+		name: ErrorPasswordValidation,
+		req: changeReq{
+			OldPassword: TestPassword,
+			NewPassword: NewPassword,
+		},
+		wantErr: true,
+	}
+}
+
+func ErrorInsecurePasswordCase() struct {
+	name     string
+	req      changeReq
+	wantResp *fm.ChangePasswordResponse
+	wantErr  bool
+} {
+	return struct {
+		name     string
+		req      changeReq
+		wantResp *fm.ChangePasswordResponse
+		wantErr  bool
+	}{
+		name: ErrorInsecurePassword,
+		req: changeReq{
+			OldPassword: OldPassword,
+			NewPassword: testutls.MockEmail,
+		},
+		wantErr: true,
+	}
+}
+func ErrorUpdateUserCase() struct {
+	name     string
+	req      changeReq
+	wantResp *fm.ChangePasswordResponse
+	wantErr  bool
+} {
+	return struct {
+		name     string
+		req      changeReq
+		wantResp *fm.ChangePasswordResponse
+		wantErr  bool
+	}{
+		name: ErrorUpdateUser,
+		req: changeReq{
+			OldPassword: OldPassword,
+			NewPassword: NewPassword,
+		},
+		wantErr: true,
+	}
+}
+
+func ErrorFromConfigCase() struct {
+	name     string
+	req      changeReq
+	wantResp *fm.ChangePasswordResponse
+	wantErr  bool
+} {
+	return struct {
+		name     string
+		req      changeReq
+		wantResp *fm.ChangePasswordResponse
+		wantErr  bool
+	}{
+		name: ErrorFromConfig,
+		req: changeReq{
+			OldPassword: OldPassword,
+			NewPassword: testutls.MockEmail,
+		},
+		wantErr: true,
+	}
+}
+
+func GetSuccessCase() struct {
+	name     string
+	req      changeReq
+	wantResp *fm.ChangePasswordResponse
+	wantErr  bool
+} {
+	return struct {
+		name     string
+		req      changeReq
+		wantResp *fm.ChangePasswordResponse
+		wantErr  bool
+	}{
+		name: SuccessCase,
+		req: changeReq{
+			OldPassword: OldPassword,
+			NewPassword: NewPassword,
+		},
+		wantResp: &fm.ChangePasswordResponse{
+			Ok: true,
+		},
+		wantErr: false,
+	}
+}
+func TestChangePassword(
+	t *testing.T,
+) {
+	// Define a struct to represent the change password request
+	cases := GetChangePasswordTestCases()
 	// Create a new instance of the resolver
 	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {

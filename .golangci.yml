@@ -4,12 +4,7 @@ linters-settings:
     tab-width: 2
     autofix: true
   funlen:
-   lines: 60
-   statements: 50
-   ignore-blank-lines: true
    ignore-comments: true
-  # cyclop:
-  #  max-complexity: 10
 linters:
   enable:
     - lll
@@ -21,6 +16,7 @@ linters:
     - typecheck
     - unused 
     - funlen
+    - cyclop
     - goconst
     - gofmt
     - godox

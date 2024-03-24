@@ -20,11 +20,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestCreateRole tests the CreateRole mutation function.
-func TestCreateRole(
-	t *testing.T,
-) {
-	// Define test cases, each case has a name, request input, expected response, and error.
+func GetCreateRoleTestCases() []struct {
+	name     string
+	req      fm.RoleCreateInput
+	wantResp *fm.RolePayload
+	wantErr  bool
+} {
 	cases := []struct {
 		name     string
 		req      fm.RoleCreateInput
@@ -73,43 +74,60 @@ func TestCreateRole(
 			wantErr: true,
 		},
 	}
+	return cases
+}
+
+func ApplyPatchUserId() *gomonkey.Patches {
+	return gomonkey.ApplyFunc(auth.UserIDFromContext,
+		func(ctx context.Context) int {
+			return 1
+		})
+}
+func ApplypatchGetUser() *gomonkey.Patches {
+	return gomonkey.ApplyFunc(rediscache.GetUser,
+		func(userID int, ctx context.Context) (*models.User, error) {
+			return &models.User{
+				RoleID: null.IntFrom(1),
+			}, nil
+		})
+}
+func ApplypatchGetRole() *gomonkey.Patches {
+	return gomonkey.ApplyFunc(rediscache.GetRole,
+		func(roleID int, ctx context.Context) (*models.Role, error) {
+			return &models.Role{
+				AccessLevel: int(constants.SuperAdminRole),
+				Name:        SuperAdminRoleName,
+			}, nil
+		})
+}
+func ApplypatchCreateRole() *gomonkey.Patches {
+	return gomonkey.ApplyFunc(daos.CreateRole,
+		func(role models.Role, ctx context.Context) (models.Role, error) {
+			return models.Role{
+				AccessLevel: int(constants.UserRole),
+				Name:        UserRoleName,
+			}, nil
+		})
+}
+
+// TestCreateRole tests the CreateRole mutation function.
+func TestCreateRole(
+	t *testing.T,
+) {
+	// Define test cases, each case has a name, request input, expected response, and error.
+	cases := GetCreateRoleTestCases()
 	// Create a new resolver instance.
 	resolver1 := resolver.Resolver{}
-
 	// Loop through each test case.
 	for _, tt := range cases {
 		// Mocking rediscache.GetUserID function
-		patchUserID := gomonkey.ApplyFunc(auth.UserIDFromContext,
-			func(ctx context.Context) int {
-				return 1
-			})
-
+		patchUserID := ApplyPatchUserId()
 		// Mocking rediscache.GetUser function
-		patchGetUser := gomonkey.ApplyFunc(rediscache.GetUser,
-			func(userID int, ctx context.Context) (*models.User, error) {
-				return &models.User{
-					RoleID: null.IntFrom(1),
-				}, nil
-			})
-
+		patchGetUser := ApplypatchGetUser()
 		// Mocking rediscache.GetRole function
-		patchGetRole := gomonkey.ApplyFunc(rediscache.GetRole,
-			func(roleID int, ctx context.Context) (*models.Role, error) {
-				return &models.Role{
-					AccessLevel: int(constants.SuperAdminRole),
-					Name:        SuperAdminRoleName,
-				}, nil
-			})
-
+		patchGetRole := ApplypatchGetRole()
 		// Mocking daos.CreateRole function
-		patchCreateRole := gomonkey.ApplyFunc(daos.CreateRole,
-			func(role models.Role, ctx context.Context) (models.Role, error) {
-				return models.Role{
-					AccessLevel: int(constants.UserRole),
-					Name:        UserRoleName,
-				}, nil
-			})
-
+		patchCreateRole := ApplypatchCreateRole()
 		// Defer resetting of the monkey patches.
 		defer patchUserID.Reset()
 		defer patchGetUser.Reset()
@@ -125,7 +143,6 @@ func TestCreateRole(
 						})
 					defer patchGetUser.Reset()
 				}
-
 				if tt.name == ErrorFromGetRole {
 					patchGetRole := gomonkey.ApplyFunc(rediscache.GetRole,
 						func(roleID int, ctx context.Context) (*models.Role, error) {
@@ -133,7 +150,6 @@ func TestCreateRole(
 						})
 					defer patchGetRole.Reset()
 				}
-
 				if tt.name == ErrorUnauthorizedUser {
 					patchGetRole := gomonkey.ApplyFunc(rediscache.GetRole,
 						func(roleID int, ctx context.Context) (*models.Role, error) {
@@ -144,7 +160,6 @@ func TestCreateRole(
 						})
 					defer patchGetRole.Reset()
 				}
-
 				if tt.name == ErrorFromCreateRole {
 					patchCreateRole := gomonkey.ApplyFunc(daos.CreateRole,
 						func(role models.Role, ctx context.Context) (models.Role, error) {
@@ -153,18 +168,14 @@ func TestCreateRole(
 
 					defer patchCreateRole.Reset()
 				}
-
 				// Create a new context
 				c := context.Background()
-
 				// Call the resolver function
 				response, err := resolver1.Mutation().CreateRole(c, tt.req)
-
 				// Check if the error matches the expected error
 				if tt.wantErr {
 					assert.NotNil(t, err)
 				}
-
 				// Check if the response matches the expected response
 				assert.Equal(t, tt.wantResp, response)
 			})

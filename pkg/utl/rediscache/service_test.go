@@ -75,101 +75,217 @@ var dbQuerydata = sqlmock.NewRows([]string{
 	testutls.MockUser().Active,
 )
 
-func TestGetUser(t *testing.T) {
-	type args struct {
-		userID    int
-		cacheMiss bool
-		dbQueries []testutls.QueryData
-	}
+type argsGetUser struct {
+	userID    int
+	cacheMiss bool
+	dbQueries []testutls.QueryData
+}
+
+func GetUserTestCases() []struct {
+	name    string
+	args    argsGetUser
+	want    *models.User
+	wantErr bool
+	errMsg  error
+} {
 	tests := []struct {
 		name    string
-		args    args
+		args    argsGetUser
 		want    *models.User
 		wantErr bool
 		errMsg  error
 	}{
-		{
-			name: ErrorGetKeyValue,
-			args: args{
-				userID:    testutls.MockID,
-				dbQueries: []testutls.QueryData{},
-			},
-			wantErr: true,
-			errMsg:  fmt.Errorf(ErrMsgGetKeyValue),
-		},
-		{
-			name: ErrorUnmarshal,
-			args: args{
-				userID:    testutls.MockID,
-				dbQueries: []testutls.QueryData{},
-			},
-			wantErr: true,
-		},
-		{
-			name: ErrorSetKeyValue,
-			args: args{
-				userID:    testutls.MockID,
-				cacheMiss: true,
-				dbQueries: []testutls.QueryData{
-					{
-						Actions:    &[]driver.Value{testutls.MockID},
-						Query:      `select * from "users" where "id"=$1`,
-						DbResponse: dbQuerydata,
-					},
-				},
-			},
-			wantErr: true,
-			errMsg:  fmt.Errorf(ErrMsgSetKeyValue),
-		},
-		{
-			name: ErrorDaos,
-			args: args{
-				userID:    testutls.MockID,
-				cacheMiss: true,
-				dbQueries: []testutls.QueryData{
-					{
-						Actions:    &[]driver.Value{testutls.MockID},
-						Query:      `select * from "users" where "id"=$1`,
-						DbResponse: dbQuerydata.RowError(0, fmt.Errorf("data error")),
-					},
-				},
-			},
-			wantErr: true,
-			errMsg:  fmt.Errorf(ErrMsgSetKeyValue),
-		},
+		ErrorGetKeyValueCase(),
+		ErrorUnmarshalCase(),
+		ErrorSetKeyValueCase(),
+		ErrorDaosCase(),
+		GetSuccessCase(),
+		SuccessCacheMissCase(),
+		ErrorFromCacheUserValueCase(),
+	}
+	return tests
+}
 
-		{
-			name: SuccessCase,
-			args: args{
-				userID:    testutls.MockID,
-				dbQueries: []testutls.QueryData{},
-			},
-			want: testutls.MockUser(),
+func ErrorGetKeyValueCase() struct {
+	name    string
+	args    argsGetUser
+	want    *models.User
+	wantErr bool
+	errMsg  error
+} {
+	return struct {
+		name    string
+		args    argsGetUser
+		want    *models.User
+		wantErr bool
+		errMsg  error
+	}{
+		name: ErrorGetKeyValue,
+		args: argsGetUser{
+			userID:    testutls.MockID,
+			dbQueries: []testutls.QueryData{},
 		},
-		{
-			name: SuccessCacheMiss,
-			args: args{
-				userID:    testutls.MockID,
-				cacheMiss: true,
-				dbQueries: []testutls.QueryData{
-					{
-						Actions:    &[]driver.Value{testutls.MockID},
-						Query:      `select * from "users" where "id"=$1`,
-						DbResponse: dbQuerydata,
-					},
+		wantErr: true,
+		errMsg:  fmt.Errorf(ErrMsgGetKeyValue),
+	}
+}
+func ErrorUnmarshalCase() struct {
+	name    string
+	args    argsGetUser
+	want    *models.User
+	wantErr bool
+	errMsg  error
+} {
+	return struct {
+		name    string
+		args    argsGetUser
+		want    *models.User
+		wantErr bool
+		errMsg  error
+	}{
+		name: ErrorUnmarshal,
+		args: argsGetUser{
+			userID:    testutls.MockID,
+			dbQueries: []testutls.QueryData{},
+		},
+		wantErr: true,
+	}
+}
+func ErrorSetKeyValueCase() struct {
+	name    string
+	args    argsGetUser
+	want    *models.User
+	wantErr bool
+	errMsg  error
+} {
+	return struct {
+		name    string
+		args    argsGetUser
+		want    *models.User
+		wantErr bool
+		errMsg  error
+	}{
+		name: ErrorSetKeyValue,
+		args: argsGetUser{
+			userID:    testutls.MockID,
+			cacheMiss: true,
+			dbQueries: []testutls.QueryData{
+				{
+					Actions:    &[]driver.Value{testutls.MockID},
+					Query:      `select * from "users" where "id"=$1`,
+					DbResponse: dbQuerydata,
 				},
 			},
-			want: testutls.MockUser(),
 		},
-		{
-			name: ErrorFromCacheUserValue,
-			args: args{
-				userID:    testutls.MockID,
-				dbQueries: []testutls.QueryData{},
+		wantErr: true,
+		errMsg:  fmt.Errorf(ErrMsgSetKeyValue),
+	}
+}
+func ErrorDaosCase() struct {
+	name    string
+	args    argsGetUser
+	want    *models.User
+	wantErr bool
+	errMsg  error
+} {
+	return struct {
+		name    string
+		args    argsGetUser
+		want    *models.User
+		wantErr bool
+		errMsg  error
+	}{
+		name: ErrorDaos,
+		args: argsGetUser{
+			userID:    testutls.MockID,
+			cacheMiss: true,
+			dbQueries: []testutls.QueryData{
+				{
+					Actions:    &[]driver.Value{testutls.MockID},
+					Query:      `select * from "users" where "id"=$1`,
+					DbResponse: dbQuerydata.RowError(0, fmt.Errorf("data error")),
+				},
 			},
+		},
+		wantErr: true,
+		errMsg:  fmt.Errorf(ErrMsgSetKeyValue),
+	}
+}
+func GetSuccessCase() struct {
+	name    string
+	args    argsGetUser
+	want    *models.User
+	wantErr bool
+	errMsg  error
+} {
+	return struct {
+		name    string
+		args    argsGetUser
+		want    *models.User
+		wantErr bool
+		errMsg  error
+	}{
+		name: SuccessCase,
+		args: argsGetUser{
+			userID:    testutls.MockID,
+			dbQueries: []testutls.QueryData{},
+		},
+		want: testutls.MockUser(),
+	}
+}
+func SuccessCacheMissCase() struct {
+	name    string
+	args    argsGetUser
+	want    *models.User
+	wantErr bool
+	errMsg  error
+} {
+	return struct {
+		name    string
+		args    argsGetUser
+		want    *models.User
+		wantErr bool
+		errMsg  error
+	}{
+		name: SuccessCacheMiss,
+		args: argsGetUser{
+			userID:    testutls.MockID,
+			cacheMiss: true,
+			dbQueries: []testutls.QueryData{
+				{
+					Actions:    &[]driver.Value{testutls.MockID},
+					Query:      `select * from "users" where "id"=$1`,
+					DbResponse: dbQuerydata,
+				},
+			},
+		},
+		want: testutls.MockUser(),
+	}
+}
+func ErrorFromCacheUserValueCase() struct {
+	name    string
+	args    argsGetUser
+	want    *models.User
+	wantErr bool
+	errMsg  error
+} {
+	return struct {
+		name    string
+		args    argsGetUser
+		want    *models.User
+		wantErr bool
+		errMsg  error
+	}{
+		name: ErrorFromCacheUserValue,
+		args: argsGetUser{
+			userID:    testutls.MockID,
+			dbQueries: []testutls.QueryData{},
 		},
 	}
+}
 
+func TestGetUser(t *testing.T) {
+	tests := GetUserTestCases()
 	oldDB := boil.GetDB()
 	err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../../../"))
 	if err != nil {
