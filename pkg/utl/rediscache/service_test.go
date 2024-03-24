@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql/driver"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"math"
@@ -232,93 +233,92 @@ var DbResponse = sqlmock.NewRows([]string{
 	role.Name,
 )
 
-func TestGetRole(t *testing.T) {
-	type args struct {
-		roleID    int
-		cacheMiss bool
-		dbQueries []testutls.QueryData
-	}
-	tests := []struct {
+type GetRoleArgs struct {
+	roleID    int
+	cacheMiss bool
+	dbQueries []testutls.QueryData
+}
+
+func getRoleTestCase(name string, args GetRoleArgs, want *models.Role, wantErr bool, errMsg error) struct {
+	name    string
+	args    GetRoleArgs
+	want    *models.Role
+	wantErr bool
+	errMsg  error
+} {
+	return struct {
 		name    string
-		args    args
+		args    GetRoleArgs
 		want    *models.Role
 		wantErr bool
 		errMsg  error
 	}{
-		{
-			name: ErrorGetKeyValue,
-			args: args{
-				roleID:    testutls.MockID,
-				dbQueries: []testutls.QueryData{},
-			},
-			wantErr: true,
-			errMsg:  fmt.Errorf(ErrMsgGetKeyValue),
-		},
-		{
-			name: ErrorUnmarshal,
-			args: args{
-				roleID:    testutls.MockID,
-				dbQueries: []testutls.QueryData{},
-			},
-			wantErr: true,
-			errMsg:  fmt.Errorf(ErrMsgUnmarshal),
-		},
-		{
-			name: ErrorSetKeyValue,
-			args: args{
-				roleID:    testutls.MockID,
-				cacheMiss: true,
-				dbQueries: []testutls.QueryData{
-					{
-						Actions:    &[]driver.Value{role.ID},
-						Query:      `select * from "roles" where "id"=$1`,
-						DbResponse: DbResponse,
-					},
-				},
-			},
-			wantErr: true,
-			errMsg:  fmt.Errorf(ErrMsgSetKeyValue),
-		},
-		{
-			name: ErrorFindRoleById,
-			args: args{
-				roleID:    testutls.MockID,
-				cacheMiss: true,
-				dbQueries: []testutls.QueryData{
-					{
-						Actions:    &[]driver.Value{role.ID},
-						Query:      `select * from "roles" where "id"=$1`,
-						DbResponse: DbResponse.RowError(0, fmt.Errorf("data error")),
-					},
-				},
-			},
-			wantErr: true,
-			errMsg:  fmt.Errorf(ErrMsgSetKeyValue),
-		},
-		{
-			name: SuccessCase,
-			args: args{
-				roleID:    testutls.MockID,
-				dbQueries: []testutls.QueryData{},
-			},
-			want: role,
-		},
-		{
-			name: SuccessCacheMiss,
-			args: args{
-				roleID:    testutls.MockID,
-				cacheMiss: true,
-				dbQueries: []testutls.QueryData{
-					{
-						Actions:    &[]driver.Value{role.ID},
-						Query:      `select * from "roles" where "id"=$1`,
-						DbResponse: DbResponse,
-					},
-				},
-			},
-			want: role,
-		},
+		name:    name,
+		args:    args,
+		want:    want,
+		wantErr: wantErr,
+		errMsg:  errMsg,
 	}
+}
+
+func setupErrorCase(name string, roleID int, errMsg error) struct {
+	name    string
+	args    GetRoleArgs
+	want    *models.Role
+	wantErr bool
+	errMsg  error
+} {
+	return struct {
+		name    string
+		args    GetRoleArgs
+		want    *models.Role
+		wantErr bool
+		errMsg  error
+	}{
+		name: name,
+		args: GetRoleArgs{
+			roleID:    roleID,
+			dbQueries: []testutls.QueryData{},
+		},
+		wantErr: true,
+		errMsg:  errMsg,
+	}
+}
+
+func getGetRoleTestCases() []struct {
+	name    string
+	args    GetRoleArgs
+	want    *models.Role
+	wantErr bool
+	errMsg  error
+} {
+	role := &models.Role{ID: testutls.MockID, Name: testutls.MockUser().R.Role.Name}
+
+	tests := []struct {
+		name    string
+		args    GetRoleArgs
+		want    *models.Role
+		wantErr bool
+		errMsg  error
+	}{
+		setupErrorCase(ErrorGetKeyValue, testutls.MockID, errors.New(ErrMsgGetKeyValue)),
+		setupErrorCase(ErrorUnmarshal, testutls.MockID, errors.New(ErrMsgUnmarshal)),
+		setupErrorCase(ErrorSetKeyValue, testutls.MockID, errors.New(ErrMsgSetKeyValue)),
+		setupErrorCase(ErrorFindRoleById, testutls.MockID, errors.New(ErrMsgFindRoleById)),
+		getRoleTestCase(SuccessCase, GetRoleArgs{roleID: testutls.MockID},
+			role, false, nil),
+		getRoleTestCase(SuccessCacheMiss, GetRoleArgs{roleID: testutls.MockID,
+			cacheMiss: true, dbQueries: []testutls.QueryData{
+				{Actions: &[]driver.Value{role.ID},
+					Query:      `select * from "roles" where "id"=$1`,
+					DbResponse: DbResponse}}},
+			role, false, nil),
+	}
+	return tests
+}
+
+func TestGetRole(t *testing.T) {
+	tests := getGetRoleTestCases()
 	oldDB := boil.GetDB()
 	err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../../../"))
 	if err != nil {

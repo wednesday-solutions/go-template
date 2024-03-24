@@ -2,6 +2,7 @@ package resolver_test
 
 import (
 	"context"
+	"database/sql"
 	"database/sql/driver"
 	"fmt"
 	"reflect"
@@ -60,171 +61,366 @@ const (
 	TestUsername               = "wednesday"
 	TestToken                  = "refreshToken"
 	ReqToken                   = "refresh_token"
+	ErrorMessage               = "an error '%s' was not expected when opening a stub database connection"
 )
 
 func TestLogin(t *testing.T) {
-	type args struct {
-		UserName string
-		Password string
+	cases := prepareTestCases()
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			handleTestCases(t, tt)
+		})
 	}
-	var req = args{
-		UserName: testutls.MockEmail,
-		Password: OldPassword,
-	}
+}
+
+type LoginArgs struct {
+	UserName string
+	Password string
+}
+
+var req = LoginArgs{
+	UserName: testutls.MockEmail,
+	Password: OldPassword,
+}
+
+func prepareTestCases() []struct {
+	name     string
+	req      LoginArgs
+	wantResp *fm.LoginResponse
+	wantErr  bool
+	err      error
+} {
 	cases := []struct {
 		name     string
-		req      args
+		req      LoginArgs
 		wantResp *fm.LoginResponse
 		wantErr  bool
 		err      error
 	}{
-		{
-			name: ErrorFindingUser,
-			req: args{
-				UserName: TestUsername,
-				Password: TestPassword,
-			},
-			wantErr: true,
-			err:     fmt.Errorf(ErrorMsgFindingUser),
+		prepareErrorFindingUser(),
+		prepareErrorPasswordValidation(),
+		prepareErrorActiveStatus(),
+		prepareErrorFromConfig(),
+		prepareErrorFromJwt(),
+		prepareErrorFromGenerateToken(),
+		prepareErrorUpdateUser(),
+		prepareSuccessCase(),
+	}
+	return cases
+}
+
+func prepareErrorFindingUser() struct {
+	name     string
+	req      LoginArgs
+	wantResp *fm.LoginResponse
+	wantErr  bool
+	err      error
+} {
+	return struct {
+		name     string
+		req      LoginArgs
+		wantResp *fm.LoginResponse
+		wantErr  bool
+		err      error
+	}{
+		name: ErrorFindingUser,
+		req: LoginArgs{
+			UserName: TestUsername,
+			Password: TestPassword,
 		},
-		{
-			name: ErrorPasswordValidation,
-			req: args{
-				UserName: testutls.MockEmail,
-				Password: TestPassword,
-			},
-			wantErr: true,
-			err:     fmt.Errorf(ErrorMsgPasswordValidation),
+		wantErr: true,
+		err:     fmt.Errorf(ErrorMsgFindingUser),
+	}
+}
+
+func prepareErrorPasswordValidation() struct {
+	name     string
+	req      LoginArgs
+	wantResp *fm.LoginResponse
+	wantErr  bool
+	err      error
+} {
+	return struct {
+		name     string
+		req      LoginArgs
+		wantResp *fm.LoginResponse
+		wantErr  bool
+		err      error
+	}{
+		name: ErrorPasswordValidation,
+		req: LoginArgs{
+			UserName: testutls.MockEmail,
+			Password: TestPassword,
 		},
-		{
-			name:    ErrorActiveStatus,
-			req:     req,
-			wantErr: true,
-			err:     resultwrapper.ErrUnauthorized,
+		wantErr: true,
+		err:     fmt.Errorf(ErrorMsgPasswordValidation),
+	}
+}
+func prepareErrorActiveStatus() struct {
+	name     string
+	req      LoginArgs
+	wantResp *fm.LoginResponse
+	wantErr  bool
+	err      error
+} {
+	return struct {
+		name     string
+		req      LoginArgs
+		wantResp *fm.LoginResponse
+		wantErr  bool
+		err      error
+	}{
+		name:    ErrorActiveStatus,
+		req:     req, // Assuming req is defined somewhere in your code
+		wantErr: true,
+		err:     resultwrapper.ErrUnauthorized,
+	}
+}
+
+func prepareErrorFromConfig() struct {
+	name     string
+	req      LoginArgs
+	wantResp *fm.LoginResponse
+	wantErr  bool
+	err      error
+} {
+	return struct {
+		name     string
+		req      LoginArgs
+		wantResp *fm.LoginResponse
+		wantErr  bool
+		err      error
+	}{
+		name: ErrorFromConfig,
+		req: LoginArgs{
+			UserName: testutls.MockEmail,
+			Password: OldPassword,
 		},
-		{
-			name: ErrorFromConfig,
-			req: args{
-				UserName: testutls.MockEmail,
-				Password: OldPassword,
-			},
-			wantErr: true,
-			err:     fmt.Errorf(ErrorMsgFromConfig),
-		},
-		{
-			name:    ErrorFromJwt,
-			req:     req,
-			wantErr: true,
-			err:     fmt.Errorf(ErrorMsgFromJwt),
-		},
-		{
-			name:    ErrorFromGenerateToken,
-			req:     req,
-			wantErr: true,
-			err:     resultwrapper.ErrUnauthorized,
-		},
-		{
-			name:    ErrorUpdateUser,
-			req:     req,
-			wantErr: true,
-			err:     fmt.Errorf(ErrorMsgfromUpdateUser),
-		},
-		{
-			name: SuccessCase,
-			req:  req,
-			wantResp: &fm.LoginResponse{
-				Token:        "jwttokenstring",
-				RefreshToken: TestToken,
-			},
+		wantErr: true,
+		err:     fmt.Errorf(ErrorMsgFromConfig),
+	}
+}
+
+func prepareErrorFromJwt() struct {
+	name     string
+	req      LoginArgs
+	wantResp *fm.LoginResponse
+	wantErr  bool
+	err      error
+} {
+	return struct {
+		name     string
+		req      LoginArgs
+		wantResp *fm.LoginResponse
+		wantErr  bool
+		err      error
+	}{
+		name:    ErrorFromJwt,
+		req:     req,
+		wantErr: true,
+		err:     fmt.Errorf(ErrorMsgFromJwt),
+	}
+}
+
+func prepareErrorFromGenerateToken() struct {
+	name     string
+	req      LoginArgs
+	wantResp *fm.LoginResponse
+	wantErr  bool
+	err      error
+} {
+	return struct {
+		name     string
+		req      LoginArgs
+		wantResp *fm.LoginResponse
+		wantErr  bool
+		err      error
+	}{
+		name:    ErrorFromGenerateToken,
+		req:     req,
+		wantErr: true,
+		err:     resultwrapper.ErrUnauthorized,
+	}
+}
+
+func prepareErrorUpdateUser() struct {
+	name     string
+	req      LoginArgs
+	wantResp *fm.LoginResponse
+	wantErr  bool
+	err      error
+} {
+	return struct {
+		name     string
+		req      LoginArgs
+		wantResp *fm.LoginResponse
+		wantErr  bool
+		err      error
+	}{
+		name:    ErrorUpdateUser,
+		req:     req,
+		wantErr: true,
+		err:     fmt.Errorf(ErrorMsgfromUpdateUser),
+	}
+}
+
+func prepareSuccessCase() struct {
+	name     string
+	req      LoginArgs
+	wantResp *fm.LoginResponse
+	wantErr  bool
+	err      error
+} {
+	return struct {
+		name     string
+		req      LoginArgs
+		wantResp *fm.LoginResponse
+		wantErr  bool
+		err      error
+	}{
+		name: SuccessCase,
+		req:  req,
+		wantResp: &fm.LoginResponse{
+			Token:        "jwttokenstring",
+			RefreshToken: TestToken,
 		},
 	}
+}
 
-	resolver1 := resolver.Resolver{}
-	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
-			if tt.name == ErrorFromConfig {
-				patch := gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
-					return nil, fmt.Errorf(ErrorMsgFromConfig)
-				})
-				defer patch.Reset()
-			}
-			var tg jwt.Service
-			if tt.name == ErrorFromJwt {
-				patch := gomonkey.ApplyFunc(service.JWT, func(cfg *config.Configuration) (jwt.Service, error) {
-					return tg, fmt.Errorf(ErrorMsgFromJwt)
-				})
-				defer patch.Reset()
-			}
-			patch := gomonkey.ApplyFunc(tg.GenerateToken, func(u *models.User) (string, error) {
-				if tt.name == ErrorFromGenerateToken {
-					return "", resultwrapper.ErrUnauthorized
-				}
-				return "", nil
-			})
-			defer patch.Reset()
-			err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../"))
-			if err != nil {
-				fmt.Print("error loading .env file")
-			}
-			db, mock, err := sqlmock.New()
-			if err != nil {
-				t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-			}
-			oldDB := boil.GetDB()
-			defer func() {
-				db.Close()
-				boil.SetDB(oldDB)
-			}()
-			boil.SetDB(db)
+func handleTestCases(t *testing.T, tt struct {
+	name     string
+	req      LoginArgs
+	wantResp *fm.LoginResponse
+	wantErr  bool
+	err      error
+}) {
+	// Prepare necessary mocks and patches
+	prepareMocksAndPatches(tt)
 
-			if tt.name == ErrorFindingUser {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users" WHERE (username=$1) LIMIT 1;`)).
-					WithArgs().
-					WillReturnError(fmt.Errorf(ErrorMsgFindingUser))
-			}
-			if tt.name == ErrorPasswordValidation {
-				rows := sqlmock.NewRows([]string{"id", "password", "active", "role_id"}).
-					AddRow(testutls.MockID, TestPasswordHash, true, 1)
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users"  WHERE (username=$1) LIMIT 1;`)).
-					WithArgs().
-					WillReturnRows(rows)
-			}
-			if tt.name == ErrorActiveStatus {
-				rows := sqlmock.NewRows([]string{"id", "password", "active", "role_id"}).
-					AddRow(testutls.MockID, OldPasswordHash, false, 1)
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users"  WHERE (username=$1) LIMIT 1;`)).
-					WithArgs().
-					WillReturnRows(rows)
-			}
-			rows := sqlmock.NewRows([]string{"id", "password", "active", "role_id"}).
-				AddRow(testutls.MockID, OldPasswordHash, true, 1)
-			mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users"  WHERE (username=$1) LIMIT 1;`)).
-				WithArgs().
-				WillReturnRows(rows)
-			if tt.name == SuccessCase || tt.name == ErrorUpdateUser {
-				rows := sqlmock.NewRows([]string{"id", "name"}).
-					AddRow(1, "ADMIN")
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT "roles".* FROM "roles" WHERE ("id" = $1) LIMIT 1`)).
-					WithArgs([]driver.Value{1}...).
-					WillReturnRows(rows)
-			}
-			if tt.name == ErrorUpdateUser {
-				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "users" `)).WillReturnError(fmt.Errorf(ErrorMsgfromUpdateUser))
-			} else {
-				result := driver.Result(driver.RowsAffected(1))
-				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "users" `)).WillReturnResult(result)
-			}
-			c := context.Background()
-			response, err := resolver1.Mutation().Login(c, tt.req.UserName, tt.req.Password)
-			if tt.wantResp != nil && response != nil {
-				tt.wantResp.RefreshToken = response.RefreshToken
-				tt.wantResp.Token = response.Token
-				assert.Equal(t, tt.wantResp, response)
-			} else {
-				assert.Equal(t, true, strings.Contains(err.Error(), tt.err.Error()))
-				assert.Equal(t, tt.wantErr, err != nil)
-			}
+	// Load environment variables
+	loadEnvironmentVariables()
+
+	// Set up mock database
+	mockDB := setupMockDBLogin(t)
+	defer mockDB.ExpectClose()
+	// Handle specific test cases
+	handleSpecificTestCase(t, tt)
+}
+
+func prepareMocksAndPatches(tt struct {
+	name     string
+	req      LoginArgs
+	wantResp *fm.LoginResponse
+	wantErr  bool
+	err      error
+}) {
+	if tt.name == ErrorFromConfig {
+		patch := gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
+			return nil, fmt.Errorf(ErrorMsgFromConfig)
 		})
+		defer patch.Reset()
+	}
+
+	var tg jwt.Service
+	if tt.name == ErrorFromJwt {
+		patch := gomonkey.ApplyFunc(service.JWT, func(cfg *config.Configuration) (jwt.Service, error) {
+			return tg, fmt.Errorf(ErrorMsgFromJwt)
+		})
+		defer patch.Reset()
+	}
+	patch := gomonkey.ApplyFunc(tg.GenerateToken, func(u *models.User) (string, error) {
+		if tt.name == ErrorFromGenerateToken {
+			return "", resultwrapper.ErrUnauthorized
+		}
+		return "", nil
+	})
+	defer patch.Reset()
+}
+
+func loadEnvironmentVariables() {
+	err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../"))
+	if err != nil {
+		fmt.Print("error loading .env file")
+	}
+}
+
+func setupMockDBLogin(t *testing.T) sqlmock.Sqlmock {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf(ErrorMessage, err)
+	}
+	oldDB := boil.GetDB()
+	defer func() {
+		db.Close()
+		boil.SetDB(oldDB)
+	}()
+	boil.SetDB(db)
+	return mock
+}
+
+func handleSpecificTestCase(t *testing.T, tt struct {
+	name     string
+	req      LoginArgs
+	wantResp *fm.LoginResponse
+	wantErr  bool
+	err      error
+}) {
+	resolver1 := resolver.Resolver{}
+	mock := setupMockDBLogin(t)
+	// Mock database queries based on test case
+	switch tt.name {
+	case ErrorFindingUser:
+		mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users" WHERE (username=$1) LIMIT 1;`)).
+			WithArgs().
+			WillReturnError(fmt.Errorf(ErrorMsgFindingUser))
+	case ErrorPasswordValidation:
+		rows := sqlmock.NewRows([]string{"id", "password", "active", "role_id"}).
+			AddRow(testutls.MockID, TestPasswordHash, true, 1)
+		mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users"  WHERE (username=$1) LIMIT 1;`)).
+			WithArgs().
+			WillReturnRows(rows)
+	case ErrorActiveStatus:
+		rows := sqlmock.NewRows([]string{"id", "password", "active", "role_id"}).
+			AddRow(testutls.MockID, OldPasswordHash, false, 1)
+		mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users"  WHERE (username=$1) LIMIT 1;`)).
+			WithArgs().
+			WillReturnRows(rows)
+	default:
+		rows := sqlmock.NewRows([]string{"id", "password", "active", "role_id"}).
+			AddRow(testutls.MockID, OldPasswordHash, true, 1)
+		mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users"  WHERE (username=$1) LIMIT 1;`)).
+			WithArgs().
+			WillReturnRows(rows)
+	}
+
+	if tt.name == SuccessCase || tt.name == ErrorUpdateUser {
+		rows := sqlmock.NewRows([]string{"id", "name"}).
+			AddRow(1, "ADMIN")
+		mock.ExpectQuery(regexp.QuoteMeta(`SELECT "roles".* FROM "roles" WHERE ("id" = $1) LIMIT 1`)).
+			WithArgs([]driver.Value{1}...).
+			WillReturnRows(rows)
+	}
+
+	if tt.name == ErrorUpdateUser {
+		mock.ExpectExec(regexp.QuoteMeta(`UPDATE "users" `)).WillReturnError(fmt.Errorf(ErrorMsgfromUpdateUser))
+	} else {
+		result := driver.Result(driver.RowsAffected(1))
+		mock.ExpectExec(regexp.QuoteMeta(`UPDATE "users" `)).WillReturnResult(result)
+	}
+
+	// Execute resolver function
+	c := context.Background()
+	response, err := resolver1.Mutation().Login(c, tt.req.UserName, tt.req.Password)
+
+	// Assert results
+	if tt.wantResp != nil && response != nil {
+		tt.wantResp.RefreshToken = response.RefreshToken
+		tt.wantResp.Token = response.Token
+		assert.Equal(t, tt.wantResp, response)
+	} else {
+		assert.Equal(t, true, strings.Contains(err.Error(), tt.err.Error()))
+		assert.Equal(t, tt.wantErr, err != nil)
 	}
 }
 
@@ -304,7 +500,7 @@ func TestChangePassword(
 				// Handle the case where there is an error while loading the configuration
 				if tt.name == ErrorFromConfig {
 					patch := gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
-						return nil, fmt.Errorf("error in loading config")
+						return nil, fmt.Errorf(ErrorMsgFromConfig)
 					})
 					defer patch.Reset()
 				}
@@ -363,6 +559,47 @@ func TestChangePassword(
 }
 
 func TestRefreshToken(t *testing.T) {
+	cases := prepareRefreshTokenCases()
+
+	resolver := resolver.Resolver{}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			db, mock := prepareMockDB(t)
+			defer db.Close()
+
+			setupMockDBExpectations(tt.name, mock)
+
+			mockConfigLoad := prepareMockConfigLoad(tt.name)
+			defer mockConfigLoad.Reset()
+
+			mockJWTService := prepareMockJWTService(tt.name)
+			defer mockJWTService.Reset()
+
+			mockTokenGeneration := prepareMockTokenGeneration(tt.name)
+			defer mockTokenGeneration.Reset()
+
+			ctx := prepareContextRefereshToken()
+
+			response, err := resolver.Mutation().RefreshToken(ctx, tt.req)
+
+			if tt.wantResp != nil && response != nil {
+				tt.wantResp.Token = response.Token
+				assert.Equal(t, tt.wantResp, response)
+			} else {
+				assert.Equal(t, true, strings.Contains(err.Error(), tt.err.Error()))
+			}
+		})
+	}
+}
+
+func prepareRefreshTokenCases() []struct {
+	name     string
+	req      string
+	wantResp *fm.RefreshTokenResponse
+	wantErr  bool
+	err      error
+} {
 	cases := []struct {
 		name     string
 		req      string
@@ -402,90 +639,76 @@ func TestRefreshToken(t *testing.T) {
 			wantErr: false,
 		},
 	}
+	return cases
+}
 
-	// Create a new instance of the resolver
-	resolver1 := resolver.Resolver{}
-	for _, tt := range cases {
-		t.Run(
-			tt.name,
-			func(t *testing.T) {
-				// Create a mock SQL database connection
-				db, mock, err := sqlmock.New()
-				if err != nil {
-					t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-				}
-				// Inject mock instance into boil.
-				oldDB := boil.GetDB()
-				defer func() {
-					db.Close()
-					boil.SetDB(oldDB)
-				}()
-				boil.SetDB(db)
-				// Handle the case where authentication token is invalid
-				if tt.name == ErrorInvalidToken {
-					mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users" WHERE (token=$1) LIMIT 1;`)).
-						WithArgs().
-						WillReturnError(fmt.Errorf(ErrorMsginvalidToken))
-				}
-				// Handle the case where there is an error loading the config
-				patch := gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
-					if tt.name == ErrorFromConfig {
-						return nil, fmt.Errorf("error in loading config")
-					} else {
-						return &config.Configuration{}, nil
-					}
-				})
-				defer patch.Reset()
-				//initialize a jwt service
-				tg := jwt.Service{}
-				// Handle the case where there is an error creating the JWT service
-				patchJWT := gomonkey.ApplyFunc(service.JWT, func(cfg *config.Configuration) (jwt.Service, error) {
-					if tt.name == ErrorFromJwt {
-						return tg, fmt.Errorf(ErrorMsgFromJwt)
-					} else {
-						return tg, nil
-					}
-				})
-				defer patchJWT.Reset()
-				// Handle the case where there is an error form token generation service
-				patchGenerateToken := gomonkey.ApplyMethod(reflect.TypeOf(tg), "GenerateToken",
-					func(jwt.Service, *models.User) (string, error) {
-						if tt.name == ErrorFromGenerateToken {
-							return "", resultwrapper.ErrUnauthorized
-						} else {
-							return "token", nil
-						}
-					})
-				defer patchGenerateToken.Reset()
-				// Expect a query to get the user by ID to return a row with mock data entered
-				rows := sqlmock.NewRows([]string{"id", "email", "token", "role_id"}).
-					AddRow(1, testutls.MockEmail, testutls.MockToken, 1)
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users" WHERE (token=$1) LIMIT 1;`)).
-					WithArgs().
-					WillReturnRows(rows)
-				if tt.name == SuccessCase {
-					rows := sqlmock.NewRows([]string{"id", "name"}).
-						AddRow(1, "ADMIN")
-					mock.ExpectQuery(regexp.QuoteMeta(`SELECT "roles".* FROM "roles" WHERE ("id" = $1) LIMIT 1`)).
-						WithArgs([]driver.Value{1}...).
-						WillReturnRows(rows)
-				}
-				// Set up the context with the mock user
-				c := context.Background()
-				ctx := context.WithValue(c, testutls.UserKey, testutls.MockUser())
-				// Call the refresh token mutation with the given arguments and check the response and error against the expected values
-				response, err := resolver1.Mutation().
-					RefreshToken(ctx, tt.req)
-				if tt.wantResp != nil &&
-					response != nil {
-					tt.wantResp.Token = response.Token
-					// Assert that the expected response matches the actual response
-					assert.Equal(t, tt.wantResp, response)
-				} else {
-					// Assert that the expected error value matches the actual error value
-					assert.Equal(t, true, strings.Contains(err.Error(), tt.err.Error()))
-				}
-			},
-		)
+func prepareMockDB(t *testing.T) (*sql.DB, sqlmock.Sqlmock) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
+	boil.SetDB(db)
+	return db, mock
+}
+func setupMockDBExpectations(name string, mock sqlmock.Sqlmock) {
+	switch name {
+	case ErrorInvalidToken:
+		mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users" WHERE (token=$1) LIMIT 1;`)).
+			WithArgs().
+			WillReturnError(fmt.Errorf(ErrorMsginvalidToken))
+	case SuccessCase:
+		rows := sqlmock.NewRows([]string{"id", "email", "token", "role_id"}).
+			AddRow(1, testutls.MockEmail, testutls.MockToken, 1)
+		mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users" WHERE (token=$1) LIMIT 1;`)).
+			WithArgs().
+			WillReturnRows(rows)
+		rows = sqlmock.NewRows([]string{"id", "name"}).
+			AddRow(1, "ADMIN")
+		mock.ExpectQuery(regexp.QuoteMeta(`SELECT "roles".* FROM "roles" WHERE ("id" = $1) LIMIT 1`)).
+			WithArgs([]driver.Value{1}...).
+			WillReturnRows(rows)
+	case ErrorFromConfig:
+		// Expectation for error loading the config
+		mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users" WHERE (token=$1) LIMIT 1;`)).
+			WithArgs().
+			WillReturnError(fmt.Errorf(ErrorMsgFromConfig))
+	case ErrorFromJwt:
+		// Expectation for error in creating the JWT service
+		mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users" WHERE (token=$1) LIMIT 1;`)).
+			WithArgs().
+			WillReturnRows(sqlmock.NewRows([]string{"id", "email", "token", "role_id"}))
+	}
+}
+
+func prepareMockConfigLoad(name string) *gomonkey.Patches {
+	return gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
+		if name == ErrorFromConfig {
+			return nil, fmt.Errorf(ErrorMsgFromConfig)
+		}
+		return &config.Configuration{}, nil
+	})
+}
+
+func prepareMockJWTService(name string) *gomonkey.Patches {
+	return gomonkey.ApplyFunc(service.JWT, func(cfg *config.Configuration) (jwt.Service, error) {
+		if name == ErrorFromJwt {
+			return jwt.Service{}, fmt.Errorf(ErrorMsgFromJwt)
+		}
+		return jwt.Service{}, nil
+	})
+}
+
+func prepareMockTokenGeneration(name string) *gomonkey.Patches {
+	return gomonkey.ApplyMethod(reflect.TypeOf(jwt.Service{}), "GenerateToken",
+		func(jwt.Service, *models.User) (string, error) {
+			if name == ErrorFromGenerateToken {
+				return "", resultwrapper.ErrUnauthorized
+			}
+			return "token", nil
+		})
+}
+
+func prepareContextRefereshToken() context.Context {
+	c := context.Background()
+	return context.WithValue(c, testutls.UserKey, testutls.MockUser())
 }
