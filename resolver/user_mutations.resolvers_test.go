@@ -166,10 +166,12 @@ func TestCreateUser(
 		)
 	}
 }
-
-func TestUpdateUser(
-	t *testing.T,
-) {
+func GetUpdateUserTestCase() []struct {
+	name     string
+	req      *fm.UserUpdateInput
+	wantResp *fm.User
+	wantErr  bool
+} {
 	cases := []struct {
 		name     string
 		req      *fm.UserUpdateInput
@@ -209,6 +211,12 @@ func TestUpdateUser(
 			wantErr: false,
 		},
 	}
+	return cases
+}
+func TestUpdateUser(
+	t *testing.T,
+) {
+	cases := GetUpdateUserTestCase()
 	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
 		t.Run(
@@ -253,9 +261,11 @@ func TestUpdateUser(
 	}
 }
 
-func TestDeleteUser(
-	t *testing.T,
-) {
+func GetDeleteTestCases() []struct {
+	name     string
+	wantResp *fm.UserDeletePayload
+	wantErr  bool
+} {
 	cases := []struct {
 		name     string
 		wantResp *fm.UserDeletePayload
@@ -277,6 +287,13 @@ func TestDeleteUser(
 			wantErr: false,
 		},
 	}
+	return cases
+}
+
+func TestDeleteUser(
+	t *testing.T,
+) {
+	cases := GetDeleteTestCases()
 	resolver1 := resolver.Resolver{}
 	for _, tt := range cases {
 		t.Run(

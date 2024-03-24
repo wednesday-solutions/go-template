@@ -74,8 +74,15 @@ func TestNew(t *testing.T) {
 		})
 	}
 }
-
-func TestGenerateToken(t *testing.T) {
+func GetTokenTestCases() map[string]struct {
+	algo         string
+	secret       string
+	minSecretLen int
+	req          models.User
+	wantErr      bool
+	want         string
+	RoleErr      bool
+} {
 	cases := map[string]struct {
 		algo         string
 		secret       string
@@ -127,6 +134,10 @@ func TestGenerateToken(t *testing.T) {
 			RoleErr: true,
 		},
 	}
+	return cases
+}
+func TestGenerateToken(t *testing.T) {
+	cases := GetTokenTestCases()
 	err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../../"))
 	if err != nil {
 		log.Fatal(err)

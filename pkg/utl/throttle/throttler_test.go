@@ -19,88 +19,119 @@ import (
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
+type args struct {
+	ctx            context.Context
+	limit          int
+	dur            time.Duration
+	isLocal        bool
+	visits         int
+	visitsErr      error
+	startVisitsErr error
+	ip             string
+}
+
+type testCase struct {
+	name    string
+	args    args
+	wantErr bool
+}
+
+// CreateTestCases creates and returns test cases.
+func CreateTestCases(ctx context.Context) []testCase {
+	return []testCase{
+		createSuccessLocalTestCase(ctx),
+		createSuccessNotLocalFirstVisitTestCase(ctx),
+		createSuccessNotLocalSecondVisitTestCase(ctx),
+		createFailureNotLocalFirstVisitTestCase(ctx),
+		createFailureNotLocalFirstVisitStartVisitErrTestCase(ctx),
+		createFailureNotLocalRateLimitExceededTestCase(ctx),
+	}
+}
+
+func createSuccessLocalTestCase(ctx context.Context) testCase {
+	return testCase{
+		name: "Success_Local",
+		args: args{
+			ctx:     ctx,
+			limit:   10,
+			dur:     time.Second,
+			isLocal: true,
+		},
+	}
+}
+
+func createSuccessNotLocalFirstVisitTestCase(ctx context.Context) testCase {
+	return testCase{
+		name: "Success_NotLocal_FirstVisit",
+		args: args{
+			ctx:    ctx,
+			limit:  10,
+			visits: 1,
+			dur:    time.Second,
+			ip:     "mock IP address",
+		},
+	}
+}
+
+func createSuccessNotLocalSecondVisitTestCase(ctx context.Context) testCase {
+	return testCase{
+		name: "Success_NotLocal_SecondVisit",
+		args: args{
+			ctx:    ctx,
+			limit:  10,
+			visits: 2,
+			dur:    time.Second,
+			ip:     "mock IP address",
+		},
+	}
+}
+
+func createFailureNotLocalFirstVisitTestCase(ctx context.Context) testCase {
+	return testCase{
+		name: "Failure_NotLocal_FirstVisit",
+		args: args{
+			ctx:       ctx,
+			limit:     10,
+			visits:    1,
+			visitsErr: fmt.Errorf("Internal error"),
+			dur:       time.Second,
+			ip:        "mock IP address",
+		},
+		wantErr: true,
+	}
+}
+
+func createFailureNotLocalFirstVisitStartVisitErrTestCase(ctx context.Context) testCase {
+	return testCase{
+		name: "Failure_NotLocal_FirstVisit_StartVisitErr",
+		args: args{
+			ctx:            ctx,
+			limit:          10,
+			visits:         1,
+			startVisitsErr: fmt.Errorf("Internal error"),
+			dur:            time.Second,
+			ip:             "mock IP address",
+		},
+		wantErr: true,
+	}
+}
+
+func createFailureNotLocalRateLimitExceededTestCase(ctx context.Context) testCase {
+	return testCase{
+		name: "Failure_NotLocal_RateLimitExceeded",
+		args: args{
+			ctx:    ctx,
+			limit:  10,
+			visits: 11,
+			dur:    time.Second,
+			ip:     "mock IP address",
+		},
+		wantErr: true,
+	}
+}
 func TestCheck(t *testing.T) {
-	type args struct {
-		ctx            context.Context
-		limit          int
-		dur            time.Duration
-		isLocal        bool
-		visits         int
-		visitsErr      error
-		startVisitsErr error
-		ip             string
-	}
 	var ctx context.Context = testutls.MockCtx{}
-	tests := []struct {
-		name    string
-		args    args
-		wantErr bool
-	}{
-		{
-			name: "Success_Local",
-			args: args{
-				ctx:     ctx,
-				limit:   10,
-				dur:     time.Second,
-				isLocal: true,
-			},
-		},
-		{
-			name: "Success_NotLocal_FirstVisit",
-			args: args{
-				ctx:    ctx,
-				limit:  10,
-				visits: 1,
-				dur:    time.Second,
-				ip:     testutls.MockIpAddress,
-			},
-		},
-		{
-			name: "Success_NotLocal_SecondVisit",
-			args: args{
-				ctx:    ctx,
-				limit:  10,
-				visits: 2,
-				dur:    time.Second,
-				ip:     testutls.MockIpAddress,
-			},
-		},
-		{
-			name: "Failure_NotLocal_FirstVisit",
-			args: args{
-				ctx:       ctx,
-				limit:     10,
-				visits:    1,
-				visitsErr: fmt.Errorf("Internal error"),
-				dur:       time.Second,
-				ip:        testutls.MockIpAddress,
-			},
-			wantErr: true,
-		},
-		{
-			name: "Failure_NotLocal_FirstVisit_StartVisitErr",
-			args: args{
-				ctx:            ctx,
-				limit:          10,
-				visits:         1,
-				startVisitsErr: fmt.Errorf("Internal error"),
-				dur:            time.Second,
-				ip:             testutls.MockIpAddress,
-			},
-			wantErr: true,
-		},
-		{
-			name: "Failure_NotLocal_RateLimitExceeded",
-			args: args{
-				ctx:    ctx,
-				limit:  10,
-				visits: 11,
-				dur:    time.Second,
-				ip:     testutls.MockIpAddress,
-			},
-			wantErr: true,
-		},
-	}
+	tests := CreateTestCases(ctx)
 	ApplyFunc(graphql.GetPath, func(ctx context.Context) ast.Path {
 		return ast.Path{ast.PathName("users")}
 	})
