@@ -2,6 +2,7 @@ package resolver_test
 
 import (
 	"context"
+	"database/sql"
 	"database/sql/driver"
 	"fmt"
 	"go-template/daos"
@@ -17,11 +18,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/agiledragon/gomonkey/v2"
-	. "github.com/agiledragon/gomonkey/v2"
-	"golang.org/x/crypto/bcrypt"
-
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/agiledragon/gomonkey/v2"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -37,9 +35,34 @@ func (a AnyTime) Match(
 	return ok
 }
 
-func TestCreateUser(
-	t *testing.T,
-) {
+func setupMockDBForCreateUser(t *testing.T) (*sql.DB, sqlmock.Sqlmock) {
+	mockDB, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	return mockDB, mock
+}
+
+func expectInsertUser(mock sqlmock.Sqlmock, mockUser models.User) {
+	rows := sqlmock.NewRows([]string{
+		"id", "mobile", "address", "active", "last_login", "last_password_change", "token", "deleted_at",
+	}).AddRow(
+		mockUser.ID, mockUser.Mobile, mockUser.Address, mockUser.Active,
+		mockUser.LastLogin, mockUser.LastPasswordChange, mockUser.Token, mockUser.DeletedAt,
+	)
+	mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "users"`)).
+		WithArgs(
+			mockUser.FirstName, mockUser.LastName, mockUser.Username, "", mockUser.Email,
+			mockUser.RoleID, AnyTime{}, AnyTime{},
+		).
+		WillReturnRows(rows)
+}
+func GetCreateUserTestCase() []struct {
+	name     string
+	req      fm.UserCreateInput
+	wantResp *fm.User
+	wantErr  bool
+} {
 	cases := []struct {
 		name     string
 		req      fm.UserCreateInput
@@ -87,85 +110,59 @@ func TestCreateUser(
 			wantErr: false,
 		},
 	}
-
-	resolver1 := resolver.Resolver{}
+	return cases
+}
+func TestCreateUser(t *testing.T) {
+	cases := GetCreateUserTestCase()
+	resolver := resolver.Resolver{}
 	for _, tt := range cases {
-		t.Run(
-			tt.name,
-			func(t *testing.T) {
-				if tt.name == ErrorFromThrottleCheck {
-					patch := gomonkey.ApplyFunc(throttle.Check, func(ctx context.Context, limit int, dur time.Duration) error {
-						return fmt.Errorf("Internal error")
-					})
-					defer patch.Reset()
-				}
+		t.Run(tt.name, func(t *testing.T) {
+			mockDB, mock := setupMockDBForCreateUser(t)
+			defer mockDB.Close()
 
-				if tt.name == ErrorFromConfig {
-					patch := gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
-						return nil, fmt.Errorf("error in loading config")
-					})
-					defer patch.Reset()
-				}
-				err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../"))
-				if err != nil {
-					log.Fatal(err)
-				}
-				mock, db, _ := testutls.SetupMockDB(t)
-				oldDB := boil.GetDB()
-				defer func() {
-					db.Close()
-					boil.SetDB(oldDB)
-				}()
-				boil.SetDB(db)
+			defer func() {
+				_ = mock.ExpectationsWereMet()
+			}()
 
-				if tt.name == ErrorFromCreateUser {
-					// insert new user
-					mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "users"`)).
-						WithArgs().
-						WillReturnError(fmt.Errorf(""))
-				}
-				// insert new user
-				rows := sqlmock.NewRows([]string{
-					"id", "mobile", "address", "active", "last_login", "last_password_change", "token", "deleted_at",
-				}).
-					AddRow(
-						testutls.MockUser().ID,
-						testutls.MockUser().Mobile,
-						testutls.MockUser().Address,
-						testutls.MockUser().Active,
-						testutls.MockUser().LastLogin,
-						testutls.MockUser().LastPasswordChange,
-						testutls.MockUser().Token,
-						testutls.MockUser().DeletedAt,
-					)
-				ApplyFunc(bcrypt.GenerateFromPassword, func([]uint8, int) ([]uint8, error) {
-					var a []uint8
-					return a, nil
-				})
+			if tt.name == ErrorFromCreateUser {
 				mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "users"`)).
-					WithArgs(
-						testutls.MockUser().FirstName,
-						testutls.MockUser().LastName,
-						testutls.MockUser().Username,
-						"",
-						testutls.MockUser().Email,
-						testutls.MockUser().RoleID,
-						AnyTime{},
-						AnyTime{},
-					).
-					WillReturnRows(rows)
+					WithArgs().
+					WillReturnError(fmt.Errorf(""))
+			} else {
+				expectInsertUser(mock, *testutls.MockUser())
+			}
 
-				c := context.Background()
-				response, err := resolver1.Mutation().
-					CreateUser(c, tt.req)
-				if tt.wantResp != nil {
-					assert.Equal(t, tt.wantResp, response)
-				}
-				assert.Equal(t, tt.wantErr, err != nil)
-			},
-		)
+			if tt.name == ErrorFromThrottleCheck {
+				patch := gomonkey.ApplyFunc(throttle.Check, func(ctx context.Context, limit int, dur time.Duration) error {
+					return fmt.Errorf("Internal error")
+				})
+				defer patch.Reset()
+			}
+
+			if tt.name == ErrorFromConfig {
+				patch := gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
+					return nil, fmt.Errorf("error in loading config")
+				})
+				defer patch.Reset()
+			}
+
+			err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../"))
+			if err != nil {
+				log.Fatal(err)
+			}
+			mock, db, _ := testutls.SetupMockDB(t)
+			oldDB, db := boil.GetDB(), db
+			boil.SetDB(oldDB)
+			boil.SetDB(db)
+			response, err := resolver.Mutation().CreateUser(context.Background(), tt.req)
+			if tt.wantResp != nil {
+				assert.Equal(t, tt.wantResp, response)
+			}
+			assert.Equal(t, tt.wantErr, err != nil)
+		})
 	}
 }
+
 func GetUpdateUserTestCase() []struct {
 	name     string
 	req      *fm.UserUpdateInput
