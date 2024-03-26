@@ -36,6 +36,8 @@ jobs:
         run:  go build ./...
       - name: Test
         run:  ./scripts/test.sh
+      - name: Keploy test
+        run:  chmod +x ./scripts/keploy_ci.sh && ./scripts/keploy_ci.sh
       # - uses: codecov/codecov-action@v2
       #   with:
       #     token: ${{ secrets.CODECOV_TOKEN }}
