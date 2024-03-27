@@ -11,7 +11,6 @@ import (
 	"go-template/internal/config"
 	"go-template/internal/jwt"
 	"go-template/models"
-	"go-template/pkg/utl/convert"
 	"go-template/testutls"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -138,7 +137,7 @@ func GetTokenTestCases() map[string]struct {
 }
 func TestGenerateToken(t *testing.T) {
 	cases := GetTokenTestCases()
-	err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../../"))
+	err := config.LoadEnv()
 	if err != nil {
 		log.Fatal(err)
 	}

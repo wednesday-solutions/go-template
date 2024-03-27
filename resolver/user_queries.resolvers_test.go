@@ -2,7 +2,6 @@ package resolver_test
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -12,10 +11,8 @@ import (
 
 	"go-template/gqlmodels"
 	fm "go-template/gqlmodels"
-	"go-template/internal/config"
 	"go-template/models"
 	"go-template/pkg/utl/cnvrttogql"
-	"go-template/pkg/utl/convert"
 	"go-template/pkg/utl/rediscache"
 	"go-template/resolver"
 	"go-template/testutls"
@@ -25,7 +22,6 @@ import (
 	. "github.com/agiledragon/gomonkey/v2"
 	"github.com/gomodule/redigo/redis"
 	"github.com/joho/godotenv"
-	"github.com/volatiletech/sqlboiler/v4/boil"
 
 	"github.com/rafaeljusto/redigomock"
 	"github.com/stretchr/testify/assert"
@@ -38,12 +34,22 @@ type args struct {
 func TestMe(t *testing.T) {
 	cases := initializeCases()
 
-	err := loadEnvAndSetupDB(t)
+	_, cleanup, err := testutls.SetupMockDB(t)
+	defer cleanup()
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	resolver1 := &resolver.Resolver{}
+	conn := redigomock.NewConn()
+	patches := ApplyFunc(
+		redis.Dial,
+		func(network string, address string, options ...redis.DialOption) (redis.Conn, error) {
+			return conn, nil
+		},
+	)
+	defer patches.Reset()
+
 	for _, tt := range cases {
 		setupTestEnvironment(tt.name, t)
 		runTestCase(t, tt, resolver1)
@@ -75,27 +81,11 @@ func initializeCases() []struct {
 	}
 }
 
-func loadEnvAndSetupDB(t *testing.T) error {
-	err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../"))
-	if err != nil {
-		return err
-	}
-	_, db, _ := testutls.SetupMockDB(t)
-	oldDb := boil.GetDB()
-	boil.SetDB(db)
-	defer func() {
-		db.Close()
-		boil.SetDB(oldDb)
-	}()
-	return nil
-}
-
 func setupTestEnvironment(name string, t *testing.T) {
 	if name == ErrorFromRedisCache {
 		patchGetUser := patchRedisCache()
 		defer patchGetUser.Reset()
 	}
-	setupDBAndRedis(t)
 }
 
 func runTestCase(t *testing.T, tt struct {
@@ -122,26 +112,6 @@ func patchRedisCache() *gomonkey.Patches {
 		func(userID int, ctx context.Context) (*models.User, error) {
 			return nil, errors.New("redis cache")
 		})
-}
-
-func setupDBAndRedis(t *testing.T) {
-	_, db, err := testutls.SetupEnvAndDB(t, testutls.Parameters{EnvFileLocation: `../.env.local`})
-	if err != nil {
-		panic("failed to setup env and db")
-	}
-	oldDb := boil.GetDB()
-	boil.SetDB(db)
-	defer func() {
-		db.Close()
-		boil.SetDB(oldDb)
-	}()
-	conn := redigomock.NewConn()
-	ApplyFunc(
-		redis.Dial,
-		func(network string, address string, options ...redis.DialOption) (redis.Conn, error) {
-			return conn, nil
-		},
-	)
 }
 
 func testRedisConnection(user *models.User) {
@@ -208,18 +178,6 @@ func loadEnvVars() error {
 		return err
 	}
 	return nil
-}
-
-func setupMockDB(t *testing.T) (*sql.DB, sqlmock.Sqlmock, func()) {
-	db, mock, err := sqlmock.New()
-	if err != nil {
-		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-	}
-	oldDB := boil.GetDB()
-	return db, mock, func() {
-		db.Close()
-		boil.SetDB(oldDB)
-	}
 }
 
 func setExpectations(mock sqlmock.Sqlmock, tt struct {
@@ -295,9 +253,7 @@ func TestUsers(
 					fmt.Print("error loading .env file")
 				}
 
-				db, mock, cleanup := setupMockDB(t)
-				defer cleanup()
-				boil.SetDB(db)
+				mock, cleanup, _ := testutls.SetupMockDB(t)
 
 				setExpectations(mock, tt)
 
@@ -306,6 +262,7 @@ func TestUsers(
 				response, err := executeQuery(&resolver1, ctx, tt.pagination)
 
 				assertResponse(t, tt, response, err)
+				cleanup()
 			},
 		)
 	}
