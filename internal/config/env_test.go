@@ -166,8 +166,12 @@ type args struct {
 }
 
 func TestLoadEnv(t *testing.T) {
-	tests := getTestCases()
-
+	username := "go_template_role"
+	host := "localhost"
+	dbname := "go_template"
+	password := "go_template_role456"
+	port := "5432"
+	tests := getTestCases(username, host, dbname, password, port)
 	for _, tt := range tests {
 		mockEnvLoad(tt)
 		setEnvironmentVariables(tt.args)
@@ -178,7 +182,7 @@ func TestLoadEnv(t *testing.T) {
 	}
 }
 
-func getTestCases() []struct {
+func getTestCases(username string, host string, dbname string, password string, port string) []struct {
 	name    string
 	wantErr bool
 	args    args
@@ -193,7 +197,50 @@ func getTestCases() []struct {
 			wantErr: false,
 			args:    args{env: "", tapped: false},
 		},
-		// Add more test cases here...
+		{
+			name:    "Successfully load local env",
+			wantErr: false,
+			args:    args{env: "local", tapped: false},
+		},
+		{
+			name:    "Env varInjection Error",
+			wantErr: true,
+			args:    args{env: "local", tapped: false},
+		},
+		{
+			name:    "dbCredsInjected True",
+			wantErr: true,
+			args:    args{env: "", tapped: false},
+		},
+
+		{
+			name:    "Successfully load develop env",
+			wantErr: false,
+			args: args{
+				env:    "production",
+				tapped: false,
+				dbSecret: fmt.Sprintf(`{"username":"%s",`+
+					`"host":"%s","dbname":"%s","password":"%s",`+
+					`"port":%s}`, username, host, dbname, password, port),
+			},
+		},
+		{
+			name:    "dbCredsInjected True",
+			wantErr: false,
+			args: args{env: "", tapped: false, dbSecret: fmt.Sprintf(`{"username":"%s",`+
+				`"host":"%s","dbname":"%s","password":"%s",`+
+				`"port":%s}`, username, host, dbname, password, port),
+			},
+		},
+		{
+			name:    "Failed to load env",
+			wantErr: true,
+			args: args{
+				env:    "local",
+				err:    "there was some error while loading the environment variables",
+				tapped: false,
+			},
+		},
 	}
 }
 
