@@ -16,7 +16,6 @@ import (
 )
 
 func TestCreateRoleTx(t *testing.T) {
-
 	cases := []struct {
 		name string
 		req  models.Role
@@ -64,7 +63,6 @@ func TestCreateRoleTx(t *testing.T) {
 }
 
 func TestFindRoleByID(t *testing.T) {
-
 	cases := []struct {
 		name string
 		req  int
@@ -104,7 +102,6 @@ func TestFindRoleByID(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := daos.FindRoleByID(tt.req, context.Background())
 			assert.Equal(t, err, tt.err)
-
 		})
 	}
 }

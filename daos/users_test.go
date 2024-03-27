@@ -2,6 +2,7 @@ package daos_test
 
 import (
 	"context"
+	"database/sql"
 	"database/sql/driver"
 	"fmt"
 	"log"
@@ -24,8 +25,23 @@ import (
 const ErrorFindingUser = "Fail on finding user"
 
 func TestCreateUserTx(t *testing.T) {
+	cases := getTestCases()
 
-	cases := []struct {
+	for _, tt := range cases {
+		setupMockDB(t)
+
+		t.Run(tt.name, func(t *testing.T) {
+			testCreateUser(t, tt)
+		})
+	}
+}
+
+func getTestCases() []struct {
+	name string
+	req  models.User
+	err  error
+} {
+	return []struct {
 		name string
 		req  models.User
 		err  error
@@ -40,64 +56,69 @@ func TestCreateUserTx(t *testing.T) {
 			err: nil,
 		},
 	}
+}
 
-	for _, tt := range cases {
-		// Inject mock instance into boil.
+func setupMockDB(t *testing.T) (*sql.DB, sqlmock.Sqlmock) {
+	err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	mock, db, _ := testutls.SetupMockDB(t)
+	oldDB := boil.GetDB()
+	defer func() {
+		db.Close()
+		boil.SetDB(oldDB)
+	}()
+	boil.SetDB(db)
+	return db, mock
+}
 
-		err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../"))
-		if err != nil {
-			log.Fatal(err)
-		}
-		mock, db, _ := testutls.SetupMockDB(t)
-		oldDB := boil.GetDB()
-		defer func() {
-			db.Close()
-			boil.SetDB(oldDB)
-		}()
-		boil.SetDB(db)
+func testCreateUser(t *testing.T, tt struct {
+	name string
+	req  models.User
+	err  error
+}) {
+	db, mock := setupMockDB(t)
+	defer db.Close()
 
-		rows := sqlmock.NewRows([]string{
-			"first_name",
-			"last_name",
-			"username",
-			"mobile",
-			"address",
-			"active",
-			"last_login",
-			"last_password_change",
-			"token",
-			"role_id",
-			"deleted_at",
-		}).AddRow(
-			testutls.MockUser().FirstName,
-			testutls.MockUser().LastName,
-			testutls.MockUser().Username,
-			testutls.MockUser().Mobile,
-			testutls.MockUser().Address,
-			testutls.MockUser().Active,
-			testutls.MockUser().LastLogin,
-			testutls.MockUser().LastPasswordChange,
-			testutls.MockUser().Token,
-			testutls.MockUser().RoleID,
-			testutls.MockUser().DeletedAt,
-		)
-		mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "users"`)).
-			WithArgs().
-			WillReturnRows(rows)
+	rows := sqlmock.NewRows([]string{
+		"first_name",
+		"last_name",
+		"username",
+		"mobile",
+		"address",
+		"active",
+		"last_login",
+		"last_password_change",
+		"token",
+		"role_id",
+		"deleted_at",
+	}).AddRow(
+		testutls.MockUser().FirstName,
+		testutls.MockUser().LastName,
+		testutls.MockUser().Username,
+		testutls.MockUser().Mobile,
+		testutls.MockUser().Address,
+		testutls.MockUser().Active,
+		testutls.MockUser().LastLogin,
+		testutls.MockUser().LastPasswordChange,
+		testutls.MockUser().Token,
+		testutls.MockUser().RoleID,
+		testutls.MockUser().DeletedAt,
+	)
+	mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "users"`)).
+		WithArgs().
+		WillReturnRows(rows)
 
-		t.Run(tt.name, func(t *testing.T) {
-			_, err := daos.CreateUser(tt.req, context.Background())
-			if err != nil {
-				assert.Equal(t, true, tt.err != nil)
-			} else {
-				assert.Equal(t, err, tt.err)
-			}
-		})
+	_, err := daos.CreateUser(tt.req, context.Background())
+	if err != nil {
+		assert.Equal(t, true, tt.err != nil)
+	} else {
+		assert.Equal(t, err, tt.err)
 	}
 }
 
 func TestFindUserByID(t *testing.T) {
-
 	cases := []struct {
 		name string
 		req  int
@@ -109,13 +130,11 @@ func TestFindUserByID(t *testing.T) {
 			err:  nil,
 		},
 	}
-
 	for _, tt := range cases {
 		err := config.LoadEnv()
 		if err != nil {
 			fmt.Print("error loading .env file")
 		}
-
 		db, mock, err := sqlmock.New()
 		if err != nil {
 			t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
@@ -127,23 +146,18 @@ func TestFindUserByID(t *testing.T) {
 			boil.SetDB(oldDB)
 		}()
 		boil.SetDB(db)
-
 		rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
-
 		mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
 			WithArgs().
 			WillReturnRows(rows)
-
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := daos.FindUserByID(tt.req, context.Background())
 			assert.Equal(t, err, tt.err)
-
 		})
 	}
 }
 
 func TestFindUserByEmail(t *testing.T) {
-
 	type args struct {
 		email string
 	}
@@ -163,13 +177,11 @@ func TestFindUserByEmail(t *testing.T) {
 			err:  nil,
 		},
 	}
-
 	for _, tt := range cases {
 		err := config.LoadEnv()
 		if err != nil {
 			fmt.Print("error loading .env file")
 		}
-
 		db, mock, err := sqlmock.New()
 		if err != nil {
 			t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
@@ -181,7 +193,6 @@ func TestFindUserByEmail(t *testing.T) {
 			boil.SetDB(oldDB)
 		}()
 		boil.SetDB(db)
-
 		if tt.name == ErrorFindingUser {
 			mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users" WHERE (email=$1) LIMIT 1;`)).
 				WithArgs().
@@ -191,7 +202,6 @@ func TestFindUserByEmail(t *testing.T) {
 		mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users" WHERE (email=$1) LIMIT 1;`)).
 			WithArgs().
 			WillReturnRows(rows)
-
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := daos.FindUserByEmail(tt.req.email, context.Background())
 			if err != nil {
@@ -204,7 +214,6 @@ func TestFindUserByEmail(t *testing.T) {
 }
 
 func TestFindUserByUserName(t *testing.T) {
-
 	type args struct {
 		Username string
 	}
@@ -224,13 +233,11 @@ func TestFindUserByUserName(t *testing.T) {
 			err:  nil,
 		},
 	}
-
 	for _, tt := range cases {
 		err := config.LoadEnv()
 		if err != nil {
 			fmt.Print("error loading .env file")
 		}
-
 		db, mock, err := sqlmock.New()
 		if err != nil {
 			t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
@@ -242,7 +249,6 @@ func TestFindUserByUserName(t *testing.T) {
 			boil.SetDB(oldDB)
 		}()
 		boil.SetDB(db)
-
 		if tt.name == "Fail on finding user username" {
 			mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users" WHERE (username=$1) LIMIT 1;`)).
 				WithArgs().
@@ -252,7 +258,6 @@ func TestFindUserByUserName(t *testing.T) {
 		mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users" WHERE (username=$1) LIMIT 1;`)).
 			WithArgs().
 			WillReturnRows(rows)
-
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := daos.FindUserByUserName(tt.req.Username, context.Background())
 			if err != nil {
@@ -263,9 +268,7 @@ func TestFindUserByUserName(t *testing.T) {
 		})
 	}
 }
-
 func TestUpdateUserTx(t *testing.T) {
-
 	cases := []struct {
 		name string
 		req  models.User
@@ -295,7 +298,6 @@ func TestUpdateUserTx(t *testing.T) {
 			boil.SetDB(oldDB)
 		}()
 		boil.SetDB(db)
-
 		result := driver.Result(driver.RowsAffected(1))
 		// get access_token
 		mock.ExpectExec(regexp.QuoteMeta(`UPDATE "users" `)).
@@ -307,9 +309,7 @@ func TestUpdateUserTx(t *testing.T) {
 		})
 	}
 }
-
 func TestDeleteUser(t *testing.T) {
-
 	cases := []struct {
 		name string
 		req  models.User
@@ -321,13 +321,11 @@ func TestDeleteUser(t *testing.T) {
 			err:  nil,
 		},
 	}
-
 	for _, tt := range cases {
 		err := config.LoadEnv()
 		if err != nil {
 			fmt.Print("error loading .env file")
 		}
-
 		db, mock, err := sqlmock.New()
 		if err != nil {
 			t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
@@ -339,21 +337,17 @@ func TestDeleteUser(t *testing.T) {
 			boil.SetDB(oldDB)
 		}()
 		boil.SetDB(db)
-
 		// delete user
 		result := driver.Result(driver.RowsAffected(1))
 		mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "users" WHERE "id"=$1`)).
 			WillReturnResult(result)
-
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := daos.DeleteUser(tt.req, context.Background())
 			assert.Equal(t, err, tt.err)
 		})
 	}
 }
-
 func TestFindAllUsersWithCount(t *testing.T) {
-
 	oldDB := boil.GetDB()
 	err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../"))
 	if err != nil {
@@ -388,21 +382,17 @@ func TestFindAllUsersWithCount(t *testing.T) {
 			},
 		},
 	}
-
 	for _, tt := range cases {
-
 		if tt.err != nil {
 			mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users";`)).
 				WithArgs().
 				WillReturnError(fmt.Errorf("this is some error"))
 		}
-
 		for _, dbQuery := range tt.dbQueries {
 			mock.ExpectQuery(regexp.QuoteMeta(dbQuery.Query)).
 				WithArgs().
 				WillReturnRows(dbQuery.DbResponse)
 		}
-
 		t.Run(tt.name, func(t *testing.T) {
 			res, c, err := daos.FindAllUsersWithCount([]qm.QueryMod{}, context.Background())
 			if err != nil {
@@ -413,7 +403,6 @@ func TestFindAllUsersWithCount(t *testing.T) {
 				assert.Equal(t, res[0].Email, null.StringFrom(testutls.MockEmail))
 				assert.Equal(t, res[0].Token, null.StringFrom(testutls.MockToken))
 				assert.Equal(t, res[0].ID, int(testutls.MockID))
-
 			}
 		})
 	}
@@ -421,7 +410,6 @@ func TestFindAllUsersWithCount(t *testing.T) {
 	db.Close()
 }
 func TestFindUserByToken(t *testing.T) {
-
 	type args struct {
 		Token string
 	}
@@ -441,13 +429,11 @@ func TestFindUserByToken(t *testing.T) {
 			err:  nil,
 		},
 	}
-
 	for _, tt := range cases {
 		err := config.LoadEnv()
 		if err != nil {
 			fmt.Print("error loading .env file")
 		}
-
 		db, mock, err := sqlmock.New()
 		if err != nil {
 			t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
@@ -459,7 +445,6 @@ func TestFindUserByToken(t *testing.T) {
 			boil.SetDB(oldDB)
 		}()
 		boil.SetDB(db)
-
 		if tt.name == "Fail on finding user token" {
 			mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users" WHERE (token=$1) LIMIT 1;`)).
 				WithArgs().
@@ -469,7 +454,6 @@ func TestFindUserByToken(t *testing.T) {
 		mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users" WHERE (token=$1) LIMIT 1;`)).
 			WithArgs().
 			WillReturnRows(rows)
-
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := daos.FindUserByToken(tt.req.Token, context.Background())
 			if err != nil {

@@ -63,7 +63,6 @@ func MakeAndGetRequest(parameters RequestParameters) (*http.Request, *http.Respo
 		fmt.Print(err, jsonRes)
 		if err != nil {
 			return nil, nil, nil, err
-
 		}
 		return req, res, jsonRes, nil
 	} else {

@@ -1,4 +1,3 @@
-// Package api Go-Template
 package api
 
 import (
@@ -31,13 +30,15 @@ import (
 
 // Start starts the API service
 func Start(cfg *config.Configuration) (*echo.Echo, error) {
-	db, err := postgres.Connect()
-	if err != nil {
+	// Initialize Echo instance
+	e := server.New()
+
+	// Set up database connection
+	if err := setupDatabase(); err != nil {
 		return nil, err
 	}
 
-	boil.SetDB(db)
-
+	// Set up JWT
 	jwt, err := jwt.New(
 		cfg.JWT.SigningAlgorithm,
 		os.Getenv("JWT_SECRET"),
@@ -46,29 +47,71 @@ func Start(cfg *config.Configuration) (*echo.Echo, error) {
 	if err != nil {
 		return nil, err
 	}
+	if err != nil {
+		return nil, err
+	}
 
-	e := server.New()
-
-	gqlMiddleware := authMw.GqlMiddleware()
-	// throttlerMiddleware puts the current user's IP address into context of gqlgen
-	throttlerMiddleware := throttle.GqlMiddleware()
-
-	graphQLPathname := "/graphql"
-	playgroundHandler := playground.Handler("GraphQL playground", graphQLPathname)
-
+	// Set up GraphQL
 	observers := map[string]chan *graphql.User{}
 	graphqlHandler := handler.New(graphql.NewExecutableSchema(graphql.Config{
 		Resolvers: &resolver.Resolver{Observers: observers},
 	}))
 
-	if os.Getenv("ENVIRONMENT_NAME") == "local" {
-		boil.DebugMode = true
-	}
-
-	// graphql apis
 	graphqlHandler.AroundOperations(func(ctx context.Context, next graphql2.OperationHandler) graphql2.ResponseHandler {
 		return authMw.GraphQLMiddleware(ctx, jwt, next)
 	})
+
+	graphqlHandler.AddTransport(transport.Websocket{
+		KeepAlivePingInterval: 10 * time.Second,
+		Upgrader: websocket.Upgrader{
+			CheckOrigin: func(r *http.Request) bool {
+				return true
+			},
+		},
+	})
+	graphqlHandler.AddTransport(transport.Options{})
+	graphqlHandler.AddTransport(transport.GET{})
+	graphqlHandler.AddTransport(transport.POST{})
+	graphqlHandler.AddTransport(transport.MultipartForm{})
+	graphqlHandler.SetQueryCache(lru.New(1000))
+	graphqlHandler.Use(extension.Introspection{})
+	graphqlHandler.Use(extension.AutomaticPersistedQuery{
+		Cache: lru.New(100),
+	})
+	// Set up GraphQL endpoints
+	setupGraphQLEndpoints(e, graphqlHandler)
+
+	// Set up GraphQL playground
+	setupGraphQLPlayground(e)
+
+	// Start the server
+	server.Start(e, &server.Config{
+		Port:                cfg.Server.Port,
+		ReadTimeoutSeconds:  cfg.Server.ReadTimeout,
+		WriteTimeoutSeconds: cfg.Server.WriteTimeout,
+		Debug:               cfg.Server.Debug,
+	})
+
+	return e, nil
+}
+
+func setupDatabase() error {
+	db, err := postgres.Connect()
+	if err != nil {
+		return err
+	}
+	boil.SetDB(db)
+	if os.Getenv("ENVIRONMENT_NAME") == "local" {
+		boil.DebugMode = true
+	}
+	return nil
+}
+
+func setupGraphQLEndpoints(e *echo.Echo, graphqlHandler *handler.Server) {
+	graphQLPathname := "/graphql"
+	gqlMiddleware := authMw.GqlMiddleware()
+	throttlerMiddleware := throttle.GqlMiddleware()
+
 	e.POST(graphQLPathname, func(c echo.Context) error {
 		req := c.Request()
 		res := c.Response()
@@ -82,40 +125,16 @@ func Start(cfg *config.Configuration) (*echo.Echo, error) {
 		graphqlHandler.ServeHTTP(res, req)
 		return nil
 	}, gqlMiddleware, throttlerMiddleware)
+}
 
-	graphqlHandler.AddTransport(transport.Websocket{
-		KeepAlivePingInterval: 10 * time.Second,
-		Upgrader: websocket.Upgrader{
-			CheckOrigin: func(r *http.Request) bool {
-				return true
-			},
-		},
-	})
+func setupGraphQLPlayground(e *echo.Echo) {
+	graphQLPathname := "/graphql"
+	playgroundHandler := playground.Handler("GraphQL playground", graphQLPathname)
 
-	graphqlHandler.AddTransport(transport.Options{})
-	graphqlHandler.AddTransport(transport.GET{})
-	graphqlHandler.AddTransport(transport.POST{})
-	graphqlHandler.AddTransport(transport.MultipartForm{})
-
-	graphqlHandler.SetQueryCache(lru.New(1000))
-
-	graphqlHandler.Use(extension.Introspection{})
-	graphqlHandler.Use(extension.AutomaticPersistedQuery{
-		Cache: lru.New(100),
-	})
-
-	// graphql playground
 	e.GET("/playground", func(c echo.Context) error {
 		req := c.Request()
 		res := c.Response()
 		playgroundHandler.ServeHTTP(res, req)
 		return nil
 	})
-	server.Start(e, &server.Config{
-		Port:                cfg.Server.Port,
-		ReadTimeoutSeconds:  cfg.Server.ReadTimeout,
-		WriteTimeoutSeconds: cfg.Server.WriteTimeout,
-		Debug:               cfg.Server.Debug,
-	})
-	return e, nil
 }

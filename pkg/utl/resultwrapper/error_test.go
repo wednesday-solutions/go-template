@@ -18,10 +18,11 @@ const (
 	SuccessCase = "Success"
 	ErrorCase   = "error from json"
 	ErrMsgJSON  = "Error from JSON"
+	ErrMsg      = "This is an Error"
+	DetailMsg   = "Some level of detail"
 )
 
 func TestSplitByLabel(t *testing.T) {
-
 	cases := []struct {
 		name     string
 		req      string
@@ -55,7 +56,6 @@ func TestSplitByLabel(t *testing.T) {
 }
 
 func TestErrorFormatter(t *testing.T) {
-
 	cases := []struct {
 		name     string
 		req      string
@@ -128,12 +128,9 @@ func TestResultWrapper(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
 			w := httptest.NewRecorder()
 			ctx := e.NewContext(req, w)
-
 			if tt.name == ErrorCase {
-
 				patch := gomonkey.ApplyMethodFunc(ctx, "JSON", func(code int, i interface{}) error {
 					return fmt.Errorf(ErrMsgJSON)
 				})
@@ -146,7 +143,6 @@ func TestResultWrapper(t *testing.T) {
 			} else {
 				assert.Equal(t, tt.args.errorCode, ctx.Response().Status)
 			}
-
 		})
 	}
 }
@@ -156,7 +152,7 @@ func TestInternalServerError(t *testing.T) {
 		c   echo.Context
 		err error
 	}
-	errorStr := "This is an error"
+	errorStr := ErrMsg
 	tests := []struct {
 		name    string
 		args    args
@@ -178,7 +174,6 @@ func TestInternalServerError(t *testing.T) {
 			assert.Equal(t, http.StatusInternalServerError, tt.args.c.Response().Status)
 			assert.Equal(t, err.Error(), tt.err)
 		})
-
 	}
 }
 
@@ -195,7 +190,7 @@ func TestInternalServerErrorFromMessage(t *testing.T) {
 		{
 			name: SuccessCase,
 			args: args{
-				err: "This is an error",
+				err: ErrMsg,
 				c:   getContext(),
 			},
 			wantErr: true,
@@ -215,7 +210,7 @@ func TestBadRequest(t *testing.T) {
 		c   echo.Context
 		err error
 	}
-	errorStr := "This is an error"
+	errorStr := ErrMsg
 	tests := []struct {
 		name    string
 		args    args
@@ -237,7 +232,6 @@ func TestBadRequest(t *testing.T) {
 			assert.Equal(t, http.StatusBadRequest, tt.args.c.Response().Status)
 			assert.Equal(t, err.Error(), tt.err)
 		})
-
 	}
 }
 
@@ -254,7 +248,7 @@ func TestBadRequestFromMessage(t *testing.T) {
 		{
 			name: SuccessCase,
 			args: args{
-				err: "This is an error",
+				err: ErrMsg,
 				c:   getContext(),
 			},
 			wantErr: true,
@@ -274,7 +268,7 @@ func TestConflict(t *testing.T) {
 		c   echo.Context
 		err error
 	}
-	errorStr := "This is an error"
+	errorStr := ErrMsg
 	tests := []struct {
 		name    string
 		args    args
@@ -296,7 +290,6 @@ func TestConflict(t *testing.T) {
 			assert.Equal(t, http.StatusConflict, tt.args.c.Response().Status)
 			assert.Equal(t, err.Error(), tt.err)
 		})
-
 	}
 }
 
@@ -313,7 +306,7 @@ func TestConflictFromMessage(t *testing.T) {
 		{
 			name: SuccessCase,
 			args: args{
-				err: "This is an error",
+				err: ErrMsg,
 				c:   getContext(),
 			},
 			wantErr: true,
@@ -333,7 +326,7 @@ func TestTooManyRequests(t *testing.T) {
 		c   echo.Context
 		err error
 	}
-	errorStr := "This is an error"
+	errorStr := ErrMsg
 	tests := []struct {
 		name    string
 		args    args
@@ -355,7 +348,6 @@ func TestTooManyRequests(t *testing.T) {
 			assert.Equal(t, http.StatusTooManyRequests, tt.args.c.Response().Status)
 			assert.Equal(t, err.Error(), tt.err)
 		})
-
 	}
 }
 
@@ -364,7 +356,7 @@ func TestUnauthorized(t *testing.T) {
 		c   echo.Context
 		err error
 	}
-	errorStr := "This is an error"
+	errorStr := ErrMsg
 	tests := []struct {
 		name    string
 		args    args
@@ -386,7 +378,6 @@ func TestUnauthorized(t *testing.T) {
 			assert.Equal(t, http.StatusUnauthorized, tt.args.c.Response().Status)
 			assert.Equal(t, err.Error(), tt.err)
 		})
-
 	}
 }
 
@@ -403,7 +394,7 @@ func TestUnauthorizedFromMessage(t *testing.T) {
 		{
 			name: SuccessCase,
 			args: args{
-				err: "This is an error",
+				err: ErrMsg,
 				c:   getContext(),
 			},
 			wantErr: true,
@@ -466,7 +457,6 @@ func TestNoDataFound(t *testing.T) {
 			err := resultwrapper.NoDataFound(tt.args.c, tt.args.err)
 			assert.Equal(t, err, tt.expectedErr)
 			assert.Equal(t, tt.statusCode, tt.args.c.Response().Status)
-
 		})
 	}
 }
@@ -507,7 +497,6 @@ func TestServiceUnavailable(t *testing.T) {
 			err := resultwrapper.ServiceUnavailable(tt.args.c, tt.args.err)
 			assert.Equal(t, tt.errCode, tt.args.c.Response().Status)
 			assert.Equal(t, err, tt.expectedErr)
-
 		})
 	}
 }
@@ -524,9 +513,9 @@ func TestHandleGraphQLError(t *testing.T) {
 		{
 			name: SuccessCase,
 			args: args{
-				errMsg: "This is an error",
+				errMsg: ErrMsg,
 			},
-			want: "This is an error",
+			want: ErrMsg,
 		},
 	}
 	for _, tt := range tests {
@@ -541,11 +530,12 @@ func TestHandleGraphQLError(t *testing.T) {
 	}
 }
 
+type args struct {
+	err    error
+	detail string
+}
+
 func TestResolverSQLError(t *testing.T) {
-	type args struct {
-		err    error
-		detail string
-	}
 	tests := []struct {
 		name          string
 		args          args
@@ -556,7 +546,7 @@ func TestResolverSQLError(t *testing.T) {
 			name: SuccessCase,
 			args: args{
 				err:    fmt.Errorf("this is some error"),
-				detail: "Some level of detail",
+				detail: DetailMsg,
 			},
 			errMsg:        "this is some error",
 			dontAddDetail: true,
@@ -564,7 +554,7 @@ func TestResolverSQLError(t *testing.T) {
 		{
 			name: "Success_NoData",
 			args: args{
-				detail: "Some level of detail",
+				detail: DetailMsg,
 				err:    fmt.Errorf("no rows in result"),
 			},
 			errMsg: "No data found with provided",
@@ -572,7 +562,7 @@ func TestResolverSQLError(t *testing.T) {
 		{
 			name: "Success_UnableToUpdate",
 			args: args{
-				detail: "Some level of detail",
+				detail: DetailMsg,
 				err:    fmt.Errorf("unable to update"),
 			},
 			errMsg: "Unable to update",
@@ -580,7 +570,7 @@ func TestResolverSQLError(t *testing.T) {
 		{
 			name: "Success_UnableToInsert",
 			args: args{
-				detail: "Some level of detail",
+				detail: DetailMsg,
 				err:    fmt.Errorf("unable to insert"),
 			},
 			errMsg: "Unable to save provided",
@@ -588,7 +578,7 @@ func TestResolverSQLError(t *testing.T) {
 		{
 			name: "Success_UnableToDelete",
 			args: args{
-				detail: "Some level of detail",
+				detail: DetailMsg,
 				err:    fmt.Errorf("delete on table. violates foreign key constraint"),
 			},
 			errMsg:        "Unable to complete the delete operation, it has useful data associated to it",

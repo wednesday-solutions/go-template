@@ -71,7 +71,6 @@ func MockUsers() []*models.User {
 			Address:   null.StringFrom("22 Jump Street"),
 		},
 	}
-
 }
 
 func MockJwt(role string) *jwt.Token {
@@ -110,9 +109,7 @@ func SetupEnvAndDB(t *testing.T, parameters Parameters) (mock sqlmock.Sqlmock, d
 	SetupEnv(parameters.EnvFileLocation)
 	db, mock, err = sqlmock.New()
 	if err != nil {
-		if err != nil {
-			t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-		}
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
 	boil.SetDB(db)
 	return mock, db, nil
@@ -121,9 +118,7 @@ func SetupEnvAndDB(t *testing.T, parameters Parameters) (mock sqlmock.Sqlmock, d
 func SetupMockDB(t *testing.T) (mock sqlmock.Sqlmock, db *sql.DB, err error) {
 	db, mock, err = sqlmock.New()
 	if err != nil {
-		if err != nil {
-			t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-		}
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
 	boil.SetDB(db)
 	return mock, db, nil

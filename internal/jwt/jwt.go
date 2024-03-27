@@ -15,9 +15,7 @@ import (
 
 // New generates new JWT service necessary for auth middleware
 func New(algo, secret string, ttlMinutes, minSecretLength int) (Service, error) {
-
 	var minSecretLen = 128
-
 	if minSecretLength > 0 {
 		minSecretLen = minSecretLength
 	}
@@ -28,7 +26,6 @@ func New(algo, secret string, ttlMinutes, minSecretLength int) (Service, error) 
 	if signingMethod == nil {
 		return Service{}, fmt.Errorf("invalid jwt signing method: %s", algo)
 	}
-
 	return Service{
 		key:  []byte(secret),
 		algo: signingMethod,
@@ -40,10 +37,8 @@ func New(algo, secret string, ttlMinutes, minSecretLength int) (Service, error) 
 type Service struct {
 	// Secret key used for signing.
 	key []byte
-
 	// Duration for which the jwt token is valid.
 	ttl time.Duration
-
 	// JWT signing algorithm
 	algo jwt.SigningMethod
 }
@@ -54,20 +49,17 @@ func (s Service) ParseToken(authHeader string) (*jwt.Token, error) {
 	if !(len(parts) == 2 && strings.ToLower(parts[0]) == "bearer") {
 		return nil, resultwrapper.ErrGeneric
 	}
-
 	return jwt.Parse(parts[1], func(token *jwt.Token) (interface{}, error) {
 		if s.algo != token.Method {
 			return nil, resultwrapper.ErrGeneric
 		}
 		return s.key, nil
 	})
-
 }
 
 // GenerateToken generates new JWT token and populates it with user data
 func (s Service) GenerateToken(u *models.User) (string, error) {
 	role, err := u.Role().One(context.Background(), boil.GetContextDB())
-
 	if err != nil {
 		return "", err
 	}

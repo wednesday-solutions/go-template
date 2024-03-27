@@ -18,9 +18,7 @@ import (
 const SuccessCase = "Success"
 
 func TestSetup(t *testing.T) {
-
 	initEnv := func() {
-
 		err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../../"))
 		if err != nil {
 			log.Fatal(err)
@@ -61,15 +59,11 @@ func TestSetup(t *testing.T) {
 					apiStarted = true
 					return nil, nil
 				})
-
 				defer apiPatches.Reset()
 				defer loadPatches.Reset()
-
 				main.Setup()
 				assert.Equal(t, apiStarted, true)
 			}
-
 		})
 	}
-
 }

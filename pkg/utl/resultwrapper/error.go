@@ -171,7 +171,6 @@ func ResolverSQLError(err error, detail string) error {
 	}
 	if strings.Contains(fmt.Sprint(err), "delete on table") &&
 		strings.Contains(fmt.Sprint(err), "violates foreign key constraint") {
-
 		return ResolverWrapperFromMessage(http.StatusInternalServerError,
 			"Unable to complete the delete operation, it has useful data associated to it")
 	}
@@ -180,7 +179,6 @@ func ResolverSQLError(err error, detail string) error {
 
 // ResolverWrapperFromMessage ...
 func ResolverWrapperFromMessage(errorCode int, err string) error {
-
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "", nil)
 	req.Header.Set("Content-Type", "application/json")

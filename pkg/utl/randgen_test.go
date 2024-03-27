@@ -28,7 +28,6 @@ func TestRandomSequence(t *testing.T) {
 				return 0
 			}
 			if got := RandomSequence(tt.args.n); got != tt.want {
-
 				t.Errorf("RandomSequence() = %v, want %v", got, tt.want)
 			}
 		})
