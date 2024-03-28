@@ -20,7 +20,6 @@ require (
 	github.com/lib/pq v1.10.7
 	github.com/masahiro331/go-commitlinter v0.0.0-20220207112004-c66fa942bad3
 	github.com/nbutton23/zxcvbn-go v0.0.0-20180912185939-ae427f1e4c1d
-	github.com/rafaeljusto/redigomock v2.4.0+incompatible
 	github.com/rafaeljusto/redigomock/v3 v3.0.1
 	github.com/rs/zerolog v1.18.0
 	github.com/rubenv/sql-migrate v1.3.1
