@@ -2,7 +2,6 @@ package resolver_test
 
 import (
 	"context"
-	"database/sql"
 	"database/sql/driver"
 	"fmt"
 	"reflect"
@@ -15,7 +14,6 @@ import (
 	"go-template/internal/jwt"
 	"go-template/internal/service"
 	"go-template/models"
-	"go-template/pkg/utl/convert"
 	"go-template/pkg/utl/resultwrapper"
 	"go-template/resolver"
 	"go-template/testutls"
@@ -23,7 +21,6 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/agiledragon/gomonkey/v2"
 	"github.com/stretchr/testify/assert"
-	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 const (
@@ -300,10 +297,6 @@ func handleTestCases(t *testing.T, tt struct {
 
 	// Load environment variables
 	loadEnvironmentVariables()
-
-	// Set up mock database
-	mockDB := setupMockDBLogin(t)
-	defer mockDB.ExpectClose()
 	// Handle specific test cases
 	handleSpecificTestCase(t, tt)
 }
@@ -339,24 +332,10 @@ func prepareMocksAndPatches(tt struct {
 }
 
 func loadEnvironmentVariables() {
-	err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../"))
+	err := config.LoadEnv()
 	if err != nil {
 		fmt.Print("error loading .env file")
 	}
-}
-
-func setupMockDBLogin(t *testing.T) sqlmock.Sqlmock {
-	db, mock, err := sqlmock.New()
-	if err != nil {
-		t.Fatalf(ErrorMessage, err)
-	}
-	oldDB := boil.GetDB()
-	defer func() {
-		db.Close()
-		boil.SetDB(oldDB)
-	}()
-	boil.SetDB(db)
-	return mock
 }
 
 func handleSpecificTestCase(t *testing.T, tt struct {
@@ -367,7 +346,7 @@ func handleSpecificTestCase(t *testing.T, tt struct {
 	err      error
 }) {
 	resolver1 := resolver.Resolver{}
-	mock := setupMockDBLogin(t)
+	mock, cleanup, _ := testutls.SetupMockDB(t)
 	// Mock database queries based on test case
 	switch tt.name {
 	case ErrorFindingUser:
@@ -422,6 +401,7 @@ func handleSpecificTestCase(t *testing.T, tt struct {
 		assert.Equal(t, true, strings.Contains(err.Error(), tt.err.Error()))
 		assert.Equal(t, tt.wantErr, err != nil)
 	}
+	cleanup()
 }
 
 type changeReq struct {
@@ -601,17 +581,7 @@ func TestChangePassword(
 					fmt.Print("error loading .env file")
 				}
 				// Create a mock SQL database connection
-				db, mock, err := sqlmock.New()
-				if err != nil {
-					t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-				}
-				// Inject mock instance into boil.
-				oldDB := boil.GetDB()
-				defer func() {
-					db.Close()
-					boil.SetDB(oldDB)
-				}()
-				boil.SetDB(db)
+				mock, cleanup, _ := testutls.SetupMockDB(t)
 				// Handle the case where there is an error while finding the user
 				if tt.name == ErrorFindingUser {
 					mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
@@ -624,7 +594,7 @@ func TestChangePassword(
 				mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
 					WithArgs().
 					WillReturnRows(rows)
-					// Handle the case where the password update is successful
+				// Handle the case where the password update is successful
 				if tt.name == SuccessCase {
 					result := driver.Result(driver.RowsAffected(1))
 					mock.ExpectExec(regexp.QuoteMeta(`UPDATE "users" `)).WillReturnResult(result)
@@ -644,6 +614,7 @@ func TestChangePassword(
 				}
 				// Assert that the expected error value matches the actual error value
 				assert.Equal(t, tt.wantErr, err != nil)
+				cleanup()
 			},
 		)
 	}
@@ -656,8 +627,7 @@ func TestRefreshToken(t *testing.T) {
 
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			db, mock := prepareMockDB(t)
-			defer db.Close()
+			mock, cleanup, _ := testutls.SetupMockDB(t)
 
 			setupMockDBExpectations(tt.name, mock)
 
@@ -680,6 +650,7 @@ func TestRefreshToken(t *testing.T) {
 			} else {
 				assert.Equal(t, true, strings.Contains(err.Error(), tt.err.Error()))
 			}
+			cleanup()
 		})
 	}
 }
@@ -733,14 +704,6 @@ func prepareRefreshTokenCases() []struct {
 	return cases
 }
 
-func prepareMockDB(t *testing.T) (*sql.DB, sqlmock.Sqlmock) {
-	db, mock, err := sqlmock.New()
-	if err != nil {
-		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-	}
-	boil.SetDB(db)
-	return db, mock
-}
 func setupMockDBExpectations(name string, mock sqlmock.Sqlmock) {
 	switch name {
 	case ErrorInvalidToken:

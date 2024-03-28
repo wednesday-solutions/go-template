@@ -115,13 +115,22 @@ func SetupEnvAndDB(t *testing.T, parameters Parameters) (mock sqlmock.Sqlmock, d
 	return mock, db, nil
 }
 
-func SetupMockDB(t *testing.T) (mock sqlmock.Sqlmock, db *sql.DB, err error) {
-	db, mock, err = sqlmock.New()
+func SetupMockDB(t *testing.T) (mock sqlmock.Sqlmock, cleanup func(), err error) {
+	err = config.LoadEnv()
+	if err != nil {
+		t.Fatalf("Error loading the env.")
+	}
+	oldDB := boil.GetDB()
+	db, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
 	boil.SetDB(db)
-	return mock, db, nil
+	return mock, func() {
+		_ = mock.ExpectationsWereMet()
+		db.Close()
+		boil.SetDB(oldDB)
+	}, nil
 }
 
 type QueryData struct {

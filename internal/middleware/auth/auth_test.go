@@ -3,7 +3,6 @@ package auth_test
 import (
 	"bytes"
 	"context"
-	"database/sql"
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
@@ -15,10 +14,8 @@ import (
 	"testing"
 
 	graphql "go-template/gqlmodels"
-	"go-template/internal/config"
 	"go-template/internal/middleware/auth"
 	"go-template/models"
-	"go-template/pkg/utl/convert"
 	"go-template/resolver"
 	testutls "go-template/testutls"
 
@@ -29,7 +26,6 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
-	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 const SuccessCase = "Success"
@@ -48,11 +44,8 @@ var operationHandlerMock func(ctx context.Context) graphql2.ResponseHandler
 func TestGraphQLMiddleware(t *testing.T) {
 	// Define test cases
 	cases := defineTestCases(t)
-
-	// Set up environment
-	oldDB := setUpEnvironment(t)
-	defer tearDownEnvironment(oldDB)
-
+	_, cleanup, _ := testutls.SetupMockDB(t)
+	defer cleanup()
 	// Run test cases
 	runTestCases(t, cases)
 }
@@ -323,20 +316,6 @@ func defineOperationHandlerSuccessCase(t *testing.T) func(ctx context.Context) g
 		}
 		return handler
 	}
-}
-
-func setUpEnvironment(t *testing.T) *sql.DB {
-	err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../../../"))
-	if err != nil {
-		log.Fatal(err)
-	}
-	_, db, _ := testutls.SetupMockDB(t)
-	return db
-}
-
-func tearDownEnvironment(db *sql.DB) {
-	boil.SetDB(db)
-	db.Close()
 }
 
 func runTestCases(t *testing.T, cases map[string]struct {

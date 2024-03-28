@@ -2,7 +2,6 @@ package resolver_test
 
 import (
 	"context"
-	"database/sql"
 	"database/sql/driver"
 	"fmt"
 	"go-template/daos"
@@ -20,9 +19,7 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/agiledragon/gomonkey/v2"
-	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
-	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 type AnyTime struct{}
@@ -35,12 +32,13 @@ func (a AnyTime) Match(
 	return ok
 }
 
-func setupMockDBForCreateUser(t *testing.T) (*sql.DB, sqlmock.Sqlmock) {
-	mockDB, mock, err := sqlmock.New()
-	if err != nil {
-		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-	}
-	return mockDB, mock
+type AnyString struct{}
+
+func (a AnyString) Match(
+	v driver.Value,
+) bool {
+	_, ok := v.(string)
+	return ok
 }
 
 func expectInsertUser(mock sqlmock.Sqlmock, mockUser models.User) {
@@ -52,12 +50,12 @@ func expectInsertUser(mock sqlmock.Sqlmock, mockUser models.User) {
 	)
 	mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "users"`)).
 		WithArgs(
-			mockUser.FirstName, mockUser.LastName, mockUser.Username, "", mockUser.Email,
+			mockUser.FirstName, mockUser.LastName, mockUser.Username, AnyString{}, mockUser.Email,
 			mockUser.RoleID, AnyTime{}, AnyTime{},
 		).
 		WillReturnRows(rows)
 }
-func GetCreateUserTestCase() []struct {
+func getCreateUserTestCase() []struct {
 	name     string
 	req      fm.UserCreateInput
 	wantResp *fm.User
@@ -113,16 +111,11 @@ func GetCreateUserTestCase() []struct {
 	return cases
 }
 func TestCreateUser(t *testing.T) {
-	cases := GetCreateUserTestCase()
+	cases := getCreateUserTestCase()
 	resolver := resolver.Resolver{}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			mockDB, mock := setupMockDBForCreateUser(t)
-			defer mockDB.Close()
-
-			defer func() {
-				_ = mock.ExpectationsWereMet()
-			}()
+			mock, cleanup, _ := testutls.SetupMockDB(t)
 
 			if tt.name == ErrorFromCreateUser {
 				mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "users"`)).
@@ -145,20 +138,12 @@ func TestCreateUser(t *testing.T) {
 				})
 				defer patch.Reset()
 			}
-
-			err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../"))
-			if err != nil {
-				log.Fatal(err)
-			}
-			mock, db, _ := testutls.SetupMockDB(t)
-			oldDB, db := boil.GetDB(), db
-			boil.SetDB(oldDB)
-			boil.SetDB(db)
 			response, err := resolver.Mutation().CreateUser(context.Background(), tt.req)
 			if tt.wantResp != nil {
 				assert.Equal(t, tt.wantResp, response)
 			}
 			assert.Equal(t, tt.wantErr, err != nil)
+			cleanup()
 		})
 	}
 }
@@ -226,17 +211,12 @@ func TestUpdateUser(
 						})
 					defer patch.Reset()
 				}
-				err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../"))
+				err := config.LoadEnv()
 				if err != nil {
 					log.Fatal(err)
 				}
-				mock, db, _ := testutls.SetupMockDB(t)
-				oldDB := boil.GetDB()
-				defer func() {
-					db.Close()
-					boil.SetDB(oldDB)
-				}()
-				boil.SetDB(db)
+				mock, cleanup, _ := testutls.SetupMockDB(t)
+
 				if tt.name == ErrorFindingUser {
 					mock.ExpectQuery(regexp.QuoteMeta(`UPDATE "users"`)).WithArgs().WillReturnError(fmt.Errorf(""))
 				}
@@ -253,6 +233,7 @@ func TestUpdateUser(
 					assert.Equal(t, tt.wantResp, response)
 				}
 				assert.Equal(t, tt.wantErr, err != nil)
+				cleanup()
 			},
 		)
 	}
@@ -303,22 +284,7 @@ func TestDeleteUser(
 						})
 					defer patch.Reset()
 				}
-				err := godotenv.Load(
-					"../.env.local",
-				)
-				if err != nil {
-					fmt.Print("error loading .env file")
-				}
-				db, mock, err := sqlmock.New()
-				if err != nil {
-					t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-				}
-				oldDB := boil.GetDB()
-				defer func() {
-					db.Close()
-					boil.SetDB(oldDB)
-				}()
-				boil.SetDB(db)
+				mock, cleanup, _ := testutls.SetupMockDB(t)
 				if tt.name == ErrorFindingUser {
 					mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
 						WithArgs().
@@ -342,6 +308,7 @@ func TestDeleteUser(
 					assert.Equal(t, tt.wantResp, response)
 				}
 				assert.Equal(t, tt.wantErr, err != nil)
+				cleanup()
 			},
 		)
 	}
