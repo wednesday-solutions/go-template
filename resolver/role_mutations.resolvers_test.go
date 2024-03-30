@@ -11,79 +11,118 @@ import (
 	"go-template/resolver"
 	"testing"
 
-	"github.com/volatiletech/null/v8"
-
 	"github.com/agiledragon/gomonkey/v2"
+	null "github.com/volatiletech/null/v8"
 
 	fm "go-template/gqlmodels"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func GetCreateRoleTestCases() []struct {
+type createRoleType struct {
 	name     string
 	req      fm.RoleCreateInput
 	wantResp *fm.RolePayload
 	wantErr  bool
-} {
-	cases := []struct {
-		name     string
-		req      fm.RoleCreateInput
-		wantResp *fm.RolePayload
-		wantErr  bool
-	}{
-		{
-			name:     ErrorFromRedisCache,
-			req:      fm.RoleCreateInput{},
-			wantResp: &fm.RolePayload{},
-			wantErr:  true,
-		},
-		{
-			name:     ErrorFromGetRole,
-			req:      fm.RoleCreateInput{},
-			wantResp: &fm.RolePayload{},
-			wantErr:  true,
-		},
-		{
-			name: ErrorUnauthorizedUser,
-			req: fm.RoleCreateInput{
-				Name:        UserRoleName,
-				AccessLevel: int(constants.UserRole),
-			},
-			wantResp: &fm.RolePayload{},
-		},
-
-		{
-			name: SuccessCase,
-			req: fm.RoleCreateInput{
-				Name:        UserRoleName,
-				AccessLevel: int(constants.UserRole),
-			},
-			wantResp: &fm.RolePayload{Role: &fm.Role{
-
-				AccessLevel: int(constants.UserRole),
-				Name:        UserRoleName,
-			}},
-		},
-		{
-			name: ErrorFromCreateRole,
-			req: fm.RoleCreateInput{
-				Name:        UserRoleName,
-				AccessLevel: int(constants.UserRole),
-			},
-			wantErr: true,
-		},
-	}
-	return cases
+	init     func() *gomonkey.Patches
 }
 
-func ApplyPatchUserId() *gomonkey.Patches {
+func errorFromRedisCase() createRoleType {
+	return createRoleType{
+		name:     ErrorFromRedisCache,
+		req:      fm.RoleCreateInput{},
+		wantResp: &fm.RolePayload{},
+		wantErr:  true,
+		init: func() *gomonkey.Patches {
+			return gomonkey.ApplyFunc(rediscache.GetUser,
+				func(userID int, ctx context.Context) (*models.User, error) {
+					return nil, errors.New("redis cache")
+				})
+		},
+	}
+}
+
+func errorFromGetRoleCase() createRoleType {
+	return createRoleType{
+		name:     ErrorFromGetRole,
+		req:      fm.RoleCreateInput{},
+		wantResp: &fm.RolePayload{},
+		wantErr:  true,
+		init: func() *gomonkey.Patches {
+			return gomonkey.ApplyFunc(rediscache.GetRole,
+				func(roleID int, ctx context.Context) (*models.Role, error) {
+					return nil, errors.New("data")
+				})
+		},
+	}
+}
+func errorUnauthorizedUserCase() createRoleType {
+	return createRoleType{
+		name: ErrorUnauthorizedUser,
+		req: fm.RoleCreateInput{
+			Name:        UserRoleName,
+			AccessLevel: int(constants.UserRole),
+		},
+		wantResp: &fm.RolePayload{},
+		init: func() *gomonkey.Patches {
+			return gomonkey.ApplyFunc(rediscache.GetRole,
+				func(roleID int, ctx context.Context) (*models.Role, error) {
+					return &models.Role{
+						AccessLevel: int(constants.UserRole),
+						Name:        UserRoleName,
+					}, nil
+				})
+		},
+	}
+}
+func successCase() createRoleType {
+	return createRoleType{
+		name: SuccessCase,
+		req: fm.RoleCreateInput{
+			Name:        UserRoleName,
+			AccessLevel: int(constants.UserRole),
+		},
+		wantResp: &fm.RolePayload{Role: &fm.Role{
+			AccessLevel: int(constants.UserRole),
+			Name:        UserRoleName,
+		}},
+		wantErr: false,
+		init:    func() *gomonkey.Patches { return nil },
+	}
+}
+
+func errorFromCreateRoleCase() createRoleType {
+	return createRoleType{
+		name: ErrorFromCreateRole,
+		req: fm.RoleCreateInput{
+			Name:        UserRoleName,
+			AccessLevel: int(constants.UserRole),
+		},
+		wantErr: true,
+		init: func() *gomonkey.Patches {
+			return gomonkey.ApplyFunc(daos.CreateRole,
+				func(role models.Role, ctx context.Context) (models.Role, error) {
+					return models.Role{}, errors.New("error")
+				})
+		},
+	}
+}
+func loadTestCases() []createRoleType {
+	return []createRoleType{
+		errorFromRedisCase(),
+		errorFromGetRoleCase(),
+		errorUnauthorizedUserCase(),
+		successCase(),
+		errorFromCreateRoleCase(),
+	}
+}
+func applyUserIdPatch() *gomonkey.Patches {
 	return gomonkey.ApplyFunc(auth.UserIDFromContext,
 		func(ctx context.Context) int {
 			return 1
 		})
 }
-func ApplypatchGetUser() *gomonkey.Patches {
+func applyGetUserPatch() *gomonkey.Patches {
 	return gomonkey.ApplyFunc(rediscache.GetUser,
 		func(userID int, ctx context.Context) (*models.User, error) {
 			return &models.User{
@@ -91,7 +130,7 @@ func ApplypatchGetUser() *gomonkey.Patches {
 			}, nil
 		})
 }
-func ApplypatchGetRole() *gomonkey.Patches {
+func applyGetRolePatch() *gomonkey.Patches {
 	return gomonkey.ApplyFunc(rediscache.GetRole,
 		func(roleID int, ctx context.Context) (*models.Role, error) {
 			return &models.Role{
@@ -100,12 +139,12 @@ func ApplypatchGetRole() *gomonkey.Patches {
 			}, nil
 		})
 }
-func ApplypatchCreateRole() *gomonkey.Patches {
+func applyCreateRolePatch() *gomonkey.Patches {
 	return gomonkey.ApplyFunc(daos.CreateRole,
 		func(role models.Role, ctx context.Context) (models.Role, error) {
 			return models.Role{
-				AccessLevel: int(constants.UserRole),
-				Name:        UserRoleName,
+				AccessLevel: int(constants.SuperAdminRole),
+				Name:        SuperAdminRoleName,
 			}, nil
 		})
 }
@@ -115,19 +154,20 @@ func TestCreateRole(
 	t *testing.T,
 ) {
 	// Define test cases, each case has a name, request input, expected response, and error.
-	cases := GetCreateRoleTestCases()
+	cases := loadTestCases()
 	// Create a new resolver instance.
 	resolver1 := resolver.Resolver{}
+
 	// Loop through each test case.
 	for _, tt := range cases {
 		// Mocking rediscache.GetUserID function
-		patchUserID := ApplyPatchUserId()
+		patchUserID := applyUserIdPatch()
 		// Mocking rediscache.GetUser function
-		patchGetUser := ApplypatchGetUser()
+		patchGetUser := applyGetUserPatch()
 		// Mocking rediscache.GetRole function
-		patchGetRole := ApplypatchGetRole()
+		patchGetRole := applyGetRolePatch()
 		// Mocking daos.CreateRole function
-		patchCreateRole := ApplypatchCreateRole()
+		patchCreateRole := applyCreateRolePatch()
 		// Defer resetting of the monkey patches.
 		defer patchUserID.Reset()
 		defer patchGetUser.Reset()
@@ -136,38 +176,8 @@ func TestCreateRole(
 		t.Run(tt.name,
 			func(t *testing.T) {
 				// Apply additional monkey patches based on test case name.
-				if tt.name == ErrorFromRedisCache {
-					patchGetUser := gomonkey.ApplyFunc(rediscache.GetUser,
-						func(userID int, ctx context.Context) (*models.User, error) {
-							return nil, errors.New("redis cache")
-						})
-					defer patchGetUser.Reset()
-				}
-				if tt.name == ErrorFromGetRole {
-					patchGetRole := gomonkey.ApplyFunc(rediscache.GetRole,
-						func(roleID int, ctx context.Context) (*models.Role, error) {
-							return nil, errors.New("data")
-						})
-					defer patchGetRole.Reset()
-				}
-				if tt.name == ErrorUnauthorizedUser {
-					patchGetRole := gomonkey.ApplyFunc(rediscache.GetRole,
-						func(roleID int, ctx context.Context) (*models.Role, error) {
-							return &models.Role{
-								AccessLevel: int(constants.UserRole),
-								Name:        UserRoleName,
-							}, nil
-						})
-					defer patchGetRole.Reset()
-				}
-				if tt.name == ErrorFromCreateRole {
-					patchCreateRole := gomonkey.ApplyFunc(daos.CreateRole,
-						func(role models.Role, ctx context.Context) (models.Role, error) {
-							return models.Role{}, errors.New("error")
-						})
-
-					defer patchCreateRole.Reset()
-				}
+				patch := tt.init()
+				defer patch.Reset()
 				// Create a new context
 				c := context.Background()
 				// Call the resolver function
