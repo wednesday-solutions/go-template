@@ -64,7 +64,6 @@ func initValues(startServer func(e *echo.Echo, s *http.Server) error) args {
 }
 func TestStart(t *testing.T) {
 	cases := getTestCases()
-
 	for name, tt := range cases {
 		t.Run(name, func(t *testing.T) {
 			mockStarServerPatches := mockStartServer(&tt.args)
@@ -72,18 +71,15 @@ func TestStart(t *testing.T) {
 			startServerAndInterrupt(tt.args)
 			waitForServerShutdownIfNeeded(tt.args)
 			assertions(t, tt.args)
-
 			mockStarServerPatches.Reset()
 			mockShutDownPatches.Reset()
 			mockSdLoggerPatches.Reset()
 		})
 	}
 }
-
 type testCase struct {
 	args args
 }
-
 func getTestCases() map[string]testCase {
 	return map[string]testCase{
 		"Success": {
@@ -159,7 +155,4 @@ func waitForServerShutdownIfNeeded(args args) args {
 
 func assertions(t *testing.T, args args) {
 	assert.Equal(t, args.startServerCalled, true)
-	//	if args.shutDownFailed {
-	//		assert.Equal(t, args.serverShutDownCalled, true)
-	//	}
 }
