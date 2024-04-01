@@ -12,7 +12,6 @@ import (
 	"go-template/pkg/utl/throttle"
 	"go-template/resolver"
 	"go-template/testutls"
-	"log"
 	"regexp"
 	"testing"
 	"time"
@@ -20,7 +19,6 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/agiledragon/gomonkey/v2"
 	"github.com/stretchr/testify/assert"
-	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 type AnyTime struct{}
@@ -42,28 +40,12 @@ func (a AnyString) Match(
 	return ok
 }
 
-func expectInsertUser(mock sqlmock.Sqlmock, mockUser models.User) {
-	rows := sqlmock.NewRows([]string{
-		"id", "mobile", "address", "active", "last_login", "last_password_change", "token", "deleted_at",
-	}).AddRow(
-		mockUser.ID, mockUser.Mobile, mockUser.Address, mockUser.Active,
-		mockUser.LastLogin, mockUser.LastPasswordChange, mockUser.Token, mockUser.DeletedAt,
-	)
-	mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "users"`)).
-		WithArgs(
-			mockUser.FirstName, mockUser.LastName, mockUser.Username, AnyString{}, mockUser.Email,
-			mockUser.RoleID, AnyTime{}, AnyTime{},
-		).
-		WillReturnRows(rows)
-}
-
 type createUserType struct {
-	name      string
-	req       fm.UserCreateInput
-	wantResp  *fm.User
-	wantErr   bool
-	init      func() *gomonkey.Patches
-	initmocks func(mock sqlmock.Sqlmock, mockUser models.User)
+	name     string
+	req      fm.UserCreateInput
+	wantResp *fm.User
+	wantErr  bool
+	init     func(mock sqlmock.Sqlmock, mockUser models.User) *gomonkey.Patches
 }
 
 func errorFromCreateUserCase() createUserType {
@@ -71,11 +53,11 @@ func errorFromCreateUserCase() createUserType {
 		name:    ErrorFromCreateUser,
 		req:     fm.UserCreateInput{},
 		wantErr: true,
-		init:    func() *gomonkey.Patches { return nil },
-		initmocks: func(mock sqlmock.Sqlmock, mockUser models.User) {
+		init: func(mock sqlmock.Sqlmock, mockUser models.User) *gomonkey.Patches {
 			mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "users"`)).
 				WithArgs().
 				WillReturnError(fmt.Errorf(""))
+			return nil
 		},
 	}
 }
@@ -85,12 +67,23 @@ func errorFromThrottleCheck() createUserType {
 		name:    ErrorFromThrottleCheck,
 		req:     fm.UserCreateInput{},
 		wantErr: true,
-		init: func() *gomonkey.Patches {
+		init: func(mock sqlmock.Sqlmock, mockUser models.User) *gomonkey.Patches {
+			rows := sqlmock.NewRows([]string{
+				"id", "mobile", "address", "active", "last_login", "last_password_change", "token", "deleted_at",
+			}).AddRow(
+				mockUser.ID, mockUser.Mobile, mockUser.Address, mockUser.Active,
+				mockUser.LastLogin, mockUser.LastPasswordChange, mockUser.Token, mockUser.DeletedAt,
+			)
+			mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "users"`)).
+				WithArgs(
+					mockUser.FirstName, mockUser.LastName, mockUser.Username, AnyString{}, mockUser.Email,
+					mockUser.RoleID, AnyTime{}, AnyTime{},
+				).
+				WillReturnRows(rows)
 			return gomonkey.ApplyFunc(throttle.Check, func(ctx context.Context, limit int, dur time.Duration) error {
 				return fmt.Errorf("Internal error")
 			})
 		},
-		initmocks: expectInsertUser,
 	}
 }
 func errorFromCreateUserConfigCase() createUserType {
@@ -98,12 +91,23 @@ func errorFromCreateUserConfigCase() createUserType {
 		name:    ErrorFromConfig,
 		req:     fm.UserCreateInput{},
 		wantErr: true,
-		init: func() *gomonkey.Patches {
+		init: func(mock sqlmock.Sqlmock, mockUser models.User) *gomonkey.Patches {
+			rows := sqlmock.NewRows([]string{
+				"id", "mobile", "address", "active", "last_login", "last_password_change", "token", "deleted_at",
+			}).AddRow(
+				mockUser.ID, mockUser.Mobile, mockUser.Address, mockUser.Active,
+				mockUser.LastLogin, mockUser.LastPasswordChange, mockUser.Token, mockUser.DeletedAt,
+			)
+			mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "users"`)).
+				WithArgs(
+					mockUser.FirstName, mockUser.LastName, mockUser.Username, AnyString{}, mockUser.Email,
+					mockUser.RoleID, AnyTime{}, AnyTime{},
+				).
+				WillReturnRows(rows)
 			return gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
 				return nil, fmt.Errorf("error in loading config")
 			})
 		},
-		initmocks: expectInsertUser,
 	}
 }
 
@@ -131,9 +135,22 @@ func createUserSuccessCase() createUserType {
 			DeletedAt:          convert.NullDotTimeToPointerInt(testutls.MockUser().DeletedAt),
 			UpdatedAt:          convert.NullDotTimeToPointerInt(testutls.MockUser().UpdatedAt),
 		},
-		wantErr:   false,
-		init:      func() *gomonkey.Patches { return nil },
-		initmocks: expectInsertUser,
+		wantErr: false,
+		init: func(mock sqlmock.Sqlmock, mockUser models.User) *gomonkey.Patches {
+			rows := sqlmock.NewRows([]string{
+				"id", "mobile", "address", "active", "last_login", "last_password_change", "token", "deleted_at",
+			}).AddRow(
+				mockUser.ID, mockUser.Mobile, mockUser.Address, mockUser.Active,
+				mockUser.LastLogin, mockUser.LastPasswordChange, mockUser.Token, mockUser.DeletedAt,
+			)
+			mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "users"`)).
+				WithArgs(
+					mockUser.FirstName, mockUser.LastName, mockUser.Username, AnyString{}, mockUser.Email,
+					mockUser.RoleID, AnyTime{}, AnyTime{},
+				).
+				WillReturnRows(rows)
+			return nil
+		},
 	}
 }
 func getCreateUserTestCase() []createUserType {
@@ -151,28 +168,26 @@ func TestCreateUser(t *testing.T) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			mock, cleanup, _ := testutls.SetupMockDB(t)
-			tt.initmocks(mock, *testutls.MockUser())
-			patch := tt.init()
-			if patch != nil {
-				defer patch.Reset()
-			}
+			patch := tt.init(mock, *testutls.MockUser())
 			response, err := resolver.Mutation().CreateUser(context.Background(), tt.req)
 			if tt.wantResp != nil {
 				assert.Equal(t, tt.wantResp, response)
 			}
 			assert.Equal(t, tt.wantErr, err != nil)
+			if patch != nil {
+				patch.Reset()
+			}
 			cleanup()
 		})
 	}
 }
 
 type updateUserType struct {
-	name      string
-	req       *fm.UserUpdateInput
-	wantResp  *fm.User
-	wantErr   bool
-	init      func()
-	initMocks func(mock sqlmock.Sqlmock)
+	name     string
+	req      *fm.UserUpdateInput
+	wantResp *fm.User
+	wantErr  bool
+	init     func(mock sqlmock.Sqlmock) *gomonkey.Patches
 }
 
 func loadUpdateUserTestCases() []updateUserType {
@@ -181,9 +196,9 @@ func loadUpdateUserTestCases() []updateUserType {
 			name:    ErrorFindingUser,
 			req:     &fm.UserUpdateInput{},
 			wantErr: true,
-			init:    func() {},
-			initMocks: func(mock sqlmock.Sqlmock) {
+			init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
 				mock.ExpectQuery(regexp.QuoteMeta(`UPDATE "users"`)).WithArgs().WillReturnError(fmt.Errorf(""))
+				return nil
 			},
 		},
 		{
@@ -195,18 +210,11 @@ func loadUpdateUserTestCases() []updateUserType {
 				Address:   &testutls.MockUser().Address.String,
 			},
 			wantErr: true,
-			init: func() {
-				gomonkey.ApplyFunc(daos.UpdateUser,
+			init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
+				return gomonkey.ApplyFunc(daos.UpdateUser,
 					func(user models.User, ctx context.Context) (models.User, error) {
 						return user, fmt.Errorf("error for update user")
 					})
-			},
-			initMocks: func(mock sqlmock.Sqlmock) {
-				rows := sqlmock.NewRows([]string{"first_name"}).AddRow(testutls.MockUser().FirstName)
-				mock.ExpectQuery(regexp.QuoteMeta(`select * from "users"`)).WithArgs(0).WillReturnRows(rows)
-				// update users with new information
-				result := driver.Result(driver.RowsAffected(1))
-				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "users"`)).WillReturnResult(result)
 			},
 		},
 		{
@@ -225,13 +233,13 @@ func loadUpdateUserTestCases() []updateUserType {
 				Address:   &testutls.MockUser().Address.String,
 			},
 			wantErr: false,
-			init:    func() {},
-			initMocks: func(mock sqlmock.Sqlmock) {
+			init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
 				rows := sqlmock.NewRows([]string{"first_name"}).AddRow(testutls.MockUser().FirstName)
 				mock.ExpectQuery(regexp.QuoteMeta(`select * from "users"`)).WithArgs(0).WillReturnRows(rows)
 				// update users with new information
 				result := driver.Result(driver.RowsAffected(1))
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "users"`)).WillReturnResult(result)
+				return nil
 			},
 		},
 	}
@@ -246,43 +254,38 @@ func TestUpdateUser(
 		t.Run(
 			tt.name,
 			func(t *testing.T) {
-				tt.init()
-				err := config.LoadEnv()
-				if err != nil {
-					log.Fatal(err)
-				}
 				mock, cleanup, _ := testutls.SetupMockDB(t)
-				oldDB := boil.GetDB()
-				defer cleanup()
-				boil.SetDB(oldDB)
-				tt.initMocks(mock)
+				patches := tt.init(mock)
 				c := context.Background()
 				ctx := context.WithValue(c, testutls.UserKey, testutls.MockUser())
 				response, err := resolver1.Mutation().UpdateUser(ctx, tt.req)
 				if tt.wantResp != nil &&
 					response != nil {
 					assert.Equal(t, tt.wantResp, response)
+				} else {
+					assert.Equal(t, tt.wantErr, err != nil)
 				}
-				assert.Equal(t, tt.wantErr, err != nil)
+				cleanup()
+				if patches != nil {
+					patches.Reset()
+				}
 			},
 		)
 	}
 }
 
 type deleteUserType struct {
-	name      string
-	wantResp  *fm.UserDeletePayload
-	wantErr   bool
-	init      func() *gomonkey.Patches
-	initMocks func(mock sqlmock.Sqlmock)
+	name     string
+	wantResp *fm.UserDeletePayload
+	wantErr  bool
+	init     func(mock sqlmock.Sqlmock) *gomonkey.Patches
 }
 
 func errorFindinguserCaseDelete() deleteUserType {
 	return deleteUserType{
 		name:    ErrorFindingUser,
 		wantErr: true,
-		init:    func() *gomonkey.Patches { return nil },
-		initMocks: func(mock sqlmock.Sqlmock) {
+		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
 			mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
 				WithArgs().
 				WillReturnError(fmt.Errorf(""))
@@ -295,6 +298,7 @@ func errorFindinguserCaseDelete() deleteUserType {
 			result := driver.Result(driver.RowsAffected(1))
 			mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "users" WHERE "id"=$1`)).
 				WillReturnResult(result)
+			return nil
 		},
 	}
 }
@@ -303,13 +307,7 @@ func errorDeleteUserCase() deleteUserType {
 	return deleteUserType{
 		name:    ErrorDeleteUser,
 		wantErr: true,
-		init: func() *gomonkey.Patches {
-			return gomonkey.ApplyFunc(daos.DeleteUser,
-				func(user models.User, ctx context.Context) (int64, error) {
-					return 0, fmt.Errorf("error for delete user")
-				})
-		},
-		initMocks: func(mock sqlmock.Sqlmock) {
+		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
 			rows := sqlmock.NewRows([]string{"id"}).
 				AddRow(1)
 			mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
@@ -319,6 +317,10 @@ func errorDeleteUserCase() deleteUserType {
 			result := driver.Result(driver.RowsAffected(1))
 			mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "users" WHERE "id"=$1`)).
 				WillReturnResult(result)
+			return gomonkey.ApplyFunc(daos.DeleteUser,
+				func(user models.User, ctx context.Context) (int64, error) {
+					return 0, fmt.Errorf("error for delete user")
+				})
 		},
 	}
 }
@@ -330,8 +332,7 @@ func deleteUserSuccessCase() deleteUserType {
 			ID: "0",
 		},
 		wantErr: false,
-		init:    func() *gomonkey.Patches { return nil },
-		initMocks: func(mock sqlmock.Sqlmock) {
+		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
 			rows := sqlmock.NewRows([]string{"id"}).
 				AddRow(1)
 			mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
@@ -341,6 +342,7 @@ func deleteUserSuccessCase() deleteUserType {
 			result := driver.Result(driver.RowsAffected(1))
 			mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "users" WHERE "id"=$1`)).
 				WillReturnResult(result)
+			return nil
 		},
 	}
 }
@@ -361,13 +363,9 @@ func TestDeleteUser(
 		t.Run(
 			tt.name,
 			func(t *testing.T) {
-				patch := tt.init()
-				if patch != nil {
-					defer patch.Reset()
-				}
 				mock, cleanup, _ := testutls.SetupMockDB(t)
+				patch := tt.init(mock)
 				// get user by id
-				tt.initMocks(mock)
 				c := context.Background()
 				ctx := context.WithValue(c, testutls.UserKey, testutls.MockUser())
 				response, err := resolver1.Mutation().DeleteUser(ctx)
@@ -375,6 +373,9 @@ func TestDeleteUser(
 					assert.Equal(t, tt.wantResp, response)
 				}
 				assert.Equal(t, tt.wantErr, err != nil)
+				if patch != nil {
+					patch.Reset()
+				}
 				cleanup()
 			},
 		)
