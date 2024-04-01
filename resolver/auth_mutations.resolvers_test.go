@@ -21,7 +21,6 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/agiledragon/gomonkey/v2"
 	"github.com/stretchr/testify/assert"
-	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 const (
@@ -277,20 +276,9 @@ func TestLogin(
 		t.Run(
 			tt.name,
 			func(t *testing.T) {
-				db, mock, _ := sqlmock.New()
-				// Inject mock instance into boil.
-				oldDB := boil.GetDB()
-				defer func() {
-					db.Close()
-					boil.SetDB(oldDB)
-				}()
-				boil.SetDB(db)
+				mock, cleanup, _ := testutls.SetupMockDB(t)
+				defer cleanup()
 				patch := tt.init(mock)
-				// Load the environment variables from a .env file
-				err := config.LoadEnv()
-				if err != nil {
-					fmt.Print("error loading .env file")
-				}
 				c := context.Background()
 				// Call the login mutation with the given arguments and check the response and error against the expected values
 				response, err := resolver1.Mutation().Login(c, tt.req.UserName, tt.req.Password)
@@ -465,20 +453,9 @@ func TestChangePassword(
 			tt.name,
 			func(t *testing.T) {
 				// Handle the case where there is an error while loading the configuration
-				db, mock, _ := sqlmock.New()
-				// Inject mock instance into boil.
-				oldDB := boil.GetDB()
-				defer func() {
-					db.Close()
-					boil.SetDB(oldDB)
-				}()
-				boil.SetDB(db)
+				mock, cleanup, _ := testutls.SetupMockDB(t)
+				defer cleanup()
 				tt.init(mock)
-				// Load environment variables
-				err := config.LoadEnv()
-				if err != nil {
-					fmt.Print("error loading .env file")
-				}
 				// Set up the context with the mock user
 				c := context.Background()
 				ctx := context.WithValue(c, testutls.UserKey, testutls.MockUser())
@@ -708,14 +685,8 @@ func TestRefreshToken(t *testing.T) {
 			tt.name,
 			func(t *testing.T) {
 				// Create a mock SQL database connection
-				db, mock, _ := sqlmock.New()
-				// Inject mock instance into boil.
-				oldDB := boil.GetDB()
-				defer func() {
-					db.Close()
-					boil.SetDB(oldDB)
-				}()
-				boil.SetDB(db)
+				mock, cleanup, _ := testutls.SetupMockDB(t)
+				defer cleanup()
 				// Handle the case where authentication token is invalid
 				tt.initMocks(mock)
 				// Handle the case where there is an error loading the config
