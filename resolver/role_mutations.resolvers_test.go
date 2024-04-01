@@ -138,9 +138,6 @@ func TestCreateRole(
 			func(t *testing.T) {
 				// Apply additional monkey patches based on test case name.
 				patch := tt.init()
-				if patch != nil {
-					defer patch.Reset()
-				}
 				// Create a new context
 				c := context.Background()
 				// Call the resolver function
@@ -151,7 +148,9 @@ func TestCreateRole(
 				} else {
 					assert.Equal(t, tt.wantResp, response)
 				}
-				// Check if the response matches the expected response
+				if patch != nil {
+					patch.Reset()
+				}
 			})
 	}
 }
