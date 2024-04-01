@@ -269,81 +269,87 @@ func TestUpdateUser(
 	}
 }
 
-func GetDeleteTestCases() []struct {
+type deleteUserType struct {
 	name      string
 	wantResp  *fm.UserDeletePayload
 	wantErr   bool
 	init      func() *gomonkey.Patches
 	initMocks func(mock sqlmock.Sqlmock)
-} {
-	cases := []struct {
-		name      string
-		wantResp  *fm.UserDeletePayload
-		wantErr   bool
-		init      func() *gomonkey.Patches
-		initMocks func(mock sqlmock.Sqlmock)
-	}{
-		{
-			name:    ErrorFindingUser,
-			wantErr: true,
-			init:    func() *gomonkey.Patches { return nil },
-			initMocks: func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
-					WithArgs().
-					WillReturnError(fmt.Errorf(""))
-				rows := sqlmock.NewRows([]string{"id"}).
-					AddRow(1)
-				mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
-					WithArgs().
-					WillReturnRows(rows)
-				// delete user
-				result := driver.Result(driver.RowsAffected(1))
-				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "users" WHERE "id"=$1`)).
-					WillReturnResult(result)
-			},
-		},
-		{
-			name:    ErrorDeleteUser,
-			wantErr: true,
-			init: func() *gomonkey.Patches {
-				return gomonkey.ApplyFunc(daos.DeleteUser,
-					func(user models.User, ctx context.Context) (int64, error) {
-						return 0, fmt.Errorf("error for delete user")
-					})
-			},
-			initMocks: func(mock sqlmock.Sqlmock) {
-				rows := sqlmock.NewRows([]string{"id"}).
-					AddRow(1)
-				mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
-					WithArgs().
-					WillReturnRows(rows)
-				// delete user
-				result := driver.Result(driver.RowsAffected(1))
-				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "users" WHERE "id"=$1`)).
-					WillReturnResult(result)
-			},
-		},
-		{
-			name: SuccessCase,
-			wantResp: &fm.UserDeletePayload{
-				ID: "0",
-			},
-			wantErr: false,
-			init:    func() *gomonkey.Patches { return nil },
-			initMocks: func(mock sqlmock.Sqlmock) {
-				rows := sqlmock.NewRows([]string{"id"}).
-					AddRow(1)
-				mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
-					WithArgs().
-					WillReturnRows(rows)
-				// delete user
-				result := driver.Result(driver.RowsAffected(1))
-				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "users" WHERE "id"=$1`)).
-					WillReturnResult(result)
-			},
+}
+
+func errorFindinguserCaseDelete() deleteUserType {
+	return deleteUserType{
+		name:    ErrorFindingUser,
+		wantErr: true,
+		init:    func() *gomonkey.Patches { return nil },
+		initMocks: func(mock sqlmock.Sqlmock) {
+			mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
+				WithArgs().
+				WillReturnError(fmt.Errorf(""))
+			rows := sqlmock.NewRows([]string{"id"}).
+				AddRow(1)
+			mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
+				WithArgs().
+				WillReturnRows(rows)
+			// delete user
+			result := driver.Result(driver.RowsAffected(1))
+			mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "users" WHERE "id"=$1`)).
+				WillReturnResult(result)
 		},
 	}
-	return cases
+}
+
+func errorDeleteUserCase() deleteUserType {
+	return deleteUserType{
+		name:    ErrorDeleteUser,
+		wantErr: true,
+		init: func() *gomonkey.Patches {
+			return gomonkey.ApplyFunc(daos.DeleteUser,
+				func(user models.User, ctx context.Context) (int64, error) {
+					return 0, fmt.Errorf("error for delete user")
+				})
+		},
+		initMocks: func(mock sqlmock.Sqlmock) {
+			rows := sqlmock.NewRows([]string{"id"}).
+				AddRow(1)
+			mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
+				WithArgs().
+				WillReturnRows(rows)
+			// delete user
+			result := driver.Result(driver.RowsAffected(1))
+			mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "users" WHERE "id"=$1`)).
+				WillReturnResult(result)
+		},
+	}
+}
+
+func deleteUserSuccessCase() deleteUserType {
+	return deleteUserType{
+		name: SuccessCase,
+		wantResp: &fm.UserDeletePayload{
+			ID: "0",
+		},
+		wantErr: false,
+		init:    func() *gomonkey.Patches { return nil },
+		initMocks: func(mock sqlmock.Sqlmock) {
+			rows := sqlmock.NewRows([]string{"id"}).
+				AddRow(1)
+			mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
+				WithArgs().
+				WillReturnRows(rows)
+			// delete user
+			result := driver.Result(driver.RowsAffected(1))
+			mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "users" WHERE "id"=$1`)).
+				WillReturnResult(result)
+		},
+	}
+}
+func GetDeleteTestCases() []deleteUserType {
+	return []deleteUserType{
+		errorFindinguserCaseDelete(),
+		errorDeleteUserCase(),
+		deleteUserSuccessCase(),
+	}
 }
 
 func TestDeleteUser(
