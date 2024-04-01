@@ -5,7 +5,7 @@ go 1.22
 require (
 	github.com/99designs/gqlgen v0.17.24
 	github.com/DATA-DOG/go-sqlmock v1.5.0
-	github.com/agiledragon/gomonkey/v2 v2.9.0
+	github.com/agiledragon/gomonkey/v2 v2.11.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/friendsofgo/errors v0.9.2
 	github.com/go-playground/universal-translator v0.18.0
@@ -20,7 +20,6 @@ require (
 	github.com/lib/pq v1.10.7
 	github.com/masahiro331/go-commitlinter v0.0.0-20220207112004-c66fa942bad3
 	github.com/nbutton23/zxcvbn-go v0.0.0-20180912185939-ae427f1e4c1d
-	github.com/rafaeljusto/redigomock v2.4.0+incompatible
 	github.com/rafaeljusto/redigomock/v3 v3.0.1
 	github.com/rs/zerolog v1.18.0
 	github.com/rubenv/sql-migrate v1.3.1

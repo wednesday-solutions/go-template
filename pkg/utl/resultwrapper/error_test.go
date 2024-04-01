@@ -15,11 +15,11 @@ import (
 )
 
 const (
-	SuccessCase = "Success"
+	SuccessCase = "success"
 	ErrorCase   = "error from json"
-	ErrMsgJSON  = "Error from JSON"
-	ErrMsg      = "This is an Error"
-	DetailMsg   = "Some level of detail"
+	ErrMsgJSON  = "error from JSON"
+	ErrMsg      = "this is an error"
+	DetailMsg   = "some level of detail"
 )
 
 func TestSplitByLabel(t *testing.T) {

@@ -6,8 +6,6 @@ import (
 	"os"
 	"testing"
 
-	. "github.com/agiledragon/gomonkey/v2"
-	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -158,11 +156,13 @@ func TestFileName(t *testing.T) {
 	}
 }
 
+type keyValueArgs struct {
+	key   string
+	value string
+}
 type args struct {
-	env      string
-	err      string
-	tapped   bool
-	dbSecret string
+	setEnv            []keyValueArgs
+	expectedKeyValues []keyValueArgs
 }
 
 func TestLoadEnv(t *testing.T) {
@@ -173,7 +173,6 @@ func TestLoadEnv(t *testing.T) {
 	port := "5432"
 	tests := getTestCases(username, host, dbname, password, port)
 	for _, tt := range tests {
-		mockEnvLoad(tt)
 		setEnvironmentVariables(tt.args)
 
 		t.Run(tt.name, func(t *testing.T) {
@@ -182,89 +181,157 @@ func TestLoadEnv(t *testing.T) {
 	}
 }
 
-func getTestCases(username string, host string, dbname string, password string, port string) []struct {
+type envTestCaseArgs struct {
 	name    string
 	wantErr bool
 	args    args
-} {
-	return []struct {
-		name    string
-		wantErr bool
-		args    args
-	}{
-		{
-			name:    "Successfully load local env if ENVIRONMENT_NAME doesn't have a value",
-			wantErr: false,
-			args:    args{env: "", tapped: false},
-		},
-		{
-			name:    "Successfully load local env",
-			wantErr: false,
-			args:    args{env: "local", tapped: false},
-		},
-		{
-			name:    "Env varInjection Error",
-			wantErr: true,
-			args:    args{env: "local", tapped: false},
-		},
-		{
-			name:    "dbCredsInjected True",
-			wantErr: true,
-			args:    args{env: "", tapped: false},
-		},
+}
 
-		{
-			name:    "Successfully load develop env",
-			wantErr: false,
-			args: args{
-				env:    "production",
-				tapped: false,
-				dbSecret: fmt.Sprintf(`{"username":"%s",`+
-					`"host":"%s","dbname":"%s","password":"%s",`+
-					`"port":%s}`, username, host, dbname, password, port),
+func loadLocalEnvIfNoEnvName() envTestCaseArgs {
+	return envTestCaseArgs{
+		name:    "Successfully load local env if ENVIRONMENT_NAME doesn't have a value",
+		wantErr: false,
+		args: args{
+			setEnv: []keyValueArgs{
+				{
+					key:   "ENVIRONMENT_NAME",
+					value: "",
+				},
 			},
-		},
-		{
-			name:    "dbCredsInjected True",
-			wantErr: false,
-			args: args{env: "", tapped: false, dbSecret: fmt.Sprintf(`{"username":"%s",`+
-				`"host":"%s","dbname":"%s","password":"%s",`+
-				`"port":%s}`, username, host, dbname, password, port),
-			},
-		},
-		{
-			name:    "Failed to load env",
-			wantErr: true,
-			args: args{
-				env:    "local",
-				err:    "there was some error while loading the environment variables",
-				tapped: false,
+			expectedKeyValues: []keyValueArgs{
+				{
+					key:   "PSQL_USER",
+					value: "go_template_role",
+				},
 			},
 		},
 	}
 }
 
-func mockEnvLoad(tt struct {
-	name    string
-	wantErr bool
-	args    args
-}) {
-	ApplyFunc(godotenv.Load, func(filenames ...string) (err error) {
-		tt.args.tapped = true
-		if tt.args.err == "" {
-			if tt.name == "Env varInjection Error" && len(filenames) > 0 && filenames[0] == ".env.local" {
-				return fmt.Errorf(tt.args.err)
-			}
-			return nil
-		}
-		return fmt.Errorf(tt.args.err)
-	})
+func loadLocalEnv() envTestCaseArgs {
+	return envTestCaseArgs{
+		name:    "Successfully load local env",
+		wantErr: false,
+		args: args{
+			setEnv: []keyValueArgs{
+				{
+					key:   "ENVIRONMENT_NAME",
+					value: "local",
+				},
+			},
+			expectedKeyValues: []keyValueArgs{
+				{
+					key:   "SERVER_PORT",
+					value: "9000",
+				},
+			},
+		},
+	}
+}
+func errorOnEnvInjectionAndCopilotFalse() envTestCaseArgs {
+	return envTestCaseArgs{
+		name:    "Error when ENV_INJECTION and COPILOT_DB_CREDS_VIA_SECRETS_MANAGER false",
+		wantErr: true,
+		args: args{
+			setEnv: []keyValueArgs{
+				{
+					key:   "ENV_INJECTION",
+					value: "true",
+				},
+				{
+					key:   "ENVIRONMENT_NAME",
+					value: "develop",
+				},
+				{
+					key:   "COPILOT_DB_CREDS_VIA_SECRETS_MANAGER",
+					value: "false",
+				},
+			},
+		},
+	}
+}
+
+func loadOnDbCredsInjected(username string, host string, dbname string, password string, port string) envTestCaseArgs {
+	return envTestCaseArgs{
+		name:    "dbCredsInjected True",
+		wantErr: true,
+		args: args{
+			setEnv: []keyValueArgs{
+				{
+					key:   "ENV_INJECTION",
+					value: "true",
+				},
+				{
+					key:   "ENVIRONMENT_NAME",
+					value: "develop",
+				},
+				{
+					key:   "COPILOT_DB_CREDS_VIA_SECRETS_MANAGER",
+					value: "true",
+				},
+				{
+					key: "DB_SECRET",
+					value: fmt.Sprintf(`{"username": "%s", "password": "%s", "port": "%s", "dbname": "%s", "host": "%s"}`,
+						username,
+						password,
+						port,
+						host,
+						dbname),
+				},
+			},
+			expectedKeyValues: []keyValueArgs{
+				{
+					key:   "PSQL_PASS",
+					value: password,
+				},
+				{
+					key:   "PSQL_DBNAME",
+					value: dbname,
+				},
+				{
+					key:   "PSQL_HOST",
+					value: host,
+				},
+				{
+					key:   "PSQL_USER",
+					value: username,
+				},
+				{
+					key:   "PSQL_PORT",
+					value: port,
+				},
+			},
+		},
+	}
+}
+
+func errorOnWrongEnvName() envTestCaseArgs {
+	return envTestCaseArgs{
+		name:    "Failed to load env",
+		wantErr: true,
+		args: args{
+			setEnv: []keyValueArgs{
+				{
+					key:   "ENVIRONMENT_NAME",
+					value: "local1",
+				},
+			},
+		},
+	}
+}
+func getTestCases(username string, host string, dbname string, password string, port string) []envTestCaseArgs {
+	return []envTestCaseArgs{
+		loadLocalEnvIfNoEnvName(),
+		loadLocalEnv(),
+		errorOnEnvInjectionAndCopilotFalse(),
+		loadOnDbCredsInjected(username, host, dbname, password, port),
+		errorOnWrongEnvName(),
+	}
 }
 
 func setEnvironmentVariables(args args) {
-	os.Setenv("ENVIRONMENT_NAME", args.env)
-	if args.dbSecret != "" {
-		os.Setenv("DB_SECRET", args.dbSecret)
+	for _, env := range args.setEnv {
+		os.Setenv(env.key, env.value)
 	}
 }
 
@@ -273,28 +340,11 @@ func testLoadEnv(t *testing.T, tt struct {
 	wantErr bool
 	args    args
 }) {
-	username := "go_template_role"
-	host := "localhost"
-	dbname := "go_template"
-	password := "go_template_role456"
-	port := "5432"
-	if tt.name == "dbCredsInjected True" {
-		ApplyFunc(GetBool, func(key string) bool {
-			return true
-		})
-	}
-
-	tapped := tt.args.tapped
-
 	if err := LoadEnv(); (err != nil) != tt.wantErr {
 		t.Errorf("LoadEnv() error = %v, wantErr %v", err, tt.wantErr)
-	}
-	assert.Equal(t, tapped, !tt.args.tapped)
-	if tt.args.dbSecret != "" {
-		assert.Equal(t, os.Getenv("PSQL_USER"), username)
-		assert.Equal(t, os.Getenv("PSQL_HOST"), host)
-		assert.Equal(t, os.Getenv("PSQL_DBNAME"), dbname)
-		assert.Equal(t, os.Getenv("PSQL_PASS"), password)
-		assert.Equal(t, os.Getenv("PSQL_PORT"), port)
+	} else {
+		for _, expected := range tt.args.expectedKeyValues {
+			assert.Equal(t, os.Getenv(expected.key), expected.value)
+		}
 	}
 }

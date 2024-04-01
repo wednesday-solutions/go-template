@@ -6,6 +6,8 @@ import (
 	"go-template/pkg/utl/convert"
 	"log"
 	"os"
+	"path/filepath"
+	"runtime"
 	"strconv"
 
 	"github.com/joho/godotenv"
@@ -54,15 +56,18 @@ func FileName() string {
 	return envFileName
 }
 
-func LoadEnvWithFilePrefix(fileprefix *string) error {
-	prefix := ""
-	if fileprefix != nil {
-		prefix = *fileprefix
+func LoadEnv() error {
+	_, filename, _, ok := runtime.Caller(0)
+	if !ok {
+		return fmt.Errorf("Error getting current file path")
 	}
+
+	prefix := fmt.Sprintf("%s/", filepath.Join(filepath.Dir(filename), "../../"))
 	err := godotenv.Load(fmt.Sprintf("%s.env.base", prefix))
 	if err != nil {
 		return err
 	}
+	fmt.Println("loaded", fmt.Sprintf("%s.env.base", prefix))
 
 	envName := os.Getenv("ENVIRONMENT_NAME")
 	if envName == "" {
@@ -79,6 +84,8 @@ func LoadEnvWithFilePrefix(fileprefix *string) error {
 			log.Println(err)
 			return err
 		}
+		fmt.Println("loaded", fmt.Sprintf("%s.env.%s", prefix, envName))
+		return nil
 	}
 
 	dbCredsInjected := GetBool("COPILOT_DB_CREDS_VIA_SECRETS_MANAGER")
@@ -104,8 +111,5 @@ func LoadEnvWithFilePrefix(fileprefix *string) error {
 		os.Setenv("PSQL_PORT", strconv.Itoa(secrets.Port))
 		os.Setenv("PSQL_USER", secrets.Username)
 	}
-	return nil
-}
-func LoadEnv() error {
-	return LoadEnvWithFilePrefix(nil)
+	return fmt.Errorf("COPILOT_DB_CREDS_VIA_SECRETS_MANAGER should have had a value")
 }
