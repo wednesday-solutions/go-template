@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"go-template/daos"
 	"reflect"
-	"regexp"
 	"strings"
 	"testing"
 
@@ -21,7 +20,6 @@ import (
 	"go-template/resolver"
 	"go-template/testutls"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/agiledragon/gomonkey/v2"
 	"github.com/stretchr/testify/assert"
 )
@@ -74,7 +72,7 @@ type loginType struct {
 	wantResp *fm.LoginResponse
 	wantErr  bool
 	err      error
-	init     func(mock sqlmock.Sqlmock) *gomonkey.Patches
+	init     func() *gomonkey.Patches
 }
 
 func errorFindingUserCase() loginType {
@@ -86,7 +84,7 @@ func errorFindingUserCase() loginType {
 		},
 		wantErr: true,
 		err:     fmt.Errorf(ErrorMsgFindingUser),
-		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
+		init: func() *gomonkey.Patches {
 			return gomonkey.ApplyFunc(daos.FindUserByUserName,
 				func(username string, ctx context.Context) (*models.User, error) {
 					return nil, fmt.Errorf(ErrorMsgFindingUser)
@@ -103,14 +101,15 @@ func errorPasswordValidationCase() loginType {
 		},
 		wantErr: true,
 		err:     fmt.Errorf(ErrorMsgPasswordValidation),
-		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
-			rows := sqlmock.NewRows([]string{"id", "password", "active", "role_id"}).
-				AddRow(testutls.MockID, TestPasswordHash, true, 1)
-			mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users"  WHERE (username=$1) LIMIT 1;`)).
-				WithArgs().
-				WillReturnRows(rows)
+		init: func() *gomonkey.Patches {
 			tg := jwt.Service{}
-			return gomonkey.ApplyFunc(tg.GenerateToken, func(u *models.User) (string, error) {
+			return gomonkey.ApplyFunc(daos.FindUserByUserName,
+				func(username string, ctx context.Context) (*models.User, error) {
+					user := testutls.MockUser()
+					user.Password = null.StringFrom(OldPasswordHash)
+					user.Active = null.BoolFrom(false)
+					return user, nil
+				}).ApplyFunc(tg.GenerateToken, func(u *models.User) (string, error) {
 				return "", nil
 			})
 		},
@@ -126,7 +125,7 @@ func errorActiveStatusCase() loginType {
 		},
 		wantErr: true,
 		err:     resultwrapper.ErrUnauthorized,
-		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
+		init: func() *gomonkey.Patches {
 			// mock FindUserByUserName with the proper password, and active state
 			return gomonkey.ApplyFunc(daos.FindUserByUserName,
 				func(username string, ctx context.Context) (*models.User, error) {
@@ -147,7 +146,7 @@ func errorFromConfigCase() loginType {
 		},
 		wantErr: true,
 		err:     fmt.Errorf(ErrorMsgFromConfig),
-		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
+		init: func() *gomonkey.Patches {
 			return gomonkey.ApplyFunc(daos.FindUserByUserName,
 				func(username string, ctx context.Context) (*models.User, error) {
 					user := testutls.MockUser()
@@ -171,7 +170,7 @@ func errorWhileGeneratingToken() loginType {
 		},
 		wantErr: true,
 		err:     resultwrapper.ErrUnauthorized,
-		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
+		init: func() *gomonkey.Patches {
 			tg := jwt.Service{}
 			return gomonkey.ApplyFunc(daos.FindUserByUserName,
 				func(username string, ctx context.Context) (*models.User, error) {
@@ -200,7 +199,7 @@ func errorUpdateUserCase() loginType {
 		},
 		wantErr: true,
 		err:     err,
-		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
+		init: func() *gomonkey.Patches {
 			tg := jwt.Service{}
 			sec := secure.Service{}
 			return gomonkey.ApplyFunc(daos.FindUserByUserName,
@@ -243,7 +242,7 @@ func loginSuccessCase() loginType {
 			Token:        jwtToken,
 			RefreshToken: TestToken,
 		},
-		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
+		init: func() *gomonkey.Patches {
 			tg := jwt.Service{}
 			sec := secure.Service{}
 			return gomonkey.ApplyFunc(daos.FindUserByUserName,
@@ -284,7 +283,7 @@ func errorWhileCreatingJWTService() loginType {
 		},
 		wantErr: true,
 		err:     err,
-		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
+		init: func() *gomonkey.Patches {
 			return gomonkey.ApplyFunc(daos.FindUserByUserName,
 				func(username string, ctx context.Context) (*models.User, error) {
 					user := testutls.MockUser()
@@ -320,9 +319,8 @@ func TestLogin(
 		t.Run(
 			tt.name,
 			func(t *testing.T) {
-				mock, cleanup, _ := testutls.SetupMockDB(t)
-				defer cleanup()
-				patch := tt.init(mock)
+				_, cleanup, _ := testutls.SetupMockDB(t)
+				patch := tt.init()
 				c := context.Background()
 				// Call the login mutation with the given arguments and check the response and error against the expected values
 				response, err := resolver1.Mutation().Login(c, tt.req.UserName, tt.req.Password)
@@ -336,6 +334,7 @@ func TestLogin(
 					assert.Equal(t, tt.wantErr, err != nil)
 				}
 				patch.Reset()
+				cleanup()
 			},
 		)
 	}
@@ -351,7 +350,7 @@ type changePasswordType struct {
 	req      changeReq
 	wantResp *fm.ChangePasswordResponse
 	wantErr  bool
-	init     func(mock sqlmock.Sqlmock) *gomonkey.Patches
+	init     func() *gomonkey.Patches
 }
 
 func changePasswordErrorFindingUserCase() changePasswordType {
@@ -362,7 +361,7 @@ func changePasswordErrorFindingUserCase() changePasswordType {
 			NewPassword: NewPassword,
 		},
 		wantErr: true,
-		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
+		init: func() *gomonkey.Patches {
 			return gomonkey.ApplyFunc(daos.FindUserByUserName,
 				func(username string, ctx context.Context) (*models.User, error) {
 					return nil, fmt.Errorf(ErrorMsgFindingUser)
@@ -378,7 +377,7 @@ func changePasswordErrorPasswordValidationcase() changePasswordType {
 			NewPassword: NewPassword,
 		},
 		wantErr: true,
-		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
+		init: func() *gomonkey.Patches {
 			tg := jwt.Service{}
 			return gomonkey.ApplyMethod(reflect.TypeOf(tg), "GenerateToken",
 				func(jwt.Service, *models.User) (string, error) {
@@ -396,7 +395,7 @@ func changePasswordErrorInsecurePasswordCase() changePasswordType {
 			NewPassword: testutls.MockEmail,
 		},
 		wantErr: true,
-		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
+		init: func() *gomonkey.Patches {
 			// mock FindUserByUserName with the proper password, and active state
 			return gomonkey.ApplyFunc(daos.FindUserByID,
 				func(userID int, ctx context.Context) (*models.User, error) {
@@ -417,7 +416,7 @@ func changePasswordErrorUpdateUserCase() changePasswordType {
 			NewPassword: NewPassword,
 		},
 		wantErr: true,
-		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
+		init: func() *gomonkey.Patches {
 			return gomonkey.ApplyFunc(daos.FindUserByID,
 				func(userID int, ctx context.Context) (*models.User, error) {
 					user := testutls.MockUser()
@@ -440,7 +439,7 @@ func changePasswordErrorFromConfigCase() changePasswordType {
 			NewPassword: testutls.MockEmail,
 		},
 		wantErr: true,
-		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
+		init: func() *gomonkey.Patches {
 			return gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
 				return nil, fmt.Errorf("error in loading config")
 			})
@@ -459,7 +458,7 @@ func changePasswordSuccessCase() changePasswordType {
 			Ok: true,
 		},
 		wantErr: false,
-		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
+		init: func() *gomonkey.Patches {
 			sec := secure.Service{}
 			return gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
 				return nil, nil
@@ -502,9 +501,8 @@ func TestChangePassword(
 			tt.name,
 			func(t *testing.T) {
 				// Handle the case where there is an error while loading the configuration
-				mock, cleanup, _ := testutls.SetupMockDB(t)
-				defer cleanup()
-				tt.init(mock)
+				_, cleanup, _ := testutls.SetupMockDB(t)
+				patches := tt.init()
 				// Set up the context with the mock user
 				c := context.Background()
 				ctx := context.WithValue(c, testutls.UserKey, testutls.MockUser())
@@ -517,6 +515,8 @@ func TestChangePassword(
 				}
 				// Assert that the expected error value matches the actual error value
 				assert.Equal(t, tt.wantErr, err != nil)
+				cleanup()
+				patches.Reset()
 			},
 		)
 	}
@@ -650,6 +650,7 @@ func TestRefreshToken(t *testing.T) {
 		t.Run(
 			tt.name,
 			func(t *testing.T) {
+				_, cleanup, _ := testutls.SetupMockDB(t)
 				// Handle the case where authentication token is invalid
 				patches := tt.init()
 				// Set up the context with the mock user
@@ -669,6 +670,7 @@ func TestRefreshToken(t *testing.T) {
 					assert.Equal(t, true, strings.Contains(err.Error(), tt.err.Error()))
 				}
 				patches.Reset()
+				cleanup()
 			},
 		)
 	}
