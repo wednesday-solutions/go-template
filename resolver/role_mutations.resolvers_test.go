@@ -8,6 +8,7 @@ import (
 	"go-template/models"
 	"go-template/pkg/utl/rediscache"
 	"go-template/resolver"
+	"go-template/testutls"
 	"testing"
 
 	"github.com/agiledragon/gomonkey/v2"
@@ -74,6 +75,10 @@ func errorUnauthorizedUserCase() createRoleType {
 	}
 }
 func successCase() createRoleType {
+	role := models.Role{
+		AccessLevel: int(constants.SuperAdminRole),
+		Name:        SuperAdminRoleName,
+	}
 	return createRoleType{
 		name: SuccessCase,
 		req: fm.RoleCreateInput{
@@ -88,11 +93,16 @@ func successCase() createRoleType {
 		init: func() *gomonkey.Patches {
 			return gomonkey.ApplyFunc(daos.CreateRole,
 				func(role models.Role, ctx context.Context) (models.Role, error) {
-					return models.Role{
-						AccessLevel: int(constants.SuperAdminRole),
-						Name:        SuperAdminRoleName,
-					}, nil
-				})
+					return role, nil
+				}).
+				ApplyFunc(rediscache.GetUser,
+					func(userID int, ctx context.Context) (*models.User, error) {
+						return testutls.MockUser(), nil
+					}).
+				ApplyFunc(rediscache.GetRole,
+					func(userID int, ctx context.Context) (*models.Role, error) {
+						return &role, nil
+					})
 		},
 	}
 }
@@ -118,8 +128,8 @@ func loadTestCases() []createRoleType {
 		errorFromRedisCase(),
 		errorFromGetRoleCase(),
 		errorUnauthorizedUserCase(),
-		successCase(),
 		errorFromCreateRoleCase(),
+		successCase(),
 	}
 }
 

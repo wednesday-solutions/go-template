@@ -77,9 +77,11 @@ func TestStart(t *testing.T) {
 		})
 	}
 }
+
 type testCase struct {
 	args args
 }
+
 func getTestCases() map[string]testCase {
 	return map[string]testCase{
 		"Success": {
