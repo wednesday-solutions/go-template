@@ -2,7 +2,6 @@ package resolver_test
 
 import (
 	"context"
-	"database/sql/driver"
 	"fmt"
 	"go-template/daos"
 	"reflect"
@@ -364,10 +363,10 @@ func changePasswordErrorFindingUserCase() changePasswordType {
 		},
 		wantErr: true,
 		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
-			mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
-				WithArgs().
-				WillReturnError(fmt.Errorf(""))
-			return nil
+			return gomonkey.ApplyFunc(daos.FindUserByUserName,
+				func(username string, ctx context.Context) (*models.User, error) {
+					return nil, fmt.Errorf(ErrorMsgFindingUser)
+				})
 		},
 	}
 }
@@ -380,12 +379,10 @@ func changePasswordErrorPasswordValidationcase() changePasswordType {
 		},
 		wantErr: true,
 		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
-			rows := sqlmock.NewRows([]string{"id", "email", "password"}).
-				AddRow(testutls.MockID, testutls.MockEmail, OldPasswordHash)
-			mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
-				WithArgs().
-				WillReturnRows(rows)
-			return nil
+			tg := jwt.Service{}
+			return gomonkey.ApplyFunc(tg.GenerateToken, func(u *models.User) (string, error) {
+				return "", nil
+			})
 		},
 	}
 }
@@ -399,12 +396,14 @@ func changePasswordErrorInsecurePasswordCase() changePasswordType {
 		},
 		wantErr: true,
 		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
-			rows := sqlmock.NewRows([]string{"id", "email", "password"}).
-				AddRow(testutls.MockID, testutls.MockEmail, OldPasswordHash)
-			mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
-				WithArgs().
-				WillReturnRows(rows)
-			return nil
+			// mock FindUserByUserName with the proper password, and active state
+			return gomonkey.ApplyFunc(daos.FindUserByID,
+				func(userID int, ctx context.Context) (*models.User, error) {
+					user := testutls.MockUser()
+					user.Password = null.StringFrom(OldPasswordHash)
+					user.Active = null.BoolFrom(false)
+					return user, fmt.Errorf(ErrorInsecurePassword)
+				})
 		},
 	}
 }
@@ -418,13 +417,16 @@ func changePasswordErrorUpdateUserCase() changePasswordType {
 		},
 		wantErr: true,
 		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
-			rows := sqlmock.NewRows([]string{"id", "email", "password"}).
-				AddRow(testutls.MockID, testutls.MockEmail, OldPasswordHash)
-			mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
-				WithArgs().
-				WillReturnRows(rows)
-			mock.ExpectExec(regexp.QuoteMeta(`UPDATE "users" `)).WillReturnError(fmt.Errorf("errrorr"))
-			return nil
+			return gomonkey.ApplyFunc(daos.FindUserByID,
+				func(userID int, ctx context.Context) (*models.User, error) {
+					user := testutls.MockUser()
+					user.Password = null.StringFrom(OldPasswordHash)
+					user.Active = null.BoolFrom(false)
+					return user, fmt.Errorf(ErrorInsecurePassword)
+				}).ApplyFunc(daos.UpdateUser,
+				func(user models.User, ctx context.Context) (*models.User, error) {
+					return nil, fmt.Errorf(ErrorUpdateUser)
+				})
 		},
 	}
 }
@@ -438,14 +440,8 @@ func changePasswordErrorFromConfigCase() changePasswordType {
 		},
 		wantErr: true,
 		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
-			rows := sqlmock.NewRows([]string{"id", "email", "password"}).
-				AddRow(testutls.MockID, testutls.MockEmail, OldPasswordHash)
-			mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
-				WithArgs().
-				WillReturnRows(rows)
-			tg := jwt.Service{}
-			return gomonkey.ApplyFunc(service.JWT, func(cfg *config.Configuration) (jwt.Service, error) {
-				return tg, fmt.Errorf(ErrorMsgFromJwt)
+			return gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
+				return nil, fmt.Errorf("error in loading config")
 			})
 		},
 	}
@@ -463,14 +459,23 @@ func changePasswordSuccessCase() changePasswordType {
 		},
 		wantErr: false,
 		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
-			rows := sqlmock.NewRows([]string{"id", "email", "password"}).
-				AddRow(testutls.MockID, testutls.MockEmail, OldPasswordHash)
-			mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
-				WithArgs().
-				WillReturnRows(rows)
-			result := driver.Result(driver.RowsAffected(1))
-			mock.ExpectExec(regexp.QuoteMeta(`UPDATE "users" `)).WillReturnResult(result)
-			return nil
+			sec := secure.Service{}
+			return gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
+				return nil, nil
+			}).ApplyFunc(service.Secure, func(cfg *config.Configuration) secure.Service {
+				return sec
+			}).ApplyMethod(reflect.TypeOf(sec), "Password", func(secure.Service, string, ...string) bool {
+				return true
+			}).ApplyFunc(daos.FindUserByID,
+				func(userID int, ctx context.Context) (*models.User, error) {
+					user := testutls.MockUser()
+					user.Password = null.StringFrom(OldPasswordHash)
+					user.Active = null.BoolFrom(false)
+					return user, nil
+				}).ApplyFunc(daos.UpdateUser,
+				func(user models.User, ctx context.Context) (models.User, error) {
+					return *testutls.MockUser(), nil
+				})
 		},
 	}
 }
