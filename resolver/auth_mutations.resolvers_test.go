@@ -380,9 +380,10 @@ func changePasswordErrorPasswordValidationcase() changePasswordType {
 		wantErr: true,
 		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
 			tg := jwt.Service{}
-			return gomonkey.ApplyFunc(tg.GenerateToken, func(u *models.User) (string, error) {
-				return "", nil
-			})
+			return gomonkey.ApplyMethod(reflect.TypeOf(tg), "GenerateToken",
+				func(jwt.Service, *models.User) (string, error) {
+					return "", nil
+				})
 		},
 	}
 }
@@ -558,7 +559,6 @@ func refreshTokenErrorFromConfigCase() refereshTokenType {
 		wantErr: true,
 		err:     fmt.Errorf(ErrorMsgFromConfig),
 		init: func() *gomonkey.Patches {
-			// tg := jwt.Service{}
 			return gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
 				return nil, fmt.Errorf(ErrorFromConfig)
 			}).ApplyFunc(daos.FindUserByToken, func(token string, ctx context.Context) (*models.User, error) {
@@ -652,7 +652,6 @@ func TestRefreshToken(t *testing.T) {
 			func(t *testing.T) {
 				// Handle the case where authentication token is invalid
 				patches := tt.init()
-				defer patches.Reset()
 				// Set up the context with the mock user
 				c := context.Background()
 				ctx := context.WithValue(c, testutls.UserKey, testutls.MockUser())
@@ -669,6 +668,7 @@ func TestRefreshToken(t *testing.T) {
 					// Assert that the expected error value matches the actual error value
 					assert.Equal(t, true, strings.Contains(err.Error(), tt.err.Error()))
 				}
+				patches.Reset()
 			},
 		)
 	}
