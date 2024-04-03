@@ -7,7 +7,6 @@ import (
 	"reflect"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/volatiletech/null/v8"
 
@@ -360,7 +359,6 @@ func TestLogin(
 			tt.name,
 			func(t *testing.T) {
 				patch := tt.init()
-				time.Sleep(time.Duration(10000000))
 				c := context.Background()
 				// Call the login mutation with the given arguments and check the response and error against the expected values
 				response, err := resolver1.Mutation().Login(c, tt.req.UserName, tt.req.Password)
