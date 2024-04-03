@@ -7,8 +7,10 @@ import (
 	"go-template/daos"
 	fm "go-template/gqlmodels"
 	"go-template/internal/config"
+	"go-template/internal/service"
 	"go-template/models"
 	"go-template/pkg/utl/convert"
+	"go-template/pkg/utl/secure"
 	"go-template/pkg/utl/throttle"
 	"go-template/resolver"
 	"go-template/testutls"
@@ -52,8 +54,13 @@ func errorFromCreateUserCase() createUserType {
 		req:     fm.UserCreateInput{},
 		wantErr: true,
 		init: func() *gomonkey.Patches {
+			sec := secure.Service{}
 			return gomonkey.ApplyFunc(daos.CreateUser, func(user models.User, ctx context.Context) (models.User, error) {
-				return *testutls.MockUser(), fmt.Errorf("")
+				return *testutls.MockUser(), fmt.Errorf("error")
+			}).ApplyFunc(service.Secure, func(cfg *config.Configuration) secure.Service {
+				return sec
+			}).ApplyFunc(throttle.Check, func(ctx context.Context, limit int, dur time.Duration) error {
+				return nil
 			})
 		},
 	}
@@ -110,8 +117,28 @@ func createUserSuccessCase() createUserType {
 		},
 		wantErr: false,
 		init: func() *gomonkey.Patches {
+			sec := secure.Service{}
 			return gomonkey.ApplyFunc(daos.CreateUser, func(user models.User, ctx context.Context) (models.User, error) {
-				return *testutls.MockUser(), nil
+				return models.User{
+					ID:                 testutls.MockUser().ID,
+					Email:              testutls.MockUser().Email,
+					FirstName:          testutls.MockUser().FirstName,
+					LastName:           testutls.MockUser().LastName,
+					Username:           testutls.MockUser().Username,
+					Mobile:             testutls.MockUser().Mobile,
+					Address:            testutls.MockUser().Address,
+					Active:             testutls.MockUser().Active,
+					LastLogin:          testutls.MockUser().LastLogin,
+					LastPasswordChange: testutls.MockUser().LastPasswordChange,
+					DeletedAt:          testutls.MockUser().DeletedAt,
+					UpdatedAt:          testutls.MockUser().UpdatedAt,
+				}, nil
+			}).ApplyFunc(throttle.Check, func(ctx context.Context, limit int, dur time.Duration) error {
+				return nil
+			}).ApplyFunc(config.Load, func() (*config.Configuration, error) {
+				return nil, nil
+			}).ApplyFunc(service.Secure, func(cfg *config.Configuration) secure.Service {
+				return sec
 			})
 		},
 	}
@@ -130,15 +157,16 @@ func TestCreateUser(t *testing.T) {
 	resolver := resolver.Resolver{}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			_, cleanup, _ := testutls.SetupMockDB(t)
 			patch := tt.init()
+			time.Sleep(time.Duration(100000))
 			response, err := resolver.Mutation().CreateUser(context.Background(), tt.req)
 			if tt.wantResp != nil {
 				assert.Equal(t, tt.wantResp, response)
 			}
 			assert.Equal(t, tt.wantErr, err != nil)
-			patch.Reset()
-			cleanup()
+			if patch != nil {
+				patch.Reset()
+			}
 		})
 	}
 }
@@ -218,7 +246,6 @@ func TestUpdateUser(
 		t.Run(
 			tt.name,
 			func(t *testing.T) {
-				_, cleanup, _ := testutls.SetupMockDB(t)
 				patches := tt.init()
 				c := context.Background()
 				ctx := context.WithValue(c, testutls.UserKey, testutls.MockUser())
@@ -229,9 +256,9 @@ func TestUpdateUser(
 				} else {
 					assert.Equal(t, tt.wantErr, err != nil)
 				}
-
-				patches.Reset()
-				cleanup()
+				if patches != nil {
+					patches.Reset()
+				}
 			},
 		)
 	}
@@ -307,7 +334,6 @@ func TestDeleteUser(
 			tt.name,
 			func(t *testing.T) {
 				patch := tt.init()
-				_, cleanup, _ := testutls.SetupMockDB(t)
 				// get user by id
 				c := context.Background()
 				ctx := context.WithValue(c, testutls.UserKey, testutls.MockUser())
@@ -316,8 +342,9 @@ func TestDeleteUser(
 					assert.Equal(t, tt.wantResp, response)
 				}
 				assert.Equal(t, tt.wantErr, err != nil)
-				patch.Reset()
-				cleanup()
+				if patch != nil {
+					patch.Reset()
+				}
 			},
 		)
 	}
