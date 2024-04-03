@@ -7,6 +7,7 @@ import (
 	"go-template/daos"
 	fm "go-template/gqlmodels"
 	"go-template/internal/config"
+	"go-template/internal/middleware/auth"
 	"go-template/internal/service"
 	"go-template/models"
 	"go-template/pkg/utl/convert"
@@ -179,61 +180,87 @@ type updateUserType struct {
 	init     func() *gomonkey.Patches
 }
 
+func updateUserErrorFindingUser() updateUserType {
+	return updateUserType{
+		name:    ErrorFindingUser,
+		req:     &fm.UserUpdateInput{},
+		wantErr: true,
+		init: func() *gomonkey.Patches {
+			return gomonkey.ApplyFunc(daos.FindUserByID, func(userID int, ctx context.Context) (*models.User, error) {
+				return nil, fmt.Errorf("")
+			})
+		},
+	}
+}
+func updateUserErrorUpdateUser() updateUserType {
+	return updateUserType{
+		name: ErrorUpdateUser,
+		req: &fm.UserUpdateInput{
+			FirstName: &testutls.MockUser().FirstName.String,
+			LastName:  &testutls.MockUser().LastName.String,
+			Mobile:    &testutls.MockUser().Mobile.String,
+			Address:   &testutls.MockUser().Address.String,
+		},
+		wantErr: true,
+		init: func() *gomonkey.Patches {
+			return gomonkey.ApplyFunc(daos.UpdateUser,
+				func(models.User, context.Context) (models.User, error) {
+					return *testutls.MockUser(), fmt.Errorf("error for update user")
+				}).ApplyFunc(auth.UserIDFromContext, func(ctx context.Context) int {
+				return 0
+			}).ApplyFunc(daos.FindUserByID, func(userID int, ctx context.Context) (*models.User, error) {
+				return &models.User{}, nil
+			})
+		},
+	}
+}
+func updateUserSuccessCase() updateUserType {
+	return updateUserType{
+		name: SuccessCase,
+		req: &fm.UserUpdateInput{
+			FirstName: &testutls.MockUser().FirstName.String,
+			LastName:  &testutls.MockUser().LastName.String,
+			Mobile:    &testutls.MockUser().Mobile.String,
+			Address:   &testutls.MockUser().Address.String,
+		},
+		wantResp: &fm.User{
+			ID:        "1",
+			FirstName: convert.NullDotStringToPointerString(testutls.MockUser().FirstName),
+			LastName:  convert.NullDotStringToPointerString(testutls.MockUser().LastName),
+			Username:  convert.NullDotStringToPointerString(testutls.MockUser().Username),
+			Mobile:    convert.NullDotStringToPointerString(testutls.MockUser().Mobile),
+			Address:   convert.NullDotStringToPointerString(testutls.MockUser().Address),
+			Email:     convert.NullDotStringToPointerString(testutls.MockUser().Email),
+			Active:    &testutls.MockUser().Active.Bool,
+		},
+		wantErr: false,
+		init: func() *gomonkey.Patches {
+			return gomonkey.ApplyFunc(daos.FindUserByID, func(userID int, ctx context.Context) (*models.User, error) {
+				return testutls.MockUser(), nil
+			}).ApplyFunc(daos.UpdateUser, func(user models.User, ctx context.Context) (models.User, error) {
+				return *testutls.MockUser(), nil
+			}).ApplyFunc(auth.UserIDFromContext, func(ctx context.Context) int {
+				return 0
+			}).ApplyFunc(daos.FindUserByID, func(userID int, ctx context.Context) (*models.User, error) {
+				return &models.User{
+					ID:        1,
+					FirstName: testutls.MockUser().FirstName,
+					LastName:  testutls.MockUser().LastName,
+					Username:  testutls.MockUser().Username,
+					Mobile:    testutls.MockUser().Mobile,
+					Address:   testutls.MockUser().Address,
+					Email:     testutls.MockUser().Email,
+					Active:    testutls.MockUser().Active,
+				}, nil
+			})
+		},
+	}
+}
 func loadUpdateUserTestCases() []updateUserType {
 	return []updateUserType{
-		{
-			name:    ErrorFindingUser,
-			req:     &fm.UserUpdateInput{},
-			wantErr: true,
-			init: func() *gomonkey.Patches {
-				return gomonkey.ApplyFunc(daos.FindUserByID, func(userID int, ctx context.Context) (*models.User, error) {
-					return nil, fmt.Errorf("")
-				})
-			},
-		},
-		{
-			name: ErrorUpdateUser,
-			req: &fm.UserUpdateInput{
-				FirstName: &testutls.MockUser().FirstName.String,
-				LastName:  &testutls.MockUser().LastName.String,
-				Mobile:    &testutls.MockUser().Mobile.String,
-				Address:   &testutls.MockUser().Address.String,
-			},
-			wantErr: true,
-			init: func() *gomonkey.Patches {
-				return gomonkey.ApplyFunc(daos.UpdateUser,
-					func(models.User, context.Context) (models.User, error) {
-						return *testutls.MockUser(), fmt.Errorf("error for update user")
-					})
-			},
-		},
-		{
-			name: SuccessCase,
-			req: &fm.UserUpdateInput{
-				FirstName: &testutls.MockUser().FirstName.String,
-				LastName:  &testutls.MockUser().LastName.String,
-				Mobile:    &testutls.MockUser().Mobile.String,
-				Address:   &testutls.MockUser().Address.String,
-			},
-			wantResp: &fm.User{
-				ID:        "1",
-				FirstName: convert.NullDotStringToPointerString(testutls.MockUser().FirstName),
-				LastName:  convert.NullDotStringToPointerString(testutls.MockUser().LastName),
-				Username:  convert.NullDotStringToPointerString(testutls.MockUser().Username),
-				Mobile:    convert.NullDotStringToPointerString(testutls.MockUser().Mobile),
-				Address:   convert.NullDotStringToPointerString(testutls.MockUser().Address),
-				Email:     convert.NullDotStringToPointerString(testutls.MockUser().Email),
-				Active:    &testutls.MockUser().Active.Bool,
-			},
-			wantErr: false,
-			init: func() *gomonkey.Patches {
-				return gomonkey.ApplyFunc(daos.FindUserByID, func(userID int, ctx context.Context) (*models.User, error) {
-					return testutls.MockUser(), nil
-				}).ApplyFunc(daos.UpdateUser, func(user models.User, ctx context.Context) (models.User, error) {
-					return *testutls.MockUser(), nil
-				})
-			},
-		},
+		updateUserErrorFindingUser(),
+		updateUserErrorUpdateUser(),
+		updateUserSuccessCase(),
 	}
 }
 
@@ -293,7 +320,9 @@ func errorDeleteUserCase() deleteUserType {
 			}).ApplyFunc(daos.DeleteUser,
 				func(user models.User, ctx context.Context) (int64, error) {
 					return 0, fmt.Errorf("error for delete user")
-				})
+				}).ApplyFunc(daos.FindUserByID, func(userID int, ctx context.Context) (*models.User, error) {
+				return testutls.MockUser(), fmt.Errorf("")
+			})
 		},
 	}
 }
@@ -311,7 +340,11 @@ func deleteUserSuccessCase() deleteUserType {
 			}).ApplyFunc(daos.DeleteUser,
 				func(user models.User, ctx context.Context) (int64, error) {
 					return 0, nil
-				})
+				}).ApplyFunc(daos.FindUserByID, func(userID int, ctx context.Context) (*models.User, error) {
+				return &models.User{
+					ID: 0,
+				}, nil
+			})
 		},
 	}
 }
