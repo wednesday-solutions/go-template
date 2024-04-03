@@ -170,25 +170,23 @@ func TestStart(t *testing.T) {
 	e := echo.New()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			runTest(t, tt, e)
+			patches := tt.init(e, tt)
+			if tt.getTransportCalled || tt.postTransportCalled ||
+				tt.optionsTransportCalled || tt.multipartFormTransportCalled {
+				testWithTransportCalls(t, tt)
+			} else {
+				testWithoutTransportCalls(t, tt, e)
+			}
+			patches.Reset()
 		})
 	}
 }
 
-func runTest(t *testing.T, tt testStartServerType, e *echo.Echo) {
-	patches := tt.init(e, tt)
-	if tt.getTransportCalled || tt.postTransportCalled ||
-		tt.optionsTransportCalled || tt.multipartFormTransportCalled {
-		testWithTransportCalls(t, tt, e)
-	} else {
-		testWithoutTransportCalls(t, tt, e)
-	}
-	patches.Reset()
-}
-
-func testWithTransportCalls(t *testing.T, tt testStartServerType, e *echo.Echo) {
+func testWithTransportCalls(t *testing.T, tt testStartServerType) {
 	_, err := Start(tt.args.cfg)
-	assertError(t, err, tt.wantErr)
+	if err != nil != tt.wantErr {
+		assert.Equal(t, err, tt.wantErr)
+	}
 	assert.Equal(t, tt.getTransportCalled, true)
 	assert.Equal(t, tt.multipartFormTransportCalled, true)
 	assert.Equal(t, tt.postTransportCalled, true)
@@ -197,18 +195,9 @@ func testWithTransportCalls(t *testing.T, tt testStartServerType, e *echo.Echo) 
 
 func testWithoutTransportCalls(t *testing.T, tt testStartServerType, e *echo.Echo) {
 	_, err := Start(tt.args.cfg)
-	assertError(t, err, tt.wantErr)
-	checkGraphQLResponse(t, e)
-	checkWebsocketConnection(t, e)
-}
-
-func assertError(t *testing.T, err error, wantErr bool) {
-	if err != nil != wantErr {
-		t.Errorf("Error occurred = %v, wantErr %v", err, wantErr)
+	if err != nil != tt.wantErr {
+		assert.Equal(t, err, tt.wantErr)
 	}
-}
-
-func checkGraphQLResponse(t *testing.T, e *echo.Echo) {
 	jsonRes, err := checkGraphQLPostResponse(e)
 	if err != nil {
 		log.Fatal(err)
@@ -220,9 +209,6 @@ func checkGraphQLResponse(t *testing.T, e *echo.Echo) {
 	}
 	bodyBytes, _ := io.ReadAll(res.Body)
 	assert.Contains(t, string(bodyBytes), "GraphiQL.createFetcher", "Playground not found")
-}
-
-func checkWebsocketConnection(t *testing.T, e *echo.Echo) {
 	ts := httptest.NewServer(e)
 	u := "ws" + strings.TrimPrefix(ts.URL+graphQLPathname, "http")
 	ws, _, err := websocket.DefaultDialer.Dial(u, nil)
