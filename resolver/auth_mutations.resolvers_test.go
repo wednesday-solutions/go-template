@@ -2,11 +2,9 @@ package resolver_test
 
 import (
 	"context"
-	"database/sql/driver"
 	"fmt"
 	"go-template/daos"
 	"reflect"
-	"regexp"
 	"strings"
 	"testing"
 
@@ -22,7 +20,6 @@ import (
 	"go-template/resolver"
 	"go-template/testutls"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/agiledragon/gomonkey/v2"
 	"github.com/stretchr/testify/assert"
 )
@@ -45,7 +42,7 @@ const (
 	ErrorMsgFromConfig         = "error in loading config"
 	ErrorMsginvalidToken       = "error from FindByToken"
 	ErrorMsgFindingUser        = "error in finding the user"
-	ErrorMsgFromJwt            = "error in creating auth service "
+	ErrorMsgFromJwt            = "error in creating auth service"
 	ErrorMsgfromUpdateUser     = "error while updating user"
 	ErrorMsgPasswordValidation = "username or password does not exist "
 	TestPasswordHash           = "$2a$10$dS5vK8hHmG5"
@@ -75,7 +72,7 @@ type loginType struct {
 	wantResp *fm.LoginResponse
 	wantErr  bool
 	err      error
-	init     func(mock sqlmock.Sqlmock) *gomonkey.Patches
+	init     func() *gomonkey.Patches
 }
 
 func errorFindingUserCase() loginType {
@@ -87,7 +84,7 @@ func errorFindingUserCase() loginType {
 		},
 		wantErr: true,
 		err:     fmt.Errorf(ErrorMsgFindingUser),
-		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
+		init: func() *gomonkey.Patches {
 			return gomonkey.ApplyFunc(daos.FindUserByUserName,
 				func(username string, ctx context.Context) (*models.User, error) {
 					return nil, fmt.Errorf(ErrorMsgFindingUser)
@@ -104,15 +101,23 @@ func errorPasswordValidationCase() loginType {
 		},
 		wantErr: true,
 		err:     fmt.Errorf(ErrorMsgPasswordValidation),
-		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
-			rows := sqlmock.NewRows([]string{"id", "password", "active", "role_id"}).
-				AddRow(testutls.MockID, TestPasswordHash, true, 1)
-			mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users"  WHERE (username=$1) LIMIT 1;`)).
-				WithArgs().
-				WillReturnRows(rows)
+		init: func() *gomonkey.Patches {
 			tg := jwt.Service{}
-			return gomonkey.ApplyFunc(tg.GenerateToken, func(u *models.User) (string, error) {
-				return "", nil
+			sec := secure.Service{}
+			return gomonkey.ApplyFunc(service.Secure, func(cfg *config.Configuration) secure.Service {
+				return sec
+			}).ApplyFunc(service.JWT, func(cfg *config.Configuration) (jwt.Service, error) {
+				return tg, nil
+			}).ApplyFunc(config.Load, func() (*config.Configuration, error) {
+				return &config.Configuration{}, nil
+			}).ApplyFunc(daos.FindUserByUserName,
+				func(username string, ctx context.Context) (*models.User, error) {
+					user := testutls.MockUser()
+					user.Password = null.StringFrom(OldPasswordHash)
+					user.Active = null.BoolFrom(false)
+					return user, nil
+				}).ApplyFunc(tg.GenerateToken, func(u *models.User) (string, error) {
+				return "", fmt.Errorf(ErrorMsgPasswordValidation)
 			})
 		},
 	}
@@ -127,15 +132,27 @@ func errorActiveStatusCase() loginType {
 		},
 		wantErr: true,
 		err:     resultwrapper.ErrUnauthorized,
-		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
+		init: func() *gomonkey.Patches {
+			tg := jwt.Service{}
+			sec := secure.Service{}
+
 			// mock FindUserByUserName with the proper password, and active state
-			return gomonkey.ApplyFunc(daos.FindUserByUserName,
+			return gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
+				return nil, nil
+			}).
+				ApplyFunc(service.Secure, func(cfg *config.Configuration) secure.Service {
+					return sec
+				}).ApplyFunc(service.JWT, func(cfg *config.Configuration) (jwt.Service, error) {
+				return tg, nil
+			}).ApplyFunc(daos.FindUserByUserName,
 				func(username string, ctx context.Context) (*models.User, error) {
 					user := testutls.MockUser()
 					user.Password = null.StringFrom(OldPasswordHash)
 					user.Active = null.BoolFrom(false)
 					return user, nil
-				})
+				}).ApplyFunc(tg.GenerateToken, func(u *models.User) (string, error) {
+				return "", nil
+			})
 		},
 	}
 }
@@ -148,7 +165,7 @@ func errorFromConfigCase() loginType {
 		},
 		wantErr: true,
 		err:     fmt.Errorf(ErrorMsgFromConfig),
-		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
+		init: func() *gomonkey.Patches {
 			return gomonkey.ApplyFunc(daos.FindUserByUserName,
 				func(username string, ctx context.Context) (*models.User, error) {
 					user := testutls.MockUser()
@@ -171,23 +188,28 @@ func errorWhileGeneratingToken() loginType {
 			Password: OldPassword,
 		},
 		wantErr: true,
-		err:     resultwrapper.ErrUnauthorized,
-		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
+		err:     fmt.Errorf(ErrorMsgFromJwt),
+		init: func() *gomonkey.Patches {
 			tg := jwt.Service{}
-			return gomonkey.ApplyFunc(daos.FindUserByUserName,
+			sec := secure.Service{}
+			return gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
+				return nil, nil
+			}).ApplyMethod(reflect.TypeOf(tg), "GenerateToken",
+				func(jwt.Service, *models.User) (string, error) {
+					return "", nil
+				}).ApplyFunc(service.Secure, func(cfg *config.Configuration) secure.Service {
+				return sec
+			}).ApplyFunc(daos.FindUserByUserName,
 				func(username string, ctx context.Context) (*models.User, error) {
 					user := testutls.MockUser()
-					user.Password = null.StringFrom(OldPasswordHash)
+					user.Password = null.StringFrom(OldPassword)
 					user.Active = null.BoolFrom(true)
 					return user, nil
-				}).
-				ApplyFunc(service.JWT, func(cfg *config.Configuration) (jwt.Service, error) {
-					return tg, nil
-				}).
-				ApplyMethod(reflect.TypeOf(tg), "GenerateToken",
-					func(jwt.Service, *models.User) (string, error) {
-						return "", fmt.Errorf(ErrorMsgFromJwt)
-					})
+				}).ApplyMethod(reflect.TypeOf(sec), "HashMatchesPassword", func(sec secure.Service, hash string, password string) bool {
+				return true
+			}).ApplyFunc(service.JWT, func(cfg *config.Configuration) (jwt.Service, error) {
+				return tg, fmt.Errorf(ErrorMsgFromJwt)
+			})
 		},
 	}
 }
@@ -201,18 +223,17 @@ func errorUpdateUserCase() loginType {
 		},
 		wantErr: true,
 		err:     err,
-		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
+		init: func() *gomonkey.Patches {
 			tg := jwt.Service{}
 			sec := secure.Service{}
-			return gomonkey.ApplyFunc(daos.FindUserByUserName,
+			return gomonkey.ApplyFunc(service.JWT, func(cfg *config.Configuration) (jwt.Service, error) {
+				return tg, nil
+			}).ApplyFunc(daos.FindUserByUserName,
 				func(username string, ctx context.Context) (*models.User, error) {
 					user := testutls.MockUser()
 					user.Password = null.StringFrom(OldPasswordHash)
 					user.Active = null.BoolFrom(true)
 					return user, nil
-				}).
-				ApplyFunc(service.JWT, func(cfg *config.Configuration) (jwt.Service, error) {
-					return tg, nil
 				}).
 				ApplyFunc(service.Secure, func(cfg *config.Configuration) secure.Service {
 					return sec
@@ -220,15 +241,24 @@ func errorUpdateUserCase() loginType {
 				ApplyMethod(reflect.TypeOf(tg), "GenerateToken",
 					func(jwt.Service, *models.User) (string, error) {
 						return "", nil
-					}).
+					}).ApplyMethod(reflect.TypeOf(sec), "HashMatchesPassword",
+				func(sec secure.Service, hash string, password string) bool {
+					return true
+				}).
+				ApplyFunc(config.Load, func() (*config.Configuration, error) {
+					return nil, nil
+				}).
 				ApplyMethod(reflect.TypeOf(sec), "Token",
 					func(secure.Service, string) string {
-						return "refreshToken"
+						return ""
 					}).
 				ApplyFunc(daos.UpdateUser,
 					func(u models.User, ctx context.Context) (models.User, error) {
 						return models.User{}, err
-					})
+					}).ApplyMethod(reflect.TypeOf(sec), "Token",
+				func(secure.Service, string) string {
+					return TestToken
+				})
 		},
 	}
 }
@@ -244,7 +274,7 @@ func loginSuccessCase() loginType {
 			Token:        jwtToken,
 			RefreshToken: TestToken,
 		},
-		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
+		init: func() *gomonkey.Patches {
 			tg := jwt.Service{}
 			sec := secure.Service{}
 			return gomonkey.ApplyFunc(daos.FindUserByUserName,
@@ -271,7 +301,9 @@ func loginSuccessCase() loginType {
 				ApplyFunc(daos.UpdateUser,
 					func(u models.User, ctx context.Context) (models.User, error) {
 						return *testutls.MockUser(), nil
-					})
+					}).ApplyFunc(config.Load, func() (*config.Configuration, error) {
+				return nil, nil
+			})
 		},
 	}
 }
@@ -285,8 +317,13 @@ func errorWhileCreatingJWTService() loginType {
 		},
 		wantErr: true,
 		err:     err,
-		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
-			return gomonkey.ApplyFunc(daos.FindUserByUserName,
+		init: func() *gomonkey.Patches {
+			sec := secure.Service{}
+			return gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
+				return nil, nil
+			}).ApplyFunc(service.Secure, func(cfg *config.Configuration) secure.Service {
+				return sec
+			}).ApplyFunc(daos.FindUserByUserName,
 				func(username string, ctx context.Context) (*models.User, error) {
 					user := testutls.MockUser()
 					user.Password = null.StringFrom(OldPasswordHash)
@@ -301,12 +338,12 @@ func errorWhileCreatingJWTService() loginType {
 }
 func loadLoginTestCases() []loginType {
 	return []loginType{
+		errorWhileGeneratingToken(),
 		errorFindingUserCase(),
 		errorFromConfigCase(),
 		errorPasswordValidationCase(),
 		errorActiveStatusCase(),
 		errorWhileCreatingJWTService(),
-		errorWhileGeneratingToken(),
 		errorUpdateUserCase(),
 		loginSuccessCase(),
 	}
@@ -321,9 +358,7 @@ func TestLogin(
 		t.Run(
 			tt.name,
 			func(t *testing.T) {
-				mock, cleanup, _ := testutls.SetupMockDB(t)
-				defer cleanup()
-				patch := tt.init(mock)
+				patch := tt.init()
 				c := context.Background()
 				// Call the login mutation with the given arguments and check the response and error against the expected values
 				response, err := resolver1.Mutation().Login(c, tt.req.UserName, tt.req.Password)
@@ -336,7 +371,9 @@ func TestLogin(
 					assert.Equal(t, true, strings.Contains(err.Error(), tt.err.Error()))
 					assert.Equal(t, tt.wantErr, err != nil)
 				}
-				patch.Reset()
+				if patch != nil {
+					patch.Reset()
+				}
 			},
 		)
 	}
@@ -352,7 +389,7 @@ type changePasswordType struct {
 	req      changeReq
 	wantResp *fm.ChangePasswordResponse
 	wantErr  bool
-	init     func(mock sqlmock.Sqlmock) *gomonkey.Patches
+	init     func() *gomonkey.Patches
 }
 
 func changePasswordErrorFindingUserCase() changePasswordType {
@@ -363,11 +400,11 @@ func changePasswordErrorFindingUserCase() changePasswordType {
 			NewPassword: NewPassword,
 		},
 		wantErr: true,
-		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
-			mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
-				WithArgs().
-				WillReturnError(fmt.Errorf(""))
-			return nil
+		init: func() *gomonkey.Patches {
+			return gomonkey.ApplyFunc(daos.FindUserByID,
+				func(userID int, ctx context.Context) (*models.User, error) {
+					return nil, fmt.Errorf(ErrorMsgFindingUser)
+				})
 		},
 	}
 }
@@ -379,13 +416,16 @@ func changePasswordErrorPasswordValidationcase() changePasswordType {
 			NewPassword: NewPassword,
 		},
 		wantErr: true,
-		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
-			rows := sqlmock.NewRows([]string{"id", "email", "password"}).
-				AddRow(testutls.MockID, testutls.MockEmail, OldPasswordHash)
-			mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
-				WithArgs().
-				WillReturnRows(rows)
-			return nil
+		init: func() *gomonkey.Patches {
+			// tg := jwt.Service{}
+			sec := secure.Service{}
+			return gomonkey.ApplyFunc(daos.FindUserByID,
+				func(userID int, ctx context.Context) (*models.User, error) {
+					return nil, fmt.Errorf(ErrorMsgFindingUser)
+				}).ApplyMethod(reflect.TypeOf(sec), "HashMatchesPassword",
+				func(sec secure.Service, hash string, password string) bool {
+					return false
+				})
 		},
 	}
 }
@@ -398,13 +438,22 @@ func changePasswordErrorInsecurePasswordCase() changePasswordType {
 			NewPassword: testutls.MockEmail,
 		},
 		wantErr: true,
-		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
-			rows := sqlmock.NewRows([]string{"id", "email", "password"}).
-				AddRow(testutls.MockID, testutls.MockEmail, OldPasswordHash)
-			mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
-				WithArgs().
-				WillReturnRows(rows)
-			return nil
+		init: func() *gomonkey.Patches {
+			sec := secure.Service{}
+			// mock FindUserByUserName with the proper password, and active state
+			return gomonkey.ApplyFunc(daos.FindUserByID,
+				func(userID int, ctx context.Context) (*models.User, error) {
+					user := testutls.MockUser()
+					user.Password = null.StringFrom(OldPasswordHash)
+					user.Active = null.BoolFrom(false)
+					return user, nil
+				}).ApplyMethod(reflect.TypeOf(sec), "HashMatchesPassword",
+				func(sec secure.Service, hash string, password string) bool {
+					return true
+				}).ApplyMethod(reflect.TypeOf(sec), "Password",
+				func(sec secure.Service, pass string, inputs ...string) bool {
+					return false
+				})
 		},
 	}
 }
@@ -417,14 +466,17 @@ func changePasswordErrorUpdateUserCase() changePasswordType {
 			NewPassword: NewPassword,
 		},
 		wantErr: true,
-		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
-			rows := sqlmock.NewRows([]string{"id", "email", "password"}).
-				AddRow(testutls.MockID, testutls.MockEmail, OldPasswordHash)
-			mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
-				WithArgs().
-				WillReturnRows(rows)
-			mock.ExpectExec(regexp.QuoteMeta(`UPDATE "users" `)).WillReturnError(fmt.Errorf("errrorr"))
-			return nil
+		init: func() *gomonkey.Patches {
+			return gomonkey.ApplyFunc(daos.FindUserByID,
+				func(userID int, ctx context.Context) (*models.User, error) {
+					user := testutls.MockUser()
+					user.Password = null.StringFrom(OldPasswordHash)
+					user.Active = null.BoolFrom(false)
+					return user, fmt.Errorf(ErrorInsecurePassword)
+				}).ApplyFunc(daos.UpdateUser,
+				func(user models.User, ctx context.Context) (*models.User, error) {
+					return nil, fmt.Errorf(ErrorUpdateUser)
+				})
 		},
 	}
 }
@@ -437,16 +489,16 @@ func changePasswordErrorFromConfigCase() changePasswordType {
 			NewPassword: testutls.MockEmail,
 		},
 		wantErr: true,
-		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
-			rows := sqlmock.NewRows([]string{"id", "email", "password"}).
-				AddRow(testutls.MockID, testutls.MockEmail, OldPasswordHash)
-			mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
-				WithArgs().
-				WillReturnRows(rows)
-			tg := jwt.Service{}
-			return gomonkey.ApplyFunc(service.JWT, func(cfg *config.Configuration) (jwt.Service, error) {
-				return tg, fmt.Errorf(ErrorMsgFromJwt)
-			})
+		init: func() *gomonkey.Patches {
+			return gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
+				return nil, fmt.Errorf("error in loading config")
+			}).ApplyFunc(daos.FindUserByID,
+				func(userID int, ctx context.Context) (*models.User, error) {
+					user := testutls.MockUser()
+					user.Password = null.StringFrom(OldPasswordHash)
+					user.Active = null.BoolFrom(false)
+					return user, nil
+				})
 		},
 	}
 }
@@ -462,15 +514,24 @@ func changePasswordSuccessCase() changePasswordType {
 			Ok: true,
 		},
 		wantErr: false,
-		init: func(mock sqlmock.Sqlmock) *gomonkey.Patches {
-			rows := sqlmock.NewRows([]string{"id", "email", "password"}).
-				AddRow(testutls.MockID, testutls.MockEmail, OldPasswordHash)
-			mock.ExpectQuery(regexp.QuoteMeta(`select * from "users" where "id"=$1`)).
-				WithArgs().
-				WillReturnRows(rows)
-			result := driver.Result(driver.RowsAffected(1))
-			mock.ExpectExec(regexp.QuoteMeta(`UPDATE "users" `)).WillReturnResult(result)
-			return nil
+		init: func() *gomonkey.Patches {
+			sec := secure.Service{}
+			return gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
+				return nil, nil
+			}).ApplyFunc(service.Secure, func(cfg *config.Configuration) secure.Service {
+				return sec
+			}).ApplyMethod(reflect.TypeOf(sec), "Password", func(secure.Service, string, ...string) bool {
+				return true
+			}).ApplyFunc(daos.FindUserByID,
+				func(userID int, ctx context.Context) (*models.User, error) {
+					user := testutls.MockUser()
+					user.Password = null.StringFrom(OldPasswordHash)
+					user.Active = null.BoolFrom(false)
+					return user, nil
+				}).ApplyFunc(daos.UpdateUser,
+				func(user models.User, ctx context.Context) (models.User, error) {
+					return *testutls.MockUser(), nil
+				})
 		},
 	}
 }
@@ -496,9 +557,7 @@ func TestChangePassword(
 			tt.name,
 			func(t *testing.T) {
 				// Handle the case where there is an error while loading the configuration
-				mock, cleanup, _ := testutls.SetupMockDB(t)
-				defer cleanup()
-				tt.init(mock)
+				patches := tt.init()
 				// Set up the context with the mock user
 				c := context.Background()
 				ctx := context.WithValue(c, testutls.UserKey, testutls.MockUser())
@@ -511,24 +570,21 @@ func TestChangePassword(
 				}
 				// Assert that the expected error value matches the actual error value
 				assert.Equal(t, tt.wantErr, err != nil)
+				if patches != nil {
+					patches.Reset()
+				}
 			},
 		)
 	}
 }
 
 type refereshTokenType struct {
-	name      string
-	req       string
-	wantResp  *fm.RefreshTokenResponse
-	wantErr   bool
-	err       error
-	init      refereshTokenPatches
-	initMocks func(mock sqlmock.Sqlmock)
-}
-type refereshTokenPatches struct {
-	configPatch func() *gomonkey.Patches
-	jwtPatch    func() *gomonkey.Patches
-	tokenPatch  func() *gomonkey.Patches
+	name     string
+	req      string
+	wantResp *fm.RefreshTokenResponse
+	wantErr  bool
+	err      error
+	init     func() *gomonkey.Patches
 }
 
 func refreshTokenInvalidCase() refereshTokenType {
@@ -537,30 +593,18 @@ func refreshTokenInvalidCase() refereshTokenType {
 		req:     TestToken,
 		wantErr: true,
 		err:     fmt.Errorf(ErrorMsginvalidToken),
-		init: refereshTokenPatches{
-			configPatch: func() *gomonkey.Patches {
-				return gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
-					return &config.Configuration{}, nil
-				})
-			},
-			jwtPatch: func() *gomonkey.Patches {
-				tg := jwt.Service{}
-				return gomonkey.ApplyFunc(service.JWT, func(cfg *config.Configuration) (jwt.Service, error) {
-					return tg, nil
-				})
-			},
-			tokenPatch: func() *gomonkey.Patches {
-				tg := jwt.Service{}
-				return gomonkey.ApplyMethod(reflect.TypeOf(tg), "GenerateToken",
-					func(jwt.Service, *models.User) (string, error) {
-						return "", nil
-					})
-			},
-		},
-		initMocks: func(mock sqlmock.Sqlmock) {
-			mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users" WHERE (token=$1) LIMIT 1;`)).
-				WithArgs().
-				WillReturnError(fmt.Errorf(ErrorMsginvalidToken))
+		init: func() *gomonkey.Patches {
+			tg := jwt.Service{}
+			return gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
+				return &config.Configuration{}, nil
+			}).ApplyFunc(service.JWT, func(cfg *config.Configuration) (jwt.Service, error) {
+				return tg, nil
+			}).ApplyMethod(reflect.TypeOf(tg), "GenerateToken",
+				func(jwt.Service, *models.User) (string, error) {
+					return "", fmt.Errorf(ErrorMsginvalidToken)
+				}).ApplyFunc(daos.FindUserByToken, func(token string, ctx context.Context) (*models.User, error) {
+				return testutls.MockUser(), nil
+			})
 		},
 	}
 }
@@ -570,32 +614,12 @@ func refreshTokenErrorFromConfigCase() refereshTokenType {
 		req:     ReqToken,
 		wantErr: true,
 		err:     fmt.Errorf(ErrorMsgFromConfig),
-		init: refereshTokenPatches{
-			configPatch: func() *gomonkey.Patches {
-				return gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
-					return nil, fmt.Errorf("error in loading config")
-				})
-			},
-			jwtPatch: func() *gomonkey.Patches {
-				tg := jwt.Service{}
-				return gomonkey.ApplyFunc(service.JWT, func(cfg *config.Configuration) (jwt.Service, error) {
-					return tg, nil
-				})
-			},
-			tokenPatch: func() *gomonkey.Patches {
-				tg := jwt.Service{}
-				return gomonkey.ApplyMethod(reflect.TypeOf(tg), "GenerateToken",
-					func(jwt.Service, *models.User) (string, error) {
-						return "", nil
-					})
-			},
-		},
-		initMocks: func(mock sqlmock.Sqlmock) {
-			rows := sqlmock.NewRows([]string{"id", "email", "token", "role_id"}).
-				AddRow(1, testutls.MockEmail, testutls.MockToken, 1)
-			mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users" WHERE (token=$1) LIMIT 1;`)).
-				WithArgs().
-				WillReturnRows(rows)
+		init: func() *gomonkey.Patches {
+			return gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
+				return nil, fmt.Errorf(ErrorFromConfig)
+			}).ApplyFunc(daos.FindUserByToken, func(token string, ctx context.Context) (*models.User, error) {
+				return testutls.MockUser(), nil
+			})
 		},
 	}
 }
@@ -606,32 +630,15 @@ func refereshTokenerrorWhileGeneratingToken() refereshTokenType {
 		req:     ReqToken,
 		wantErr: true,
 		err:     fmt.Errorf(ErrorMsgFromJwt),
-		init: refereshTokenPatches{
-			configPatch: func() *gomonkey.Patches {
-				return gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
-					return &config.Configuration{}, nil
-				})
-			},
-			jwtPatch: func() *gomonkey.Patches {
-				tg := jwt.Service{}
-				return gomonkey.ApplyFunc(service.JWT, func(cfg *config.Configuration) (jwt.Service, error) {
-					return tg, fmt.Errorf(ErrorMsgFromJwt)
-				})
-			},
-			tokenPatch: func() *gomonkey.Patches {
-				tg := jwt.Service{}
-				return gomonkey.ApplyMethod(reflect.TypeOf(tg), "GenerateToken",
-					func(jwt.Service, *models.User) (string, error) {
-						return "", nil
-					})
-			},
-		},
-		initMocks: func(mock sqlmock.Sqlmock) {
-			rows := sqlmock.NewRows([]string{"id", "email", "token", "role_id"}).
-				AddRow(1, testutls.MockEmail, testutls.MockToken, 1)
-			mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users" WHERE (token=$1) LIMIT 1;`)).
-				WithArgs().
-				WillReturnRows(rows)
+		init: func() *gomonkey.Patches {
+			tg := jwt.Service{}
+			return gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
+				return nil, nil
+			}).ApplyFunc(service.JWT, func(cfg *config.Configuration) (jwt.Service, error) {
+				return tg, fmt.Errorf(ErrorMsgFromJwt)
+			}).ApplyFunc(daos.FindUserByToken, func(token string, ctx context.Context) (*models.User, error) {
+				return testutls.MockUser(), nil
+			})
 		},
 	}
 }
@@ -641,33 +648,19 @@ func refereshTokenErrorFromGenerateTokenCase() refereshTokenType {
 		name:    ErrorFromGenerateToken,
 		req:     ReqToken,
 		wantErr: true,
-		err:     resultwrapper.ErrUnauthorized,
-		init: refereshTokenPatches{
-			configPatch: func() *gomonkey.Patches {
-				return gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
-					return &config.Configuration{}, nil
-				})
-			},
-			jwtPatch: func() *gomonkey.Patches {
-				tg := jwt.Service{}
-				return gomonkey.ApplyFunc(service.JWT, func(cfg *config.Configuration) (jwt.Service, error) {
-					return tg, nil
-				})
-			},
-			tokenPatch: func() *gomonkey.Patches {
-				tg := jwt.Service{}
-				return gomonkey.ApplyMethod(reflect.TypeOf(tg), "GenerateToken",
-					func(jwt.Service, *models.User) (string, error) {
-						return "", resultwrapper.ErrUnauthorized
-					})
-			},
-		},
-		initMocks: func(mock sqlmock.Sqlmock) {
-			rows := sqlmock.NewRows([]string{"id", "email", "token", "role_id"}).
-				AddRow(1, testutls.MockEmail, testutls.MockToken, 1)
-			mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users" WHERE (token=$1) LIMIT 1;`)).
-				WithArgs().
-				WillReturnRows(rows)
+		err:     fmt.Errorf(ErrorFromGenerateToken),
+		init: func() *gomonkey.Patches {
+			tg := jwt.Service{}
+			return gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
+				return &config.Configuration{}, nil
+			}).ApplyFunc(service.JWT, func(cfg *config.Configuration) (jwt.Service, error) {
+				return tg, nil
+			}).ApplyMethod(reflect.TypeOf(tg), "GenerateToken",
+				func(jwt.Service, *models.User) (string, error) {
+					return "", fmt.Errorf(ErrorFromGenerateToken)
+				}).ApplyFunc(daos.FindUserByToken, func(token string, ctx context.Context) (*models.User, error) {
+				return testutls.MockUser(), nil
+			})
 		},
 	}
 }
@@ -680,32 +673,18 @@ func refreshTokenSuccessCase() refereshTokenType {
 			Token: testutls.MockToken,
 		},
 		wantErr: false,
-		init: refereshTokenPatches{
-			configPatch: func() *gomonkey.Patches {
-				return gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
-					return &config.Configuration{}, nil
-				})
-			},
-			jwtPatch: func() *gomonkey.Patches {
-				tg := jwt.Service{}
-				return gomonkey.ApplyFunc(service.JWT, func(cfg *config.Configuration) (jwt.Service, error) {
-					return tg, nil
-				})
-			},
-			tokenPatch: func() *gomonkey.Patches {
-				tg := jwt.Service{}
-				return gomonkey.ApplyMethod(reflect.TypeOf(tg), "GenerateToken",
-					func(jwt.Service, *models.User) (string, error) {
-						return "", nil
-					})
-			},
-		},
-		initMocks: func(mock sqlmock.Sqlmock) {
-			rows := sqlmock.NewRows([]string{"id", "email", "token", "role_id"}).
-				AddRow(1, testutls.MockEmail, testutls.MockToken, 1)
-			mock.ExpectQuery(regexp.QuoteMeta(`SELECT "users".* FROM "users" WHERE (token=$1) LIMIT 1;`)).
-				WithArgs().
-				WillReturnRows(rows)
+		init: func() *gomonkey.Patches {
+			tg := jwt.Service{}
+			return gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
+				return &config.Configuration{}, nil
+			}).ApplyFunc(service.JWT, func(cfg *config.Configuration) (jwt.Service, error) {
+				return tg, nil
+			}).ApplyMethod(reflect.TypeOf(tg), "GenerateToken",
+				func(jwt.Service, *models.User) (string, error) {
+					return "", nil
+				}).ApplyFunc(daos.FindUserByToken, func(token string, ctx context.Context) (*models.User, error) {
+				return testutls.MockUser(), nil
+			})
 		},
 	}
 }
@@ -727,18 +706,8 @@ func TestRefreshToken(t *testing.T) {
 		t.Run(
 			tt.name,
 			func(t *testing.T) {
-				// Create a mock SQL database connection
-				mock, cleanup, _ := testutls.SetupMockDB(t)
-				defer cleanup()
 				// Handle the case where authentication token is invalid
-				tt.initMocks(mock)
-				// Handle the case where there is an error loading the config
-				configpatch := tt.init.configPatch()
-				//initialize a jwt service
-				// Handle the case where there is an error creating the JWT service
-				patchJWT := tt.init.jwtPatch()
-				// Handle the case where there is an error form token generation service
-				patchGenerateToken := tt.init.tokenPatch()
+				patches := tt.init()
 				// Set up the context with the mock user
 				c := context.Background()
 				ctx := context.WithValue(c, testutls.UserKey, testutls.MockUser())
@@ -754,9 +723,9 @@ func TestRefreshToken(t *testing.T) {
 					// Assert that the expected error value matches the actual error value
 					assert.Equal(t, true, strings.Contains(err.Error(), tt.err.Error()))
 				}
-				configpatch.Reset()
-				patchJWT.Reset()
-				patchGenerateToken.Reset()
+				if patches != nil {
+					patches.Reset()
+				}
 			},
 		)
 	}

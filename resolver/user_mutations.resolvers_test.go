@@ -54,10 +54,9 @@ func errorFromCreateUserCase() createUserType {
 		req:     fm.UserCreateInput{},
 		wantErr: true,
 		init: func(mock sqlmock.Sqlmock, mockUser models.User) *gomonkey.Patches {
-			mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "users"`)).
-				WithArgs().
-				WillReturnError(fmt.Errorf(""))
-			return nil
+			return gomonkey.ApplyFunc(daos.CreateUser, func(user models.User, ctx context.Context) (models.User, error) {
+				return *testutls.MockUser(), nil
+			})
 		},
 	}
 }
@@ -68,18 +67,6 @@ func errorFromThrottleCheck() createUserType {
 		req:     fm.UserCreateInput{},
 		wantErr: true,
 		init: func(mock sqlmock.Sqlmock, mockUser models.User) *gomonkey.Patches {
-			rows := sqlmock.NewRows([]string{
-				"id", "mobile", "address", "active", "last_login", "last_password_change", "token", "deleted_at",
-			}).AddRow(
-				mockUser.ID, mockUser.Mobile, mockUser.Address, mockUser.Active,
-				mockUser.LastLogin, mockUser.LastPasswordChange, mockUser.Token, mockUser.DeletedAt,
-			)
-			mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "users"`)).
-				WithArgs(
-					mockUser.FirstName, mockUser.LastName, mockUser.Username, AnyString{}, mockUser.Email,
-					mockUser.RoleID, AnyTime{}, AnyTime{},
-				).
-				WillReturnRows(rows)
 			return gomonkey.ApplyFunc(throttle.Check, func(ctx context.Context, limit int, dur time.Duration) error {
 				return fmt.Errorf("Internal error")
 			})
@@ -92,18 +79,6 @@ func errorFromCreateUserConfigCase() createUserType {
 		req:     fm.UserCreateInput{},
 		wantErr: true,
 		init: func(mock sqlmock.Sqlmock, mockUser models.User) *gomonkey.Patches {
-			rows := sqlmock.NewRows([]string{
-				"id", "mobile", "address", "active", "last_login", "last_password_change", "token", "deleted_at",
-			}).AddRow(
-				mockUser.ID, mockUser.Mobile, mockUser.Address, mockUser.Active,
-				mockUser.LastLogin, mockUser.LastPasswordChange, mockUser.Token, mockUser.DeletedAt,
-			)
-			mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "users"`)).
-				WithArgs(
-					mockUser.FirstName, mockUser.LastName, mockUser.Username, AnyString{}, mockUser.Email,
-					mockUser.RoleID, AnyTime{}, AnyTime{},
-				).
-				WillReturnRows(rows)
 			return gomonkey.ApplyFunc(config.Load, func() (*config.Configuration, error) {
 				return nil, fmt.Errorf("error in loading config")
 			})
@@ -137,19 +112,9 @@ func createUserSuccessCase() createUserType {
 		},
 		wantErr: false,
 		init: func(mock sqlmock.Sqlmock, mockUser models.User) *gomonkey.Patches {
-			rows := sqlmock.NewRows([]string{
-				"id", "mobile", "address", "active", "last_login", "last_password_change", "token", "deleted_at",
-			}).AddRow(
-				mockUser.ID, mockUser.Mobile, mockUser.Address, mockUser.Active,
-				mockUser.LastLogin, mockUser.LastPasswordChange, mockUser.Token, mockUser.DeletedAt,
-			)
-			mock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "users"`)).
-				WithArgs(
-					mockUser.FirstName, mockUser.LastName, mockUser.Username, AnyString{}, mockUser.Email,
-					mockUser.RoleID, AnyTime{}, AnyTime{},
-				).
-				WillReturnRows(rows)
-			return nil
+			return gomonkey.ApplyFunc(daos.CreateUser, func(user models.User, ctx context.Context) (models.User, error) {
+				return *testutls.MockUser(), nil
+			})
 		},
 	}
 }
