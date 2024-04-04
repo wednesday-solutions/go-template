@@ -40,6 +40,7 @@ type args struct {
 type testStartServerType struct {
 	name                         string
 	args                         args
+	want                         bool
 	wantErr                      bool
 	setDbCalled                  bool
 	getTransportCalled           bool
@@ -84,6 +85,7 @@ func testWithTransportCase() testStartServerType {
 			cfg: testutls.MockConfig(),
 		},
 		wantErr:                      false,
+		want:                         true,
 		getTransportCalled:           true,
 		postTransportCalled:          true,
 		optionsTransportCalled:       true,
@@ -177,7 +179,9 @@ func TestStart(t *testing.T) {
 			} else {
 				testWithoutTransportCalls(t, tt, e)
 			}
-			patches.Reset()
+			if patches != nil {
+				patches.Reset()
+			}
 		})
 	}
 }
@@ -187,10 +191,10 @@ func testWithTransportCalls(t *testing.T, tt testStartServerType) {
 	if err != nil != tt.wantErr {
 		assert.Equal(t, err, tt.wantErr)
 	}
-	assert.Equal(t, tt.getTransportCalled, true)
-	assert.Equal(t, tt.multipartFormTransportCalled, true)
-	assert.Equal(t, tt.postTransportCalled, true)
-	assert.Equal(t, tt.websocketTransportCalled, true)
+	assert.Equal(t, tt.getTransportCalled, tt.want)
+	assert.Equal(t, tt.multipartFormTransportCalled, tt.want)
+	assert.Equal(t, tt.postTransportCalled, tt.want)
+	assert.Equal(t, tt.websocketTransportCalled, tt.want)
 }
 
 func testWithoutTransportCalls(t *testing.T, tt testStartServerType, e *echo.Echo) {
