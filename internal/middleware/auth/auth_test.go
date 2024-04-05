@@ -41,16 +41,7 @@ func (s tokenParserMock) ParseToken(token string) (*jwt.Token, error) {
 
 var operationHandlerMock func(ctx context.Context) graphql2.ResponseHandler
 
-func TestGraphQLMiddleware(t *testing.T) {
-	// Define test cases
-	cases := defineTestCases(t)
-	_, cleanup, _ := testutls.SetupMockDB(t)
-	defer cleanup()
-	// Run test cases
-	runTestCases(t, cases)
-}
-
-func defineTestCases(t *testing.T) map[string]struct {
+type testGraphQLMiddlewareType struct {
 	wantStatus       int
 	header           string
 	signMethod       string
@@ -59,17 +50,36 @@ func defineTestCases(t *testing.T) map[string]struct {
 	operationHandler func(ctx context.Context) graphql2.ResponseHandler
 	tokenParser      func(token string) (*jwt.Token, error)
 	whiteListedQuery bool
-} {
-	return map[string]struct {
-		wantStatus       int
-		header           string
-		signMethod       string
-		err              string
-		dbQueries        []testutls.QueryData
-		operationHandler func(ctx context.Context) graphql2.ResponseHandler
-		tokenParser      func(token string) (*jwt.Token, error)
-		whiteListedQuery bool
-	}{
+	init             func(t *testing.T, dbQueries []testutls.QueryData) sqlmock.Sqlmock
+}
+
+func TestGraphQLMiddleware(t *testing.T) {
+	// Define test cases
+	cases := defineTestCases(t)
+	_, cleanup, _ := testutls.SetupMockDB(t)
+	defer cleanup()
+	for name, tt := range cases {
+		t.Run(name, func(t *testing.T) {
+			mock := tt.init(t, tt.dbQueries)
+			// Determine request query
+			requestQuery := testutls.MockQuery
+			if tt.whiteListedQuery {
+				requestQuery = testutls.MockWhitelistedQuery
+			}
+
+			// Make request
+			makeRequest(t, requestQuery, tt)
+
+			// Ensure mock expectations are met
+			if err := mock.ExpectationsWereMet(); err != nil {
+				t.Errorf("mock expectations were not met: %v", err)
+			}
+		})
+	}
+}
+
+func defineTestCases(t *testing.T) map[string]testGraphQLMiddlewareType {
+	return map[string]testGraphQLMiddlewareType{
 		"SuccessCase":                        defineSuccessCase(t),
 		"Success__WhitelistedQuery":          defineSuccessWhitelistedQuery(),
 		"Failure__NoAuthorizationToken":      defineFailureNoAuthorizationToken(),
@@ -79,26 +89,8 @@ func defineTestCases(t *testing.T) map[string]struct {
 	}
 }
 
-func defineSuccessCase(t *testing.T) struct {
-	wantStatus       int
-	header           string
-	signMethod       string
-	err              string
-	dbQueries        []testutls.QueryData
-	operationHandler func(ctx context.Context) graphql2.ResponseHandler
-	tokenParser      func(token string) (*jwt.Token, error)
-	whiteListedQuery bool
-} {
-	return struct {
-		wantStatus       int
-		header           string
-		signMethod       string
-		err              string
-		dbQueries        []testutls.QueryData
-		operationHandler func(ctx context.Context) graphql2.ResponseHandler
-		tokenParser      func(token string) (*jwt.Token, error)
-		whiteListedQuery bool
-	}{
+func defineSuccessCase(t *testing.T) testGraphQLMiddlewareType {
+	return testGraphQLMiddlewareType{
 		whiteListedQuery: false,
 		header:           "Bearer 123",
 		wantStatus:       http.StatusOK,
@@ -120,29 +112,20 @@ func defineSuccessCase(t *testing.T) struct {
 				),
 			},
 		},
+		init: func(t *testing.T, dbQueries []testutls.QueryData) sqlmock.Sqlmock {
+			mock, _, _ := testutls.SetupMockDB(t)
+			for _, dbQuery := range dbQueries {
+				mock.ExpectQuery(regexp.QuoteMeta(dbQuery.Query)).
+					WithArgs(*dbQuery.Actions...).
+					WillReturnRows(dbQuery.DbResponse)
+			}
+			return mock
+		},
 	}
 }
 
-func defineSuccessWhitelistedQuery() struct {
-	wantStatus       int
-	header           string
-	signMethod       string
-	err              string
-	dbQueries        []testutls.QueryData
-	operationHandler func(ctx context.Context) graphql2.ResponseHandler
-	tokenParser      func(token string) (*jwt.Token, error)
-	whiteListedQuery bool
-} {
-	return struct {
-		wantStatus       int
-		header           string
-		signMethod       string
-		err              string
-		dbQueries        []testutls.QueryData
-		operationHandler func(ctx context.Context) graphql2.ResponseHandler
-		tokenParser      func(token string) (*jwt.Token, error)
-		whiteListedQuery bool
-	}{
+func defineSuccessWhitelistedQuery() testGraphQLMiddlewareType {
+	return testGraphQLMiddlewareType{
 		whiteListedQuery: true,
 		header:           "bearer 123",
 		wantStatus:       http.StatusOK,
@@ -161,29 +144,20 @@ func defineSuccessWhitelistedQuery() struct {
 			return handler
 		},
 		dbQueries: []testutls.QueryData{},
+		init: func(t *testing.T, dbQueries []testutls.QueryData) sqlmock.Sqlmock {
+			mock, _, _ := testutls.SetupMockDB(t)
+			for _, dbQuery := range dbQueries {
+				mock.ExpectQuery(regexp.QuoteMeta(dbQuery.Query)).
+					WithArgs(*dbQuery.Actions...).
+					WillReturnRows(dbQuery.DbResponse)
+			}
+			return mock
+		},
 	}
 }
 
-func defineFailureNoAuthorizationToken() struct {
-	wantStatus       int
-	header           string
-	signMethod       string
-	err              string
-	dbQueries        []testutls.QueryData
-	operationHandler func(ctx context.Context) graphql2.ResponseHandler
-	tokenParser      func(token string) (*jwt.Token, error)
-	whiteListedQuery bool
-} {
-	return struct {
-		wantStatus       int
-		header           string
-		signMethod       string
-		err              string
-		dbQueries        []testutls.QueryData
-		operationHandler func(ctx context.Context) graphql2.ResponseHandler
-		tokenParser      func(token string) (*jwt.Token, error)
-		whiteListedQuery bool
-	}{
+func defineFailureNoAuthorizationToken() testGraphQLMiddlewareType {
+	return testGraphQLMiddlewareType{
 		whiteListedQuery: false,
 		header:           "",
 		wantStatus:       http.StatusOK,
@@ -195,29 +169,20 @@ func defineFailureNoAuthorizationToken() struct {
 			return nil
 		},
 		dbQueries: []testutls.QueryData{},
+		init: func(t *testing.T, dbQueries []testutls.QueryData) sqlmock.Sqlmock {
+			mock, _, _ := testutls.SetupMockDB(t)
+			for _, dbQuery := range dbQueries {
+				mock.ExpectQuery(regexp.QuoteMeta(dbQuery.Query)).
+					WithArgs(*dbQuery.Actions...).
+					WillReturnRows(dbQuery.DbResponse)
+			}
+			return mock
+		},
 	}
 }
 
-func defineFailureNotAnAdmin() struct {
-	wantStatus       int
-	header           string
-	signMethod       string
-	err              string
-	dbQueries        []testutls.QueryData
-	operationHandler func(ctx context.Context) graphql2.ResponseHandler
-	tokenParser      func(token string) (*jwt.Token, error)
-	whiteListedQuery bool
-} {
-	return struct {
-		wantStatus       int
-		header           string
-		signMethod       string
-		err              string
-		dbQueries        []testutls.QueryData
-		operationHandler func(ctx context.Context) graphql2.ResponseHandler
-		tokenParser      func(token string) (*jwt.Token, error)
-		whiteListedQuery bool
-	}{
+func defineFailureNotAnAdmin() testGraphQLMiddlewareType {
+	return testGraphQLMiddlewareType{
 		whiteListedQuery: false,
 		header:           "bearer 123",
 		wantStatus:       http.StatusOK,
@@ -229,29 +194,20 @@ func defineFailureNotAnAdmin() struct {
 			return nil
 		},
 		dbQueries: []testutls.QueryData{},
+		init: func(t *testing.T, dbQueries []testutls.QueryData) sqlmock.Sqlmock {
+			mock, _, _ := testutls.SetupMockDB(t)
+			for _, dbQuery := range dbQueries {
+				mock.ExpectQuery(regexp.QuoteMeta(dbQuery.Query)).
+					WithArgs(*dbQuery.Actions...).
+					WillReturnRows(dbQuery.DbResponse)
+			}
+			return mock
+		},
 	}
 }
 
-func defineFailureNoUserWithThatEmail() struct {
-	wantStatus       int
-	header           string
-	signMethod       string
-	err              string
-	dbQueries        []testutls.QueryData
-	operationHandler func(ctx context.Context) graphql2.ResponseHandler
-	tokenParser      func(token string) (*jwt.Token, error)
-	whiteListedQuery bool
-} {
-	return struct {
-		wantStatus       int
-		header           string
-		signMethod       string
-		err              string
-		dbQueries        []testutls.QueryData
-		operationHandler func(ctx context.Context) graphql2.ResponseHandler
-		tokenParser      func(token string) (*jwt.Token, error)
-		whiteListedQuery bool
-	}{
+func defineFailureNoUserWithThatEmail() testGraphQLMiddlewareType {
+	return testGraphQLMiddlewareType{
 		whiteListedQuery: false,
 		header:           "bearer 123",
 		wantStatus:       http.StatusOK,
@@ -263,29 +219,20 @@ func defineFailureNoUserWithThatEmail() struct {
 			return nil
 		},
 		dbQueries: []testutls.QueryData{},
+		init: func(t *testing.T, dbQueries []testutls.QueryData) sqlmock.Sqlmock {
+			mock, _, _ := testutls.SetupMockDB(t)
+			for _, dbQuery := range dbQueries {
+				mock.ExpectQuery(regexp.QuoteMeta(dbQuery.Query)).
+					WithArgs(*dbQuery.Actions...).
+					WillReturnRows(dbQuery.DbResponse)
+			}
+			return mock
+		},
 	}
 }
 
-func defineFailureInvalidAuthorizationToken() struct {
-	wantStatus       int
-	header           string
-	signMethod       string
-	err              string
-	dbQueries        []testutls.QueryData
-	operationHandler func(ctx context.Context) graphql2.ResponseHandler
-	tokenParser      func(token string) (*jwt.Token, error)
-	whiteListedQuery bool
-} {
-	return struct {
-		wantStatus       int
-		header           string
-		signMethod       string
-		err              string
-		dbQueries        []testutls.QueryData
-		operationHandler func(ctx context.Context) graphql2.ResponseHandler
-		tokenParser      func(token string) (*jwt.Token, error)
-		whiteListedQuery bool
-	}{
+func defineFailureInvalidAuthorizationToken() testGraphQLMiddlewareType {
+	return testGraphQLMiddlewareType{
 		whiteListedQuery: false,
 		header:           "bearer 123",
 		wantStatus:       http.StatusOK,
@@ -297,6 +244,15 @@ func defineFailureInvalidAuthorizationToken() struct {
 			return nil
 		},
 		dbQueries: []testutls.QueryData{},
+		init: func(t *testing.T, dbQueries []testutls.QueryData) sqlmock.Sqlmock {
+			mock, _, _ := testutls.SetupMockDB(t)
+			for _, dbQuery := range dbQueries {
+				mock.ExpectQuery(regexp.QuoteMeta(dbQuery.Query)).
+					WithArgs(*dbQuery.Actions...).
+					WillReturnRows(dbQuery.DbResponse)
+			}
+			return mock
+		},
 	}
 }
 func defineOperationHandlerSuccessCase(t *testing.T) func(ctx context.Context) graphql2.ResponseHandler {
@@ -318,69 +274,7 @@ func defineOperationHandlerSuccessCase(t *testing.T) func(ctx context.Context) g
 	}
 }
 
-func runTestCases(t *testing.T, cases map[string]struct {
-	wantStatus       int
-	header           string
-	signMethod       string
-	err              string
-	dbQueries        []testutls.QueryData
-	operationHandler func(ctx context.Context) graphql2.ResponseHandler
-	tokenParser      func(token string) (*jwt.Token, error)
-	whiteListedQuery bool
-}) {
-	for name, tt := range cases {
-		t.Run(name, func(t *testing.T) {
-			runSingleTestCase(t, tt)
-		})
-	}
-}
-
-func runSingleTestCase(t *testing.T, tt struct {
-	wantStatus       int
-	header           string
-	signMethod       string
-	err              string
-	dbQueries        []testutls.QueryData
-	operationHandler func(ctx context.Context) graphql2.ResponseHandler
-	tokenParser      func(token string) (*jwt.Token, error)
-	whiteListedQuery bool
-}) {
-	// Set up mock queries
-	mock := setupMockQueries(t, tt.dbQueries)
-
-	// Determine request query
-	requestQuery := testutls.MockQuery
-	if tt.whiteListedQuery {
-		requestQuery = testutls.MockWhitelistedQuery
-	}
-
-	// Make request
-	makeRequest(t, requestQuery, tt)
-
-	// Ensure mock expectations are met
-	_ = mock.ExpectationsWereMet()
-}
-
-func setupMockQueries(t *testing.T, dbQueries []testutls.QueryData) sqlmock.Sqlmock {
-	mock, _, _ := testutls.SetupMockDB(t)
-	for _, dbQuery := range dbQueries {
-		mock.ExpectQuery(regexp.QuoteMeta(dbQuery.Query)).
-			WithArgs(*dbQuery.Actions...).
-			WillReturnRows(dbQuery.DbResponse)
-	}
-	return mock
-}
-
-func makeRequest(t *testing.T, requestQuery string, tt struct {
-	wantStatus       int
-	header           string
-	signMethod       string
-	err              string
-	dbQueries        []testutls.QueryData
-	operationHandler func(ctx context.Context) graphql2.ResponseHandler
-	tokenParser      func(token string) (*jwt.Token, error)
-	whiteListedQuery bool
-}) {
+func makeRequest(t *testing.T, requestQuery string, tt testGraphQLMiddlewareType) {
 	// mock token parser to handle the different cases for when the token us valid, invalid, empty
 	parseTokenMock = tt.tokenParser
 	// mock operation handler, and assert different conditions

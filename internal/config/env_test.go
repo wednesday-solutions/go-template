@@ -156,10 +156,13 @@ func TestFileName(t *testing.T) {
 	}
 }
 
+// keyValueArgs represents a key-value pair for environment variable setup
 type keyValueArgs struct {
 	key   string
 	value string
 }
+
+// args holds the setup for environment variables and expected key-value pairs for assertions.
 type args struct {
 	setEnv            []keyValueArgs
 	expectedKeyValues []keyValueArgs
@@ -174,7 +177,7 @@ func TestLoadEnv(t *testing.T) {
 	tests := getTestCases(username, host, dbname, password, port)
 	for _, tt := range tests {
 		setEnvironmentVariables(tt.args)
-
+		defer clearEnvironmentVariables(tt.args)
 		t.Run(tt.name, func(t *testing.T) {
 			testLoadEnv(t, tt)
 		})
@@ -346,5 +349,11 @@ func testLoadEnv(t *testing.T, tt struct {
 		for _, expected := range tt.args.expectedKeyValues {
 			assert.Equal(t, os.Getenv(expected.key), expected.value)
 		}
+	}
+}
+
+func clearEnvironmentVariables(args args) {
+	for _, env := range args.setEnv {
+		os.Unsetenv(env.key)
 	}
 }

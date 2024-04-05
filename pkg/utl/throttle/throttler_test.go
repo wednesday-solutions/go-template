@@ -129,6 +129,8 @@ func createFailureNotLocalRateLimitExceededTestCase(ctx context.Context) testCas
 		wantErr: true,
 	}
 }
+
+// Suggested refactoring to use table-driven tests
 func TestCheck(t *testing.T) {
 	var ctx context.Context = testutls.MockCtx{}
 	tests := CreateTestCases(ctx)

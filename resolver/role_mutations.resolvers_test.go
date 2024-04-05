@@ -107,6 +107,8 @@ func successCase() createRoleType {
 	}
 }
 
+// Suggested refactoring to use table-driven tests and helper functions for common setup.
+
 func errorFromCreateRoleCase() createRoleType {
 	return createRoleType{
 		name: ErrorFromCreateRole,

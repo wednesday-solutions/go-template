@@ -152,7 +152,6 @@ func TestInternalServerError(t *testing.T) {
 		c   echo.Context
 		err error
 	}
-	errorStr := ErrMsg
 	tests := []struct {
 		name    string
 		args    args
@@ -161,9 +160,9 @@ func TestInternalServerError(t *testing.T) {
 	}{
 		{
 			name: SuccessCase,
-			err:  errorStr,
+			err:  ErrMsg,
 			args: args{
-				err: fmt.Errorf(errorStr),
+				err: fmt.Errorf(ErrMsg),
 				c:   getContext()},
 			wantErr: true,
 		},
