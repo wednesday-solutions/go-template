@@ -44,7 +44,6 @@ var operationHandlerMock func(ctx context.Context) graphql2.ResponseHandler
 type testGraphQLMiddlewareType struct {
 	wantStatus       int
 	header           string
-	signMethod       string
 	err              string
 	dbQueries        []testutls.QueryData
 	operationHandler func(ctx context.Context) graphql2.ResponseHandler
