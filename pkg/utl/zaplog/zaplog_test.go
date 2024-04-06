@@ -60,7 +60,6 @@ func TestInfo(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
 			observedZapCore, observedLogs := observer.New(zap.InfoLevel)
 			observedLogger := zap.New(observedZapCore).Sugar()
 
@@ -93,7 +92,6 @@ func TestDebug(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
 			observedZapCore, observedLogs := observer.New(zap.DebugLevel)
 			observedLogger := zap.New(observedZapCore).Sugar()
 			_ = SetLogger(observedLogger)
@@ -125,9 +123,7 @@ func TestInitLogger(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-
 		t.Run(tt.name, func(t *testing.T) {
-
 			patchEnv := gomonkey.ApplyFunc(os.Getenv, func(key string) string {
 				return "production"
 			})
@@ -149,7 +145,6 @@ func TestInitLogger(t *testing.T) {
 				response := InitLogger()
 				assert.Equal(t, tt.res, response)
 			}
-
 		})
 	}
 }

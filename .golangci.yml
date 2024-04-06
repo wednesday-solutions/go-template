@@ -3,6 +3,8 @@ linters-settings:
     line-length: 128
     tab-width: 2
     autofix: true
+  funlen:
+   ignore-comments: true
 linters:
   enable:
     - lll
@@ -11,12 +13,13 @@ linters:
     - govet 
     - ineffassign
     - staticcheck 
-    - structcheck
     - typecheck
     - unused 
-    - varcheck
-    # - cyclop
-    # - funlen
-    # - gocritic
-    # - gocyclo
-    # - gofmt
+    - funlen
+    - cyclop
+    - goconst
+    - gofmt
+    - godox
+    - misspell
+    - reassign
+    - whitespace

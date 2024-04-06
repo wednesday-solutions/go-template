@@ -57,5 +57,4 @@ func TestBind(t *testing.T) {
 			assert.Equal(t, tt.wantErr, err != nil)
 		})
 	}
-
 }

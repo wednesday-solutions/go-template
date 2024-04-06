@@ -88,11 +88,9 @@ func contains(s []string, e string) bool {
 	}
 	return false
 }
-
 func getAccessNeeds(operation *ast.OperationDefinition) (needsAuthAccess bool, needsSuperAdminAccess bool) {
 	operationName := string(operation.Operation)
 	for _, selectionSet := range operation.SelectionSet {
-
 		selection := reflect.ValueOf(selectionSet).Elem()
 		if !contains(WhiteListedOperations[operationName], selection.FieldByName("Name").Interface().(string)) {
 			needsAuthAccess = true
@@ -109,40 +107,31 @@ func GraphQLMiddleware(
 	ctx context.Context,
 	tokenParser TokenParser,
 	next graphql2.OperationHandler) graphql2.ResponseHandler {
-
 	operation := graphql2.GetOperationContext(ctx).Operation
 	needsAuthAccess, needsSuperAdminAccess := getAccessNeeds(operation)
 	if !needsAuthAccess && !needsSuperAdminAccess {
 		return next(ctx)
 	}
-
 	// strip token
 	var tokenStr = ctx.Value(authorization).(string)
 	if len(tokenStr) == 0 {
 		return resultwrapper.HandleGraphQLError("Authorization header is missing")
 	}
-
 	token, err := tokenParser.ParseToken(tokenStr)
-
 	if err != nil || !token.Valid {
 		return resultwrapper.HandleGraphQLError("Invalid authorization token")
 	}
 	claims := token.Claims.(jwt.MapClaims)
-
 	if needsSuperAdminAccess && claims["role"].(string) != "SUPER_ADMIN" {
 		return resultwrapper.HandleGraphQLError(
 			"Unauthorized! \n Only admins are authorized to make this request.",
 		)
 	}
-
 	email := claims["e"].(string)
 	user, err := daos.FindUserByEmail(email, ctx)
-
 	if err != nil {
 		return resultwrapper.HandleGraphQLError("No user found for this email address")
 	}
-
 	ctx = context.WithValue(ctx, UserCtxKey, user)
 	return next(ctx)
-
 }

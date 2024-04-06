@@ -32,7 +32,7 @@ func (r *mutationResolver) Login(ctx context.Context, username string, password 
 	sec := service.Secure(cfg)
 	tg, err := service.JWT(cfg)
 	if err != nil {
-		return nil, fmt.Errorf("error in creating auth service ")
+		return nil, fmt.Errorf("error in creating auth service")
 	}
 
 	if !u.Password.Valid || (!sec.HashMatchesPassword(u.Password.String, password)) {

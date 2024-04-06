@@ -45,5 +45,4 @@ func InitLogger() *zap.SugaredLogger {
 	}
 
 	return zapLogger.Sugar()
-
 }

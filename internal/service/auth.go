@@ -10,7 +10,7 @@ import (
 )
 
 // Secure returns new secure service
-func Secure(cfg *config.Configuration) *secure.Service {
+func Secure(cfg *config.Configuration) secure.Service {
 	return secure.New(cfg.App.MinPasswordStr, sha1.New())
 }
 
