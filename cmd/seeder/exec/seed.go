@@ -12,7 +12,6 @@ import (
 )
 
 func main() {
-
 	base, _ := os.Getwd()
 	log.Println(base)
 
@@ -26,7 +25,6 @@ func main() {
 	log.Println(len(files))
 
 	for _, file := range files {
-
 		log.Println(file.Name())
 		if slices.Contains([]string{"seed.go"}, file.Name()) && strings.Contains(file.Name(), "env") {
 			continue
@@ -41,6 +39,5 @@ func main() {
 			log.Fatal(err)
 		}
 		fmt.Println("out:", outb.String(), "err:", errb.String())
-
 	}
 }

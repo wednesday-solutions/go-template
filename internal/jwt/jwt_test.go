@@ -11,7 +11,6 @@ import (
 	"go-template/internal/config"
 	"go-template/internal/jwt"
 	"go-template/models"
-	"go-template/pkg/utl/convert"
 	"go-template/testutls"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -74,8 +73,15 @@ func TestNew(t *testing.T) {
 		})
 	}
 }
-
-func TestGenerateToken(t *testing.T) {
+func GetTokenTestCases() map[string]struct {
+	algo         string
+	secret       string
+	minSecretLen int
+	req          models.User
+	wantErr      bool
+	want         string
+	RoleErr      bool
+} {
 	cases := map[string]struct {
 		algo         string
 		secret       string
@@ -127,8 +133,11 @@ func TestGenerateToken(t *testing.T) {
 			RoleErr: true,
 		},
 	}
-
-	err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../../"))
+	return cases
+}
+func TestGenerateToken(t *testing.T) {
+	cases := GetTokenTestCases()
+	err := config.LoadEnv()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -137,9 +146,7 @@ func TestGenerateToken(t *testing.T) {
 		panic("failed to setup env and db")
 	}
 	rows := sqlmock.NewRows([]string{"id", "name"}).AddRow(1, "johndoe")
-
 	for name, tt := range cases {
-
 		t.Run(name, func(t *testing.T) {
 			if tt.RoleErr == true {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT "roles".* FROM "roles" WHERE ("id" = $1) LIMIT 1`)).
@@ -150,7 +157,6 @@ func TestGenerateToken(t *testing.T) {
 					WithArgs([]driver.Value{1}...).
 					WillReturnRows(rows)
 			}
-
 			jwtSvc, err := jwt.New(tt.algo, tt.secret, 60, tt.minSecretLen)
 			assert.Equal(t, tt.wantErr, err != nil)
 			if err == nil && !tt.wantErr {
@@ -160,7 +166,6 @@ func TestGenerateToken(t *testing.T) {
 		})
 	}
 }
-
 func TestParseToken(t *testing.T) {
 	algo := "HS256"
 	cases := map[string]struct {
@@ -205,5 +210,4 @@ func TestParseToken(t *testing.T) {
 			}
 		})
 	}
-
 }

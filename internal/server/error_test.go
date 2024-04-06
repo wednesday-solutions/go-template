@@ -13,51 +13,56 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func Test_getVldErrorMsg(t *testing.T) {
-	type args struct {
-		s string
-	}
-	tests := []struct {
-		name string
-		args args
-		want string
-	}{
+type vldErrorMessage struct {
+	s string
+}
+type vldErrorType struct {
+	name string
+	args vldErrorMessage
+	want string
+}
+
+func loadVldErrorMessageTestCases() []vldErrorType {
+	return []vldErrorType{
 		{
 			name: "Failure_FailedOnValidation",
-			args: args{
+			args: vldErrorMessage{
 				s: "a",
 			},
 			want: " failed on a validation",
 		},
 		{
 			name: "Failure_FailedOnRequired",
-			args: args{
+			args: vldErrorMessage{
 				s: "required",
 			},
 			want: " is required, but was not received",
 		},
 		{
 			name: "Failure_FailedOnMin",
-			args: args{
+			args: vldErrorMessage{
 				s: "required",
 			},
 			want: " is required, but was not received",
 		},
 		{
 			name: "Failure_FailedOnMax",
-			args: args{
+			args: vldErrorMessage{
 				s: "max",
 			},
 			want: "'s value or length is bigger than allowed",
 		},
 		{
 			name: "Failure_FailedOnMin",
-			args: args{
+			args: vldErrorMessage{
 				s: "min",
 			},
 			want: "'s value or length is less than allowed",
 		},
 	}
+}
+func TestGetVldErrorMsg(t *testing.T) {
+	tests := loadVldErrorMessageTestCases()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := getVldErrorMsg(tt.args.s); got != tt.want {
@@ -68,36 +73,59 @@ func Test_getVldErrorMsg(t *testing.T) {
 }
 
 func getValidatorErr(t *testing.T) error {
-
 	fieldError := testutls.NewMockFieldError(gomock.NewController(t))
-
 	fieldError.EXPECT().Field().DoAndReturn(func() string {
 		return "FIELD"
 	}).AnyTimes()
-
 	fieldError.EXPECT().ActualTag().DoAndReturn(func() string {
 		return "ACTUALTAG"
 	}).AnyTimes()
-
 	return validator.ValidationErrors{fieldError}
 }
-func Test_customErrHandler_handler(t *testing.T) {
+func setupMockContext(t *testing.T, req *http.Request, expectedStatusCode int, httpMethod string) *testutls.MockContext {
+	ctrl := gomock.NewController(t)
+	ctx := testutls.NewMockContext(ctrl)
 
-	type args struct {
-		err                error
-		expectedStatusCode int
-		httpMethod         string
+	// Mock ctx.Response
+	ctx.EXPECT().Response().DoAndReturn(func() *echo.Response {
+		return &echo.Response{Status: expectedStatusCode}
+	}).AnyTimes()
+
+	// Mock ctx.Request
+	ctx.EXPECT().Request().DoAndReturn(func() *http.Request {
+		return req
+	}).AnyTimes()
+
+	if httpMethod == "HEAD" {
+		// Mock ctx.NoContent
+		ctx.EXPECT().NoContent(gomock.Eq(expectedStatusCode)).DoAndReturn(func(code int) error {
+			return nil
+		}).AnyTimes()
+	} else {
+		// Mock ctx.JSON
+		ctx.EXPECT().JSON(gomock.Eq(expectedStatusCode), gomock.Any()).DoAndReturn(func(code int, i interface{}) error {
+			return fmt.Errorf("error")
+		}).AnyTimes()
 	}
-	e := echo.New()
-	custErr := &customErrHandler{e: e}
 
-	tests := []struct {
-		name string
-		args args
-	}{
+	return ctx
+}
+
+type customErrorArgs struct {
+	err                error
+	expectedStatusCode int
+	httpMethod         string
+}
+type customErrorTypes struct {
+	name string
+	args customErrorArgs
+}
+
+func loadCustomErrorHandlerCase(t *testing.T) []customErrorTypes {
+	return []customErrorTypes{
 		{
 			name: "Faliure_Default",
-			args: args{
+			args: customErrorArgs{
 				expectedStatusCode: http.StatusInternalServerError,
 				err:                fmt.Errorf("asd"),
 				httpMethod:         "GET",
@@ -105,7 +133,7 @@ func Test_customErrHandler_handler(t *testing.T) {
 		},
 		{
 			name: "Faliure_NoContent",
-			args: args{
+			args: customErrorArgs{
 				expectedStatusCode: http.StatusInternalServerError,
 				err:                fmt.Errorf("asd"),
 				httpMethod:         "HEAD",
@@ -113,7 +141,7 @@ func Test_customErrHandler_handler(t *testing.T) {
 		},
 		{
 			name: "Faliure_HttpError",
-			args: args{
+			args: customErrorArgs{
 				expectedStatusCode: http.StatusBadRequest,
 				err:                &echo.HTTPError{Code: http.StatusBadRequest, Message: "asd", Internal: fmt.Errorf("asd")},
 				httpMethod:         "GET",
@@ -121,64 +149,24 @@ func Test_customErrHandler_handler(t *testing.T) {
 		},
 		{
 			name: "Faliure_ValidationErrors",
-			args: args{
+			args: customErrorArgs{
 				expectedStatusCode: http.StatusBadRequest,
 				err:                getValidatorErr(t),
 				httpMethod:         "GET",
 			},
 		},
 	}
+}
+func TestCustomErrHandlerHandler(t *testing.T) {
+	e := echo.New()
+	custErr := &customErrHandler{e: e}
+	tests := loadCustomErrorHandlerCase(t)
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
-			// just make a request
-			req, _ := http.NewRequest(
-				tt.args.httpMethod,
-				"/",
-				bytes.NewBuffer([]byte("")),
-			)
-
-			ctx := testutls.NewMockContext(gomock.NewController(t))
-
-			// mock ctx.Response
-			ctx.
-				EXPECT().
-				Response().
-				DoAndReturn(func() *echo.Response {
-					return &echo.Response{Status: tt.args.expectedStatusCode}
-				}).
-				AnyTimes()
-
-			// mock ctx.Request
-			ctx.
-				EXPECT().
-				Request().
-				DoAndReturn(func() *http.Request {
-					return req
-				}).
-				AnyTimes()
-
-			if tt.args.httpMethod == "HEAD" {
-				// mock ctx.NoContent
-				ctx.
-					EXPECT().
-					NoContent(gomock.Eq(tt.args.expectedStatusCode)).
-					DoAndReturn(func(code int) error {
-						return nil
-					}).
-					AnyTimes()
-			} else {
-				// mock ctx.JSON
-				ctx.
-					EXPECT().
-					JSON(gomock.Eq(tt.args.expectedStatusCode), gomock.Any()).
-					DoAndReturn(func(code int, i interface{}) error {
-						return fmt.Errorf("error")
-					}).
-					AnyTimes()
-			}
-
-			// call the handler with tt.args.err. We are asserting in the JSON/NoContent call
+			// Just make a request
+			req, _ := http.NewRequest(tt.args.httpMethod, "/", bytes.NewBuffer([]byte("")))
+			ctx := setupMockContext(t, req, tt.args.expectedStatusCode, tt.args.httpMethod)
+			// Call the handler with tt.args.err. We are asserting in the JSON/NoContent call
 			custErr.handler(tt.args.err, ctx)
 		})
 	}

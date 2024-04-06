@@ -108,7 +108,6 @@ func TestUserToGraphQlUser(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := UserToGraphQlUser(tt.req, 0)
 			assert.Equal(t, got, tt.want)
-
 		})
 	}
 }

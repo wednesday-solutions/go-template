@@ -1,13 +1,12 @@
 package main_test
 
 import (
-	"log"
+	"os"
 	"testing"
 
 	main "go-template/cmd/server"
 	"go-template/internal/config"
 	"go-template/pkg/api"
-	"go-template/pkg/utl/convert"
 
 	. "github.com/agiledragon/gomonkey/v2"
 	"github.com/joho/godotenv"
@@ -17,59 +16,74 @@ import (
 
 const SuccessCase = "Success"
 
-func TestSetup(t *testing.T) {
+type TestArgs struct {
+	setBaseEnv  bool
+	patchDotEnv bool
+	mockStart   bool
+	apiStarted  bool
+}
 
-	initEnv := func() {
+func initEnv(args *TestArgs) *Patches {
+	if args != nil {
+		if args.setBaseEnv {
+			os.Setenv("ENVIRONMENT_NAME", "")
+		}
+		if args.patchDotEnv {
+			loadPatches := ApplyFunc(godotenv.Load, func(...string) error {
+				return nil
+			})
+			return loadPatches
+		}
+		if args.mockStart {
+			apiPatches := ApplyFunc(api.Start, func(cfg *config.Configuration) (*echo.Echo, error) {
+				args.apiStarted = true
+				return nil, nil
+			})
 
-		err := config.LoadEnvWithFilePrefix(convert.StringToPointerString("./../../"))
-		if err != nil {
-			log.Fatal(err)
+			return apiPatches
 		}
 	}
+
+	return nil
+}
+func TestSetup(t *testing.T) {
 	cases := map[string]struct {
 		error   string
 		isPanic bool
-		init    func()
+		init    func(*TestArgs) *Patches
+		args    *TestArgs
 	}{
 		"Failure__envFileNotFound": {
-			error:   "open .env.base: no such file or directory",
+			error:   "error loading port from .env",
 			isPanic: true,
 			init:    initEnv,
-		},
-		"Failure_NoEnvName": {
-			error:   "open .env.base: no such file or directory",
-			isPanic: true,
+			args: &TestArgs{
+				patchDotEnv: true,
+			},
 		},
 		SuccessCase: {
 			isPanic: false,
 			init:    initEnv,
+			args: &TestArgs{
+				apiStarted: false,
+				mockStart:  true,
+			},
 		},
 	}
 	for name, tt := range cases {
 		t.Run(name, func(t *testing.T) {
 			if tt.init != nil {
-				tt.init()
+				patches := tt.init(tt.args)
+				if patches != nil {
+					defer patches.Reset()
+				}
 			}
 			if tt.isPanic {
-				assert.PanicsWithValue(t, tt.error, main.Setup, "os.Exit was not called")
+				assert.PanicsWithValue(t, tt.error, main.Setup, tt.error)
 			} else {
-				apiStarted := false
-				loadPatches := ApplyFunc(godotenv.Load, func(...string) error {
-					return nil
-				})
-				apiPatches := ApplyFunc(api.Start, func(cfg *config.Configuration) (*echo.Echo, error) {
-					apiStarted = true
-					return nil, nil
-				})
-
-				defer apiPatches.Reset()
-				defer loadPatches.Reset()
-
 				main.Setup()
-				assert.Equal(t, apiStarted, true)
+				assert.Equal(t, tt.args.apiStarted, true)
 			}
-
 		})
 	}
-
 }
