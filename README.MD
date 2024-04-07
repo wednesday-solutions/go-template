@@ -31,7 +31,8 @@ An enterprise go template application showcasing - Testing strategies, middlewar
 
   ___
 
-  <span>We’re always looking for people who value their work, so come and join us. <a href="https://www.wednesday.is/hiring">We are hiring!</a></span>
+<span>We’re always looking for people who value their work, so come and join
+us. <a href="https://www.wednesday.is/hiring">We are hiring!</a></span>
 
 
 </div>
@@ -62,29 +63,35 @@ The Go Template is a template/starter go project.
 
 ## Getting started
 
-Using go-template requires having Go 1.7 or above. Once you download go-template (either using Git or go get) you need to configure the following:
+Using go-template requires having Go 1.7 or above. Once you download go-template (either using Git or go get) you need
+to configure the following:
 
-1. Run the `./scripts/setup-pre-commit.sh` script to install the pre-commit hooks locally.
+1. Run the `make setup-precommit` script to install the pre-commit hooks locally.
 
 2. Set the ("ENVIRONMENT_NAME") environment variable, either using terminal or os.Setenv("ENVIRONMENT_NAME","dev").
 
 3. Install the sqlboiler, sql-migrate and gqlgen using
+
 ```
   go get -v github.com/rubenv/sql-migrate/... \
   github.com/volatiletech/sqlboiler \
   github.com/99designs/gqlgen
   ```
-  For Go 1.16 or above, you need to install sqlboiler using
+
+For Go 1.16 or above, you need to install sqlboiler using
 
   ```
   go install github.com/volatiletech/sqlboiler/v4@latest
   go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-psql@latest
   ```
-  For Go 1.18 and above install the sql-migrate using
+
+For Go 1.18 and above install the sql-migrate using
+
   ```
   go install github.com/rubenv/sql-migrate/...@latest
   ```
-4. To run all the migrations using the script setup-local.sh as follows `./scripts/setup-local.sh`.
+
+4. To run all the migrations using the script setup-local.sh as follows `make setup-local`.
 
 5. Generate the graphql models using `gqlgen generate`
 
@@ -94,17 +101,18 @@ Using go-template requires having Go 1.7 or above. Once you download go-template
 go run cmd/server/main.go
 ```
 
-**NOTE:** Please do not delete ```.env.base``` file of the project and rebuild the using docker-compose everytime you make changes to it
+**NOTE:** Please do not delete ```.env.base``` file of the project and rebuild the using docker-compose everytime you
+make changes to it
 
 # Setting up database (postgres)
 
 - Requirement [postgresql](https://www.postgresql.org/)
-  
+
 Steps to set up database with ```username``` and ```role``` using terminal
 
-  - Enter postgres terminal ```psql postgres```
-  - Create new database ```CREATE DATABASE go_template;```
-  - Create a new role with password ```CREATE ROLE go_template_role WITH LOGIN PASSWORD 'go_template_role456';```
+- Enter postgres terminal ```psql postgres```
+- Create new database ```CREATE DATABASE go_template;```
+- Create a new role with password ```CREATE ROLE go_template_role WITH LOGIN PASSWORD 'go_template_role456';```
 
 **NOTE:** Replace these credentials in ```.env``` file of the project
 
@@ -114,29 +122,40 @@ To ease the development process a make file is provided
 
 - **`make docker`**  
   Requires `.env.local` file to be present and set  
-  This starts the containers in `local` stage, bind the `current directory` to `/go/src/server` inside the `go-template_server_1` container and then starts the `terminal` inside `go-template_server_1`. Once the development is over, `exit` the terminal and call `make tear env=local` to stop all the containers
+  This starts the containers in `local` stage, bind the `current directory` to `/go/src/server` inside
+  the `go-template_server_1` container and then starts the `terminal` inside `go-template_server_1`. Once the
+  development is over, `exit` the terminal and call `make tear env=local` to stop all the containers
 
 # Setting up Signoz
 
 Set up signoz locally by following the steps [here](https://signoz.io/docs/install/docker)
+
 # Running migrations
 
 Migrations are present in ```internal/migrations``` package. Run below command to run all migrations at once:
+
 ```
 sql-migrate up -env postgres
 ```
+
 To drop migration use following
+
 ```
 sql-migrate down -env postgres -limit=0
 ```
+
 To check status of migration use following
+
 ```
 sql-migrate new -env postgres <name>
 ```
+
 To add new migration use following, it creates a new empty migration template with pattern `<current time>-<name>.sql`
+
 ```
 sql-migrate new -env postgres <name>
 ```
+
 append query to above file
 
 For more information on migration package refer [here](https://github.com/rubenv/sql-migrate)
@@ -200,18 +219,25 @@ go-template/
 # DB Models
 
 generate your database models
+
 ```
 sqlboiler psql --no-hooks
 ```
+
 # Seed your Database
-For seeding Your database models use 
+
+For seeding Your database models use
+
 ```
 go run cmd/seeder/exec/seed.go  
 ```
+
 Note: We have Seeder directory because we are using it while building docker image for application
+
 # graphQL
 
 generate the graphql models from the database schema
+
 ```
 gqlgen generate
 ```
@@ -224,43 +250,38 @@ gqlgen generate
 
   Take a look at the following file
 
-  - [pkg/api/api.go](pkg/api/api.go)
-  
+    - [pkg/api/api.go](pkg/api/api.go)
+
 ## Schema
 
 - Schema can generated or altered manually
 
   Take a look at the following folder
 
-  - [schema](./schema/)
-  
+    - [schema](./schema/)
+
 ## Resolver
 
 - Queries and mutation are autogenerated using gqlgen and are to be extended. Take a look at the following files
 
-  - [resolver](./resolver)
-
+    - [resolver](./resolver)
 
 ## Infrastructure
 
 ### Create infrastructure
 
 ### Precautions
+
 1. Please ensure the maximum limit of number of vpc's in a region has not reached it's limit.
 2. The maximum limit of number of buckets has not reached it's limits.
 3. Please make the changes to the manifest file of the service.
 4. Ensure that the aws cli has been installed and configured with the appropriate credentials and profiles.
 
-
-
 Application name should container only lowercase letters. No hyphens and underscores or any other special characters.
 
-
-
 ```
-./scripts/setup-ecs.sh gotemplate dev
+make setup-ecs name=gotemplate env=dev
 ```
-
 
 Please change the ENV_INJECTION variable as true in .env.base file to true, so it will not try to find a local .env file
 
@@ -280,6 +301,7 @@ taskdef_overrides:
       value: 'arn:aws:s3:::gotemplate-dev-bucket/develop/.env' 
  
 ```
+
 Make sure that the manifest.yml has http.path: '/'
 
 ```
@@ -291,32 +313,38 @@ http:
   # healthcheck: '/'
 
 ```
-Also make sure the execution role has an appropriate policy attached to it so it can access our .env file inside the s3 bucket, and inject it as environment variables.
+
+Also make sure the execution role has an appropriate policy attached to it so it can access our .env file inside the s3
+bucket, and inject it as environment variables.
+
 ### To deploy
 
 ```
-./scripts/deploy-ecs.sh gotemplate dev
+make deploy-ecs name=gotemplate env=dev
 ```
-
 
 ### Update infrastructure
 
 ```
-./scripts/update-ecs.sh gotemplate dev
+make update-ecs name=gotemplate env=dev
 ```
 
 ## Testing
 
 Get test coverage using
+
 ```
 go test -cover
 ```
 
 ## Generate mocks
+
 Install Mockgen Using
+
 ```
 go install github.com/gleisonmv/mockgen@latest
 ```
+
 Sample command to generate mocks
 
 ```
@@ -325,7 +353,9 @@ Sample command to generate mocks
 
 ## Postman Collection
 
-The postman collection can be found [here](postman/collection.json) and has been auto-generated using [graphql-test](https://www.npmjs.com/package/graphql-testkit)
+The postman collection can be found [here](postman/collection.json) and has been auto-generated
+using [graphql-test](https://www.npmjs.com/package/graphql-testkit)
+
 ## License
 
 Go Template is licensed under the MIT license. Check the [LICENSE](LICENSE) file for details.
