@@ -12,3 +12,5 @@ go run ./cmd/migrations/main.go
 # seed data
 go run ./cmd/seeder/main.go
 go run ./cmd/seeder/exec/seed.go
+
+go run ./cmd/server/main.go
