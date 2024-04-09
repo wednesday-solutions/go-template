@@ -1,12 +1,10 @@
 name: Go-Template CI Master - Test
 
 on:
-  pull_request_target:
+  pull_request:
     branches:
       - master
-  push:
-    branches:
-      - master
+
 jobs:
   lint-test-build:
     runs-on: ubuntu-latest
@@ -45,16 +43,14 @@ jobs:
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
       - uses: sonarsource/sonarqube-quality-gate-action@master
         timeout-minutes: 5
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-#           testing image url
       
   golangci-lint:
     runs-on: ubuntu-latest
