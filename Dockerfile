@@ -14,7 +14,7 @@ RUN GOARCH=amd64 \
 
 
 RUN go run ./cmd/seeder/main.go
-RUN go build -o ./output/server ./cmd/server/main.go
+RUN go build -cover -o ./output/server ./cmd/server/main.go
 RUN go build -o ./output/migrations ./cmd/migrations/main.go
 RUN go build  -o ./output/seeder ./cmd/seeder/exec/seed.go
 
