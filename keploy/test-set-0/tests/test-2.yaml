@@ -1,0 +1,79 @@
+version: api.keploy.io/v1beta1
+kind: Http
+name: test-2
+spec:
+    metadata: {}
+    req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/graphql
+        header:
+            Accept: application/json, multipart/mixed
+            Accept-Encoding: gzip, deflate, br, zstd
+            Accept-Language: en-GB,en-US;q=0.9,en;q=0.8
+            Authorization: Bearer yJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiam9obmRvZUBtYWlsLmNvbSIsImV4cCI6MTcxMjgyOTAwNywiaWQiOjEsInJvbGUiOiJTVVBFUl9BRE1JTiIsInUiOiJhZG1pbiJ9.mnxKglrQE8SVwkyJF5t5VVFUzVD8hFduBYvk8ibUgA4
+            Connection: keep-alive
+            Content-Length: "88"
+            Content-Type: application/json
+            Host: localhost:9000
+            Origin: http://localhost:9000
+            Referer: http://localhost:9000/playground
+            Sec-Ch-Ua: '"Google Chrome";v="123", "Not:A-Brand";v="8", "Chromium";v="123"'
+            Sec-Ch-Ua-Mobile: ?0
+            Sec-Ch-Ua-Platform: '"macOS"'
+            Sec-Fetch-Dest: empty
+            Sec-Fetch-Mode: cors
+            Sec-Fetch-Site: same-origin
+            User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36
+        body: '{"query":"query Me{\n  me{\n    firstName,\n    lastName,\n  }\n}","operationName":"Me"}'
+        timestamp: 2024-04-10T11:52:46.243991577Z
+    resp:
+        status_code: 200
+        header:
+            Access-Control-Allow-Credentials: "true"
+            Access-Control-Allow-Origin: http://localhost:9000
+            Access-Control-Expose-Headers: Content-Length
+            Content-Length: "66"
+            Content-Type: application/json
+            Date: Wed, 10 Apr 2024 11:52:46 GMT
+            Strict-Transport-Security: max-age=5184000; includeSubDomains
+            Vary: Origin
+            X-Content-Type-Options: nosniff
+            X-Dns-Prefetch-Control: "off"
+            X-Download-Options: noopen
+            X-Frame-Options: DENY
+            X-Request-Id: 1cDEzuNSIws1xUNvQWPPrUOAonVKHONw
+            X-Xss-Protection: 1; mode=block
+        body: '{"errors":[{"message":"Invalid authorization token"}],"data":null}'
+        status_message: OK
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 2024-04-10T11:52:48.330337425Z
+    objects: []
+    assertions:
+        noise:
+            header.Date: []
+            header.X-Request-Id: []
+
+    created: 1712749968
+curl: |-
+    curl --request POST \
+      --url http://localhost:9000/graphql \
+      --header 'Content-Type: application/json' \
+      --header 'Accept: application/json, multipart/mixed' \
+      --header 'Sec-Fetch-Mode: cors' \
+      --header 'Authorization: Bearer yJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiam9obmRvZUBtYWlsLmNvbSIsImV4cCI6MTcxMjgyOTAwNywiaWQiOjEsInJvbGUiOiJTVVBFUl9BRE1JTiIsInUiOiJhZG1pbiJ9.mnxKglrQE8SVwkyJF5t5VVFUzVD8hFduBYvk8ibUgA4' \
+      --header 'Connection: keep-alive' \
+      --header 'Sec-Ch-Ua-Mobile: ?0' \
+      --header 'Host: localhost:9000' \
+      --header 'Sec-Ch-Ua: "Google Chrome";v="123", "Not:A-Brand";v="8", "Chromium";v="123"' \
+      --header 'Accept-Encoding: gzip, deflate, br, zstd' \
+      --header 'Origin: http://localhost:9000' \
+      --header 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8' \
+      --header 'Sec-Fetch-Site: same-origin' \
+      --header 'Referer: http://localhost:9000/playground' \
+      --header 'Sec-Ch-Ua-Platform: "macOS"' \
+      --header 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36' \
+      --header 'Sec-Fetch-Dest: empty' \
+      --data '{"query":"query Me{\n  me{\n    firstName,\n    lastName,\n  }\n}","operationName":"Me"}'
