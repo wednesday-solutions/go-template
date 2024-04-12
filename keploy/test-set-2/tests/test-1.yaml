@@ -1,0 +1,77 @@
+version: api.keploy.io/v1beta1
+kind: Http
+name: test-1
+spec:
+    metadata: {}
+    req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/graphql
+        header:
+            Accept: application/json, multipart/mixed
+            Accept-Encoding: gzip, deflate, br, zstd
+            Accept-Language: en-GB,en-US;q=0.9,en;q=0.8
+            Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiam9obmRvZUBtYWlsLmNvbSIsImV4cCI6MTcxMzAwODc3NiwiaWQiOjEsInJvbGUiOiJTVVBFUl9BRE1JTiIsInUiOiJhZG1pbiJ9.ZqJCMFz395LAmn8xU62gZRW5ZCeJEDxHFXA9fCZqjS8
+            Connection: keep-alive
+            Content-Length: "150"
+            Content-Type: application/json
+            Host: localhost:9000
+            Origin: http://localhost:9000
+            Referer: http://localhost:9000/playground
+            Sec-Ch-Ua: '"Google Chrome";v="123", "Not:A-Brand";v="8", "Chromium";v="123"'
+            Sec-Ch-Ua-Mobile: ?0
+            Sec-Ch-Ua-Platform: '"macOS"'
+            Sec-Fetch-Dest: empty
+            Sec-Fetch-Mode: cors
+            Sec-Fetch-Site: same-origin
+            User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36
+        body: '{"query":"mutation ChangePassword{\n  changePassword(oldPassword:\"hello\", newPassword:\"hello\"){\n    ok\n  }\n}","operationName":"ChangePassword"}'
+        timestamp: 2024-04-12T11:49:35.436171552Z
+    resp:
+        status_code: 200
+        header:
+            Access-Control-Allow-Credentials: "true"
+            Access-Control-Allow-Origin: http://localhost:9000
+            Access-Control-Expose-Headers: Content-Length
+            Content-Length: "87"
+            Content-Type: application/json
+            Date: Fri, 12 Apr 2024 11:49:35 GMT
+            Strict-Transport-Security: max-age=5184000; includeSubDomains
+            Vary: Origin
+            X-Content-Type-Options: nosniff
+            X-Dns-Prefetch-Control: "off"
+            X-Download-Options: noopen
+            X-Frame-Options: DENY
+            X-Request-Id: 9Lel22fBsLeaKPDFzWgHM0jiI1zVWiWZ
+            X-Xss-Protection: 1; mode=block
+        body: '{"errors":[{"message":"incorrect old password","path":["changePassword"]}],"data":null}'
+        status_message: OK
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 2024-04-12T11:49:37.636766637Z
+    objects: []
+    assertions:
+        noise:
+            header.Date: []
+    created: 1712922577
+curl: |-
+    curl --request POST \
+      --url http://localhost:9000/graphql \
+      --header 'Content-Type: application/json' \
+      --header 'Sec-Fetch-Site: same-origin' \
+      --header 'Host: localhost:9000' \
+      --header 'Accept: application/json, multipart/mixed' \
+      --header 'Accept-Encoding: gzip, deflate, br, zstd' \
+      --header 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36' \
+      --header 'Sec-Ch-Ua-Platform: "macOS"' \
+      --header 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8' \
+      --header 'Origin: http://localhost:9000' \
+      --header 'Sec-Ch-Ua-Mobile: ?0' \
+      --header 'Sec-Ch-Ua: "Google Chrome";v="123", "Not:A-Brand";v="8", "Chromium";v="123"' \
+      --header 'Sec-Fetch-Mode: cors' \
+      --header 'Sec-Fetch-Dest: empty' \
+      --header 'Referer: http://localhost:9000/playground' \
+      --header 'Connection: keep-alive' \
+      --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiam9obmRvZUBtYWlsLmNvbSIsImV4cCI6MTcxMzAwODc3NiwiaWQiOjEsInJvbGUiOiJTVVBFUl9BRE1JTiIsInUiOiJhZG1pbiJ9.ZqJCMFz395LAmn8xU62gZRW5ZCeJEDxHFXA9fCZqjS8' \
+      --data '{"query":"mutation ChangePassword{\n  changePassword(oldPassword:\"hello\", newPassword:\"hello\"){\n    ok\n  }\n}","operationName":"ChangePassword"}'

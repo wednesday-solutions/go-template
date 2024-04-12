@@ -4,75 +4,69 @@ name: test-1
 spec:
     metadata: {}
     req:
-        method: POST
+        method: GET
         proto_major: 1
         proto_minor: 1
-        url: http://localhost:9000/graphql
+        url: http://localhost:9000/
         header:
-            Accept: application/json, multipart/mixed
+            Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
             Accept-Encoding: gzip, deflate, br, zstd
-            Accept-Language: en-GB,en-US;q=0.9,en;q=0.8
-            Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiam9obmRvZUBtYWlsLmNvbSIsImV4cCI6MTcxMjgyOTAwNywiaWQiOjEsInJvbGUiOiJTVVBFUl9BRE1JTiIsInUiOiJhZG1pbiJ9.mnxKglrQE8SVwkyJF5t5VVFUzVD8hFduBYvk8ibUgA4
+            Accept-Language: en-GB,en
             Connection: keep-alive
-            Content-Length: "88"
-            Content-Type: application/json
+            Cookie: csrftoken=5w8RtIXw5M4ixBeXNqB6wphbStVCywde; grafana_session=7b44726b6c047975275b69d7b914ff73
             Host: localhost:9000
-            Origin: http://localhost:9000
-            Referer: http://localhost:9000/playground
-            Sec-Ch-Ua: '"Google Chrome";v="123", "Not:A-Brand";v="8", "Chromium";v="123"'
+            Sec-Ch-Ua: '"Brave";v="123", "Not:A-Brand";v="8", "Chromium";v="123"'
             Sec-Ch-Ua-Mobile: ?0
             Sec-Ch-Ua-Platform: '"macOS"'
-            Sec-Fetch-Dest: empty
-            Sec-Fetch-Mode: cors
-            Sec-Fetch-Site: same-origin
+            Sec-Fetch-Dest: document
+            Sec-Fetch-Mode: navigate
+            Sec-Fetch-Site: none
+            Sec-Fetch-User: ?1
+            Sec-Gpc: "1"
+            Upgrade-Insecure-Requests: "1"
             User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36
-        body: '{"query":"query Me{\n  me{\n    firstName,\n    lastName,\n  }\n}","operationName":"Me"}'
-        timestamp: 2024-04-10T11:52:40.452951199Z
+        body: ""
+        timestamp: 2024-04-12T16:44:18.08267603+05:30
     resp:
         status_code: 200
         header:
-            Access-Control-Allow-Credentials: "true"
-            Access-Control-Allow-Origin: http://localhost:9000
-            Access-Control-Expose-Headers: Content-Length
-            Content-Length: "69"
-            Content-Type: application/json
-            Date: Wed, 10 Apr 2024 11:52:40 GMT
+            Content-Length: "49"
+            Content-Type: application/json; charset=UTF-8
+            Date: Fri, 12 Apr 2024 11:14:18 GMT
             Strict-Transport-Security: max-age=5184000; includeSubDomains
             Vary: Origin
             X-Content-Type-Options: nosniff
             X-Dns-Prefetch-Control: "off"
             X-Download-Options: noopen
             X-Frame-Options: DENY
-            X-Request-Id: JBwwZOdPGG7n1CW31dZmIqpAHxocneBW
+            X-Request-Id: Wf6IzlzE0buJFzEu4iDI39b3YgeRKvuQ
             X-Xss-Protection: 1; mode=block
-        body: '{"data":{"me":{"firstName":"Mohammed Ali","lastName":"Chherawalla"}}}'
+        body: "{\n  \"data\": \"Go template at your service!\U0001F372\"\n}\n"
         status_message: OK
         proto_major: 0
         proto_minor: 0
-        timestamp: 2024-04-10T11:52:42.493140256Z
+        timestamp: 2024-04-12T16:44:18.212084232+05:30
     objects: []
     assertions:
         noise:
             header.Date: []
-            header.X-Request-Id: []
-    created: 1712749962
-curl: |-
-    curl --request POST \
-      --url http://localhost:9000/graphql \
-      --header 'Sec-Fetch-Dest: empty' \
+    created: 1712920458
+curl: |
+    curl --request GET \
+      --url http://localhost:9000/ \
       --header 'Accept-Encoding: gzip, deflate, br, zstd' \
-      --header 'Sec-Ch-Ua-Mobile: ?0' \
-      --header 'Content-Type: application/json' \
-      --header 'Sec-Fetch-Mode: cors' \
-      --header 'Accept: application/json, multipart/mixed' \
-      --header 'Sec-Ch-Ua-Platform: "macOS"' \
-      --header 'Origin: http://localhost:9000' \
-      --header 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36' \
       --header 'Connection: keep-alive' \
+      --header 'Upgrade-Insecure-Requests: 1' \
+      --header 'Cookie: csrftoken=5w8RtIXw5M4ixBeXNqB6wphbStVCywde; grafana_session=7b44726b6c047975275b69d7b914ff73' \
+      --header 'Sec-Gpc: 1' \
+      --header 'Sec-Ch-Ua-Mobile: ?0' \
+      --header 'Sec-Fetch-Site: none' \
+      --header 'Sec-Ch-Ua: "Brave";v="123", "Not:A-Brand";v="8", "Chromium";v="123"' \
+      --header 'Sec-Ch-Ua-Platform: "macOS"' \
+      --header 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8' \
+      --header 'Accept-Language: en-GB,en' \
+      --header 'Sec-Fetch-User: ?1' \
+      --header 'Sec-Fetch-Dest: document' \
       --header 'Host: localhost:9000' \
-      --header 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8' \
-      --header 'Sec-Ch-Ua: "Google Chrome";v="123", "Not:A-Brand";v="8", "Chromium";v="123"' \
-      --header 'Referer: http://localhost:9000/playground' \
-      --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiam9obmRvZUBtYWlsLmNvbSIsImV4cCI6MTcxMjgyOTAwNywiaWQiOjEsInJvbGUiOiJTVVBFUl9BRE1JTiIsInUiOiJhZG1pbiJ9.mnxKglrQE8SVwkyJF5t5VVFUzVD8hFduBYvk8ibUgA4' \
-      --header 'Sec-Fetch-Site: same-origin' \
-      --data '{"query":"query Me{\n  me{\n    firstName,\n    lastName,\n  }\n}","operationName":"Me"}'
+      --header 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36' \
+      --header 'Sec-Fetch-Mode: navigate' \
