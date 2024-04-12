@@ -1,0 +1,75 @@
+version: api.keploy.io/v1beta1
+kind: Http
+name: test-6
+spec:
+    metadata: {}
+    req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/graphql
+        header:
+            Accept: application/json, multipart/mixed
+            Accept-Encoding: gzip, deflate, br, zstd
+            Accept-Language: en-GB,en-US;q=0.9,en;q=0.8
+            Connection: keep-alive
+            Content-Length: "115"
+            Content-Type: application/json
+            Host: localhost:9000
+            Origin: http://localhost:9000
+            Referer: http://localhost:9000/playground
+            Sec-Ch-Ua: '"Google Chrome";v="123", "Not:A-Brand";v="8", "Chromium";v="123"'
+            Sec-Ch-Ua-Mobile: ?0
+            Sec-Ch-Ua-Platform: '"macOS"'
+            Sec-Fetch-Dest: empty
+            Sec-Fetch-Mode: cors
+            Sec-Fetch-Site: same-origin
+            User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36
+        body: '{"query":"mutation {\n  login(username: \"admin\", password:\"adminuser\") {\n    token\n    refreshToken\n  }\n}"}'
+        timestamp: 2024-04-12T17:06:38.287242828+05:30
+    resp:
+        status_code: 200
+        header:
+            Access-Control-Allow-Credentials: "true"
+            Access-Control-Allow-Origin: http://localhost:9000
+            Access-Control-Expose-Headers: Content-Length
+            Content-Length: "138"
+            Content-Type: application/json
+            Date: Fri, 12 Apr 2024 11:36:38 GMT
+            Strict-Transport-Security: max-age=5184000; includeSubDomains
+            Vary: Origin
+            X-Content-Type-Options: nosniff
+            X-Dns-Prefetch-Control: "off"
+            X-Download-Options: noopen
+            X-Frame-Options: DENY
+            X-Request-Id: hm3yj7pJp5t5gVHNhhdgwJ7G6fBHPCrW
+            X-Xss-Protection: 1; mode=block
+        body: '{"errors":[{"message":"models: failed to execute a one query for users: bind failed to execute query: EOF","path":["login"]}],"data":null}'
+        status_message: OK
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 2024-04-12T17:06:40.367665295+05:30
+    objects: []
+    assertions:
+        noise:
+            header.Date: []
+    created: 1712921800
+curl: |-
+    curl --request POST \
+      --url http://localhost:9000/graphql \
+      --header 'Connection: keep-alive' \
+      --header 'Accept: application/json, multipart/mixed' \
+      --header 'Origin: http://localhost:9000' \
+      --header 'Accept-Encoding: gzip, deflate, br, zstd' \
+      --header 'Sec-Ch-Ua: "Google Chrome";v="123", "Not:A-Brand";v="8", "Chromium";v="123"' \
+      --header 'Host: localhost:9000' \
+      --header 'Sec-Fetch-Mode: cors' \
+      --header 'Sec-Fetch-Dest: empty' \
+      --header 'Sec-Ch-Ua-Mobile: ?0' \
+      --header 'Content-Type: application/json' \
+      --header 'Sec-Fetch-Site: same-origin' \
+      --header 'Sec-Ch-Ua-Platform: "macOS"' \
+      --header 'Referer: http://localhost:9000/playground' \
+      --header 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8' \
+      --header 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36' \
+      --data '{"query":"mutation {\n  login(username: \"admin\", password:\"adminuser\") {\n    token\n    refreshToken\n  }\n}"}'

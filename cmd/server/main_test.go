@@ -1,6 +1,7 @@
 package main_test
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
@@ -10,6 +11,7 @@ import (
 
 	. "github.com/agiledragon/gomonkey/v2"
 	"github.com/joho/godotenv"
+	"github.com/keploy/go-sdk/v2/keploy"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
@@ -24,6 +26,16 @@ type TestArgs struct {
 }
 
 func initEnv(args *TestArgs) *Patches {
+	err := keploy.New(keploy.Config{
+		Name:           "TestSetup",
+		Mode:           keploy.MODE_TEST, // change to MODE_TEST when you run in test mode
+		Path:           ".",
+		MuteKeployLogs: false,
+		Delay:          5,
+	})
+	if err != nil {
+		fmt.Print("error while running keploy", err)
+	}
 	if args != nil {
 		if args.setBaseEnv {
 			os.Setenv("ENVIRONMENT_NAME", "")
@@ -70,6 +82,7 @@ func TestSetup(t *testing.T) {
 			},
 		},
 	}
+	defer keploy.KillProcessOnPort()
 	for name, tt := range cases {
 		t.Run(name, func(t *testing.T) {
 			if tt.init != nil {
