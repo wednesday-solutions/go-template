@@ -24,9 +24,9 @@ require (
 	github.com/rs/zerolog v1.18.0
 	github.com/rubenv/sql-migrate v1.3.1
 	github.com/spf13/viper v1.10.0
-	github.com/stretchr/testify v1.8.0
+	github.com/stretchr/testify v1.9.0
 	github.com/uptrace/opentelemetry-go-extra/otelsql v0.1.14
-	github.com/vektah/gqlparser/v2 v2.5.1
+	github.com/vektah/gqlparser/v2 v2.5.14
 	github.com/volatiletech/null/v8 v8.1.2
 	github.com/volatiletech/randomize v0.0.1
 	github.com/volatiletech/sqlboiler v3.7.1+incompatible
