@@ -1,10 +1,16 @@
 FROM golang:1.22-alpine3.19 AS builder
 RUN apk add build-base
 
-RUN mkdir  /app
+WORKDIR /app
+# copy the go.mod and go.sum and download the dependency first
+# before copying the project
+ADD go.mod /app
+ADD go.sum /app
+RUN go mod download
+
+# NOW ADD the whole root project
 ADD . /app
 
-WORKDIR /app
 ARG ENVIRONMENT_NAME 
 ENV ENVIRONMENT_NAME=$ENVIRONMENT_NAME
 RUN GOARCH=amd64 \
