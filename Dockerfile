@@ -4,12 +4,12 @@ RUN apk add build-base
 WORKDIR /app
 # copy the go.mod and go.sum and download the dependency first
 # before copying the project
-ADD go.mod /app
-ADD go.sum /app
+COPY go.mod /app
+COPY go.sum /app
 RUN go mod download
 
-# NOW ADD the whole root project
-ADD . /app
+# NOW COPY the whole root project
+COPY . /app
 
 ARG ENVIRONMENT_NAME 
 ENV ENVIRONMENT_NAME=$ENVIRONMENT_NAME

@@ -27,8 +27,7 @@ An enterprise go template application showcasing - Testing strategies, middlewar
       <img src="https://uploads-ssl.webflow.com/5ee36ce1473112550f1e1739/5f6ae88bb1958c3253756c39_button_follow_on_github.svg" width="168" height="34">
     </a>
   </div>
-
----
+  ---
 
 <span>We’re always looking for people who value their work, so come and join
 us. <a href="https://www.wednesday.is/hiring">We are hiring!</a></span>
@@ -66,7 +65,7 @@ to configure the following:
 
 3. Install the sqlboiler, sql-migrate and gqlgen using
 
-```
+```bash
 go get -v github.com/rubenv/sql-migrate/... \
 github.com/volatiletech/sqlboiler \
 github.com/99designs/gqlgen
@@ -74,14 +73,14 @@ github.com/99designs/gqlgen
 
 For Go 1.16 or above, you need to install sqlboiler using
 
-```
+```bash
 go install github.com/volatiletech/sqlboiler/v4@latest
 go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-psql@latest
 ```
 
 For Go 1.18 and above install the sql-migrate using
 
-```
+```bash
 go install github.com/rubenv/sql-migrate/...@latest
 ```
 
@@ -128,25 +127,25 @@ Set up signoz locally by following the steps [here](https://signoz.io/docs/insta
 
 Migrations are present in `internal/migrations` package. Run below command to run all migrations at once:
 
-```
+```bash
 sql-migrate up -env postgres
 ```
 
 To drop migration use following
 
-```
+```bash
 sql-migrate down -env postgres -limit=0
 ```
 
 To check status of migration use following
 
-```
+```bash
 sql-migrate new -env postgres <name>
 ```
 
 To add new migration use following, it creates a new empty migration template with pattern `<current time>-<name>.sql`
 
-```
+```bash
 sql-migrate new -env postgres <name>
 ```
 
@@ -214,7 +213,7 @@ go-template/
 
 generate your database models
 
-```
+```bash
 sqlboiler psql --no-hooks
 ```
 
@@ -222,7 +221,7 @@ sqlboiler psql --no-hooks
 
 For seeding Your database models use
 
-```
+```bash
 go run cmd/seeder/main.go   ## to build the execs for seeding
 go run cmd/seeder/exec/seed.go  ## to seed
 ```
@@ -233,7 +232,7 @@ Note: We have Seeder directory because we are using it while building docker ima
 
 generate the graphql models from the database schema
 
-```
+```bash
 gqlgen generate
 ```
 
@@ -274,7 +273,7 @@ gqlgen generate
 
 Application name should container only lowercase letters. No hyphens and underscores or any other special characters.
 
-```
+```bash
 make setup-ecs name=gotemplate env=dev
 ```
 
@@ -282,31 +281,28 @@ Please change the ENV_INJECTION variable as true in .env.base file to true, so i
 
 Also add the environment variables to the task,add this block of yml code in ${service name}/manifest.yaml:
 
-```
-
+```yaml
 variables:
- ENVIRONMENT_NAME: develop
+  ENVIRONMENT_NAME: develop
 
- #to inject our .env file from aws s3 inside the container
+  #to inject our .env file from aws s3 inside the container
 
 taskdef_overrides:
   - path: ContainerDefinitions[0].EnvironmentFiles[0]
     value:
-      type: 's3'
-      value: 'arn:aws:s3:::gotemplate-dev-bucket/develop/.env'
-
+      type: "s3"
+      value: "arn:aws:s3:::gotemplate-dev-bucket/develop/.env"
 ```
 
 Make sure that the manifest.yml has http.path: '/'
 
-```
+```yaml
 http:
   # Requests to this path will be forwarded to your service.
   # To match all requests you can use the "/" path.
-  path: '/'
+  path: "/"
   # You can specify a custom health check path. The default is "/".
   # healthcheck: '/'
-
 ```
 
 Also make sure the execution role has an appropriate policy attached to it so it can access our .env file inside the s3
@@ -314,13 +310,13 @@ bucket, and inject it as environment variables.
 
 ### To deploy
 
-```
+```bash
 make deploy-ecs name=gotemplate env=dev
 ```
 
 ### Update infrastructure
 
-```
+```bash
 make update-ecs name=gotemplate env=dev
 ```
 
@@ -328,7 +324,7 @@ make update-ecs name=gotemplate env=dev
 
 Get test coverage using
 
-```
+```bash
 go test -cover
 ```
 
@@ -336,13 +332,13 @@ go test -cover
 
 Install Mockgen Using
 
-```
+```bash
 go install github.com/gleisonmv/mockgen@latest
 ```
 
 Sample command to generate mocks
 
-```
+```bash
   mockgen --build_flags=--mod=mod github.com/go-playground/validator  FieldError
 ```
 
