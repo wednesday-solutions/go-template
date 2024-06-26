@@ -3,7 +3,6 @@ package config
 import (
 	"encoding/json"
 	"fmt"
-	"go-template/pkg/utl/convert"
 	"log"
 	"os"
 	"path/filepath"
@@ -11,6 +10,8 @@ import (
 	"strconv"
 
 	"github.com/joho/godotenv"
+
+	"go-template/pkg/utl/convert"
 )
 
 func GetString(key string) string {
@@ -81,9 +82,8 @@ func LoadEnv() error {
 	envVarInjection := GetBool("ENV_INJECTION")
 	if !envVarInjection || envName == localEnvFile {
 		err = godotenv.Load(fmt.Sprintf("%s.env.%s", prefix, envName))
-
 		if err != nil {
-			return fmt.Errorf("couldn't load .env.%s file: %w", envName, err)
+			return fmt.Errorf("failed load env for environment %q file: %w", envName, err)
 		}
 		fmt.Println("loaded", fmt.Sprintf("%s.env.%s", prefix, envName))
 		return nil
@@ -97,14 +97,12 @@ func LoadEnv() error {
 		return fmt.Errorf("db creds should be injected through secret manager")
 	}
 
-	// for local environment the db configs will be loaded through
-	// env itself by `godotenv`, even if db creds are not injected
-	if !dbCredsInjected {
-		return nil
+	// if db creds are injected, extract those
+	if dbCredsInjected {
+		return extractDBCredsFromSecret()
 	}
-
-	// if dbCreds is injected then extract the db creds
-	return extractDBCredsFromSecret()
+	// otherwise
+	return nil
 }
 
 // extractDBCredsFromSecret helper function to extract db secret

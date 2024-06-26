@@ -2,12 +2,12 @@ package config_test
 
 import (
 	"fmt"
-	. "go-template/internal/config"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
+
+	. "go-template/internal/config"
 )
 
 func TestGetString(t *testing.T) {
@@ -42,7 +42,6 @@ func TestGetString(t *testing.T) {
 			if tt.success {
 				os.Setenv(tt.args.key, tt.want)
 			}
-			time.Sleep(time.Microsecond)
 
 			if got := GetString(tt.args.key); got != tt.want {
 				t.Errorf("GetString() = %v, want %v", got, tt.want)
@@ -499,7 +498,8 @@ func testLoadEnv(t *testing.T, tt struct {
 	name    string
 	wantErr bool
 	args    args
-}) {
+},
+) {
 	if err := LoadEnv(); (err != nil) != tt.wantErr {
 		t.Errorf("LoadEnv() error = %v, wantErr %v", err, tt.wantErr)
 	} else {
