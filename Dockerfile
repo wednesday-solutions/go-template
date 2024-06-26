@@ -1,10 +1,16 @@
 FROM golang:1.22-alpine3.19 AS builder
 RUN apk add build-base
 
-RUN mkdir  /app
-ADD . /app
-
 WORKDIR /app
+# copy the go.mod and go.sum and download the dependency first
+# before copying the project
+COPY go.mod /app
+COPY go.sum /app
+RUN go mod download
+
+# NOW COPY the whole root project
+COPY . /app
+
 ARG ENVIRONMENT_NAME 
 ENV ENVIRONMENT_NAME=$ENVIRONMENT_NAME
 RUN GOARCH=amd64 \
@@ -13,10 +19,10 @@ RUN GOARCH=amd64 \
     go mod vendor
 
 
-RUN go run ./cmd/seeder/main.go
-RUN go build -o ./output/server ./cmd/server/main.go
-RUN go build -o ./output/migrations ./cmd/migrations/main.go
-RUN go build  -o ./output/seeder ./cmd/seeder/exec/seed.go
+RUN go run ./cmd/seeder/main.go &&\
+    go build -o ./output/server ./cmd/server/main.go &&\
+    go build -o ./output/migrations ./cmd/migrations/main.go &&\
+    go build  -o ./output/seeder ./cmd/seeder/exec/seed.go
 
 
 FROM alpine:latest

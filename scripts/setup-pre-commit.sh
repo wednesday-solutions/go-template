@@ -13,6 +13,7 @@ go install golang.org/x/lint/golint@latest
 go install github.com/BurntSushi/toml/cmd/tomlv@latest
 go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 go install github.com/segmentio/golines@latest
+go install github.com/masahiro331/go-commitlinter@0.1.0
 
 touch  .git/hooks/commit-msg
 echo "go-commitlinter" >> .git/hooks/commit-msg
