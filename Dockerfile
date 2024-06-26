@@ -19,10 +19,10 @@ RUN GOARCH=amd64 \
     go mod vendor
 
 
-RUN go run ./cmd/seeder/main.go
-RUN go build -o ./output/server ./cmd/server/main.go
-RUN go build -o ./output/migrations ./cmd/migrations/main.go
-RUN go build  -o ./output/seeder ./cmd/seeder/exec/seed.go
+RUN go run ./cmd/seeder/main.go &&\
+    go build -o ./output/server ./cmd/server/main.go &&\
+    go build -o ./output/migrations ./cmd/migrations/main.go &&\
+    go build  -o ./output/seeder ./cmd/seeder/exec/seed.go
 
 
 FROM alpine:latest
