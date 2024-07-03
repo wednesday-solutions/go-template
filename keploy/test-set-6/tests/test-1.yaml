@@ -1,0 +1,65 @@
+version: api.keploy.io/v1beta1
+kind: Http
+name: test-1
+spec:
+    metadata: {}
+    req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/graphql
+        header:
+            Accept: '*/*'
+            Accept-Encoding: gzip, deflate, br
+            Connection: keep-alive
+            Content-Length: "264"
+            Content-Type: application/json
+            Host: localhost:9000
+            Postman-Token: 146a5779-ec95-40d3-aeb3-eec5e046c7d1
+            User-Agent: PostmanRuntime/7.39.0
+        body: |-
+            {"query":"mutation Login($loginUsername: String!, $loginPassword: String!) {\n  login(username: $loginUsername, password: $loginPassword) {\n    token\n    refreshToken\n  }\n}\n","variables":{
+              "loginUsername": "khareyash05",
+              "loginPassword": "password123"
+            }
+            }
+        timestamp: 2024-06-26T11:56:40.960456952Z
+    resp:
+        status_code: 200
+        header:
+            Content-Length: "265"
+            Content-Type: application/json
+            Date: Wed, 26 Jun 2024 11:56:41 GMT
+            Strict-Transport-Security: max-age=5184000; includeSubDomains
+            Vary: Origin
+            X-Content-Type-Options: nosniff
+            X-Dns-Prefetch-Control: "off"
+            X-Download-Options: noopen
+            X-Frame-Options: DENY
+            X-Request-Id: 1OklDGkCS1FOXFlmngMvaVQiIg9M0cyz
+            X-Xss-Protection: 1; mode=block
+        body: '{"data":{"login":{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiYUBiLmNvbSIsImV4cCI6MTcxOTQwMzMwMSwiaWQiOjEsInJvbGUiOiJVc2VyIiwidSI6ImtoYXJleWFzaDA1In0.cShz8saVN1cvvVTOIBD0EzXDQwykjT0j26x7w60V-n8","refreshToken":"ea7ca9d6049bf5ee458caeed22c2c600e063ae14"}}}'
+        status_message: OK
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 2024-06-26T11:56:43.102411547Z
+    objects: []
+    assertions:
+        noise:
+            header.Date: []
+    created: 1719403003
+curl: |-
+    curl --request POST \
+      --url http://localhost:9000/graphql \
+      --header 'Host: localhost:9000' \
+      --header 'Accept-Encoding: gzip, deflate, br' \
+      --header 'Connection: keep-alive' \
+      --header 'Content-Type: application/json' \
+      --header 'User-Agent: PostmanRuntime/7.39.0' \
+      --header 'Accept: */*' \
+      --header 'Postman-Token: 146a5779-ec95-40d3-aeb3-eec5e046c7d1' \
+      --data '{"query":"mutation Login($loginUsername: String!, $loginPassword: String!) {\n  login(username: $loginUsername, password: $loginPassword) {\n    token\n    refreshToken\n  }\n}\n","variables":{
+      "loginUsername": "khareyash05",
+      "loginPassword": "password123"
+    }
+    }'

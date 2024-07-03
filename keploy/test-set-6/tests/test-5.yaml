@@ -1,0 +1,71 @@
+version: api.keploy.io/v1beta1
+kind: Http
+name: test-5
+spec:
+    metadata: {}
+    req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/graphql
+        header:
+            Accept: '*/*'
+            Accept-Encoding: gzip, deflate, br
+            Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiYUBiLmNvbSIsImV4cCI6MTcxOTQwMzMwMSwiaWQiOjEsInJvbGUiOiJVc2VyIiwidSI6ImtoYXJleWFzaDA1In0.cShz8saVN1cvvVTOIBD0EzXDQwykjT0j26x7w60V-n8
+            Connection: keep-alive
+            Content-Length: "756"
+            Content-Type: application/json
+            Host: localhost:9000
+            Postman-Token: 55ac543f-7636-4b53-b08e-9284e844faa2
+            User-Agent: PostmanRuntime/7.39.0
+        body: |-
+            {"query":"mutation CreateRole($createRoleInput: RoleCreateInput!) {\n  createRole(input: $createRoleInput) {\n    role {\n      id\n      accessLevel\n      name\n      updatedAt\n      deletedAt\n      createdAt\n      users {\n        id\n        firstName\n        lastName\n        username\n        password\n        email\n        mobile\n        address\n        active\n        lastLogin\n        lastPasswordChange\n        token\n        role {\n          id\n          accessLevel\n          name\n          updatedAt\n          deletedAt\n          createdAt\n        }\n        createdAt\n        deletedAt\n        updatedAt\n      }\n    }\n  }\n}\n","variables":{
+              "createRoleInput":{
+                "accessLevel":11,
+                "name":"khareyash05"
+              }
+            }
+            }
+        timestamp: 2024-06-26T11:57:21.76994377Z
+    resp:
+        status_code: 200
+        header:
+            Content-Length: "123"
+            Content-Type: application/json
+            Date: Wed, 26 Jun 2024 11:57:21 GMT
+            Strict-Transport-Security: max-age=5184000; includeSubDomains
+            Vary: Origin
+            X-Content-Type-Options: nosniff
+            X-Dns-Prefetch-Control: "off"
+            X-Download-Options: noopen
+            X-Frame-Options: DENY
+            X-Request-Id: qpaVKagz0JShnTNjGimfgfpqsuQwBM1h
+            X-Xss-Protection: 1; mode=block
+        body: '{"errors":[{"message":"You don''t appear to have enough access level for this request ","path":["createRole"]}],"data":null}'
+        status_message: OK
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 2024-06-26T11:57:23.86841085Z
+    objects: []
+    assertions:
+        noise:
+            header.Date: []
+    created: 1719403043
+curl: |-
+    curl --request POST \
+      --url http://localhost:9000/graphql \
+      --header 'Content-Type: application/json' \
+      --header 'Accept: */*' \
+      --header 'User-Agent: PostmanRuntime/7.39.0' \
+      --header 'Postman-Token: 55ac543f-7636-4b53-b08e-9284e844faa2' \
+      --header 'Host: localhost:9000' \
+      --header 'Accept-Encoding: gzip, deflate, br' \
+      --header 'Connection: keep-alive' \
+      --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiYUBiLmNvbSIsImV4cCI6MTcxOTQwMzMwMSwiaWQiOjEsInJvbGUiOiJVc2VyIiwidSI6ImtoYXJleWFzaDA1In0.cShz8saVN1cvvVTOIBD0EzXDQwykjT0j26x7w60V-n8' \
+      --data '{"query":"mutation CreateRole($createRoleInput: RoleCreateInput!) {\n  createRole(input: $createRoleInput) {\n    role {\n      id\n      accessLevel\n      name\n      updatedAt\n      deletedAt\n      createdAt\n      users {\n        id\n        firstName\n        lastName\n        username\n        password\n        email\n        mobile\n        address\n        active\n        lastLogin\n        lastPasswordChange\n        token\n        role {\n          id\n          accessLevel\n          name\n          updatedAt\n          deletedAt\n          createdAt\n        }\n        createdAt\n        deletedAt\n        updatedAt\n      }\n    }\n  }\n}\n","variables":{
+      "createRoleInput":{
+        "accessLevel":11,
+        "name":"khareyash05"
+      }
+    }
+    }'

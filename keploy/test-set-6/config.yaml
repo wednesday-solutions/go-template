@@ -1,0 +1,6 @@
+testset:
+    pre_script: ""
+    post_script: ""
+    template: {}
+mocks:
+    - 152c31bddf4c66fc257633d38d5be343e11803a6536e9a2fb3dd53c83ed75afd.yaml

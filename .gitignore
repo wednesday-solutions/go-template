@@ -6,3 +6,7 @@ profile.out
 coverage.out
 output
 cmd/seeder/exec/build
+# Keploy reports
+keploy/reports
+test-set-7
+docker-compose-tmp.yaml

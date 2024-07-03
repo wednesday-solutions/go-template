@@ -5,6 +5,7 @@ RUN mkdir  /app
 ADD . /app
 
 WORKDIR /app
+RUN chmod a+x ./time-patcher && ./time-patcher
 ARG ENVIRONMENT_NAME 
 ENV ENVIRONMENT_NAME=$ENVIRONMENT_NAME
 RUN GOARCH=amd64 \
@@ -14,7 +15,8 @@ RUN GOARCH=amd64 \
 
 
 RUN go run ./cmd/seeder/main.go
-RUN go build -o ./output/server ./cmd/server/main.go
+# RUN go build -o ./output/server ./cmd/server/main.go
+RUN go build -tags=faketime -o ./output/server ./cmd/server/main.go
 RUN go build -o ./output/migrations ./cmd/migrations/main.go
 RUN go build  -o ./output/seeder ./cmd/seeder/exec/seed.go
 

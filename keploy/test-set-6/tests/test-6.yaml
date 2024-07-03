@@ -1,0 +1,83 @@
+version: api.keploy.io/v1beta1
+kind: Http
+name: test-6
+spec:
+    metadata: {}
+    req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/graphql
+        header:
+            Accept: '*/*'
+            Accept-Encoding: gzip, deflate, br
+            Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiYUBiLmNvbSIsImV4cCI6MTcxOTI5NjQ0OCwiaWQiOjEsInJvbGUiOiJVc2VyIiwidSI6ImtoYXJleWFzaDA1In0.voIuuF7YASUtx455gzM34-5QeZ7z3gvV4WdFLAabqSg
+            Connection: keep-alive
+            Content-Length: "1116"
+            Content-Type: application/json
+            Host: localhost:9000
+            Postman-Token: 6c878149-e853-4ef0-a38f-578cd956aabf
+            User-Agent: PostmanRuntime/7.39.0
+        body: |-
+            {"query":"mutation CreateUser($createUserInput: UserCreateInput!) {\n  createUser(input: $createUserInput) {\n    id\n    firstName\n    lastName\n    username\n    password\n    email\n    mobile\n    address\n    active\n    lastLogin\n    lastPasswordChange\n    token\n    role {\n      id\n      accessLevel\n      name\n      updatedAt\n      deletedAt\n      createdAt\n      users {\n        id\n        firstName\n        lastName\n        username\n        password\n        email\n        mobile\n        address\n        active\n        lastLogin\n        lastPasswordChange\n        token\n        role {\n          id\n          accessLevel\n          name\n          updatedAt\n          deletedAt\n          createdAt\n        }\n        createdAt\n        deletedAt\n        updatedAt\n      }\n    }\n    createdAt\n    deletedAt\n    updatedAt\n  }\n}\n","variables":{
+              "createUserInput": {
+                "firstName":"alpha",
+                "lastName":"beta",
+                "username":"alphabeta",
+                "password":"hffjkghdfjggjkfgfj",
+                "email":"z@x1.com",
+                "roleId":9,
+                "mobile":"1234567888",
+                "active":true
+              }
+            }
+            }
+        timestamp: 2024-06-26T11:57:35.147376408Z
+    resp:
+        status_code: 200
+        header:
+            Content-Length: "66"
+            Content-Type: application/json
+            Date: Wed, 26 Jun 2024 11:57:35 GMT
+            Strict-Transport-Security: max-age=5184000; includeSubDomains
+            Vary: Origin
+            X-Content-Type-Options: nosniff
+            X-Dns-Prefetch-Control: "off"
+            X-Download-Options: noopen
+            X-Frame-Options: DENY
+            X-Request-Id: PUbg9114OXeXPhgncIHMJmy4toOLABJ0
+            X-Xss-Protection: 1; mode=block
+        body: '{"errors":[{"message":"Invalid authorization token"}],"data":null}'
+        status_message: OK
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 2024-06-26T11:57:37.15278063Z
+    objects: []
+    assertions:
+        noise:
+            header.Date: []
+    created: 1719403057
+curl: |-
+    curl --request POST \
+      --url http://localhost:9000/graphql \
+      --header 'Connection: keep-alive' \
+      --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiYUBiLmNvbSIsImV4cCI6MTcxOTI5NjQ0OCwiaWQiOjEsInJvbGUiOiJVc2VyIiwidSI6ImtoYXJleWFzaDA1In0.voIuuF7YASUtx455gzM34-5QeZ7z3gvV4WdFLAabqSg' \
+      --header 'Accept-Encoding: gzip, deflate, br' \
+      --header 'Host: localhost:9000' \
+      --header 'User-Agent: PostmanRuntime/7.39.0' \
+      --header 'Postman-Token: 6c878149-e853-4ef0-a38f-578cd956aabf' \
+      --header 'Accept: */*' \
+      --header 'Content-Type: application/json' \
+      --data '{"query":"mutation CreateUser($createUserInput: UserCreateInput!) {\n  createUser(input: $createUserInput) {\n    id\n    firstName\n    lastName\n    username\n    password\n    email\n    mobile\n    address\n    active\n    lastLogin\n    lastPasswordChange\n    token\n    role {\n      id\n      accessLevel\n      name\n      updatedAt\n      deletedAt\n      createdAt\n      users {\n        id\n        firstName\n        lastName\n        username\n        password\n        email\n        mobile\n        address\n        active\n        lastLogin\n        lastPasswordChange\n        token\n        role {\n          id\n          accessLevel\n          name\n          updatedAt\n          deletedAt\n          createdAt\n        }\n        createdAt\n        deletedAt\n        updatedAt\n      }\n    }\n    createdAt\n    deletedAt\n    updatedAt\n  }\n}\n","variables":{
+      "createUserInput": {
+        "firstName":"alpha",
+        "lastName":"beta",
+        "username":"alphabeta",
+        "password":"hffjkghdfjggjkfgfj",
+        "email":"z@x1.com",
+        "roleId":9,
+        "mobile":"1234567888",
+        "active":true
+      }
+    }
+    }'

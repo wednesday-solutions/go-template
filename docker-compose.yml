@@ -1,38 +1,39 @@
 version: '3.8'
 
 services:
-  db:
-    image: postgres:13
-    restart: always
-    env_file:
-      - .env.docker
+  # db:
+  #   image: postgres:13
+  #   restart: always
+  #   env_file:
+  #     - .env.docker
     
-    environment:
-      - POSTGRES_USER=${PSQL_USER}
-      - POSTGRES_PASSWORD=${PSQL_PASS}
-      - POSTGRES_PORT=${PSQL_PORT}
-      - POSTGRES_DB=${PSQL_DBNAME}
-    depends_on:
-      - redis
+  #   environment:
+  #     - POSTGRES_USER=${PSQL_USER}
+  #     - POSTGRES_PASSWORD=${PSQL_PASS}
+  #     - POSTGRES_PORT=${PSQL_PORT}
+  #     - POSTGRES_DB=${PSQL_DBNAME}
+  #   depends_on:
+  #     - redis
 
-  redis:
-    image: redis:6-alpine
-    restart: always
+  # redis:
+  #   image: redis:6-alpine
+  #   restart: always
 
-  wait-for-db:
-    image: atkrad/wait4x
-    depends_on:
-      - db
-    command: tcp db:${PSQL_PORT} -t 30s -i 250ms
+  # wait-for-db:
+  #   image: atkrad/wait4x
+  #   depends_on:
+  #     - db
+  #   command: tcp db:${PSQL_PORT} -t 30s -i 250ms
 
   app:
     build: .
     restart: always
+    container_name: got
     env_file:
       - ./.env.${ENVIRONMENT_NAME}
-    depends_on:
-      wait-for-db:
-        condition: service_completed_successfully
+    # depends_on:
+    #   wait-for-db:
+    #     condition: service_completed_successfully
     ports:
       - ${SERVER_PORT}:${SERVER_PORT}
     environment:

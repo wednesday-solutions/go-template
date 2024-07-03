@@ -1,0 +1,65 @@
+version: api.keploy.io/v1beta1
+kind: Http
+name: test-16
+spec:
+    metadata: {}
+    req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/graphql
+        header:
+            Accept: '*/*'
+            Accept-Encoding: gzip, deflate, br
+            Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiYUBiLmNvbSIsImV4cCI6MTcxOTk0Nzc4NywiaWQiOjEsInJvbGUiOiJVc2VyIiwidSI6ImtoYXJleWFzaDA1In0.wIMm3GN6dwSo2fUZoOFgUJXoyWKgI6Wa5fIQaGie5RU
+            Connection: keep-alive
+            Content-Length: "97"
+            Content-Type: application/json
+            Host: localhost:9000
+            Postman-Token: 75b77cd4-b6f5-4473-975f-69a5c71c2a94
+            User-Agent: PostmanRuntime/7.39.0
+        body: |-
+            {"query":"mutation DeleteUser {\n  deleteUser {\n    id\n  }\n}\n","variables":{
+                "id":"9"
+            }
+            }
+        timestamp: 2024-07-01T19:23:50.304104733Z
+    resp:
+        status_code: 200
+        header:
+            Content-Length: "34"
+            Content-Type: application/json
+            Date: Mon, 01 Jul 2024 19:23:50 GMT
+            Strict-Transport-Security: max-age=5184000; includeSubDomains
+            Vary: Origin
+            X-Content-Type-Options: nosniff
+            X-Dns-Prefetch-Control: "off"
+            X-Download-Options: noopen
+            X-Frame-Options: DENY
+            X-Request-Id: lriFuEBzMjufmOeywwvTTAeS5kt9jd4S
+            X-Xss-Protection: 1; mode=block
+        body: '{"data":{"deleteUser":{"id":"1"}}}'
+        status_message: OK
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 2024-07-01T19:23:52.401383556Z
+    objects: []
+    assertions:
+        noise:
+            header.Date: []
+    created: 1719861832
+curl: |-
+    curl --request POST \
+      --url http://localhost:9000/graphql \
+      --header 'Accept: */*' \
+      --header 'Connection: keep-alive' \
+      --header 'User-Agent: PostmanRuntime/7.39.0' \
+      --header 'Content-Type: application/json' \
+      --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiYUBiLmNvbSIsImV4cCI6MTcxOTk0Nzc4NywiaWQiOjEsInJvbGUiOiJVc2VyIiwidSI6ImtoYXJleWFzaDA1In0.wIMm3GN6dwSo2fUZoOFgUJXoyWKgI6Wa5fIQaGie5RU' \
+      --header 'Accept-Encoding: gzip, deflate, br' \
+      --header 'Postman-Token: 75b77cd4-b6f5-4473-975f-69a5c71c2a94' \
+      --header 'Host: localhost:9000' \
+      --data '{"query":"mutation DeleteUser {\n  deleteUser {\n    id\n  }\n}\n","variables":{
+        "id":"9"
+    }
+    }'

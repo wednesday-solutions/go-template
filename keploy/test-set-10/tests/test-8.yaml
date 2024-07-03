@@ -1,0 +1,47 @@
+version: api.keploy.io/v1beta1
+kind: Http
+name: test-9
+spec:
+    metadata: {}
+    req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/graphql
+        header:
+            Accept: '*/*'
+            Accept-Encoding: gzip, deflate, br
+            Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiYUBiLmNvbSIsImV4cCI6MTcxOTk0Nzc4NywiaWQiOjEsInJvbGUiOiJVc2VyIiwidSI6ImtoYXJleWFzaDA1In0.wIMm3GN6dwSo2fUZoOFgUJXoyWKgI6Wa5fIQaGie5RU
+            Connection: keep-alive
+            Content-Length: "958"
+            Content-Type: application/json
+            Host: localhost:9000
+            Postman-Token: 10143f50-3ecf-4058-aae5-98877589159d
+            User-Agent: PostmanRuntime/7.39.0
+        body: "{\"query\":\"mutation UpdateUser($updateUserInput: UserUpdateInput) {\\n  updateUser(input: $updateUserInput) {\\n    id\\n    firstName\\n    lastName\\n    username\\n    password\\n    email\\n    mobile\\n    address\\n    active\\n    lastLogin\\n    lastPasswordChange\\n    token\\n    role {\\n      id\\n      accessLevel\\n      name\\n      updatedAt\\n      deletedAt\\n      createdAt\\n      users {\\n        id\\n        firstName\\n        lastName\\n        username\\n        password\\n        email\\n        mobile\\n        address\\n        active\\n        lastLogin\\n        lastPasswordChange\\n        token\\n        role {\\n          id\\n          accessLevel\\n          name\\n          updatedAt\\n          deletedAt\\n          createdAt\\n        }\\n        createdAt\\n        deletedAt\\n        updatedAt\\n      }\\n    }\\n    createdAt\\n    deletedAt\\n    updatedAt\\n  }\\n}\\n\",\"variables\":{\n  \"updateUserInput\": {\n    \"id\":\"9\",\n    \"firstName\":\"John\"    \n  }\n}\n}"
+        timestamp: 2024-07-01T19:23:31.626202774Z
+    resp:
+        status_code: 200
+        header:
+            Content-Length: "801"
+            Content-Type: application/json
+            Date: Mon, 01 Jul 2024 19:23:31 GMT
+            Strict-Transport-Security: max-age=5184000; includeSubDomains
+            Vary: Origin
+            X-Content-Type-Options: nosniff
+            X-Dns-Prefetch-Control: "off"
+            X-Download-Options: noopen
+            X-Frame-Options: DENY
+            X-Request-Id: qYXVpCHLhtU0K6nsvsW5ZAceXiRdprbV
+            X-Xss-Protection: 1; mode=block
+        body: '{"data":{"updateUser":{"id":"1","firstName":"John","lastName":"Khare","username":"khareyash05","password":null,"email":"a@b.com","mobile":"1234567890","address":null,"active":true,"lastLogin":null,"lastPasswordChange":null,"token":null,"role":{"id":"14","accessLevel":2,"name":"User","updatedAt":1687262700000,"deletedAt":null,"createdAt":1687262700000,"users":[{"id":"1","firstName":"John","lastName":"Khare","username":"khareyash05","password":null,"email":"a@b.com","mobile":"1234567890","address":null,"active":true,"lastLogin":null,"lastPasswordChange":null,"token":null,"role":{"id":"14","accessLevel":2,"name":"User","updatedAt":1687262700000,"deletedAt":null,"createdAt":1687262700000},"createdAt":null,"deletedAt":null,"updatedAt":null}]},"createdAt":null,"deletedAt":null,"updatedAt":null}}}'
+        status_message: OK
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 2024-07-01T19:23:33.675381655Z
+    objects: []
+    assertions:
+        noise:
+            header.Date: []
+    created: 1719861813
+curl: "curl --request POST \\\n  --url http://localhost:9000/graphql \\\n  --header 'Accept-Encoding: gzip, deflate, br' \\\n  --header 'Content-Type: application/json' \\\n  --header 'Accept: */*' \\\n  --header 'Host: localhost:9000' \\\n  --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiYUBiLmNvbSIsImV4cCI6MTcxOTk0Nzc4NywiaWQiOjEsInJvbGUiOiJVc2VyIiwidSI6ImtoYXJleWFzaDA1In0.wIMm3GN6dwSo2fUZoOFgUJXoyWKgI6Wa5fIQaGie5RU' \\\n  --header 'Postman-Token: 10143f50-3ecf-4058-aae5-98877589159d' \\\n  --header 'User-Agent: PostmanRuntime/7.39.0' \\\n  --header 'Connection: keep-alive' \\\n  --data '{\"query\":\"mutation UpdateUser($updateUserInput: UserUpdateInput) {\\n  updateUser(input: $updateUserInput) {\\n    id\\n    firstName\\n    lastName\\n    username\\n    password\\n    email\\n    mobile\\n    address\\n    active\\n    lastLogin\\n    lastPasswordChange\\n    token\\n    role {\\n      id\\n      accessLevel\\n      name\\n      updatedAt\\n      deletedAt\\n      createdAt\\n      users {\\n        id\\n        firstName\\n        lastName\\n        username\\n        password\\n        email\\n        mobile\\n        address\\n        active\\n        lastLogin\\n        lastPasswordChange\\n        token\\n        role {\\n          id\\n          accessLevel\\n          name\\n          updatedAt\\n          deletedAt\\n          createdAt\\n        }\\n        createdAt\\n        deletedAt\\n        updatedAt\\n      }\\n    }\\n    createdAt\\n    deletedAt\\n    updatedAt\\n  }\\n}\\n\",\"variables\":{\n  \"updateUserInput\": {\n    \"id\":\"9\",\n    \"firstName\":\"John\"    \n  }\n}\n}'"

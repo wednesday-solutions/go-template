@@ -21,5 +21,8 @@ CREATE INDEX users_username_idx ON users(username);
 CREATE INDEX users_email_idx ON users(email);
 CREATE INDEX users_role_id_idx ON users(role_id);
 
+INSERT INTO public.users (first_name, last_name, username, password, email, mobile, active,role_id) VALUES
+('Yash','Khare','khareyash05','$2a$10$w0UM0B7MLaExdTMq15gVY.4zD/hw.YW5iyAJzqepVBSzUSN80bwAG','a@b.com','1234567890',true,14);
+
 -- +migrate Down
 DROP TABLE users;

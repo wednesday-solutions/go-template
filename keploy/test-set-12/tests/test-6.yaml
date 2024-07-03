@@ -1,0 +1,61 @@
+version: api.keploy.io/v1beta1
+kind: Http
+name: test-6
+spec:
+    metadata: {}
+    req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/graphql
+        header:
+            Accept: '*/*'
+            Accept-Encoding: gzip, deflate, br
+            Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiYUBiLmNvbSIsImV4cCI6MTcxOTk4NjczNCwiaWQiOjEsInJvbGUiOiJVc2VyIiwidSI6ImtoYXJleWFzaDA1In0.WbsHE8lCeNnblkkm0QL0Gl73zIYLOKUB-edImyDEiKA
+            Connection: keep-alive
+            Content-Length: "810"
+            Content-Type: application/json
+            Host: localhost:9000
+            Postman-Token: b092ad0e-cba9-4cbc-9dec-cf8661375ff3
+            User-Agent: PostmanRuntime/7.39.0
+        body: |-
+            {"query":"query Me {\n  me {\n    id\n    firstName\n    lastName\n    username\n    password\n    email\n    mobile\n    address\n    active\n    lastLogin\n    lastPasswordChange\n    token\n    role {\n      id\n      accessLevel\n      name\n      updatedAt\n      deletedAt\n      createdAt\n      users {\n        id\n        firstName\n        lastName\n        username\n        password\n        email\n        mobile\n        address\n        active\n        lastLogin\n        lastPasswordChange\n        token\n        role {\n          id\n          accessLevel\n          name\n          updatedAt\n          deletedAt\n          createdAt\n        }\n        createdAt\n        deletedAt\n        updatedAt\n      }\n    }\n    createdAt\n    deletedAt\n    updatedAt\n  }\n}\n","variables":{}
+            }
+        timestamp: 2024-07-02T06:06:08.353958393Z
+    resp:
+        status_code: 200
+        header:
+            Content-Length: "793"
+            Content-Type: application/json
+            Date: Tue, 02 Jul 2024 06:06:08 GMT
+            Strict-Transport-Security: max-age=5184000; includeSubDomains
+            Vary: Origin
+            X-Content-Type-Options: nosniff
+            X-Dns-Prefetch-Control: "off"
+            X-Download-Options: noopen
+            X-Frame-Options: DENY
+            X-Request-Id: yNGNZdY8MzvYmRhkhLZk8iAWB4Z5p2ym
+            X-Xss-Protection: 1; mode=block
+        body: '{"data":{"me":{"id":"1","firstName":"Yash","lastName":"Khare","username":"khareyash05","password":null,"email":"a@b.com","mobile":"1234567890","address":null,"active":true,"lastLogin":null,"lastPasswordChange":null,"token":null,"role":{"id":"14","accessLevel":2,"name":"User","updatedAt":1687262700000,"deletedAt":null,"createdAt":1687262700000,"users":[{"id":"1","firstName":"Yash","lastName":"Khare","username":"khareyash05","password":null,"email":"a@b.com","mobile":"1234567890","address":null,"active":true,"lastLogin":null,"lastPasswordChange":null,"token":null,"role":{"id":"14","accessLevel":2,"name":"User","updatedAt":1687262700000,"deletedAt":null,"createdAt":1687262700000},"createdAt":null,"deletedAt":null,"updatedAt":null}]},"createdAt":null,"deletedAt":null,"updatedAt":null}}}'
+        status_message: OK
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 2024-07-02T06:06:10.377499358Z
+    objects: []
+    assertions:
+        noise:
+            header.Date: []
+    created: 1719900370
+curl: |-
+    curl --request POST \
+      --url http://localhost:9000/graphql \
+      --header 'User-Agent: PostmanRuntime/7.39.0' \
+      --header 'Content-Type: application/json' \
+      --header 'Host: localhost:9000' \
+      --header 'Accept: */*' \
+      --header 'Accept-Encoding: gzip, deflate, br' \
+      --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiYUBiLmNvbSIsImV4cCI6MTcxOTk4NjczNCwiaWQiOjEsInJvbGUiOiJVc2VyIiwidSI6ImtoYXJleWFzaDA1In0.WbsHE8lCeNnblkkm0QL0Gl73zIYLOKUB-edImyDEiKA' \
+      --header 'Postman-Token: b092ad0e-cba9-4cbc-9dec-cf8661375ff3' \
+      --header 'Connection: keep-alive' \
+      --data '{"query":"query Me {\n  me {\n    id\n    firstName\n    lastName\n    username\n    password\n    email\n    mobile\n    address\n    active\n    lastLogin\n    lastPasswordChange\n    token\n    role {\n      id\n      accessLevel\n      name\n      updatedAt\n      deletedAt\n      createdAt\n      users {\n        id\n        firstName\n        lastName\n        username\n        password\n        email\n        mobile\n        address\n        active\n        lastLogin\n        lastPasswordChange\n        token\n        role {\n          id\n          accessLevel\n          name\n          updatedAt\n          deletedAt\n          createdAt\n        }\n        createdAt\n        deletedAt\n        updatedAt\n      }\n    }\n    createdAt\n    deletedAt\n    updatedAt\n  }\n}\n","variables":{}
+    }'
