@@ -1,0 +1,203 @@
+version: api.keploy.io/v1beta1
+name: test-set-2-report
+status: FAILED
+success: 0
+failure: 1
+total: 1
+tests:
+    - kind: Http
+      name: test-set-2
+      status: FAILED
+      started: 1712922815
+      completed: 1712922815
+      test_case_path: /Users/himanshu/go-template/keploy/test-set-2
+      mock_path: /Users/himanshu/go-template/keploy/test-set-2/mocks.yaml
+      test_case_id: test-1
+      req:
+        method: POST
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/graphql
+        header:
+            Accept: application/json, multipart/mixed
+            Accept-Encoding: gzip, deflate, br, zstd
+            Accept-Language: en-GB,en-US;q=0.9,en;q=0.8
+            Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlIjoiam9obmRvZUBtYWlsLmNvbSIsImV4cCI6MTcxMzAwODc3NiwiaWQiOjEsInJvbGUiOiJTVVBFUl9BRE1JTiIsInUiOiJhZG1pbiJ9.ZqJCMFz395LAmn8xU62gZRW5ZCeJEDxHFXA9fCZqjS8
+            Connection: keep-alive
+            Content-Length: "150"
+            Content-Type: application/json
+            Host: localhost:9000
+            Origin: http://localhost:9000
+            Referer: http://localhost:9000/playground
+            Sec-Ch-Ua: '"Google Chrome";v="123", "Not:A-Brand";v="8", "Chromium";v="123"'
+            Sec-Ch-Ua-Mobile: ?0
+            Sec-Ch-Ua-Platform: '"macOS"'
+            Sec-Fetch-Dest: empty
+            Sec-Fetch-Mode: cors
+            Sec-Fetch-Site: same-origin
+            User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36
+        body: '{"query":"mutation ChangePassword{\n  changePassword(oldPassword:\"hello\", newPassword:\"hello\"){\n    ok\n  }\n}","operationName":"ChangePassword"}'
+        timestamp: 2024-04-12T11:49:35.436171552Z
+      resp:
+        status_code: 200
+        header:
+            Access-Control-Allow-Credentials: "true"
+            Access-Control-Allow-Origin: http://localhost:9000
+            Access-Control-Expose-Headers: Content-Length
+            Content-Length: "87"
+            Content-Type: application/json
+            Date: Fri, 12 Apr 2024 11:49:35 GMT
+            Strict-Transport-Security: max-age=5184000; includeSubDomains
+            Vary: Origin
+            X-Content-Type-Options: nosniff
+            X-Dns-Prefetch-Control: "off"
+            X-Download-Options: noopen
+            X-Frame-Options: DENY
+            X-Request-Id: 9Lel22fBsLeaKPDFzWgHM0jiI1zVWiWZ
+            X-Xss-Protection: 1; mode=block
+        body: '{"errors":[{"message":"incorrect old password","path":["changePassword"]}],"data":null}'
+        status_message: OK
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 2024-04-12T11:49:37.636766637Z
+      noise:
+        header.Date: []
+      result:
+        status_code:
+            normal: true
+            expected: 200
+            actual: 200
+        headers_result:
+            - normal: true
+              expected:
+                key: X-Xss-Protection
+                value:
+                    - 1; mode=block
+              actual:
+                key: X-Xss-Protection
+                value:
+                    - 1; mode=block
+            - normal: false
+              expected:
+                key: X-Request-Id
+                value:
+                    - 9Lel22fBsLeaKPDFzWgHM0jiI1zVWiWZ
+              actual:
+                key: X-Request-Id
+                value:
+                    - ji4dymf1M8UQQs3phxI6U5LHQTjj4XTd
+            - normal: true
+              expected:
+                key: Access-Control-Expose-Headers
+                value:
+                    - Content-Length
+              actual:
+                key: Access-Control-Expose-Headers
+                value:
+                    - Content-Length
+            - normal: true
+              expected:
+                key: Strict-Transport-Security
+                value:
+                    - max-age=5184000; includeSubDomains
+              actual:
+                key: Strict-Transport-Security
+                value:
+                    - max-age=5184000; includeSubDomains
+            - normal: true
+              expected:
+                key: X-Content-Type-Options
+                value:
+                    - nosniff
+              actual:
+                key: X-Content-Type-Options
+                value:
+                    - nosniff
+            - normal: true
+              expected:
+                key: Access-Control-Allow-Credentials
+                value:
+                    - "true"
+              actual:
+                key: Access-Control-Allow-Credentials
+                value:
+                    - "true"
+            - normal: true
+              expected:
+                key: Vary
+                value:
+                    - Origin
+              actual:
+                key: Vary
+                value:
+                    - Origin
+            - normal: true
+              expected:
+                key: X-Download-Options
+                value:
+                    - noopen
+              actual:
+                key: X-Download-Options
+                value:
+                    - noopen
+            - normal: true
+              expected:
+                key: Content-Type
+                value:
+                    - application/json
+              actual:
+                key: Content-Type
+                value:
+                    - application/json
+            - normal: true
+              expected:
+                key: Content-Length
+                value:
+                    - "87"
+              actual:
+                key: Content-Length
+                value:
+                    - "87"
+            - normal: true
+              expected:
+                key: Date
+                value:
+                    - Fri, 12 Apr 2024 11:49:35 GMT
+              actual:
+                key: Date
+                value:
+                    - Fri, 12 Apr 2024 11:53:35 GMT
+            - normal: true
+              expected:
+                key: X-Frame-Options
+                value:
+                    - DENY
+              actual:
+                key: X-Frame-Options
+                value:
+                    - DENY
+            - normal: true
+              expected:
+                key: Access-Control-Allow-Origin
+                value:
+                    - http://localhost:9000
+              actual:
+                key: Access-Control-Allow-Origin
+                value:
+                    - http://localhost:9000
+            - normal: true
+              expected:
+                key: X-Dns-Prefetch-Control
+                value:
+                    - "off"
+              actual:
+                key: X-Dns-Prefetch-Control
+                value:
+                    - "off"
+        body_result:
+            - normal: true
+              type: JSON
+              expected: '{"errors":[{"message":"incorrect old password","path":["changePassword"]}],"data":null}'
+              actual: '{"errors":[{"message":"incorrect old password","path":["changePassword"]}],"data":null}'
+        dep_result: []
+test_set: test-set-2

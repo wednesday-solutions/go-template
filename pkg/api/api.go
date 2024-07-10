@@ -22,9 +22,9 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gorilla/websocket"
+	"github.com/keploy/go-sdk/v2/keploy"
 	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq" // here
-
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
@@ -83,7 +83,7 @@ func Start(cfg *config.Configuration) (*echo.Echo, error) {
 
 	// Set up GraphQL playground
 	setupGraphQLPlayground(e)
-
+	keploy.GracefulShutdown()
 	// Start the server
 	server.Start(e, &server.Config{
 		Port:                cfg.Server.Port,

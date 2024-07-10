@@ -6,7 +6,6 @@ services:
     restart: always
     env_file:
       - .env.docker
-    
     environment:
       - POSTGRES_USER=${PSQL_USER}
       - POSTGRES_PASSWORD=${PSQL_PASS}
@@ -14,19 +13,26 @@ services:
       - POSTGRES_DB=${PSQL_DBNAME}
     depends_on:
       - redis
+    networks:
+      - go-template-networks
 
   redis:
     image: redis:6-alpine
     restart: always
+    networks:
+      - go-template-networks
 
   wait-for-db:
     image: atkrad/wait4x
     depends_on:
       - db
     command: tcp db:${PSQL_PORT} -t 30s -i 250ms
+    networks:
+      - go-template-networks
 
   app:
     build: .
+    container_name: go-template-app
     restart: always
     env_file:
       - ./.env.${ENVIRONMENT_NAME}
@@ -36,4 +42,10 @@ services:
     ports:
       - ${SERVER_PORT}:${SERVER_PORT}
     environment:
-      ENVIRONMENT_NAME:  ${ENVIRONMENT_NAME}
+      ENVIRONMENT_NAME: ${ENVIRONMENT_NAME}
+    networks:
+      - go-template-networks
+networks:
+  go-template-networks:
+    external: false
+  

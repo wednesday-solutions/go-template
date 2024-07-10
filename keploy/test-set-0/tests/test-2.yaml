@@ -1,0 +1,73 @@
+version: api.keploy.io/v1beta1
+kind: Http
+name: test-2
+spec:
+    metadata: {}
+    req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:9000/favicon.ico
+        header:
+            Accept: image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8
+            Accept-Encoding: gzip, deflate, br, zstd
+            Accept-Language: en-GB,en
+            Connection: keep-alive
+            Cookie: csrftoken=5w8RtIXw5M4ixBeXNqB6wphbStVCywde; grafana_session=7b44726b6c047975275b69d7b914ff73
+            Host: localhost:9000
+            Referer: http://localhost:9000/
+            Sec-Ch-Ua: '"Brave";v="123", "Not:A-Brand";v="8", "Chromium";v="123"'
+            Sec-Ch-Ua-Mobile: ?0
+            Sec-Ch-Ua-Platform: '"macOS"'
+            Sec-Fetch-Dest: image
+            Sec-Fetch-Mode: no-cors
+            Sec-Fetch-Site: same-origin
+            Sec-Gpc: "1"
+            User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36
+        body: ""
+        timestamp: 2024-04-12T16:44:18.14476234+05:30
+    resp:
+        status_code: 404
+        header:
+            Content-Length: "29"
+            Content-Type: application/json; charset=UTF-8
+            Date: Fri, 12 Apr 2024 11:14:18 GMT
+            Strict-Transport-Security: max-age=5184000; includeSubDomains
+            Vary: Origin
+            X-Content-Type-Options: nosniff
+            X-Dns-Prefetch-Control: "off"
+            X-Download-Options: noopen
+            X-Frame-Options: DENY
+            X-Request-Id: pVVea7MWEHiLWEeFlryNarLV7VbYIHaI
+            X-Xss-Protection: 1; mode=block
+        body: |
+            {
+              "message": "Not Found"
+            }
+        status_message: Not Found
+        proto_major: 0
+        proto_minor: 0
+        timestamp: 2024-04-12T16:44:20.651696485+05:30
+    objects: []
+    assertions:
+        noise:
+            header.Date: []
+    created: 1712920460
+curl: |
+    curl --request GET \
+      --url http://localhost:9000/favicon.ico \
+      --header 'Referer: http://localhost:9000/' \
+      --header 'Accept-Language: en-GB,en' \
+      --header 'Sec-Ch-Ua: "Brave";v="123", "Not:A-Brand";v="8", "Chromium";v="123"' \
+      --header 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36' \
+      --header 'Connection: keep-alive' \
+      --header 'Accept: image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8' \
+      --header 'Cookie: csrftoken=5w8RtIXw5M4ixBeXNqB6wphbStVCywde; grafana_session=7b44726b6c047975275b69d7b914ff73' \
+      --header 'Accept-Encoding: gzip, deflate, br, zstd' \
+      --header 'Host: localhost:9000' \
+      --header 'Sec-Fetch-Mode: no-cors' \
+      --header 'Sec-Ch-Ua-Mobile: ?0' \
+      --header 'Sec-Fetch-Site: same-origin' \
+      --header 'Sec-Gpc: 1' \
+      --header 'Sec-Fetch-Dest: image' \
+      --header 'Sec-Ch-Ua-Platform: "macOS"' \
