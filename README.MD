@@ -1,7 +1,7 @@
 <img align="left" src="https://github.com/wednesday-solutions/go-template/blob/master/golang_template_github.svg" width="440" height="480" />
 
 <div>
-  <a href="https://www.wednesday.is?utm_source=gthb&utm_medium=repo&utm_campaign=gotemplate" align="left" style="margin-left: 0;">
+  <a href="https://www.wednesday.is/?utm_source=github&utm_medium=go-template" align="left" style="margin-left: 0;">
     <img src="https://uploads-ssl.webflow.com/5ee36ce1473112550f1e1739/5f5879492fafecdb3e5b0e75_wednesday_logo.svg">
   </a>
   <p>
@@ -21,7 +21,7 @@ An enterprise go template application showcasing - Testing strategies, middlewar
   </p>
 
   <div>
-    <a href="https://www.wednesday.is/contact-us?utm_source=gthb&utm_medium=repo&utm_campaign=serverless" target="_blank">
+    <a href="https://www.wednesday.is/contact-us/?utm_source=github&utm_medium=go-template" target="_blank">
       <img src="https://uploads-ssl.webflow.com/5ee36ce1473112550f1e1739/5f6ae88b9005f9ed382fb2a5_button_get_in_touch.svg" width="121" height="34">
     </a>
     <a href="https://github.com/wednesday-solutions/" target="_blank">
@@ -32,7 +32,7 @@ An enterprise go template application showcasing - Testing strategies, middlewar
   ___
 
 <span>We’re always looking for people who value their work, so come and join
-us. <a href="https://www.wednesday.is/hiring">We are hiring!</a></span>
+us. <a href="https://www.wednesday.is/hiring/?utm_source=github&utm_medium=go-template">We are hiring!</a></span>
 
 
 </div>
