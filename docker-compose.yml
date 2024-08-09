@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   db:
@@ -6,7 +6,7 @@ services:
     restart: always
     env_file:
       - .env.docker
-    
+
     environment:
       - POSTGRES_USER=${PSQL_USER}
       - POSTGRES_PASSWORD=${PSQL_PASS}
@@ -26,7 +26,12 @@ services:
     command: tcp db:${PSQL_PORT} -t 30s -i 250ms
 
   app:
-    build: .
+    build: 
+      context: .
+      args:
+        APP_PATH: ${APP_PATH}
+    image: go-template_app:latest
+    container_name: got
     restart: always
     env_file:
       - ./.env.${ENVIRONMENT_NAME}
@@ -35,5 +40,8 @@ services:
         condition: service_completed_successfully
     ports:
       - ${SERVER_PORT}:${SERVER_PORT}
+    volumes:
+      - ${APP_PATH}/coverage-reports:${APP_PATH}/coverage-reports
     environment:
-      ENVIRONMENT_NAME:  ${ENVIRONMENT_NAME}
+      ENVIRONMENT_NAME: ${ENVIRONMENT_NAME}
+    stop_grace_period: 50s
