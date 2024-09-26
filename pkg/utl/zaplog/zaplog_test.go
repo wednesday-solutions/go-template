@@ -131,7 +131,7 @@ func TestInitLogger(t *testing.T) {
 
 			patchProduction := gomonkey.ApplyFunc(zap.NewProduction, func(options ...zap.Option) (*zap.Logger, error) {
 				if tt.panicErr {
-					return &mockZapLog, fmt.Errorf(ErrMsgProduction)
+					return &mockZapLog, fmt.Errorf("%s", ErrMsgProduction)
 				} else {
 					return &mockZapLog, nil
 				}
