@@ -3,7 +3,6 @@ package config
 import (
 	"encoding/json"
 	"fmt"
-	"go-template/pkg/utl/convert"
 	"log"
 	"os"
 	"path/filepath"
@@ -11,6 +10,8 @@ import (
 	"strconv"
 
 	"github.com/joho/godotenv"
+
+	"go-template/pkg/utl/convert"
 )
 
 func GetString(key string) string {
@@ -57,9 +58,12 @@ func FileName() string {
 }
 
 func LoadEnv() error {
+	const (
+		localEnvFile = "local"
+	)
 	_, filename, _, ok := runtime.Caller(0)
 	if !ok {
-		return fmt.Errorf("Error getting current file path")
+		return fmt.Errorf("error getting current file path")
 	}
 
 	prefix := fmt.Sprintf("%s/", filepath.Join(filepath.Dir(filename), "../../"))
@@ -71,18 +75,15 @@ func LoadEnv() error {
 
 	envName := os.Getenv("ENVIRONMENT_NAME")
 	if envName == "" {
-		envName = "local"
+		envName = localEnvFile
 	}
 	log.Println("envName: " + envName)
 
 	envVarInjection := GetBool("ENV_INJECTION")
-	if !envVarInjection || envName == "local" {
+	if !envVarInjection || envName == localEnvFile {
 		err = godotenv.Load(fmt.Sprintf("%s.env.%s", prefix, envName))
-
 		if err != nil {
-			fmt.Printf(".env.%s\n", envName)
-			log.Println(err)
-			return err
+			return fmt.Errorf("failed to load env for environment %q file: %w", envName, err)
 		}
 		fmt.Println("loaded", fmt.Sprintf("%s.env.%s", prefix, envName))
 		return nil
@@ -90,26 +91,45 @@ func LoadEnv() error {
 
 	dbCredsInjected := GetBool("COPILOT_DB_CREDS_VIA_SECRETS_MANAGER")
 
-	if dbCredsInjected {
-		type copilotSecrets struct {
-			Username string `json:"username"`
-			Host     string `json:"host"`
-			DBName   string `json:"dbname"`
-			Password string `json:"password"`
-			Port     int    `json:"port"`
-		}
-		secrets := &copilotSecrets{}
-
-		err := json.Unmarshal([]byte(os.Getenv("DB_SECRET")), secrets)
-		if err != nil {
-			return err
-		}
-
-		os.Setenv("PSQL_DBNAME", secrets.DBName)
-		os.Setenv("PSQL_HOST", secrets.Host)
-		os.Setenv("PSQL_PASS", secrets.Password)
-		os.Setenv("PSQL_PORT", strconv.Itoa(secrets.Port))
-		os.Setenv("PSQL_USER", secrets.Username)
+	// except for local environment the db creds should be
+	// injected through the secret manager
+	if envName != localEnvFile && !dbCredsInjected {
+		return fmt.Errorf("db creds should be injected through secret manager")
 	}
-	return fmt.Errorf("COPILOT_DB_CREDS_VIA_SECRETS_MANAGER should have had a value")
+
+	// if db creds are injected, extract those
+	if dbCredsInjected {
+		return extractDBCredsFromSecret()
+	}
+	// otherwise
+	return nil
+}
+
+// extractDBCredsFromSecret helper function to extract db secret
+func extractDBCredsFromSecret() error {
+	type copilotSecrets struct {
+		Username string `json:"username"`
+		Host     string `json:"host"`
+		DBName   string `json:"dbname"`
+		Password string `json:"password"`
+		Port     int    `json:"port"`
+	}
+	secrets, dbSecret := &copilotSecrets{}, os.Getenv("DB_SECRET")
+
+	if dbSecret == "" {
+		return fmt.Errorf("'DB_SECRET' environment var is not set or is empty")
+	}
+
+	err := json.Unmarshal([]byte(dbSecret), secrets)
+	if err != nil {
+		return fmt.Errorf("couldn't unmarshal db secret: %w", err)
+	}
+
+	os.Setenv("PSQL_DBNAME", secrets.DBName)
+	os.Setenv("PSQL_HOST", secrets.Host)
+	os.Setenv("PSQL_PASS", secrets.Password)
+	os.Setenv("PSQL_PORT", strconv.Itoa(secrets.Port))
+	os.Setenv("PSQL_USER", secrets.Username)
+
+	return nil
 }
