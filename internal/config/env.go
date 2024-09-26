@@ -63,7 +63,7 @@ func LoadEnv() error {
 	)
 	_, filename, _, ok := runtime.Caller(0)
 	if !ok {
-		return fmt.Errorf("Error getting current file path")
+		return fmt.Errorf("error getting current file path")
 	}
 
 	prefix := fmt.Sprintf("%s/", filepath.Join(filepath.Dir(filename), "../../"))
@@ -83,7 +83,7 @@ func LoadEnv() error {
 	if !envVarInjection || envName == localEnvFile {
 		err = godotenv.Load(fmt.Sprintf("%s.env.%s", prefix, envName))
 		if err != nil {
-			return fmt.Errorf("failed load env for environment %q file: %w", envName, err)
+			return fmt.Errorf("failed to load env for environment %q file: %w", envName, err)
 		}
 		fmt.Println("loaded", fmt.Sprintf("%s.env.%s", prefix, envName))
 		return nil
@@ -114,9 +114,13 @@ func extractDBCredsFromSecret() error {
 		Password string `json:"password"`
 		Port     int    `json:"port"`
 	}
-	secrets := &copilotSecrets{}
+	secrets, dbSecret := &copilotSecrets{}, os.Getenv("DB_SECRET")
 
-	err := json.Unmarshal([]byte(os.Getenv("DB_SECRET")), secrets)
+	if dbSecret == "" {
+		return fmt.Errorf("'DB_SECRET' environment var is not set or is empty")
+	}
+
+	err := json.Unmarshal([]byte(dbSecret), secrets)
 	if err != nil {
 		return fmt.Errorf("couldn't unmarshal db secret: %w", err)
 	}

@@ -367,34 +367,6 @@ func loadOnDbCredsInjectedInDevEnv(
 	}
 }
 
-func errorOnDbCredsInjectedInLocalEnv() envTestCaseArgs {
-	return envTestCaseArgs{
-		name:    "dbCredsInjected True for `local` environment, with invalid json in db secret",
-		wantErr: true,
-		args: args{
-			setEnv: []keyValueArgs{
-				{
-					key:   "ENV_INJECTION",
-					value: "true",
-				},
-				{
-					key:   "ENVIRONMENT_NAME",
-					value: "develop",
-				},
-				{
-					key:   "COPILOT_DB_CREDS_VIA_SECRETS_MANAGER",
-					value: "true",
-				},
-				{
-					key:   "DB_SECRET",
-					value: `invalid json`,
-				},
-			},
-			expectedKeyValues: []keyValueArgs{},
-		},
-	}
-}
-
 func loadDbCredsInjectedInLocalEnv(
 	username string,
 	host string,
@@ -482,7 +454,6 @@ func getTestCases(username string, host string, dbname string, password string, 
 		loadOnCopilotTrueAndLocalEnv(),
 		errorOnDbCredsInjectedInDevEnv(),
 		loadOnDbCredsInjectedInDevEnv(username, host, dbname, password, port),
-		errorOnDbCredsInjectedInLocalEnv(),
 		loadDbCredsInjectedInLocalEnv(username, host, dbname, password, port),
 		errorOnWrongEnvName(),
 	}
