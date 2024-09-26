@@ -121,7 +121,7 @@ func TestResultWrapper(t *testing.T) {
 			name: ErrorCase,
 			args: args{
 				errorCode: 400,
-				err:       fmt.Errorf(ErrMsgJSON),
+				err:       fmt.Errorf("%s", ErrMsgJSON),
 			},
 			wantErr: true,
 		},
@@ -132,7 +132,7 @@ func TestResultWrapper(t *testing.T) {
 			ctx := e.NewContext(req, w)
 			if tt.name == ErrorCase {
 				patch := gomonkey.ApplyMethodFunc(ctx, "JSON", func(code int, i interface{}) error {
-					return fmt.Errorf(ErrMsgJSON)
+					return fmt.Errorf("%s", ErrMsgJSON)
 				})
 				defer patch.Reset()
 			}
@@ -162,7 +162,7 @@ func TestInternalServerError(t *testing.T) {
 			name: SuccessCase,
 			err:  ErrMsg,
 			args: args{
-				err: fmt.Errorf(ErrMsg),
+				err: fmt.Errorf("%s", ErrMsg),
 				c:   getContext()},
 			wantErr: true,
 		},
@@ -198,7 +198,7 @@ func TestInternalServerErrorFromMessage(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := resultwrapper.InternalServerErrorFromMessage(tt.args.c, tt.args.err)
-			assert.Equal(t, err, fmt.Errorf(tt.args.err))
+			assert.Equal(t, err, fmt.Errorf("%s", tt.args.err))
 			assert.Equal(t, http.StatusInternalServerError, tt.args.c.Response().Status)
 		})
 	}
@@ -220,7 +220,7 @@ func TestBadRequest(t *testing.T) {
 			name: SuccessCase,
 			err:  errorStr,
 			args: args{
-				err: fmt.Errorf(errorStr),
+				err: fmt.Errorf("%s", errorStr),
 				c:   getContext()},
 			wantErr: true,
 		},
@@ -256,7 +256,7 @@ func TestBadRequestFromMessage(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := resultwrapper.BadRequestFromMessage(tt.args.c, tt.args.err)
-			assert.Equal(t, err, fmt.Errorf(tt.args.err))
+			assert.Equal(t, err, fmt.Errorf("%s", tt.args.err))
 			assert.Equal(t, http.StatusBadRequest, tt.args.c.Response().Status)
 		})
 	}
@@ -278,7 +278,7 @@ func TestConflict(t *testing.T) {
 			name: SuccessCase,
 			err:  errorStr,
 			args: args{
-				err: fmt.Errorf(errorStr),
+				err: fmt.Errorf("%s", errorStr),
 				c:   getContext()},
 			wantErr: true,
 		},
@@ -314,7 +314,7 @@ func TestConflictFromMessage(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := resultwrapper.ConflictFromMessage(tt.args.c, tt.args.err)
-			assert.Equal(t, err, fmt.Errorf(tt.args.err))
+			assert.Equal(t, err, fmt.Errorf("%s", tt.args.err))
 			assert.Equal(t, http.StatusConflict, tt.args.c.Response().Status)
 		})
 	}
@@ -336,7 +336,7 @@ func TestTooManyRequests(t *testing.T) {
 			name: SuccessCase,
 			err:  errorStr,
 			args: args{
-				err: fmt.Errorf(errorStr),
+				err: fmt.Errorf("%s", errorStr),
 				c:   getContext()},
 			wantErr: true,
 		},
@@ -366,7 +366,7 @@ func TestUnauthorized(t *testing.T) {
 			name: SuccessCase,
 			err:  errorStr,
 			args: args{
-				err: fmt.Errorf(errorStr),
+				err: fmt.Errorf("%s", errorStr),
 				c:   getContext()},
 			wantErr: true,
 		},
@@ -402,7 +402,7 @@ func TestUnauthorizedFromMessage(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := resultwrapper.UnauthorizedFromMessage(tt.args.c, tt.args.err)
-			assert.Equal(t, err, fmt.Errorf(tt.args.err))
+			assert.Equal(t, err, fmt.Errorf("%s", tt.args.err))
 			assert.Equal(t, http.StatusUnauthorized, tt.args.c.Response().Status)
 		})
 	}
@@ -591,7 +591,7 @@ func TestResolverSQLError(t *testing.T) {
 			if tt.dontAddDetail {
 				errorMessage = tt.errMsg
 			}
-			assert.Equal(t, fmt.Errorf(errorMessage), err)
+			assert.Equal(t, fmt.Errorf("%s", errorMessage), err)
 		})
 	}
 }
