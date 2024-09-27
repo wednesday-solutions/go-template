@@ -18,7 +18,6 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/agiledragon/gomonkey/v2"
 	. "github.com/agiledragon/gomonkey/v2"
-	"github.com/gomodule/redigo/redis"
 	redigo "github.com/gomodule/redigo/redis"
 	redigomock "github.com/rafaeljusto/redigomock/v3"
 )
@@ -85,7 +84,7 @@ type userTestCaseArgs struct {
 
 	wantErr bool
 	errMsg  error
-	init    func(sqlmock.Sqlmock, argsGetUser) *Patches
+	init    func(sqlmock.Sqlmock, argsGetUser) *gomonkey.Patches
 }
 
 func getUserTestCases() []userTestCaseArgs {
@@ -108,9 +107,9 @@ func errorGetKeyValueCase() userTestCaseArgs {
 			userID: testutls.MockID,
 		},
 		wantErr: true,
-		errMsg:  fmt.Errorf(ErrMsgGetKeyValue),
-		init: func(mock sqlmock.Sqlmock, args argsGetUser) *Patches {
-			conn.Command("GET", fmt.Sprintf("user%d", args.userID)).ExpectError(fmt.Errorf(ErrMsgGetKeyValue))
+		errMsg:  fmt.Errorf("%s", ErrMsgGetKeyValue),
+		init: func(mock sqlmock.Sqlmock, args argsGetUser) *gomonkey.Patches {
+			conn.Command("GET", fmt.Sprintf("user%d", args.userID)).ExpectError(fmt.Errorf("%s", ErrMsgGetKeyValue))
 			return nil
 		},
 	}
@@ -122,8 +121,8 @@ func errorUnmarshalCase() userTestCaseArgs {
 			userID: testutls.MockID,
 		},
 		wantErr: true,
-		init: func(s sqlmock.Sqlmock, user argsGetUser) *Patches {
-			patchJson := ApplyFunc(json.Marshal, func(v any) ([]byte, error) {
+		init: func(s sqlmock.Sqlmock, user argsGetUser) *gomonkey.Patches {
+			patchJson := gomonkey.ApplyFunc(json.Marshal, func(v any) ([]byte, error) {
 				return []byte{}, fmt.Errorf("json error")
 			})
 			return patchJson
@@ -136,7 +135,7 @@ func errorSetKeyValueCase() userTestCaseArgs {
 		args: argsGetUser{
 			userID: testutls.MockID,
 		},
-		init: func(mock sqlmock.Sqlmock, args argsGetUser) *Patches {
+		init: func(mock sqlmock.Sqlmock, args argsGetUser) *gomonkey.Patches {
 			conn.Command("GET", fmt.Sprintf("user%d", args.userID)).Expect(nil)
 			b, _ := json.Marshal(testutls.MockUser())
 			conn.Command("SET", fmt.Sprintf("user%d", args.userID), string(b)).ExpectError(fmt.Errorf("this is an error"))
@@ -156,7 +155,7 @@ func errorSetKeyValueCase() userTestCaseArgs {
 			return nil
 		},
 		wantErr: true,
-		errMsg:  fmt.Errorf(ErrMsgSetKeyValue),
+		errMsg:  fmt.Errorf("%s", ErrMsgSetKeyValue),
 	}
 }
 func errorDaosCase() userTestCaseArgs {
@@ -165,7 +164,7 @@ func errorDaosCase() userTestCaseArgs {
 		args: argsGetUser{
 			userID: testutls.MockID,
 		},
-		init: func(mock sqlmock.Sqlmock, args argsGetUser) *Patches {
+		init: func(mock sqlmock.Sqlmock, args argsGetUser) *gomonkey.Patches {
 			conn.Command("GET", fmt.Sprintf("user%d", args.userID)).Expect(nil)
 			dbQueries := []testutls.QueryData{
 				{
@@ -182,7 +181,7 @@ func errorDaosCase() userTestCaseArgs {
 			return nil
 		},
 		wantErr: true,
-		errMsg:  fmt.Errorf(ErrMsgSetKeyValue),
+		errMsg:  fmt.Errorf("%s", ErrMsgSetKeyValue),
 	}
 }
 func getSuccessCase() userTestCaseArgs {
@@ -192,7 +191,7 @@ func getSuccessCase() userTestCaseArgs {
 			userID: testutls.MockID,
 			want:   testutls.MockUser(),
 		},
-		init: func(mock sqlmock.Sqlmock, args argsGetUser) *Patches {
+		init: func(mock sqlmock.Sqlmock, args argsGetUser) *gomonkey.Patches {
 			b, _ := json.Marshal(args.want)
 			conn.Command("GET", fmt.Sprintf("user%d", args.userID)).Expect(b)
 			return nil
@@ -206,7 +205,7 @@ func successCacheMissCase() userTestCaseArgs {
 			userID: testutls.MockID,
 			want:   testutls.MockUser(),
 		},
-		init: func(mock sqlmock.Sqlmock, args argsGetUser) *Patches {
+		init: func(mock sqlmock.Sqlmock, args argsGetUser) *gomonkey.Patches {
 			conn.Command("GET", fmt.Sprintf("user%d", args.userID)).Expect(nil)
 			b, _ := json.Marshal(args.want)
 			conn.Command("SET", fmt.Sprintf("user%d", args.userID), string(b)).Expect(nil)
@@ -233,7 +232,7 @@ func errorFromCacheUserValueCase() userTestCaseArgs {
 		args: argsGetUser{
 			userID: testutls.MockID,
 		},
-		init: func(s sqlmock.Sqlmock, args argsGetUser) *Patches {
+		init: func(s sqlmock.Sqlmock, args argsGetUser) *gomonkey.Patches {
 			conn.Command("GET", fmt.Sprintf("user%d", args.userID)).
 				ExpectError(fmt.Errorf("error while getting from cache"))
 			return nil
@@ -243,7 +242,7 @@ func errorFromCacheUserValueCase() userTestCaseArgs {
 
 func TestGetUser(t *testing.T) {
 	tests := getUserTestCases()
-	redisDialPatch := ApplyFunc(redisDial, func() (redis.Conn, error) {
+	redisDialPatch := ApplyFunc(redisDial, func() (redigo.Conn, error) {
 		return conn, nil
 	})
 	defer redisDialPatch.Reset()
@@ -294,7 +293,7 @@ type roleTestArgs struct {
 
 	wantErr bool
 	errMsg  error
-	init    func(sqlmock.Sqlmock, getRoleArgs) *Patches
+	init    func(sqlmock.Sqlmock, getRoleArgs) *gomonkey.Patches
 }
 
 func getRoleTestCase(
@@ -302,7 +301,7 @@ func getRoleTestCase(
 	args getRoleArgs,
 	wantErr bool,
 	errMsg error,
-	init func(sqlmock.Sqlmock, getRoleArgs) *Patches) roleTestArgs {
+	init func(sqlmock.Sqlmock, getRoleArgs) *gomonkey.Patches) roleTestArgs {
 	return roleTestArgs{
 		name:    name,
 		args:    args,
@@ -316,7 +315,7 @@ func setupErrorCase(
 	name string,
 	roleID int,
 	errMsg error,
-	init func(sqlmock.Sqlmock, getRoleArgs) *Patches) roleTestArgs {
+	init func(sqlmock.Sqlmock, getRoleArgs) *gomonkey.Patches) roleTestArgs {
 	return roleTestArgs{
 		name: name,
 		args: getRoleArgs{
@@ -335,7 +334,7 @@ func loadGetRoleSuccessCase() roleTestArgs {
 	},
 		false,
 		nil,
-		func(mock sqlmock.Sqlmock, args getRoleArgs) *Patches {
+		func(mock sqlmock.Sqlmock, args getRoleArgs) *gomonkey.Patches {
 			b, _ := json.Marshal(args.want)
 			conn.Command("GET", fmt.Sprintf("role%d", args.roleID)).Expect(b)
 			return nil
@@ -352,7 +351,7 @@ func loadGetRoleCacheMissSuccessCase() roleTestArgs {
 		},
 		false,
 		nil,
-		func(mock sqlmock.Sqlmock, args getRoleArgs) *Patches {
+		func(mock sqlmock.Sqlmock, args getRoleArgs) *gomonkey.Patches {
 			conn.Command("GET", fmt.Sprintf("role%d", args.roleID)).Expect(nil)
 			b, _ := json.Marshal(args.want)
 			conn.Command("SET", fmt.Sprintf("role%d", args.roleID), string(b)).Expect(nil)
@@ -376,23 +375,23 @@ func loadGetRoleCacheMissSuccessCase() roleTestArgs {
 func getGetRoleTestCases() []roleTestArgs {
 	tests := []roleTestArgs{
 		setupErrorCase(ErrorGetKeyValue, testutls.MockID, errors.New(ErrMsgGetKeyValue),
-			func(mock sqlmock.Sqlmock, args getRoleArgs) *Patches {
-				conn.Command("GET", fmt.Sprintf("role%d", args.roleID)).ExpectError(fmt.Errorf(ErrMsgGetKeyValue))
+			func(mock sqlmock.Sqlmock, args getRoleArgs) *gomonkey.Patches {
+				conn.Command("GET", fmt.Sprintf("role%d", args.roleID)).ExpectError(fmt.Errorf("%s", ErrMsgGetKeyValue))
 				return nil
 			}),
 		setupErrorCase(ErrorUnmarshal, testutls.MockID, errors.New(ErrMsgUnmarshal),
-			func(mock sqlmock.Sqlmock, args getRoleArgs) *Patches {
+			func(mock sqlmock.Sqlmock, args getRoleArgs) *gomonkey.Patches {
 				return ApplyFunc(json.Unmarshal, func(data []byte, v any) error {
-					return fmt.Errorf(ErrMsgUnmarshal)
+					return fmt.Errorf("%s", ErrMsgUnmarshal)
 				})
 			}),
 		setupErrorCase(ErrorSetKeyValue, testutls.MockID, errors.New(ErrMsgSetKeyValue),
-			func(mock sqlmock.Sqlmock, args getRoleArgs) *Patches {
+			func(mock sqlmock.Sqlmock, args getRoleArgs) *gomonkey.Patches {
 				conn.Command("GET", fmt.Sprintf("role%d", args.roleID)).Expect(nil)
 				return nil
 			}),
 		setupErrorCase(ErrorFindRoleById, testutls.MockID, errors.New(ErrMsgFindRoleById),
-			func(mock sqlmock.Sqlmock, args getRoleArgs) *Patches {
+			func(mock sqlmock.Sqlmock, args getRoleArgs) *gomonkey.Patches {
 				conn.Command("GET", fmt.Sprintf("role%d", args.roleID)).ExpectError(fmt.Errorf("there was an error"))
 				return nil
 			}),
@@ -406,7 +405,7 @@ func TestGetRole(t *testing.T) {
 	tests := getGetRoleTestCases()
 	mock, cleanup, _ := testutls.SetupMockDB(t)
 	defer cleanup()
-	redisDialPatches := ApplyFunc(redisDial, func() (redis.Conn, error) {
+	redisDialPatches := ApplyFunc(redisDial, func() (redigo.Conn, error) {
 		return conn, nil
 	})
 	defer redisDialPatches.Reset()
@@ -452,17 +451,17 @@ func TestIncVisits(t *testing.T) {
 				path: "test",
 			},
 			wantErr: true,
-			errMsg:  fmt.Errorf(ErrMsgFromRedisDial),
+			errMsg:  fmt.Errorf("%s", ErrMsgFromRedisDial),
 		},
 	}
 
-	ApplyFunc(redisDial, func() (redis.Conn, error) {
+	ApplyFunc(redisDial, func() (redigo.Conn, error) {
 		return conn, nil
 	})
 	for _, tt := range tests {
 		if tt.name == ErrorRedisDial {
 			patch := gomonkey.ApplyFunc(redisDial, func() (redigo.Conn, error) {
-				return nil, fmt.Errorf(ErrMsgFromRedisDial)
+				return nil, fmt.Errorf("%s", ErrMsgFromRedisDial)
 			})
 			defer patch.Reset()
 		}
@@ -491,7 +490,7 @@ type startVisitTestArgs struct {
 
 	wantErr bool
 	errMsg  error
-	init    func(startVisitArgs) *Patches
+	init    func(startVisitArgs) *gomonkey.Patches
 }
 
 func TestStartVisits(t *testing.T) {
@@ -519,12 +518,12 @@ func getTestCases() []startVisitTestArgs {
 				path: "test",
 			},
 			wantErr: true,
-			errMsg:  fmt.Errorf(ErrMsgFromConnDo),
-			init: func(args startVisitArgs) *Patches {
+			errMsg:  fmt.Errorf("%s", ErrMsgFromConnDo),
+			init: func(args startVisitArgs) *gomonkey.Patches {
 				conn.Command("SETEX", args.path, int(math.Ceil(time.Second.Seconds())), 1).Expect(args.want)
 				return gomonkey.ApplyMethodFunc(redigomock.NewConn(), "Do",
 					func(commandName string, args ...interface{}) (reply interface{}, err error) {
-						return nil, fmt.Errorf(ErrMsgFromConnDo)
+						return nil, fmt.Errorf("%s", ErrMsgFromConnDo)
 					})
 			},
 		},
@@ -534,7 +533,7 @@ func getTestCases() []startVisitTestArgs {
 				path: "test",
 				want: 10,
 			},
-			init: func(args startVisitArgs) *Patches {
+			init: func(args startVisitArgs) *gomonkey.Patches {
 				return gomonkey.ApplyFunc(redisDial, func() (redigo.Conn, error) {
 					return conn, nil
 				})
@@ -546,11 +545,11 @@ func getTestCases() []startVisitTestArgs {
 				path: "test",
 			},
 			wantErr: true,
-			errMsg:  fmt.Errorf(ErrMsgFromRedisDial),
-			init: func(args startVisitArgs) *Patches {
+			errMsg:  fmt.Errorf("%s", ErrMsgFromRedisDial),
+			init: func(args startVisitArgs) *gomonkey.Patches {
 				conn.Command("SETEX", args.path, int(math.Ceil(time.Second.Seconds())), 1).Expect(args.want)
 				return gomonkey.ApplyFunc(redisDial, func() (redigo.Conn, error) {
-					return nil, fmt.Errorf(ErrMsgFromRedisDial)
+					return nil, fmt.Errorf("%s", ErrMsgFromRedisDial)
 				})
 			},
 		},

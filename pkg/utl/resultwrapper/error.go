@@ -78,7 +78,7 @@ func WrapperFromMessage(errorCode int, c echo.Context, err string) error {
 	if e1 != nil {
 		return e1
 	}
-	return fmt.Errorf(errMessage)
+	return fmt.Errorf("%s", errMessage)
 }
 
 // InternalServerError ...
@@ -152,7 +152,7 @@ func ServiceUnavailable(c echo.Context, err error) error {
 func HandleGraphQLError(errMsg string) graphql2.ResponseHandler {
 	return func(ctx context.Context) *graphql2.Response {
 		return &graphql2.Response{
-			Errors: gqlerror.List{gqlerror.Errorf(errMsg)},
+			Errors: gqlerror.List{gqlerror.Errorf("%s", errMsg)},
 		}
 	}
 }
@@ -196,5 +196,5 @@ func ResolverWrapperFromMessage(errorCode int, err string) error {
 	if e1 != nil {
 		return e1
 	}
-	return fmt.Errorf(errMessage)
+	return fmt.Errorf("%s", errMessage)
 }

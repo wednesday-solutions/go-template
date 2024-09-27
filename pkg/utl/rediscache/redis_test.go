@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	. "github.com/agiledragon/gomonkey/v2"
-	"github.com/gomodule/redigo/redis"
 	redigo "github.com/gomodule/redigo/redis"
 	redigomock "github.com/rafaeljusto/redigomock/v3"
 )
@@ -38,11 +37,11 @@ func Test_redisDial(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.wantErr {
-				ApplyFunc(redigo.Dial, func(string, string, ...redis.DialOption) (redis.Conn, error) {
+				ApplyFunc(redigo.Dial, func(string, string, ...redigo.DialOption) (redigo.Conn, error) {
 					return nil, fmt.Errorf("some error")
 				})
 			} else {
-				ApplyFunc(redigo.Dial, func(string, string, ...redis.DialOption) (redis.Conn, error) {
+				ApplyFunc(redigo.Dial, func(string, string, ...redigo.DialOption) (redigo.Conn, error) {
 					return redigoConn, nil
 				})
 			}
@@ -92,7 +91,7 @@ func TestSetKeyValue(t *testing.T) {
 			wantErr: true,
 		},
 	}
-	ApplyFunc(redigo.Dial, func(string, string, ...redis.DialOption) (redis.Conn, error) {
+	ApplyFunc(redigo.Dial, func(string, string, ...redigo.DialOption) (redigo.Conn, error) {
 		return redigoConn, nil
 	})
 	for _, tt := range tests {
@@ -100,13 +99,13 @@ func TestSetKeyValue(t *testing.T) {
 			var patches *Patches
 			b, _ := json.Marshal(tt.args.data)
 			if tt.name == FailedCase {
-				patches = ApplyFunc(redigo.Dial, func(string, string, ...redis.DialOption) (redis.Conn, error) {
+				patches = ApplyFunc(redigo.Dial, func(string, string, ...redigo.DialOption) (redigo.Conn, error) {
 					return nil, fmt.Errorf("some error")
 				})
 			}
 			if tt.name == ErrorMarshal {
 				patchJson := ApplyFunc(json.Marshal, func(v any) ([]byte, error) {
-					return nil, fmt.Errorf(ErrMsgMarshal)
+					return nil, fmt.Errorf("%s", ErrMsgMarshal)
 				})
 				defer patchJson.Reset()
 			}
@@ -150,7 +149,7 @@ func TestGetKeyValue(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			var patches *Patches
 			if tt.wantErr {
-				patches = ApplyFunc(redigo.Dial, func(string, string, ...redis.DialOption) (redis.Conn, error) {
+				patches = ApplyFunc(redigo.Dial, func(string, string, ...redigo.DialOption) (redigo.Conn, error) {
 					return nil, fmt.Errorf("some error")
 				})
 			}
