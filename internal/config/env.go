@@ -59,7 +59,7 @@ func FileName() string {
 
 func LoadEnv() error {
 	const (
-		localEnvFile = "local"
+		localEnvName = "local"
 	)
 	_, filename, _, ok := runtime.Caller(0)
 	if !ok {
@@ -75,12 +75,12 @@ func LoadEnv() error {
 
 	envName := os.Getenv("ENVIRONMENT_NAME")
 	if envName == "" {
-		envName = localEnvFile
+		envName = localEnvName
 	}
 	log.Println("envName: " + envName)
 
 	envVarInjection := GetBool("ENV_INJECTION")
-	if !envVarInjection || envName == localEnvFile {
+	if !envVarInjection || envName == localEnvName {
 		err = godotenv.Load(fmt.Sprintf("%s.env.%s", prefix, envName))
 		if err != nil {
 			return fmt.Errorf("failed to load env for environment %q file: %w", envName, err)
@@ -93,7 +93,7 @@ func LoadEnv() error {
 
 	// except for local environment the db creds should be
 	// injected through the secret manager
-	if envName != localEnvFile && !dbCredsInjected {
+	if envName != localEnvName && !dbCredsInjected {
 		return fmt.Errorf("db creds should be injected through secret manager")
 	}
 
