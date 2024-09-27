@@ -2,11 +2,12 @@ package config_test
 
 import (
 	"fmt"
-	. "go-template/internal/config"
 	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	. "go-template/internal/config"
 )
 
 func TestGetString(t *testing.T) {
@@ -231,6 +232,7 @@ func loadLocalEnv() envTestCaseArgs {
 		},
 	}
 }
+
 func errorOnEnvInjectionAndCopilotFalse() envTestCaseArgs {
 	return envTestCaseArgs{
 		name:    "Error when ENV_INJECTION and COPILOT_DB_CREDS_VIA_SECRETS_MANAGER false",
@@ -254,9 +256,32 @@ func errorOnEnvInjectionAndCopilotFalse() envTestCaseArgs {
 	}
 }
 
-func loadOnDbCredsInjected(username string, host string, dbname string, password string, port string) envTestCaseArgs {
+func loadOnCopilotTrueAndLocalEnv() envTestCaseArgs {
 	return envTestCaseArgs{
-		name:    "dbCredsInjected True",
+		name:    "Load local without copilot",
+		wantErr: false,
+		args: args{
+			setEnv: []keyValueArgs{
+				{
+					key:   "ENV_INJECTION",
+					value: "true",
+				},
+				{
+					key:   "ENVIRONMENT_NAME",
+					value: "local",
+				},
+				{
+					key:   "COPILOT_DB_CREDS_VIA_SECRETS_MANAGER",
+					value: "false",
+				},
+			},
+		},
+	}
+}
+
+func errorOnDbCredsInjectedInDevEnv() envTestCaseArgs {
+	return envTestCaseArgs{
+		name:    "dbCredsInjected True for `develop` environment,with invalid json in db secret",
 		wantErr: true,
 		args: args{
 			setEnv: []keyValueArgs{
@@ -273,28 +298,50 @@ func loadOnDbCredsInjected(username string, host string, dbname string, password
 					value: "true",
 				},
 				{
+					key:   "DB_SECRET",
+					value: "invalid json",
+				},
+			},
+			expectedKeyValues: []keyValueArgs{},
+		},
+	}
+}
+
+func loadOnDbCredsInjectedInDevEnv(
+	username string,
+	host string,
+	dbname string,
+	password string,
+	port string,
+) envTestCaseArgs {
+	return envTestCaseArgs{
+		name:    "dbCredsInjected True for `develop` environment,and should parse the db secret",
+		wantErr: false,
+		args: args{
+			setEnv: []keyValueArgs{
+				{
+					key:   "ENV_INJECTION",
+					value: "true",
+				},
+				{
+					key:   "ENVIRONMENT_NAME",
+					value: "develop",
+				},
+				{
+					key:   "COPILOT_DB_CREDS_VIA_SECRETS_MANAGER",
+					value: "true",
+				},
+				{
 					key: "DB_SECRET",
-					value: fmt.Sprintf(`{"username": "%s", "password": "%s", "port": "%s", "dbname": "%s", "host": "%s"}`,
+					value: fmt.Sprintf(`{"username": "%s", "password": "%s", "port": %s, "dbname": "%s", "host": "%s"}`,
 						username,
 						password,
 						port,
-						host,
-						dbname),
+						dbname,
+						host),
 				},
 			},
 			expectedKeyValues: []keyValueArgs{
-				{
-					key:   "PSQL_PASS",
-					value: password,
-				},
-				{
-					key:   "PSQL_DBNAME",
-					value: dbname,
-				},
-				{
-					key:   "PSQL_HOST",
-					value: host,
-				},
 				{
 					key:   "PSQL_USER",
 					value: username,
@@ -303,6 +350,78 @@ func loadOnDbCredsInjected(username string, host string, dbname string, password
 					key:   "PSQL_PORT",
 					value: port,
 				},
+				{
+					key:   "PSQL_PASS",
+					value: password,
+				},
+				{
+					key:   "PSQL_HOST",
+					value: host,
+				},
+				{
+					key:   "PSQL_DBNAME",
+					value: dbname,
+				},
+			},
+		},
+	}
+}
+
+func loadDbCredsInjectedInLocalEnv(
+	username string,
+	host string,
+	dbname string,
+	password string,
+	port string,
+) envTestCaseArgs {
+	return envTestCaseArgs{
+		name:    "dbCredsInjected True for local environment,and should parse the db secret",
+		wantErr: false,
+		args: args{
+			setEnv: []keyValueArgs{
+				{
+					key:   "ENV_INJECTION",
+					value: "true",
+				},
+				{
+					key:   "ENVIRONMENT_NAME",
+					value: "local",
+				},
+				{
+					key:   "COPILOT_DB_CREDS_VIA_SECRETS_MANAGER",
+					value: "true",
+				},
+				{
+					key: "DB_SECRET",
+					value: fmt.Sprintf(`{"username": "%s", "password": "%s", "port": %s, "dbname": "%s", "host": "%s"}`,
+						username,
+						password,
+						port,
+						dbname,
+						host),
+				},
+			},
+			expectedKeyValues: []keyValueArgs{
+				{
+					key:   "PSQL_USER",
+					value: username,
+				},
+				{
+					key:   "PSQL_PORT",
+					value: port,
+				},
+				{
+					key:   "PSQL_PASS",
+					value: password,
+				},
+				{
+					key:   "PSQL_HOST",
+					value: host,
+				},
+				{
+					key:   "PSQL_DBNAME",
+					value: dbname,
+				},
 			},
 		},
 	}
@@ -310,7 +429,7 @@ func loadOnDbCredsInjected(username string, host string, dbname string, password
 
 func errorOnWrongEnvName() envTestCaseArgs {
 	return envTestCaseArgs{
-		name:    "Failed to load env",
+		name:    "Failed to load env for local1",
 		wantErr: true,
 		args: args{
 			setEnv: []keyValueArgs{
@@ -318,16 +437,24 @@ func errorOnWrongEnvName() envTestCaseArgs {
 					key:   "ENVIRONMENT_NAME",
 					value: "local1",
 				},
+				{
+					key:   "ENV_INJECTION",
+					value: "false",
+				},
 			},
 		},
 	}
 }
+
 func getTestCases(username string, host string, dbname string, password string, port string) []envTestCaseArgs {
 	return []envTestCaseArgs{
 		loadLocalEnvIfNoEnvName(),
 		loadLocalEnv(),
 		errorOnEnvInjectionAndCopilotFalse(),
-		loadOnDbCredsInjected(username, host, dbname, password, port),
+		loadOnCopilotTrueAndLocalEnv(),
+		errorOnDbCredsInjectedInDevEnv(),
+		loadOnDbCredsInjectedInDevEnv(username, host, dbname, password, port),
+		loadDbCredsInjectedInLocalEnv(username, host, dbname, password, port),
 		errorOnWrongEnvName(),
 	}
 }
@@ -342,7 +469,8 @@ func testLoadEnv(t *testing.T, tt struct {
 	name    string
 	wantErr bool
 	args    args
-}) {
+},
+) {
 	if err := LoadEnv(); (err != nil) != tt.wantErr {
 		t.Errorf("LoadEnv() error = %v, wantErr %v", err, tt.wantErr)
 	} else {
